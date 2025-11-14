@@ -657,9 +657,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
         @Deprecated
         public Builder<T> addAreas(int[] areaIds) {
             for (int areaId : areaIds) {
-                AreaIdConfig.Builder<T> areaIdConfigBuilder = Flags.areaIdConfigAccess()
-                        ? new AreaIdConfig.Builder<T>(mAccess, areaId)
-                        : new AreaIdConfig.Builder<T>(areaId);
+                AreaIdConfig.Builder<T> areaIdConfigBuilder =
+                        new AreaIdConfig.Builder<T>(mAccess, areaId);
                 mAreaIdConfigs.add(areaIdConfigBuilder.build());
             }
             return this;
@@ -677,9 +676,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
          */
         @Deprecated
         public Builder<T> addArea(int areaId) {
-            AreaIdConfig.Builder<T> areaIdConfigBuilder = Flags.areaIdConfigAccess()
-                    ? new AreaIdConfig.Builder<T>(mAccess, areaId)
-                    : new AreaIdConfig.Builder<T>(areaId);
+            AreaIdConfig.Builder<T> areaIdConfigBuilder =
+                    new AreaIdConfig.Builder<T>(mAccess, areaId);
             mAreaIdConfigs.add(areaIdConfigBuilder.build());
             return this;
         }
@@ -696,9 +694,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
          */
         @Deprecated
         public Builder<T> addAreaConfig(int areaId, T min, T max) {
-            AreaIdConfig.Builder<T> areaIdConfigBuilder = Flags.areaIdConfigAccess()
-                    ? new AreaIdConfig.Builder<T>(mAccess, areaId)
-                    : new AreaIdConfig.Builder<T>(areaId);
+            AreaIdConfig.Builder<T> areaIdConfigBuilder =
+                    new AreaIdConfig.Builder<T>(mAccess, areaId);
             mAreaIdConfigs.add(areaIdConfigBuilder.setMinValue(min).setMaxValue(max).build());
             return this;
         }

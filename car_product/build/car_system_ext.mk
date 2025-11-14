@@ -27,9 +27,13 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
 
 PRODUCT_PACKAGES += \
     CarDeveloperOptions \
-    CarProvision \
     CarSystemUI \
     StatementService \
+    CarHotwordDetectionServiceOne \
+
+ifneq ($(DO_NOT_INCLUDE_DEFAULT_CAR_PROVISION),true)
+PRODUCT_PACKAGES += CarProvision
+endif
 
 # Default dex optimization configurations
 PRODUCT_SYSTEM_EXT_PROPERTIES += \

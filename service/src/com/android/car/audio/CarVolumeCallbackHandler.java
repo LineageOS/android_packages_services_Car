@@ -35,10 +35,9 @@ import java.util.List;
  * Manages callbacks for changes in car volume
  */
 final class CarVolumeCallbackHandler extends RemoteCallbackList<ICarVolumeCallback>  {
-    private static final String REQUEST_HANDLER_THREAD_NAME = "CarVolumeCallback";
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            REQUEST_HANDLER_THREAD_NAME);
+            CarAudioService.REQUEST_HANDLER_THREAD_NAME);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
     private final Object mLock = new Object();
@@ -46,6 +45,19 @@ final class CarVolumeCallbackHandler extends RemoteCallbackList<ICarVolumeCallba
     private final SparseArray<List<IBinder>> mUidToBindersMap = new SparseArray<>();
 
     void release() {
+    }
+
+    /**
+     * Destroys this handler.
+     *
+     * Must be called before deleting the instance reference.
+     */
+    void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(CarAudioService.REQUEST_HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void registerCallback(IBinder binder, int uid, boolean priority) {

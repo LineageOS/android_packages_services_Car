@@ -90,6 +90,11 @@ java_defaults {
     dist: {
         targets: ["dist_files"],
     },
+    jni_libs: [
+        // Required for LarceParcelableBase
+        "liblargeparcelablejni",
+    ],
+    jarjar_prefix: "com.android.internal.hidden_from_bootclasspath",
 }
 
 java_library {

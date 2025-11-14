@@ -42,15 +42,15 @@ public final class GenerateAPI {
     private static final String CSHS_PATH =
             "/frameworks/opt/car/services/builtInServices/src";
     private static final String CAR_API_ANNOTATION_TEST_FILE =
-            "/packages/services/Car/tests/carservice_unit_test/res/raw/car_api_classes.txt";
+            "/packages/services/Car/tests/CarServiceUnitTest/res/raw/car_api_classes.txt";
     private static final String CAR_BUILT_IN_ANNOTATION_TEST_FILE =
-            "/packages/services/Car/tests/carservice_unit_test/res/raw/"
+            "/packages/services/Car/tests/CarServiceUnitTest/res/raw/"
             + "car_built_in_api_classes.txt";
     private static final String CAR_HIDDEN_API_FILE =
-            "/packages/services/Car/tests/carservice_unit_test/res/raw/"
+            "/packages/services/Car/tests/CarServiceUnitTest/res/raw/"
             + "car_hidden_apis.txt";
     private static final String CAR_ADDEDINORBEFORE_API_FILE =
-            "/packages/services/Car/tests/carservice_unit_test/res/raw/"
+            "/packages/services/Car/tests/CarServiceUnitTest/res/raw/"
                     + "car_addedinorbefore_apis.txt";
     private static final String CSHS_NON_HIDDEN_CLASSES_FILE =
             "/frameworks/opt/car/services/builtInServices/tests/res/raw/CSHS_classes.txt";
@@ -305,8 +305,8 @@ public final class GenerateAPI {
                 + " interfaces.");
         System.out.println(UPDATE_CLASSES + " updates the test file with the list"
                 + " of valid class and interfaces. These files are updated"
-                + " tests/carservice_unit_test/res/raw/car_api_classes.txt and"
-                + " tests/carservice_unit_test/res/raw/car_built_in_api_classes.txt");
+                + " tests/CarServiceUnitTest/res/raw/car_api_classes.txt and"
+                + " tests/CarServiceUnitTest/res/raw/car_built_in_api_classes.txt");
         System.out.println(PRINT_HIDDEN_APIS + " prints hidden api list.");
         System.out.println(PRINT_HIDDEN_APIS_WITH_CONSTR + " generates hidden api list with"
                 + " hidden constructors.");

@@ -43,13 +43,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
-import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.car.testapi.FakeRefactoredCarPowerManagementDaemon;
@@ -109,19 +109,19 @@ public final class CarPowerManagerTest extends AbstractExtendedMockitoTestCase {
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
-    private final ICarPowerManagementDelegate mRefactoredCarPowerManagementDaemon =
-            new FakeRefactoredCarPowerManagementDaemon(
-                    /* fileKernelSilentMode= */ new File("KERNEL_SILENT_FILE"),
-                    /* customComponents= */ null);
 
     @Spy
     private final Context mContext =
             InstrumentationRegistry.getInstrumentation().getTargetContext();
     private final Executor mExecutor = mContext.getMainExecutor();
 
+    private FakeRefactoredCarPowerManagementDaemon mRefactoredCarPowerManagementDaemon;
     private File mComponentStateFile;
     private MockedPowerHalService mPowerHal;
     private SystemInterface mSystemInterface;
@@ -151,6 +151,9 @@ public final class CarPowerManagerTest extends AbstractExtendedMockitoTestCase {
 
     @Before
     public void setUp() throws Exception {
+        mRefactoredCarPowerManagementDaemon = new FakeRefactoredCarPowerManagementDaemon(
+                /* fileKernelSilentMode= */ new File("KERNEL_SILENT_FILE"),
+                /* customComponents= */ null);
         mComponentStateFile = temporaryFolder.newFile("COMPONENT_STATE_FILE");
         mPowerHal = new MockedPowerHalService(/*isPowerStateSupported=*/true,
                 /*isDeepSleepAllowed=*/true,
@@ -169,7 +172,10 @@ public final class CarPowerManagerTest extends AbstractExtendedMockitoTestCase {
     public void tearDown() throws Exception {
         if (mService != null) {
             mService.release();
+            mService.destroy();
         }
+        mRefactoredCarPowerManagementDaemon.destroy();
+        mPowerHal.destroy();
     }
 
     @Test

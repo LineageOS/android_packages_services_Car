@@ -16,7 +16,6 @@
 
 package com.android.car.power;
 
-import static android.car.feature.Flags.FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_MAX_BRIGHTNESS;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -41,7 +40,6 @@ import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseIntArray;
 import android.view.Display;
@@ -69,7 +67,6 @@ import org.mockito.Mock;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-@EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
 public class DisplayBrightnessTest extends MockedCarTestBase {
 
     @ClassRule public static final SetFlagsRule.ClassRule mClassRule = new SetFlagsRule.ClassRule();

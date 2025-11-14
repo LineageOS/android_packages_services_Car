@@ -49,7 +49,7 @@
         <!-- Use AdaptApp for Back button and better DPI -->
         <meta-data
             android:name="android.software.car.display_compatibility"
-            android:value="true" />
+            android:value="false" />
     </application>
     <uses-sdk
       tools:overrideLibrary="com.android.documentsui" />

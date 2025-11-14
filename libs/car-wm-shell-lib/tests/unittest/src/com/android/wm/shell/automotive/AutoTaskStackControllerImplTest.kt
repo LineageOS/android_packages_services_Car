@@ -21,6 +21,8 @@ import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
 import android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD
 import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
+import android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN
+import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.graphics.Rect
 import android.os.Binder
@@ -29,7 +31,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.testing.AndroidTestingRunner
 import android.view.SurfaceControl
-import android.view.WindowManager
+import android.view.WindowManager.TRANSIT_OPEN
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import android.window.WindowContainerToken
@@ -40,14 +42,16 @@ import com.android.wm.shell.RootTaskDisplayAreaOrganizer
 import com.android.wm.shell.ShellTaskOrganizer
 import com.android.wm.shell.ShellTaskOrganizer.TaskListener
 import com.android.wm.shell.automotive.utility.TestRunningTaskInfoBuilder
-import com.android.wm.shell.automotive.utility.TransitionInfoBuilder
+import com.android.wm.shell.automotive.utility.TestShellExecutor
 import com.android.wm.shell.common.ShellExecutor
 import com.android.wm.shell.sysui.ShellInit
+import com.android.wm.shell.transition.TransitionInfoBuilder
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,8 +75,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     @Mock
     lateinit var taskOrganizer: ShellTaskOrganizer
 
-    @Mock
-    lateinit var shellMainThread: ShellExecutor
+    var shellMainThread: ShellExecutor = TestShellExecutor()
 
     @Mock
     lateinit var transitions: Transitions
@@ -372,7 +375,12 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             HIERARCHY_OP_TYPE_SET_LAUNCH_ROOT
         )
         assertThat(wctCaptor.firstValue.hierarchyOps[0].windowingModes).isEqualTo(
-            intArrayOf(WINDOWING_MODE_UNDEFINED)
+            intArrayOf(
+                WINDOWING_MODE_UNDEFINED,
+                WINDOWING_MODE_MULTI_WINDOW,
+                WINDOWING_MODE_FULLSCREEN
+            ),
+
         )
         assertThat(wctCaptor.firstValue.hierarchyOps[0].activityTypes).isEqualTo(
             intArrayOf(
@@ -590,6 +598,132 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     }
 
     @Test
+    fun startTransition_withSetSafeRegionBounds_leadsToCorrectTranslationToWct() {
+        // Arrange
+        val (taskInfo, _) = setupRootTask(taskId = 101)
+        val safeRegionBounds = Rect(10, 20, 30, 40)
+        val transitionId = Binder()
+        setupTransitionReply(transitionId)
+
+        // Act
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(taskInfo.taskId, safeRegionBounds)
+        controller.startTransition(autoTransaction)
+
+        // Assert
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(transitions).startTransition(anyInt(), wctCaptor.capture(), anyOrNull())
+        val wct = wctCaptor.firstValue
+        val expectedWct = WindowContainerTransaction()
+            .setSafeRegionBounds(taskInfo.token, safeRegionBounds)
+        assertThat(wct.toString()).isEqualTo(expectedWct.toString())
+    }
+
+    @Test
+    fun startTransition_withSetSafeRegionBounds_replacesExistingOpInTransaction() {
+        // Arrange
+        val (taskInfo, _) = setupRootTask(taskId = 102)
+        val originalSafeRegionBounds = Rect(1, 2, 3, 4)
+        val newSafeRegionBounds = Rect(10, 20, 30, 40)
+        val transitionId = Binder()
+        setupTransitionReply(transitionId)
+
+        // Act
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(taskInfo.taskId, originalSafeRegionBounds)
+            .setSafeRegionBounds(taskInfo.taskId, newSafeRegionBounds) // Replace for the same task
+        controller.startTransition(autoTransaction)
+
+        // Assert
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(transitions).startTransition(anyInt(), wctCaptor.capture(), anyOrNull())
+        val wct = wctCaptor.firstValue
+        val expectedWct = WindowContainerTransaction()
+            .setSafeRegionBounds(taskInfo.token, newSafeRegionBounds)
+        assertThat(wct.toString()).isEqualTo(expectedWct.toString())
+    }
+
+    @Test
+    fun startTransition_withMultipleSetSafeRegionBounds_forDifferentTasks_preservesAll() {
+        // Arrange
+        val (taskInfo1, _) = setupRootTask(taskId = 103, name = "task1")
+        val (taskInfo2, _) = setupRootTask(taskId = 104, name = "task2")
+        val safeRegionBounds1 = Rect(1, 2, 3, 4)
+        val safeRegionBounds2 = Rect(10, 20, 30, 40)
+        val transitionId = Binder()
+        setupTransitionReply(transitionId)
+
+        // Act
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(taskInfo1.taskId, safeRegionBounds1)
+            .setSafeRegionBounds(taskInfo2.taskId, safeRegionBounds2)
+        controller.startTransition(autoTransaction)
+
+        // Assert
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(transitions).startTransition(anyInt(), wctCaptor.capture(), anyOrNull())
+        val wct = wctCaptor.firstValue
+        val expectedWct = WindowContainerTransaction()
+            .setSafeRegionBounds(taskInfo1.token, safeRegionBounds1)
+            .setSafeRegionBounds(taskInfo2.token, safeRegionBounds2)
+        assertThat(wct.toString()).isEqualTo(expectedWct.toString())
+        assertThat(wct.hierarchyOps).hasSize(2)
+    }
+
+    @Test
+    fun transitionFromCore_delegateWithSafeRegionBounds_handleRequestReturnsCorrect() {
+        // Arrange
+        val (taskInfo, _) = setupRootTask(taskId = 106)
+        val safeRegionBounds = Rect(5, 15, 25, 35)
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(taskInfo.taskId, safeRegionBounds)
+        delegate.handleRequestReturn = autoTransaction
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+
+        // Act
+        val resultWct = controller.handleRequest(transition, requestInfo)
+
+        // Assert
+        assertThat(resultWct).isNotNull()
+        val expectedWct = WindowContainerTransaction()
+            .setSafeRegionBounds(taskInfo.token, safeRegionBounds)
+        assertThat(resultWct.toString()).isEqualTo(expectedWct.toString())
+    }
+
+    @Test
+    fun transitionFromCore_notPlayedByDelegate_containsSafeRegionBoundsChange_shouldBePlayed() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, _) = setupRootTask(taskId = 106)
+        val safeRegionBounds = Rect(5, 15, 25, 35)
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(rootTaskInfo.taskId, safeRegionBounds)
+        delegate.handleRequestReturn = autoTransaction
+        delegate.play = false
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
+                taskInfo = rootTaskInfo
+            })
+            .build()
+        val resultWct = controller.handleRequest(transition, requestInfo)
+
+        // Act
+        val result = controller.startAnimation(
+            transition,
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        assertThat(result).isTrue()
+    }
+
+    @Test
     fun transitionFromCore_delegateWithTaskStackStates_handleRequestReturnsCorrect() {
         val leash = mock(SurfaceControl::class.java)
         val (taskInfo, listener) = setupRootTask(taskId = 18)
@@ -659,7 +793,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val transition = mock(IBinder::class.java)
         val requestInfo = mock(TransitionRequestInfo::class.java)
         controller.handleRequest(transition, requestInfo)
-        val info = TransitionInfoBuilder(1)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
             .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
                 taskInfo = rootTaskInfo
             })
@@ -704,7 +838,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val transition = mock(IBinder::class.java)
         val requestInfo = mock(TransitionRequestInfo::class.java)
         controller.handleRequest(transition, requestInfo)
-        val info = TransitionInfoBuilder(1)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
             .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
                 taskInfo = rootTaskInfo
             })
@@ -714,7 +848,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             // Send an additional change for the rootTask3 child
             .addChange(TransitionInfo.Change(rootTask3Child.token, taskLeash).apply {
                 taskInfo = rootTask3Child
-                mode = WindowManager.TRANSIT_OPEN
+                mode = TRANSIT_OPEN
             })
             .build()
 
@@ -734,5 +868,79 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             rootTaskInfo3.taskId,
             AutoTaskStackState(Rect(), true, 1)
         )
+    }
+
+    @Test
+    fun transitionFromCore_withAdditionalChangeForExistingTaskStack_taskStacksReconciled() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, taskListener1) = setupRootTask(taskId = 101, leash = taskLeash)
+        val rootTask1Child =
+            setupChildTask(taskId = 111, parentTaskId = 101, parentTaskListener = taskListener1)
+        val (rootTaskInfo2, taskListener2) = setupRootTask(taskId = 102, leash = taskLeash)
+        val rootTask2Child =
+            setupChildTask(taskId = 112, parentTaskId = 102, parentTaskListener = taskListener2)
+        val (rootTaskInfo3, taskListener3) = setupRootTask(taskId = 103, leash = taskLeash)
+        val rootTask3Child =
+            setupChildTask(taskId = 113, parentTaskId = 103, parentTaskListener = taskListener3)
+        val transaction = AutoTaskStackTransaction().setTaskStackState(
+            rootTaskInfo.taskId,
+            AutoTaskStackState(Rect(10, 10, 30, 30), true, 0)
+        ).setTaskStackState(
+            rootTaskInfo2.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), true, 0)
+        ).setTaskStackState(
+            rootTaskInfo3.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), false, 900)
+        )
+        delegate.handleRequestReturn = transaction
+        delegate.play = true
+
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+        controller.handleRequest(transition, requestInfo)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
+                taskInfo = rootTaskInfo
+            })
+            .addChange(TransitionInfo.Change(rootTaskInfo2.token, taskLeash).apply {
+                taskInfo = rootTaskInfo2
+            })
+            // Send an additional change for the rootTask3 child
+            .addChange(TransitionInfo.Change(rootTask3Child.token, taskLeash).apply {
+                taskInfo = rootTask3Child
+                mode = TRANSIT_OPEN
+            })
+            .build()
+
+        // Act
+        val result = controller.startAnimation(
+            transition,
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        assertThat(result).isTrue()
+        assertThat(delegate.lastTaskStackStates).containsKey(rootTaskInfo3.taskId)
+        assertThat(delegate.lastTaskStackStates).containsEntry(
+            rootTaskInfo3.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), true, 900)
+        )
+    }
+
+    @Test
+    fun minLayerCheck_AutoTaskStackTransaction() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, listener) = setupRootTask(taskId = 18, leash = taskLeash)
+        assertThrows(IllegalArgumentException::class.java) {
+            AutoTaskStackTransaction().setTaskStackState(
+                rootTaskInfo.taskId,
+                AutoTaskStackState(Rect(10, 10, 30, 30), true, -1)
+            )
+        }
     }
 }

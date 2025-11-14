@@ -31,7 +31,7 @@
 
     <application
         android:label="@string/app_title"
-        android:theme="@style/Theme.CarUi.NoToolbar"
+        android:theme="@style/Theme.Launcher"
         tools:replace="android:label,android:theme"
         tools:node="merge">
         <uses-library android:name="com.android.oem.tokens" android:required="false"/>
@@ -68,7 +68,8 @@
                   android:label="StubHome"
                   android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
                   android:launchMode="singleInstance"
-                  android:exported="true">
+                  android:exported="true"
+                  android:excludeFromRecents="true">
             <meta-data android:name="distractionOptimized" android:value="true"/>
 
             <intent-filter>

@@ -32,12 +32,12 @@ import android.car.builtin.bluetooth.le.AdvertisingSetHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
 
 import com.android.car.CarLog;
-import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
@@ -101,11 +101,11 @@ public class FastPairAdvertiser {
         void onRpaUpdated(BluetoothDevice device);
     }
 
-    FastPairAdvertiser(Context context) {
+    FastPairAdvertiser(Context context, Looper looper) {
         mContext = context;
         mBluetoothAdapter = mContext.getSystemService(BluetoothManager.class).getAdapter();
         Objects.requireNonNull(mBluetoothAdapter, "Bluetooth adapter cannot be null");
-        mAdvertisingHandler = new AdvertisingHandler();
+        mAdvertisingHandler = new AdvertisingHandler(looper);
         initializeAdvertisingSetCallback();
     }
 
@@ -402,8 +402,8 @@ public class FastPairAdvertiser {
             }
         }
 
-        AdvertisingHandler() {
-            super(CarServiceUtils.getHandlerThread(FastPairProvider.THREAD_NAME).getLooper());
+        AdvertisingHandler(Looper looper) {
+            super(looper);
         }
 
         public void startAdvertising(byte[] data, int interval, Callbacks callback) {

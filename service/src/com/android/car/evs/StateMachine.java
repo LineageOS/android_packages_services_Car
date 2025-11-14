@@ -48,17 +48,14 @@ import android.hardware.HardwareBuffer;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 
 import com.android.car.BuiltinPackageDependency;
-import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.evs.CarEvsUtils;
 import com.android.car.internal.evs.EvsHalWrapper;
@@ -144,8 +141,6 @@ final class StateMachine {
     private final EvsHalWrapper mHalWrapper;
     private final HalCallback mHalCallback;
     private final Handler mHandler;
-    private final HandlerThread mHandlerThread =
-            CarServiceUtils.getHandlerThread(getClass().getSimpleName());
     private final Object mLock = new Object();
     private final Runnable mActivityRequestTimeoutRunnable = () -> handleActivityRequestTimeout();
     private final Runnable mConnectToHalServiceIfNecessaryRunnable =
@@ -420,12 +415,6 @@ final class StateMachine {
         }
     }
 
-    // Constructor
-    StateMachine(Context context, Context builtinContext, CarEvsService service,
-            ComponentName activityName, @CarEvsServiceType int type, String cameraId) {
-        this(context, builtinContext, service, activityName, type, cameraId, /* handler= */ null);
-    }
-
     StateMachine(Context context, Context builtinContext, CarEvsService service,
             ComponentName activityName, @CarEvsServiceType int type, String cameraId,
                     Handler handler) {
@@ -437,13 +426,7 @@ final class StateMachine {
         if (DBG) {
             Slogf.d(mLogTag, "Camera Activity=%s", mActivityName);
         }
-
-        if (handler == null) {
-            mHandler = new Handler(mHandlerThread.getLooper());
-        } else {
-            mHandler = handler;
-        }
-
+        mHandler = handler;
         mHalCallback = new HalCallback();
         mHalWrapper = StateMachine.createHalWrapper(builtinContext, mHalCallback);
         mService = service;

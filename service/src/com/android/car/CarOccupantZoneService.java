@@ -93,7 +93,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private static final String TAG = CarLog.tagFor(CarOccupantZoneService.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
-    private static final String HANDLER_THREAD_NAME = "CarOccupantZoneService";
+    private static final String HANDLER_THREAD_NAME = CarOccupantZoneService.class.getSimpleName();
 
     private static final int[] EMPTY_INPUT_SUPPORT_TYPES = EMPTY_INT_ARRAY;
 
@@ -271,6 +271,15 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         mUserManager = userManager;
         mEnableProfileUserAssignmentForMultiDisplay = enableProfileUserAssignmentForMultiDisplay;
         mUserHandleHelper = userHandleHelper;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

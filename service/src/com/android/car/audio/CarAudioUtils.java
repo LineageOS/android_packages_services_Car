@@ -34,10 +34,7 @@ import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
-import static java.util.Collections.EMPTY_LIST;
-
 import android.annotation.Nullable;
-import android.car.feature.Flags;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
@@ -129,14 +126,10 @@ final class CarAudioUtils {
 
     static List<AudioDeviceInfo> getDynamicDevicesInConfig(CarAudioZoneConfigInfo zoneConfig,
             AudioManagerWrapper manager) {
-        return Flags.carAudioDynamicDevices()
-                ? getDynamicAudioDevices(zoneConfig.getConfigVolumeGroups(), manager) : EMPTY_LIST;
+        return getDynamicAudioDevices(zoneConfig.getConfigVolumeGroups(), manager);
     }
 
     static boolean excludesDynamicDevices(CarAudioZoneConfigInfo zoneConfig) {
-        if (!Flags.carAudioDynamicDevices()) {
-            return true;
-        }
         List<CarVolumeGroupInfo> carVolumeInfos = zoneConfig.getConfigVolumeGroups();
         for (int c = 0; c < carVolumeInfos.size(); c++) {
             if (excludesDynamicDevices(carVolumeInfos.get(c).getAudioDeviceAttributes())) {
@@ -164,9 +157,6 @@ final class CarAudioUtils {
 
     static List<AudioAttributes> getAudioAttributesForDynamicDevices(CarAudioZoneConfigInfo info) {
         List<AudioAttributes> audioAttributes = new ArrayList<>();
-        if (!Flags.carAudioDynamicDevices()) {
-            return audioAttributes;
-        }
         List<CarVolumeGroupInfo> groups = info.getConfigVolumeGroups();
         for (int c = 0; c < groups.size(); c++) {
             CarVolumeGroupInfo groupInfo = groups.get(c);
@@ -218,6 +208,20 @@ final class CarAudioUtils {
             carInfos.add(carInfo);
         }
         return carInfos;
+    }
+
+    static boolean audioAttributesContainsAudioAttribute(List<AudioAttributes> groupAttributes,
+            AudioAttributes attributes, CarAudioContext carAudioContext) {
+        var context = carAudioContext.getContextForAudioAttribute(attributes);
+        for (int index = 0; index < groupAttributes.size(); index++) {
+            var groupAttribute = groupAttributes.get(index);
+            var groupContext = carAudioContext.getContextForAttributes(groupAttribute);
+            if (context != groupContext) {
+                continue;
+            }
+            return true;
+        }
+        return false;
     }
 
     /*

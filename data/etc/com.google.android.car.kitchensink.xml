@@ -22,6 +22,8 @@
         <permission name="android.permission.BACKUP"/>
         <permission name="android.permission.BLUETOOTH_PRIVILEGED"/>
         <permission name="android.permission.INJECT_EVENTS"/>
+        <!-- Use for App Sharing -->
+        <permission name="android.permission.INSTALL_PACKAGES"/>
         <!-- use for CarServiceUnitTest and CarServiceTest -->
         <permission name="android.permission.INTERACT_ACROSS_USERS"/>
         <!-- use for CarServiceUnitTest -->
@@ -183,6 +185,7 @@
         <!-- use for allowlisting automotive driver assistance packages from camera privacy -->
         <permission name="android.permission.CAMERA_PRIVACY_ALLOWLIST" />
 	<!-- use for Camera2 TestFragment -->
-        <permission name="android.permission.SYSTEM_CAMERA"/>
+	<permission name="android.permission.SYSTEM_CAMERA"/>
+	<permission name="android.permission.BIND_APPWIDGET"/>
     </privapp-permissions>
 </permissions>

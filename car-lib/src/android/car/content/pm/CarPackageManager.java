@@ -582,9 +582,6 @@ public final class CarPackageManager extends CarManagerBase {
             @NonNull String packageName,
             int userId
     ) throws NameNotFoundException {
-        if (!Flags.displayCompatibilityCaptionBar()) {
-            return false;
-        }
         try {
             return mService.requiresDisplayCompatForUser(packageName, userId);
         } catch (ServiceSpecificException e) {

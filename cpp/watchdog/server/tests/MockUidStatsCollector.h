@@ -35,6 +35,8 @@ public:
     MOCK_METHOD(android::base::Result<void>, collect, (), (override));
     MOCK_METHOD((const std::vector<UidStats>), latestStats, (), (const, override));
     MOCK_METHOD((const std::vector<UidStats>), deltaStats, (), (const, override));
+    MOCK_METHOD((const std::vector<UidBaseStats>), latestBaseStats, (), (const, override));
+    MOCK_METHOD((const std::vector<UidBaseStats>), deltaBaseStats, (), (const, override));
     MOCK_METHOD(bool, enabled, (), (const, override));
 };
 

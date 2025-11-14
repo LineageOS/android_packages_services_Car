@@ -51,6 +51,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.car.kitchensink.activityresolver.ActivityResolverFragment;
 import com.google.android.car.kitchensink.admin.DevicePolicyFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
+import com.google.android.car.kitchensink.appshare.AppSharingFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
 import com.google.android.car.kitchensink.audio.AudioConfigurationTestFragment;
 import com.google.android.car.kitchensink.audio.AudioMirrorTestFragment;
@@ -111,6 +112,7 @@ import com.google.android.car.kitchensink.vehiclectrl.VehicleCtrlFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 import com.google.android.car.kitchensink.watchdog.CarWatchdogTestFragment;
 import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
+import com.google.android.car.kitchensink.widgets.AppWidgetPickerFragment;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -298,6 +300,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
     public static final List<Pair<String, Class>> MENU_ENTRIES = Arrays.asList(
             new Pair<>("activity resolver", ActivityResolverFragment.class),
             new Pair<>("alert window", AlertDialogTestFragment.class),
+            new Pair<>("app sharing", AppSharingFragment.class),
             new Pair<>("assistant", CarAssistantFragment.class),
             new Pair<>(AudioTestFragment.FRAGMENT_NAME, AudioTestFragment.class),
             new Pair<>(AudioUserAssignmentFragment.FRAGMENT_NAME,
@@ -368,7 +371,8 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
                     WindowInsetsFullScreenFragment.class),
             new Pair<>("oem car service", OemCarServiceTestFragment.class),
             new Pair<>("Camera2", Camera2TestFragment.class),
-            new Pair<>(RadioTestFragment.FRAGMENT_NAME, RadioTestFragment.class));
+            new Pair<>(RadioTestFragment.FRAGMENT_NAME, RadioTestFragment.class),
+            new Pair<>("App Widgets", AppWidgetPickerFragment.class));
 
     public KitchenSinkActivity() {
         for (Pair<String, Class> entry : MENU_ENTRIES) {

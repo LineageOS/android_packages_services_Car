@@ -115,14 +115,9 @@ public final class CarGetCarManagerTest extends CarLessApiTestBase {
             {CarTelemetryManager.class, Car.CAR_TELEMETRY_SERVICE},
             {CarInstrumentClusterManager.class, Car.CAR_INSTRUMENT_CLUSTER_SERVICE},
             {OccupantAwarenessManager.class, Car.OCCUPANT_AWARENESS_SERVICE},
-            {CarActivityManager.class, Car.CAR_ACTIVITY_SERVICE}
+            {CarActivityManager.class, Car.CAR_ACTIVITY_SERVICE},
+            {CarWifiManager.class, Car.CAR_WIFI_SERVICE}
         }));
-
-        if (Flags.persistApSettings()) {
-            data.add(new Object[]{
-                    CarWifiManager.class, Car.CAR_WIFI_SERVICE
-            });
-        }
 
         if (Flags.displayCompatibility()) {
             data.add(new Object[] {

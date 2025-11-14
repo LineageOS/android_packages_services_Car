@@ -23,18 +23,18 @@ from pathlib import Path
 # Helper method that strips out the parameter names of methods. This will allow users to change
 # parameter names for hidden apis without mistaking them as having been removed.
 # [^ ]* --> Negation set on SPACE character. This wll match everything until a SPACE.
-# *?(?=\)) --> This means the character ')' will not be included in the match.
-# [^ (]*?(?=\)) --> This will handle the last parameter at the end of a method signature.
+# *?(?=\\)) --> This means the character ')' will not be included in the match.
+# [^ (]*?(?=\\)) --> This will handle the last parameter at the end of a method signature.
 # It excludes matching any '(' characters when there are no parameters, i.e. method().
 # [^ ]*?(?=,) --> This will handle multiple parameters delimited by commas.
 def strip_param_names(api):
     # get the arguments first
-    argGroup = re.search("\((.*)\)",api)
+    argGroup = re.search("\\((.*)\\)",api)
     if argGroup is None:
         return api
     arg = argGroup.group(0)
-    new_arg = re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', "", arg)
-    return re.sub("\((.*)\)", new_arg, api)
+    new_arg = re.sub('[^ (]*?(?=\\))|[^ ]*?(?=,)', "", arg)
+    return re.sub("\\((.*)\\)", new_arg, api)
 
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
@@ -59,7 +59,7 @@ java_cmd = javaHomeDir + "/bin/java -jar " + rootDir + \
 new_hidden_apis = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
 
 # read existing hidden APIs
-existing_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
+existing_hidden_apis_path = rootDir + "/packages/services/Car/tests/CarServiceUnitTest/res/raw" \
                                       "/car_hidden_apis.txt"
 
 existing_hidden_apis = []

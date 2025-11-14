@@ -18,17 +18,17 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="true"
           android:state_checked="true"
-          android:color="@color/car_button_toggle_foreground_checked"/>
+          android:color="?oemColorOnPrimary"/>
     <item android:state_enabled="true"
           android:state_checked="false"
-          android:color="@color/car_button_toggle_foreground_unchecked"/>
+          android:color="?oemColorOnSecondary"/>
 
     <item android:state_enabled="false"
           android:state_checked="true"
           android:alpha="?android:attr/disabledAlpha"
-          android:color="@color/car_button_toggle_foreground_checked"/>
+          android:color="?oemColorOnPrimary"/>
     <item android:state_enabled="false"
           android:state_checked="false"
           android:alpha="?android:attr/disabledAlpha"
-          android:color="@color/car_button_toggle_foreground_unchecked"/>
+          android:color="?oemColorOnSecondary"/>
 </selector>

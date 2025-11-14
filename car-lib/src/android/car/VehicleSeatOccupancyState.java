@@ -15,17 +15,55 @@
  */
 package android.car;
 
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS;
+
+import android.annotation.FlaggedApi;
+import android.annotation.IntDef;
+import android.annotation.NonNull;
+
+import com.android.car.internal.util.ConstantDebugUtils;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Used by seat occupancy to enumerate the current occupancy state of the seat.
- * Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
+ * <p>Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
  * set and get this VHAL property.
- * @hide
  */
+@FlaggedApi(FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS)
 public final class VehicleSeatOccupancyState {
+    /**
+     * The occupancy state of the seat is unknown.
+     */
     public static final int UNKNOWN = 0;
+    /**
+     * The occupancy state of the seat is currently set to vacant.
+     */
     public static final int VACANT = 1;
+    /**
+     * The occupancy state of the seat is currently set to being occupied.
+     */
     public static final int OCCUPIED = 2;
 
     private VehicleSeatOccupancyState() {}
+
+    /**
+     * Returns a user-friendly representation of a {@code VehicleSeatOccupancyState}.
+     */
+    @NonNull
+    public static String toString(@VehicleSeatOccupancyState.VehicleSeatOccupancyStateInt
+                                  int vehicleSeatOccupancyState) {
+        String vehicleSeatOccupancyStateString = ConstantDebugUtils.toName(
+                VehicleSeatOccupancyState.class, vehicleSeatOccupancyState);
+        return (vehicleSeatOccupancyStateString != null) ? vehicleSeatOccupancyStateString
+                : "0x" + Integer.toHexString(vehicleSeatOccupancyState);
+    }
+
+    /**
+     * @hide
+     */
+    @IntDef({UNKNOWN, VACANT, OCCUPIED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface VehicleSeatOccupancyStateInt {}
 }

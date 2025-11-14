@@ -48,11 +48,35 @@ public abstract class HalServiceBase {
         return mDispatchList;
     }
 
-    /** initialize */
+    /**
+     * Initialize the service.
+     *
+     * <p>This is only invoked from the main thread. This might be called more than once but is only
+     * called after the constructor or after a release. e.g., a flow might be constructor(),
+     * init(), release(), init().
+     */
     public abstract void init();
 
-    /** release and stop operation */
+     /**
+     * Releases the service and stops the service operation.
+     *
+     * <p>This is only invoked from the main thread.
+     *
+     * <p>It is possible that requests may still come to the service. It is okay to return error
+     * for all operations after release, but the service must not crash.
+     */
     public abstract void release();
+
+    /**
+     * Destroy the service.
+     *
+     * <p>This is only invoked from the main thread.
+     *
+     * <p>This is only invoked once before the instance is no longer used. This function should be
+     * used to clean up resources created during the constructor, for example, quit the handler
+     * thread and wait for it to finish.
+     */
+    public void destroy() {};
 
     /**
      * Returns all property IDs this HalService can support. If return value is empty,
@@ -107,7 +131,7 @@ public abstract class HalServiceBase {
      * Handles errors and pass error codes  when setting properties.
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    public void onPropertySetError(ArrayList<VehiclePropError> errors) {
+    public void onPropertySetError(List<VehiclePropError> errors) {
         for (int i = 0; i < errors.size(); i++) {
             VehiclePropError error = errors.get(i);
             Slogf.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property="

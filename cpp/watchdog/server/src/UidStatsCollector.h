@@ -44,18 +44,12 @@ struct UidStats : public UidBaseStats {
 };
 
 // Collector/Aggregator for per-UID I/O and proc stats.
-class UidStatsCollectorInterface : virtual public RefBase {
+class UidStatsCollectorInterface : virtual public UidStatsCollectorBaseInterface {
 public:
-    // Initializes the collector.
-    virtual void init() = 0;
-    // Collects the per-UID I/O and proc stats.
-    virtual android::base::Result<void> collect() = 0;
     // Returns the latest per-uid I/O and proc stats.
     virtual const std::vector<UidStats> latestStats() const = 0;
     // Returns the delta of per-uid I/O and proc stats since the last before collection.
     virtual const std::vector<UidStats> deltaStats() const = 0;
-    // Returns true only when the per-UID I/O or proc stats files are accessible.
-    virtual bool enabled() const = 0;
 };
 
 class UidStatsCollector final : public UidStatsCollectorBase, public UidStatsCollectorInterface {
@@ -81,6 +75,18 @@ public:
     const std::vector<UidStats> deltaStats() const override {
         Mutex::Autolock lock(mMutex);
         return mDeltaStats;
+    }
+
+    const std::vector<UidBaseStats> latestBaseStats() const override {
+        Mutex::Autolock lock(mMutex);
+        std::vector<UidBaseStats> latestBaseStats{mLatestStats.begin(), mLatestStats.end()};
+        return latestBaseStats;
+    }
+
+    const std::vector<UidBaseStats> deltaBaseStats() const override {
+        Mutex::Autolock lock(mMutex);
+        std::vector<UidBaseStats> deltaBaseStats{mDeltaStats.begin(), mDeltaStats.end()};
+        return deltaBaseStats;
     }
 
     bool enabled() const override {

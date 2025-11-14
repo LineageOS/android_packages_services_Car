@@ -32,7 +32,6 @@ import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneProto;
-import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -93,9 +92,7 @@ public class CarAudioZone {
     }
 
     CarAudioZoneConfig getCurrentCarAudioZoneConfig() {
-        synchronized (mLock) {
-            return mCarAudioZoneConfigs.get(mCurrentConfigId);
-        }
+        return mCarAudioZoneConfigs.get(getCurrentConfigId());
     }
 
     @Nullable
@@ -202,10 +199,8 @@ public class CarAudioZone {
     }
 
     boolean isCurrentZoneConfig(CarAudioZoneConfigInfo configInfoSwitchedTo) {
-        synchronized (mLock) {
-            return configInfoSwitchedTo.equals(mCarAudioZoneConfigs.get(mCurrentConfigId)
-                    .getCarAudioZoneConfigInfo());
-        }
+        return configInfoSwitchedTo.equals(mCarAudioZoneConfigs.get(getCurrentConfigId())
+                .getCarAudioZoneConfigInfo());
     }
 
     void setCurrentCarZoneConfig(CarAudioZoneConfigInfo configInfoSwitchedTo) {

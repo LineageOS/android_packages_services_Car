@@ -19,6 +19,7 @@
 #include "PackageInfoTestUtils.h"
 #include "UidIoStatsCollector.h"
 #include "UidStatsCollectorBase.h"
+#include "UidStatsCollectorBaseTestUtils.h"
 
 #include <android-base/stringprintf.h>
 #include <gmock/gmock.h>
@@ -47,69 +48,6 @@ using ::testing::Matcher;
 using ::testing::Return;
 using ::testing::UnorderedElementsAre;
 using ::testing::UnorderedElementsAreArray;
-
-namespace {
-
-std::string toString(const UidBaseStats& uidBaseStats) {
-    return StringPrintf("UidBaseStats{packageInfo: %s, ioStats: %s}",
-                        uidBaseStats.packageInfo.toString().c_str(),
-                        uidBaseStats.ioStats.toString().c_str());
-}
-
-std::string toString(const std::vector<UidBaseStats>& uidBaseStats) {
-    std::string buffer;
-    StringAppendF(&buffer, "{");
-    for (const auto& stats : uidBaseStats) {
-        StringAppendF(&buffer, "%s\n", toString(stats).c_str());
-    }
-    StringAppendF(&buffer, "}");
-    return buffer;
-}
-
-MATCHER_P(UidBaseStatsEq, expected, "") {
-    return ExplainMatchResult(AllOf(Field("packageInfo", &UidBaseStats::packageInfo,
-                                          PackageInfoEq(expected.packageInfo)),
-                                    Field("ioStats", &UidBaseStats::ioStats, Eq(expected.ioStats))),
-                              arg, result_listener);
-}
-
-std::vector<Matcher<const UidBaseStats&>> UidBaseStatsMatchers(
-        const std::vector<UidBaseStats>& uidBaseStats) {
-    std::vector<Matcher<const UidBaseStats&>> matchers;
-    for (const auto& stats : uidBaseStats) {
-        matchers.push_back(UidBaseStatsEq(stats));
-    }
-    return matchers;
-}
-
-std::unordered_map<uid_t, PackageInfo> samplePackageInfoByUid() {
-    return {{1001234, constructPackageInfo("system.daemon", 1001234, UidType::NATIVE)},
-            {1005678, constructPackageInfo("kitchensink.app", 1005678, UidType::APPLICATION)}};
-}
-
-std::unordered_map<uid_t, UidIoStats> sampleUidIoStatsByUid() {
-    return {{1001234,
-             UidIoStats{/*fgRdBytes=*/3'000, /*bgRdBytes=*/0,
-                        /*fgWrBytes=*/500,
-                        /*bgWrBytes=*/0, /*fgFsync=*/20,
-                        /*bgFsync=*/0}},
-            {1005678,
-             UidIoStats{/*fgRdBytes=*/30, /*bgRdBytes=*/100,
-                        /*fgWrBytes=*/50, /*bgWrBytes=*/200,
-                        /*fgFsync=*/45, /*bgFsync=*/60}}};
-}
-
-std::vector<UidBaseStats> sampleUidStats() {
-    return {{.packageInfo = constructPackageInfo("system.daemon", 1001234, UidType::NATIVE),
-             .ioStats = UidIoStats{/*fgRdBytes=*/3'000, /*bgRdBytes=*/0, /*fgWrBytes=*/500,
-                                   /*bgWrBytes=*/0, /*fgFsync=*/20, /*bgFsync=*/0}},
-            {.packageInfo = constructPackageInfo("kitchensink.app", 1005678, UidType::APPLICATION),
-             .ioStats = UidIoStats{/*fgRdBytes=*/30, /*bgRdBytes=*/100, /*fgWrBytes=*/50,
-                                   /*bgWrBytes=*/200,
-                                   /*fgFsync=*/45, /*bgFsync=*/60}}};
-}
-
-}  // namespace
 
 namespace internal {
 
@@ -187,7 +125,7 @@ TEST_F(UidStatsCollectorBaseTest, TestFailsCollectOnUidIoStatsCollectorError) {
             << "Must fail to collect when per-UID I/O stats collector fails";
 }
 
-TEST_F(UidStatsCollectorBaseTest, TestCollectLatestStats) {
+TEST_F(UidStatsCollectorBaseTest, TestCollectLatestBaseStats) {
     const std::unordered_map<uid_t, PackageInfo> packageInfoByUid = samplePackageInfoByUid();
     const std::unordered_map<uid_t, UidIoStats> uidIoStatsByUid = sampleUidIoStatsByUid();
 
@@ -198,20 +136,21 @@ TEST_F(UidStatsCollectorBaseTest, TestCollectLatestStats) {
 
     ASSERT_RESULT_OK(mUidStatsCollectorBase->collect());
 
-    const std::vector<UidBaseStats> expected = sampleUidStats();
+    const std::vector<UidBaseStats> expected = sampleUidBaseStats();
 
     auto actual = mUidStatsCollectorBase->latestBaseStats();
 
     EXPECT_THAT(actual, UnorderedElementsAreArray(UidBaseStatsMatchers(expected)))
-            << "Latest UID stats doesn't match.\nExpected: " << toString(expected)
+            << "Latest UID base stats doesn't match.\nExpected: " << toString(expected)
             << "\nActual: " << toString(actual);
 
     actual = mUidStatsCollectorBase->deltaBaseStats();
 
-    EXPECT_THAT(actual, IsEmpty()) << "Delta UID stats isn't empty.\nActual: " << toString(actual);
+    EXPECT_THAT(actual, IsEmpty())
+            << "Delta UID base stats isn't empty.\nActual: " << toString(actual);
 }
 
-TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaStats) {
+TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaBaseStats) {
     const std::unordered_map<uid_t, PackageInfo> packageInfoByUid = samplePackageInfoByUid();
     const std::unordered_map<uid_t, UidIoStats> uidIoStatsByUid = sampleUidIoStatsByUid();
 
@@ -222,20 +161,21 @@ TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaStats) {
 
     ASSERT_RESULT_OK(mUidStatsCollectorBase->collect());
 
-    const std::vector<UidBaseStats> expected = sampleUidStats();
+    const std::vector<UidBaseStats> expected = sampleUidBaseStats();
 
     auto actual = mUidStatsCollectorBase->deltaBaseStats();
 
     EXPECT_THAT(actual, UnorderedElementsAreArray(UidBaseStatsMatchers(expected)))
-            << "Delta UID stats doesn't match.\nExpected: " << toString(expected)
+            << "Delta UID base stats doesn't match.\nExpected: " << toString(expected)
             << "\nActual: " << toString(actual);
 
     actual = mUidStatsCollectorBase->latestBaseStats();
 
-    EXPECT_THAT(actual, IsEmpty()) << "Latest UID stats isn't empty.\nActual: " << toString(actual);
+    EXPECT_THAT(actual, IsEmpty())
+            << "Latest UID base stats isn't empty.\nActual: " << toString(actual);
 }
 
-TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaStatsWithMissingUidIoStats) {
+TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaBaseStatsWithMissingUidIoStats) {
     const std::unordered_map<uid_t, PackageInfo> packageInfoByUid = samplePackageInfoByUid();
     std::unordered_map<uid_t, UidIoStats> uidIoStatsByUid = sampleUidIoStatsByUid();
     uidIoStatsByUid.erase(1001234);
@@ -246,21 +186,22 @@ TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaStatsWithMissingUidIoStats) {
 
     ASSERT_RESULT_OK(mUidStatsCollectorBase->collect());
 
-    std::vector<UidBaseStats> expected = sampleUidStats();
+    std::vector<UidBaseStats> expected = sampleUidBaseStats();
     expected.erase(expected.begin());
 
     auto actual = mUidStatsCollectorBase->deltaBaseStats();
 
     EXPECT_THAT(actual, UnorderedElementsAreArray(UidBaseStatsMatchers(expected)))
-            << "Delta UID stats doesn't match.\nExpected: " << toString(expected)
+            << "Delta UID base stats doesn't match.\nExpected: " << toString(expected)
             << "\nActual: " << toString(actual);
 
     actual = mUidStatsCollectorBase->latestBaseStats();
 
-    EXPECT_THAT(actual, IsEmpty()) << "Latest UID stats isn't empty.\nActual: " << toString(actual);
+    EXPECT_THAT(actual, IsEmpty())
+            << "Latest UID base stats isn't empty.\nActual: " << toString(actual);
 }
 
-TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaStatsWithMissingPackageInfo) {
+TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaBaseStatsWithMissingPackageInfo) {
     std::unordered_map<uid_t, PackageInfo> packageInfoByUid = samplePackageInfoByUid();
     packageInfoByUid.erase(1001234);
     const std::unordered_map<uid_t, UidIoStats> uidIoStatsByUid = sampleUidIoStatsByUid();
@@ -272,18 +213,19 @@ TEST_F(UidStatsCollectorBaseTest, TestCollectDeltaStatsWithMissingPackageInfo) {
 
     ASSERT_RESULT_OK(mUidStatsCollectorBase->collect());
 
-    std::vector<UidBaseStats> expected = sampleUidStats();
+    std::vector<UidBaseStats> expected = sampleUidBaseStats();
     expected[0].packageInfo = constructPackageInfo("", 1001234);
 
     auto actual = mUidStatsCollectorBase->deltaBaseStats();
 
     EXPECT_THAT(actual, UnorderedElementsAreArray(UidBaseStatsMatchers(expected)))
-            << "Delta UID stats doesn't match.\nExpected: " << toString(expected)
+            << "Delta UID base stats doesn't match.\nExpected: " << toString(expected)
             << "\nActual: " << toString(actual);
 
     actual = mUidStatsCollectorBase->latestBaseStats();
 
-    EXPECT_THAT(actual, IsEmpty()) << "Latest UID stats isn't empty.\nActual: " << toString(actual);
+    EXPECT_THAT(actual, IsEmpty())
+            << "Latest UID base stats isn't empty.\nActual: " << toString(actual);
 }
 
 TEST_F(UidStatsCollectorBaseTest, TestUidStatsHasPackageInfo) {

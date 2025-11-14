@@ -16,6 +16,6 @@
   -->
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/car_alert_dialog_background_color"/>
-    <corners android:radius="@dimen/car_window_rounded_corner_radius"/>
+    <solid android:color="?oemColorSurfaceContainerLow"/>
+    <corners android:radius="?oemShapeCornerExtraLarge"/>
 </shape>

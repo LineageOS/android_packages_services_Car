@@ -37,7 +37,6 @@ cc_defaults {
         "libhardware",
         "libhidlbase",
         "libprocessgroup",
-        "libstatslog",
         "libsync",
         "libui",
         "libutils",

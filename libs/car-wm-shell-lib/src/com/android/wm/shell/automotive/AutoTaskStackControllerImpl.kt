@@ -25,6 +25,7 @@ import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
 import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.content.Context
+import android.content.Intent
 import android.graphics.Rect
 import android.os.IBinder
 import android.util.Log
@@ -47,6 +48,7 @@ import com.android.wm.shell.sysui.ShellInit
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
 import java.io.PrintWriter
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 const val TAG = "AutoTaskStackController"
@@ -63,7 +65,14 @@ class AutoTaskStackControllerImpl @Inject constructor(
     val unused: AutoWmShellCommandHandler
 ) : AutoTaskStackController, Transitions.TransitionHandler {
     override var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate? = null
-    override val taskStackStateMap = mutableMapOf<Int, AutoTaskStackState>()
+
+    private val _taskStackStateMap: ConcurrentHashMap<Int, AutoTaskStackState> = ConcurrentHashMap()
+    override val taskStackStateMap: Map<Int, AutoTaskStackState>
+        get() {
+            // The getter itself doesn't enforce a thread.
+            // However, the underlying _taskStackStateMap is thread-safe for reads.
+            return _taskStackStateMap
+        }
 
     private val DBG = Log.isLoggable(TAG, Log.DEBUG)
 
@@ -91,6 +100,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     }
 
     /** Translates the [AutoTaskStackState] to relevant WM and surface transactions. */
+    // TODO(b/421471212): Move it to a separate class.
     inner class TaskStackStateTranslator {
         // TODO(b/384946072): Move to an interface with 2 implementations, one for root task and
         //  other for TDA
@@ -105,6 +115,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
             wct.setBounds(taskStack.rootTaskInfo.token, state.bounds)
             wct.reorder(taskStack.rootTaskInfo.token, state.childrenTasksVisible)
+        }
+
+        fun applyVisibility(
+            wct: WindowContainerTransaction,
+            taskStack: AutoTaskStack,
+        ) {
+            if (taskStack !is RootTaskStack) {
+                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                return
+            }
+            wct.reorder(
+                taskStack.rootTaskInfo.token,
+                /* onTop = */
+                true
+            )
         }
 
         fun reorderLeash(
@@ -141,6 +166,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 rootTdaOrganizer.getDisplayAreaLeash(taskStack.displayId)
             )
         }
+
+        fun setSafeRegionBounds(
+            wct: WindowContainerTransaction,
+            taskStack: AutoTaskStack,
+            safeRegionBounds: Rect
+        ) {
+            if (taskStack !is RootTaskStack) {
+                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                return
+            }
+            if (DBG) {
+                Slog.d(TAG, "Setting safe region bounds $safeRegionBounds on ${taskStack.id}")
+            }
+            wct.setSafeRegionBounds(taskStack.rootTaskInfo.token, safeRegionBounds)
+        }
     }
 
     inner class RootTaskStackListenerAdapter(
@@ -168,13 +208,13 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 taskStackMap[rootTask.id] = rootTask
 
                 rootTaskStack = rootTask
-                rootTaskStackListener.onRootTaskStackCreated(rootTask)
                 autoTaskRepository.onRootTaskStackCreated(rootTask)
+                rootTaskStackListener.onRootTaskStackCreated(rootTask)
                 return
             }
             appTasksMap[taskInfo.taskId] = taskInfo
-            rootTaskStackListener.onTaskAppeared(taskInfo, leash)
             autoTaskRepository.onTaskAppeared(rootTaskStack, taskInfo, leash)
+            rootTaskStackListener.onTaskAppeared(taskInfo, leash)
         }
 
         override fun onTaskInfoChanged(taskInfo: ActivityManager.RunningTaskInfo?) {
@@ -198,8 +238,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
 
             appTasksMap[taskInfo.taskId] = taskInfo
-            rootTaskStackListener.onTaskInfoChanged(taskInfo)
             autoTaskRepository.onTaskChanged(rootTaskStack, taskInfo)
+            rootTaskStackListener.onTaskInfoChanged(taskInfo)
         }
 
         override fun onTaskVanished(taskInfo: ActivityManager.RunningTaskInfo?) {
@@ -216,7 +256,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 rootTaskStack = rootTask
                 rootTaskStackListener.onRootTaskStackDestroyed(rootTask)
                 taskStackMap.remove(rootTask.id)
-                taskStackStateMap.remove(rootTask.id)
+                _taskStackStateMap.remove(rootTask.id)
                 autoTaskRepository.onRootTaskStackDestroyed(rootTask)
                 rootTaskStack = null
                 return
@@ -290,83 +330,95 @@ class AutoTaskStackControllerImpl @Inject constructor(
         name: String,
         listener: RootTaskStackListener
     ) {
-        if (!enableAutoTaskStackController()) {
-            Slog.e(
-                TAG,
-                "Failed to create root task stack as the " +
-                        "auto_task_stack_windowing TS flag is disabled."
-            )
-            return
+        shellMainThread.execute {
+            if (!enableAutoTaskStackController()) {
+                Slog.e(
+                    TAG,
+                    "Failed to create root task stack as the " +
+                            "auto_task_stack_windowing TS flag is disabled."
+                )
+            } else {
+                // TODO(b/400484573): Add name capability to the root task stack in core.
+                taskOrganizer.createRootTask(
+                    displayId,
+                    WINDOWING_MODE_MULTI_WINDOW,
+                    RootTaskStackListenerAdapter(listener, name),
+                    /* removeWithTaskOrganizer= */
+                    true
+                )
+            }
         }
-        // TODO(b/400484573): Add name capability to the root task stack in core.
-        taskOrganizer.createRootTask(
-            displayId,
-            WINDOWING_MODE_MULTI_WINDOW,
-            RootTaskStackListenerAdapter(listener, name),
-            /* removeWithTaskOrganizer= */
-            true
-        )
     }
 
     override fun destroyTaskStack(taskStackId: Int) {
-        // TODO(b/384946072): Add support for DisplayAreaTaskStack
-        val taskStack = taskStackMap[taskStackId] as? RootTaskStack
-        if (taskStack == null) {
-            Slog.e(TAG, "Task stack with id $taskStackId doesn't exist")
-            return
+        shellMainThread.execute {
+            // TODO(b/384946072): Add support for DisplayAreaTaskStack
+            val taskStack = taskStackMap[taskStackId] as? RootTaskStack
+            if (taskStack == null) {
+                Slog.e(TAG, "Task stack with id $taskStackId doesn't exist")
+            } else {
+                val deleted: Boolean = taskOrganizer.deleteRootTask(taskStack.rootTaskInfo.token)
+            }
         }
-        val deleted: Boolean = taskOrganizer.deleteRootTask(taskStack.rootTaskInfo.token)
     }
 
     override fun setDefaultRootTaskStackOnDisplay(displayId: Int, rootTaskStackId: Int?) {
-        if (!enableAutoTaskStackController()) {
-            Slog.e(
-                TAG,
-                "Failed to set default root task stack as the " +
-                        "auto_task_stack_windowing TS flag is disabled."
-            )
-            return
+        shellMainThread.execute {
+            run(outer@{
+                if (!enableAutoTaskStackController()) {
+                    Slog.e(
+                        TAG,
+                        "Failed to set default root task stack as the " +
+                                "auto_task_stack_windowing TS flag is disabled."
+                    )
+                    return@outer
+                }
+                var wct = WindowContainerTransaction()
+
+                // Clear the default root task stack if already set
+                defaultRootTaskPerDisplay[displayId]?.let { existingDefaultRootTaskStackId ->
+                    (taskStackMap[existingDefaultRootTaskStackId] as? RootTaskStack)
+                        ?.let { rootTaskStack ->
+                            wct.setLaunchRoot(rootTaskStack.rootTaskInfo.token, null, null)
+                        }
+                }
+
+                if (rootTaskStackId != null) {
+                    var taskStack =
+                        taskStackMap[rootTaskStackId] ?: run { return@outer }
+                    if (DBG) Slog.d(TAG, "setting launch root for  = ${taskStack.id}")
+                    if (taskStack !is RootTaskStack) {
+                        throw IllegalArgumentException(
+                            "Cannot set a non root task stack as default root task " +
+                                    "stack"
+                        )
+                    }
+                    wct.setLaunchRoot(
+                        taskStack.rootTaskInfo.token,
+                        intArrayOf(WINDOWING_MODE_UNDEFINED),
+                        intArrayOf(
+                            ACTIVITY_TYPE_STANDARD,
+                            ACTIVITY_TYPE_UNDEFINED,
+                            ACTIVITY_TYPE_RECENTS,
+
+                            // TODO(b/386242708): Figure out if this flag will ever be used for automotive
+                            //  assistant. Based on output, remove it from here and fix the
+                            //  AssistantStackTests accordingly.
+                            ACTIVITY_TYPE_ASSISTANT
+                        )
+                    )
+                    defaultRootTaskPerDisplay[displayId] = taskStack.id
+                }
+
+                taskOrganizer.applyTransaction(wct)
+            })
         }
-        var wct = WindowContainerTransaction()
-
-        // Clear the default root task stack if already set
-        defaultRootTaskPerDisplay[displayId]?.let { existingDefaultRootTaskStackId ->
-            (taskStackMap[existingDefaultRootTaskStackId] as? RootTaskStack)?.let { rootTaskStack ->
-                wct.setLaunchRoot(rootTaskStack.rootTaskInfo.token, null, null)
-            }
-        }
-
-        if (rootTaskStackId != null) {
-            var taskStack =
-                taskStackMap[rootTaskStackId] ?: run { return@setDefaultRootTaskStackOnDisplay }
-            if (DBG) Slog.d(TAG, "setting launch root for  = ${taskStack.id}")
-            if (taskStack !is RootTaskStack) {
-                throw IllegalArgumentException(
-                    "Cannot set a non root task stack as default root task " +
-                            "stack"
-                )
-            }
-            wct.setLaunchRoot(
-                taskStack.rootTaskInfo.token,
-                intArrayOf(WINDOWING_MODE_UNDEFINED),
-                intArrayOf(
-                    ACTIVITY_TYPE_STANDARD,
-                    ACTIVITY_TYPE_UNDEFINED,
-                    ACTIVITY_TYPE_RECENTS,
-
-                    // TODO(b/386242708): Figure out if this flag will ever be used for automotive
-                    //  assistant. Based on output, remove it from here and fix the
-                    //  AssistantStackTests accordingly.
-                    ACTIVITY_TYPE_ASSISTANT
-                )
-            )
-            defaultRootTaskPerDisplay[displayId] = taskStack.id
-        }
-
-        taskOrganizer.applyTransaction(wct)
     }
 
     override fun startTransition(transaction: AutoTaskStackTransaction): IBinder? {
+        // TODO(b/416504816): Remove this and use coroutine suspend functions to execute this
+        // on main thread and still be able to able to return.
+        shellMainThread.assertCurrentThread()
         if (!enableAutoTaskStackController()) {
             Slog.e(
                 TAG,
@@ -399,16 +451,37 @@ class AutoTaskStackControllerImpl @Inject constructor(
             Slog.d(
                 TAG,
                 "handle request, id=${request.debugId}, type=${request.type}, " +
-                        "triggertask = ${request.triggerTask ?: "null"}"
+                        "triggertask = ${request.triggerTask?.toShortString()}"
             )
         }
-        val ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
-            ?: run { return@handleRequest null }
+        var ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
+        val action = request.triggerTask?.baseIntent?.action
+        val category = request.triggerTask?.baseIntent?.categories
 
-        if (ast.operations.isEmpty()) {
+        if (action?.equals(Intent.ACTION_MAIN) == true &&
+            category?.contains(Intent.CATEGORY_HOME) == true &&
+            TransitionUtil.isOpeningType(request.type)
+        ) {
+            Slog.i(
+                TAG,
+                "HOME transaction. Updating state for root tasks which are not " +
+                    "updated by client."
+            )
+            if (ast == null) {
+                ast = AutoTaskStackTransaction()
+            }
+            for ((key, value) in taskStackStateMap.entries) {
+                ast.setTaskStackStateIfNotSet(
+                    key,
+                    AutoTaskStackState(value.bounds, value.childrenTasksVisible, value.layer)
+                )
+            }
+        }
+
+        if (ast == null || ast.operations.isEmpty()) {
             return null
         }
-        var wct = WindowContainerTransaction()
+        val wct = WindowContainerTransaction()
         convertToWct(ast, wct)
 
         pendingTransitions.add(
@@ -417,8 +490,23 @@ class AutoTaskStackControllerImpl @Inject constructor(
         return wct
     }
 
+    fun ActivityManager.RunningTaskInfo.toShortString(): String {
+        return "TaskInfo{" +
+                "taskId=" + this.taskId +
+                " userId=" + this.userId +
+                " displayId=" + this.displayId +
+                " isFocused=" + this.isFocused +
+                " isVisible=" + this.isVisible +
+                " isRunning=" + this.isRunning +
+                " isSleeping=" + this.isSleeping +
+                " topActivity=" + this.topActivity +
+                " baseIntent=" + this.baseIntent +
+                " baseActivity=" + this.baseActivity +
+                "}"
+    }
+
     fun updateTaskStackStates(taskStatStates: Map<Int, AutoTaskStackState>) {
-        taskStackStateMap.putAll(taskStatStates)
+        _taskStackStateMap.putAll(taskStatStates)
     }
 
     fun reconcileTaskStackStatesFromTransition(
@@ -442,10 +530,18 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 continue
             }
 
+            // Here want to reconcile those panels which are becoming visible and was not
+            // visible in original request.
+
+            // Check for the change request if the change is for being visible. If not, ignore the
+            // change
             if (!TransitionUtil.isOpeningMode(chg.mode)) {
                 if (DBG) Slog.v(TAG, "${taskInfo.taskId} is not opening type")
                 continue
             }
+
+            // Check if the change was visible in original request, if it is, then there is no
+            // conflict.
             if (requestedTaskStackChanges[taskInfo.parentTaskId] != null &&
                 requestedTaskStackChanges[taskInfo.parentTaskId]!!.childrenTasksVisible
             ) {
@@ -458,14 +554,19 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 }
                 continue
             }
+
+            //  If the change was not visible in original request, but visible in change list,
+            //  it is a conflict, reconcile the unknown changes.
             if (DBG) {
                 Slog.v(TAG, "${taskInfo.taskId} found conflicting task change")
             }
-            val taskStackLayer = taskStackStateMap[taskInfo.taskId]?.layer ?: 1
-            // Use a fixed layer 1 when state is unknown. This is just a placeholder and clients
-            // should anyway see this as a conflict and fire a new transition with the correct layer
+            val taskStackLayer = (_taskStackStateMap[taskInfo.parentTaskId]
+                ?: requestedTaskStackChanges[taskInfo.parentTaskId])
+                ?.layer ?: AutoTaskStackController.UNKNOWN_Z_LAYER
+
             changedTaskStacks[taskInfo.parentTaskId] = AutoTaskStackState(
-                bounds = taskStackStateMap[taskInfo.taskId]?.bounds ?: Rect(),
+                bounds = (_taskStackStateMap[taskInfo.parentTaskId]
+                    ?: requestedTaskStackChanges[taskInfo.parentTaskId])?.bounds ?: Rect(),
                 childrenTasksVisible = true,
                 layer = taskStackLayer
             )
@@ -601,6 +702,40 @@ class AutoTaskStackControllerImpl @Inject constructor(
                                     "not found."
                         )
                 }
+
+                is TaskStackOperation.SetFocusedTaskStack -> {
+                    // Do nothing here. Focus needs to be set in the last.
+                }
+
+                is TaskStackOperation.SetSafeRegionBounds -> {
+                    taskStackMap[operation.taskStackId]?.let { taskStack ->
+                        mTaskStackStateTranslator.setSafeRegionBounds(
+                            wct,
+                            taskStack,
+                            operation.safeRegionBounds
+                        )
+                    }
+                        ?: Slog.w(
+                            TAG, "AutoTaskStack with id ${operation.taskStackId} " +
+                                    "not found."
+                        )
+                }
+            }
+        }
+
+        // process focus task in the end so that it would get the focus.
+        ast.operations.forEach { operation ->
+            if (operation is TaskStackOperation.SetFocusedTaskStack) {
+                taskStackMap[operation.taskStackId]?.let { taskStack ->
+                    mTaskStackStateTranslator.applyVisibility(
+                        wct,
+                        taskStack,
+                    )
+                }
+                    ?: Slog.w(
+                        TAG, "AutoTaskStack with id ${operation.taskStackId} " +
+                                "not found."
+                    )
             }
         }
     }
@@ -652,7 +787,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     }
 
     private fun reorderLeashes(transaction: SurfaceControl.Transaction) {
-        taskStackStateMap.forEach { (taskId, taskStackState) ->
+        _taskStackStateMap.forEach { (taskId, taskStackState) ->
             taskStackMap[taskId]?.let { taskStack ->
                 mTaskStackStateTranslator.reorderLeash(taskStack, taskStackState, transaction)
             } ?: Slog.w(TAG, "Warning: AutoTaskStack with id $taskId not found.")
@@ -682,7 +817,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
         // TODO(b/395032583): Add more dump data.
         pw.println(prefix + "AutoTaskStackController:")
         pw.println(prefix + "RootTaskStacksMap: ")
-        for ((key, value) in taskStackStateMap) {
+        for ((key, value) in _taskStackStateMap) {
             pw.println(prefix + "RootTaskStackId: $key $value")
         }
     }
@@ -693,5 +828,9 @@ class AutoTaskStackControllerImpl @Inject constructor(
         val transaction: AutoTaskStackTransaction,
     ) {
         var isClaimed: IBinder? = null
+    }
+
+    fun getRootTasks(): List<AutoTaskStack> {
+        return taskStackMap.values.toList()
     }
 }

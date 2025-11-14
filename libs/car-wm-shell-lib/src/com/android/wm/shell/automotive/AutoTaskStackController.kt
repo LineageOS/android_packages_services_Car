@@ -18,14 +18,17 @@ package com.android.wm.shell.automotive
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Slog
 import android.view.SurfaceControl
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import com.android.wm.shell.shared.annotations.ShellMainThread
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
+import java.lang.IllegalArgumentException
 
 /**
  * Delegate interface for handling auto task stack transitions.
@@ -96,6 +99,12 @@ interface AutoTaskStackTransitionHandlerDelegate {
  */
 interface AutoTaskStackController {
 
+    companion object {
+        // TODO(b/421154640): update unknown z layer value.
+        var UNKNOWN_Z_LAYER: Int = -1
+        var MIN_Z_LAYER: Int = 0
+    }
+
     var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate?
         set
 
@@ -119,7 +128,6 @@ interface AutoTaskStackController {
      * @param name The name of the root task stack.
      * @param listener The listener for root task stack events.
      */
-    @ShellMainThread
     fun createRootTaskStack(
         displayId: Int,
         name: String,
@@ -130,7 +138,6 @@ interface AutoTaskStackController {
      * Destroys the already created task stack. It will be a no-op if no task stack exists with
      * given [taskStackId].
      */
-    @ShellMainThread
     fun destroyTaskStack(taskStackId: Int)
 
     /**
@@ -144,7 +151,6 @@ interface AutoTaskStackController {
      * @param displayId The ID of the display.
      * @param rootTaskStackId The ID of the root task stack, or null to clear the default.
      */
-    @ShellMainThread
     fun setDefaultRootTaskStackOnDisplay(displayId: Int, rootTaskStackId: Int?)
 
     /**
@@ -171,6 +177,15 @@ internal sealed class TaskStackOperation {
     data class SetTaskStackState(
         val taskStackId: Int,
         val state: AutoTaskStackState
+    ) : TaskStackOperation()
+
+    data class SetFocusedTaskStack(
+        val taskStackId: Int,
+    ) : TaskStackOperation()
+
+    data class SetSafeRegionBounds(
+        val taskStackId: Int,
+        val safeRegionBounds: Rect
     ) : TaskStackOperation()
 }
 
@@ -220,6 +235,39 @@ data class AutoTaskStackTransaction internal constructor(
         } else {
             operations.add(TaskStackOperation.SetTaskStackState(taskStackId, state))
         }
+        if (state.layer < AutoTaskStackController.MIN_Z_LAYER) {
+            Slog.e(
+                TAG,
+                "Transaction layer set to less than Min layer supported. Min layer: " +
+                        AutoTaskStackController.MIN_Z_LAYER + ". state.layer: " + state.layer
+            )
+            throw IllegalArgumentException(
+                "Layer can't be less than " + AutoTaskStackController.MIN_Z_LAYER
+            )
+        }
+        return this
+    }
+
+    /**
+     * Adds a set safe region bounds operation to the transaction.
+     *
+     * If an operation with the same task stack ID already exists, it is replaced with the new one.
+     *
+     * @param taskStackId The ID of the task stack.
+     * @param safeRegionBounds The safe region bounds of the task stack.
+     * @return The transaction with the added operation.
+     */
+    fun setSafeRegionBounds(taskStackId: Int, safeRegionBounds: Rect): AutoTaskStackTransaction {
+        val existingOperation = operations.find {
+            it is TaskStackOperation.SetSafeRegionBounds && it.taskStackId == taskStackId
+        }
+        if (existingOperation != null) {
+            val index = operations.indexOf(existingOperation)
+            operations[index] =
+                TaskStackOperation.SetSafeRegionBounds(taskStackId, safeRegionBounds)
+        } else {
+            operations.add(TaskStackOperation.SetSafeRegionBounds(taskStackId, safeRegionBounds))
+        }
         return this
     }
 
@@ -236,5 +284,50 @@ data class AutoTaskStackTransaction internal constructor(
             }
         }
         return states
+    }
+
+    /**
+     * Adds a set task stack state operation to the transaction.
+     *
+     * If an operation with the same task stack ID already exists, nothing is changed.
+     *
+     * @param taskStackId The ID of the task stack.
+     * @param state The new state of the task stack.
+     * @return The transaction with the added operation if operation doesn't exist.
+     */
+    internal fun setTaskStackStateIfNotSet(
+        taskStackId: Int,
+        state: AutoTaskStackState
+    ): AutoTaskStackTransaction {
+        val existingOperation = operations.find {
+            it is TaskStackOperation.SetTaskStackState && it.taskStackId == taskStackId
+        }
+        if (existingOperation == null) {
+            operations.add(TaskStackOperation.SetTaskStackState(taskStackId, state))
+        }
+        return this
+    }
+
+    /**
+     * Adds a set task stack state operation to define focus root task.
+     *
+     * If an operation exists, it is replaced with the new one.
+     *
+     * @param taskStackId The ID of the task stack.
+     * @return The transaction with the added operation.
+     */
+    fun setFocusedTaskStack(
+        taskStackId: Int,
+    ): AutoTaskStackTransaction {
+        val existingOperation = operations.find {
+            it is TaskStackOperation.SetFocusedTaskStack
+        }
+        if (existingOperation != null) {
+            val index = operations.indexOf(existingOperation)
+            operations[index] = TaskStackOperation.SetFocusedTaskStack(taskStackId)
+        } else {
+            operations.add(TaskStackOperation.SetFocusedTaskStack(taskStackId))
+        }
+        return this
     }
 }

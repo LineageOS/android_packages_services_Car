@@ -215,21 +215,26 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final int INDEX_WAIT_FOR_VHAL = 0;
     private static final int INDEX_ON = 1;
 
+    private static final String POWER_STATE_NOTIFY_THREAD_NAME =
+            PowerStateNotificationHandler.class.getSimpleName();
+
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
 
     private final Context mContext;
     private final PowerHalService mHal;
     private final SystemInterface mSystemInterface;
+    private final String mHandlerThreadName = getClass().getSimpleName();
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+            mHandlerThreadName);
     private final PowerHandler mHandler = new PowerHandler(mHandlerThread.getLooper(), this);
     // TODO(b/409037873): replace a handler thread with a short-living thread.
     private final PowerStateNotificationHandler mStateNotificationHandler =
             new PowerStateNotificationHandler(CarServiceUtils.getHandlerThread(
-                    PowerStateNotificationHandler.class.getSimpleName()).getLooper());
+                    POWER_STATE_NOTIFY_THREAD_NAME).getLooper());
+    private final String mBroadcastHandlerThreadName = mHandlerThreadName + " broadcasts";
     private final HandlerThread mBroadcastHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName() + " broadcasts");
+            mBroadcastHandlerThreadName);
     private final Handler mBroadcastHandler = new Handler(mBroadcastHandlerThread.getLooper());
     // The listeners that complete simply by returning from onStateChanged()
     private final PowerManagerCallbackList<ICarPowerStateListener> mPowerManagerListeners =
@@ -611,6 +616,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Math.min(getMaxSuspendWaitDurationConfig(), MAX_SUSPEND_WAIT_DURATION_MS));
         mScreenOffHandler = Objects.requireNonNullElseGet(builder.mScreenOffHandler, () ->
                 new ScreenOffHandler(mContext, mSystemInterface, mHandler.getLooper()));
+    }
+
+    @Override
+    public void destroy() {
+        mPolicyCallbackHelper.stop();
+        try {
+            CarServiceUtils.releaseHandlerThread(mHandlerThreadName);
+            CarServiceUtils.releaseHandlerThread(mBroadcastHandlerThreadName);
+            CarServiceUtils.releaseHandlerThread(POWER_STATE_NOTIFY_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -1975,14 +1992,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     /**
      * Sends display brightness to VHAL.
-     * @param brightness value 0-100%
-     */
-    public void sendDisplayBrightnessLegacy(int brightness) {
-        mHal.sendDisplayBrightnessLegacy(brightness);
-    }
-
-    /**
-     * Sends display brightness to VHAL.
      * @param displayId the target display
      * @param brightness value 0-100%
      */
@@ -2421,9 +2430,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 try {
                     PowerPolicyCallback powerPolicyCallback = new PowerPolicyCallback();
                     powerPolicyInitData = daemon.notifyCarServiceReady(powerPolicyCallback);
-                } catch (RemoteException e) {
-                    Slogf.e(TAG, e, "Failed to tell car power management daemon that "
-                            + "CarService is ready");
+                } catch (IllegalArgumentException | RemoteException e) {
+                    Slogf.e(TAG, e, "Failed to tell car power management daemon that CarService is "
+                            + "ready");
                     return;
                 }
             } else {
@@ -3044,6 +3053,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         private final Object mReadyLock = new Object();
         @GuardedBy("mReadyLock")
         private boolean mCallbackReady;
+        @GuardedBy("mReadyLock")
+        private boolean mStopped;
 
         public void setPolicyCallbackReady(boolean ready) {
             synchronized (mReadyLock) {
@@ -3061,7 +3072,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         public boolean waitForPolicyCallbackReady() throws InterruptedException {
             synchronized (mReadyLock) {
                 long waitStartTime = SystemClock.uptimeMillis();
-                while (!mCallbackReady && (SystemClock.uptimeMillis() - waitStartTime)
+                while (!mStopped && !mCallbackReady && (SystemClock.uptimeMillis() - waitStartTime)
                         < CAR_POWER_MANAGEMENT_DAEMON_CONNECTION_TIMEOUT_MS) {
                     mReadyLock.wait(CAR_POWER_MANAGEMENT_DAEMON_CONNECTION_TIMEOUT_MS);
                 }
@@ -3069,8 +3080,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
 
-        // TODO(b/409798785): Create a cancelWait() method to notify and stop the wait for callback
-        //  to be ready, if currently waiting. To be called before handler thread is destroyed.
+        public void stop() {
+            synchronized (mReadyLock) {
+                mStopped = true;
+                mReadyLock.notifyAll();
+            }
+        }
     }
 
     private final class BinderHandler implements IBinder.DeathRecipient {

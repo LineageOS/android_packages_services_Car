@@ -61,6 +61,7 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -84,6 +85,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
+    private static final String TAG = CarWatchdogService.TAG;
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
             "android.automotive.watchdog.internal.ICarWatchdog/default";
     private static final int MAX_WAIT_TIME_MS = 3000;
@@ -130,7 +132,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
 
     public CarWatchdogServiceTest() {
-        super(CarWatchdogService.TAG);
+        super(TAG);
     }
 
     @BeforeClass
@@ -175,17 +177,27 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         mockUmIsUserRunning(mMockUserManager, 101, false);
         mockPackageManager();
 
+        Handler handler = new Handler(CarServiceUtils.getHandlerThread(TAG).getLooper());
         mCarWatchdogService = new CarWatchdogService(mMockContext, mMockBuiltinPackageContext,
-                mMockWatchdogStorage, mTimeSource);
+                mMockWatchdogStorage, mTimeSource, handler);
 
         when(mMockServiceBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogService);
 
         mCarWatchdogService.init();
+        // During CarWatchdogService.init() postRegisterToDaemonMessage runs on a handler thread.
+        // Block until it completes.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(TAG);
         mWatchdogServiceForSystemImpl = registerCarWatchdogService();
     }
 
+    @After
+    public void tearDown() throws InterruptedException {
+        mCarWatchdogService.destroy();
+        CarServiceUtils.releaseHandlerThread(TAG);
+    }
+
     @AfterClass
-    public static void tearDown() {
+    public static void tearDownAfterClass() {
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, sSystemInterfaceOriginal);
         CarLocalServices.removeServiceForTest(CarUserService.class);

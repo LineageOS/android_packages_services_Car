@@ -133,6 +133,8 @@ public class AutoLayoutManager {
         }
 
         InsetsFrameProvider requestedInset = new InsetsFrameProvider(mInsetToken, index, type);
+        // keep frame size only for debug, dump and shell command purpose
+        requestedInset.setArbitraryRectangle(frame);
         insetsFrameProviders.add(requestedInset);
 
         WindowContainerTransaction wct = new WindowContainerTransaction();
@@ -230,9 +232,13 @@ public class AutoLayoutManager {
                 pw.println(prefix + "Insets:");
             }
             for (int j = 0; j < insetsFrameProviders.size(); j++) {
-                pw.println(prefix + insetPrefix + insetsFrameProviders.valueAt(i));
+                pw.println(prefix + insetPrefix + insetsFrameProviders.valueAt(j));
             }
 
         }
+    }
+
+    ArraySet<InsetsFrameProvider> getInsets(int rootTaskStackId) {
+        return mTaskIdToInsetFrameProviderMap.get(rootTaskStackId);
     }
 }

@@ -15,25 +15,13 @@
  */
 package com.android.car.voiceassistinput.sample;
 
-import android.app.ActivityOptions;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.input.CarInputManager;
-import android.car.media.CarAudioManager;
-import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
-import android.view.KeyEvent;
-
-import androidx.annotation.NonNull;
-
-import java.net.URISyntaxException;
-import java.util.List;
 
 /**
  * This service is a reference implementation to be used as an example on how to define and handle
@@ -84,7 +72,7 @@ public class SampleVoiceAssistInputService extends Service {
                                 (CarInputManager) mCar.getCarManager(Car.CAR_INPUT_SERVICE);
                         mCarInputManager.requestInputEventCapture(
                                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                                new int[]{CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS},
+                                new int[]{CarInputManager.INPUT_TYPE_VOICE_ASSIST},
                                 CarInputManager.CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT,
                                 /* callback= */
                                 new VoiceAssistEventHandler(getApplicationContext(), this,

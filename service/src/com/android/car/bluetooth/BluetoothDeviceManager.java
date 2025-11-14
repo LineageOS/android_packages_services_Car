@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * BluetoothDeviceManager - Manages a list of devices, sorted by connection attempt priority.
@@ -74,6 +75,7 @@ import java.util.Objects;
 public final class BluetoothDeviceManager {
     private static final String TAG = CarLog.tagFor(BluetoothDeviceManager.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+    private static final String HANDLER_THREAD_NAME = CarBluetoothService.THREAD_NAME;
 
     private static final String SETTINGS_KEY = KEY_BLUETOOTH_DEVICES;
     private static final String SETTINGS_DELIMITER = ",";
@@ -104,8 +106,7 @@ public final class BluetoothDeviceManager {
 
     private final BluetoothAdapter mBluetoothAdapter;
     private final BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
-    private final Handler mHandler = new Handler(
-            CarServiceUtils.getHandlerThread(CarBluetoothService.THREAD_NAME).getLooper());
+    private final AtomicReference<Handler> mHandlerRef = new AtomicReference<>();
 
     /**
      * A BroadcastReceiver that listens specifically for actions related to the device we're
@@ -286,6 +287,9 @@ public final class BluetoothDeviceManager {
             Slogf.d(TAG, "Starting device management");
         }
 
+        mHandlerRef.set(new Handler(
+                CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME).getLooper()));
+
         synchronized (mAutoConnectLock) {
             mConnecting = false;
             mAutoConnectPriority = -1;
@@ -303,6 +307,10 @@ public final class BluetoothDeviceManager {
         filter.addAction(BluetoothUtils.MAP_CLIENT_CONNECTION_STATE_CHANGED);
         filter.addAction(BluetoothUtils.PAN_CONNECTION_STATE_CHANGED);
         filter.addAction(BluetoothUtils.PBAP_CLIENT_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.LE_AUDIO_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.LE_AUDIO_BROADCAST_ASSISTANT_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.CSIP_SET_COORDINATOR_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.VOLUME_CONTROL_CONNECTION_STATE_CHANGED);
 
         UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
         mUserContext = mContext.createContextAsUser(currentUser, /* flags= */ 0);
@@ -329,6 +337,12 @@ public final class BluetoothDeviceManager {
                 Slogf.wtf(TAG, "mBluetoothBroadcastReceiver null during stop()");
             }
             mUserContext = null;
+        }
+        mHandlerRef.set(null);
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -581,7 +595,11 @@ public final class BluetoothDeviceManager {
                 Slogf.d(TAG, "Auto connecting (%d) device: %s", mAutoConnectPriority, device);
             }
 
-            mHandler.post(() -> {
+            Handler handler = getHandler();
+            if (handler == null) {
+                return;
+            }
+            handler.post(() -> {
                 initializeAutoConnectingDeviceProfiles();
                 int connectStatus = connect(device);
                 if (connectStatus != BluetoothStatusCodes.SUCCESS) {
@@ -590,7 +608,7 @@ public final class BluetoothDeviceManager {
                     continueAutoConnecting();
                 }
             });
-            mHandler.postDelayed(() -> {
+            handler.postDelayed(() -> {
                 Slogf.w(TAG, "Auto connect process has timed out connecting to %s", device);
                 continueAutoConnecting();
             }, AUTO_CONNECT_TOKEN, AUTO_CONNECT_TIMEOUT_MS);
@@ -614,6 +632,10 @@ public final class BluetoothDeviceManager {
             addWatchedProfileIfSupported(BluetoothProfile.MAP_CLIENT);
             addWatchedProfileIfSupported(BluetoothProfile.PAN);
             addWatchedProfileIfSupported(BluetoothProfile.PBAP_CLIENT);
+            addWatchedProfileIfSupported(BluetoothProfile.LE_AUDIO);
+            addWatchedProfileIfSupported(BluetoothProfile.LE_AUDIO_BROADCAST_ASSISTANT);
+            addWatchedProfileIfSupported(BluetoothProfile.CSIP_SET_COORDINATOR);
+            addWatchedProfileIfSupported(BluetoothProfile.VOLUME_CONTROL);
         }
     }
 
@@ -628,11 +650,16 @@ public final class BluetoothDeviceManager {
             if (device == null) {
                 return;
             }
-            if (BluetoothUtils.isProfileSupported(ourUuids, device, profile)) {
+            if (BluetoothUtils.isProfileSupported(mBluetoothAdapter, device, profile)) {
                 mAutoConnectingDeviceProfiles.put(profile, -1);
                 if (DBG) {
                     Slogf.d(TAG, "Device %s supports %s. Expect a connection", device,
                             BluetoothUtils.getProfileName(profile));
+                }
+            } else {
+                if (DBG) {
+                    Slogf.d(TAG, "Device %s does not support %s. Do not expect a connection",
+                            device, BluetoothUtils.getProfileName(profile));
                 }
             }
         }
@@ -703,7 +730,11 @@ public final class BluetoothDeviceManager {
                 }
                 return;
             }
-            mHandler.removeCallbacksAndMessages(AUTO_CONNECT_TOKEN);
+            Handler handler = getHandler();
+            if (handler == null) {
+                return;
+            }
+            handler.removeCallbacksAndMessages(AUTO_CONNECT_TOKEN);
             mAutoConnectPriority++;
             if (mAutoConnectPriority >= mAutoConnectingDevices.size()) {
                 if (DBG) {
@@ -729,7 +760,11 @@ public final class BluetoothDeviceManager {
         }
         synchronized (mAutoConnectLock) {
             if (!isAutoConnecting()) return;
-            mHandler.removeCallbacksAndMessages(AUTO_CONNECT_TOKEN);
+            Handler handler = getHandler();
+            if (handler == null) {
+                return;
+            }
+            handler.removeCallbacksAndMessages(AUTO_CONNECT_TOKEN);
             mConnecting = false;
             mAutoConnectPriority = -1;
             mAutoConnectingDevices = null;
@@ -794,5 +829,13 @@ public final class BluetoothDeviceManager {
         writer.decreaseIndent();
 
         writer.decreaseIndent();
+    }
+
+    private @Nullable Handler getHandler() {
+        Handler handler = mHandlerRef.get();
+        if (handler == null) {
+            Slogf.w(TAG, "handler is null, the BluetoothDeviceManager is already released");
+        }
+        return handler;
     }
 }

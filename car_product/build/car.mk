@@ -27,9 +27,12 @@ PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarSettingsIntelligence \
     CarManagedProvisioning \
-    CarProvision \
     StatementService \
     SystemUpdater
+
+ifneq ($(DO_NOT_INCLUDE_DEFAULT_CAR_PROVISION),true)
+PRODUCT_PACKAGES += CarProvision
+endif
 
 PRODUCT_PACKAGES += \
     screenrecord
@@ -151,7 +154,6 @@ PRODUCT_PACKAGES += \
     CarLatinIME \
     CarSettings \
     CarUsbHandler \
-    CarRotaryImeRRO \
     CarRotaryController \
     android.car.builtin \
     car-frameworks-service \

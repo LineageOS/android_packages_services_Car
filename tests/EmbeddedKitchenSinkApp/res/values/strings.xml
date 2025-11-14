@@ -216,6 +216,7 @@
     <string name="volume_down" translatable="false">Volume -</string>
     <string name="volume_mute" translatable="false">Mute</string>
     <string name="volume_unmute" translatable="false">Unmute</string>
+    <string name="request_audio_focus" translatable="false">Request Focus</string>
     <string name="voice" translatable="false">Voice</string>
     <string name="mock_vehicle_hal" translatable="false">Mock HAL</string>
     <string name="mock_vehicle_hal_off" translatable="false">Mock HAL OFF</string>
@@ -558,4 +559,8 @@
     <string name="data_subscription_trial" translatable="false">Trial</string>
     <string name="data_subscription_paid" translatable="false">Paid</string>
     <string name="data_subscription_message" translatable="false">"Data subscription status is %s</string>
+
+    <!-- App Sharing -->
+    <string name="select_package" translatable="false">Select package</string>
+    <string name="install_button" translatable="false">Install</string>
 </resources>

@@ -62,7 +62,7 @@
                     android:ellipsize="end"
                     android:maxLines="2"
                     android:textAlignment="viewStart"
-                    android:textAppearance="@style/TextAppearance.CarUi.PreferenceTitle" />
+                    style="@style/PreferenceTitle" />
 
                 <com.android.car.ui.uxr.DrawableStateTextView
                     android:id="@android:id/summary"
@@ -70,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="2"
                     android:textAlignment="viewStart"
-                    android:textAppearance="@style/TextAppearance.CarUi.PreferenceSummary" />
+                    style="@style/PreferenceSummary" />
             </LinearLayout>
         </RelativeLayout>
     </com.android.car.ui.uxr.DrawableStateConstraintLayout>
@@ -104,8 +104,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:clickable="false"
-                android:focusable="false"
-                style="@style/Widget.CarUi.SwitchPreference.Switch"/>
+              android:focusable="false" />
         </com.android.car.ui.uxr.DrawableStateFrameLayout>
 
         <!-- The widget frame is required for androidx preferences, but we won't use it. -->

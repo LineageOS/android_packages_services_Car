@@ -19,8 +19,8 @@
 
 #include "IoOveruseMonitor.h"
 
+#include "IoServiceManager.h"
 #include "PackageInfoResolver.h"
-#include "ServiceManager.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <aidl/android/automotive/watchdog/IResourceOveruseListener.h>
@@ -28,8 +28,6 @@
 #include <aidl/android/automotive/watchdog/internal/PackageIdentifier.h>
 #include <aidl/android/automotive/watchdog/internal/UidType.h>
 #include <android-base/file.h>
-#include <android-base/strings.h>
-#include <android/util/ProtoOutputStream.h>
 #include <binder/IPCThreadState.h>
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
@@ -48,8 +46,6 @@ namespace {
 using ::aidl::android::automotive::watchdog::IoOveruseStats;
 using ::aidl::android::automotive::watchdog::IResourceOveruseListener;
 using ::aidl::android::automotive::watchdog::PerStateBytes;
-using ::aidl::android::automotive::watchdog::internal::ComponentType;
-using ::aidl::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::aidl::android::automotive::watchdog::internal::IoUsageStats;
 using ::aidl::android::automotive::watchdog::internal::PackageIdentifier;
 using ::aidl::android::automotive::watchdog::internal::PackageInfo;
@@ -66,9 +62,7 @@ using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
-using ::android::util::ProtoOutputStream;
 using ::ndk::ScopedAIBinder_DeathRecipient;
-using ::ndk::SpAIBinder;
 
 constexpr int64_t kMaxInt32 = std::numeric_limits<int32_t>::max();
 constexpr int64_t kMaxInt64 = std::numeric_limits<int64_t>::max();
@@ -161,7 +155,7 @@ std::tuple<int32_t, PerStateBytes> calculateOveruseAndForgivenBytes(PerStateByte
 }
 
 void onBinderDied(void* cookie) {
-    const auto& thiz = ServiceManager::getInstance()->getIoOveruseMonitor();
+    const auto& thiz = IoServiceManager::getInstance()->getIoOveruseMonitor();
     if (thiz == nullptr) {
         return;
     }
@@ -178,9 +172,10 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& 
 }
 
 IoOveruseMonitor::IoOveruseMonitor(
-        const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
+        const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+        AIBinder_DeathRecipient* binderRecipient) :
       mMinSyncWrittenBytes(kMinSyncWrittenBytes),
-      mWatchdogServiceHelper(watchdogServiceHelper),
+      mWatchdogServiceHelperBase(watchdogServiceHelperBase),
       mDeathRegistrationWrapper(sp<AIBinderDeathRegistrationWrapper>::make()),
       mDidReadTodayPrevBootStats(false),
       mSystemWideWrittenBytes({}),
@@ -189,9 +184,14 @@ IoOveruseMonitor::IoOveruseMonitor(
       mUserPackageDailyIoUsageById({}),
       mIoOveruseWarnPercentage(0),
       mLastUserPackageIoMonitorTime(time_point_millis::min()),
-      mOveruseListenersByUid({}),
-      mBinderDeathRecipient(
-              ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(onBinderDied))) {}
+      mOveruseListenersByUid({}) {
+    if (binderRecipient == nullptr) {
+        mBinderDeathRecipient =
+                ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(onBinderDied));
+    } else {
+        mBinderDeathRecipient = ScopedAIBinder_DeathRecipient(binderRecipient);
+    }
+}
 
 Result<void> IoOveruseMonitor::init() {
     std::unique_lock writeLock(mRwMutex);
@@ -225,7 +225,7 @@ void IoOveruseMonitor::terminate() {
         ALOGI("Write to disk has completed. Proceeding with termination");
     }
     std::unique_lock writeLock(mRwMutex);
-    mWatchdogServiceHelper.clear();
+    mWatchdogServiceHelperBase.clear();
     mIoOveruseConfigs.clear();
     mSystemWideWrittenBytes.clear();
     mUserPackageDailyIoUsageById.clear();
@@ -249,12 +249,12 @@ void IoOveruseMonitor::onCarWatchdogServiceRegistered() {
 }
 
 Result<void> IoOveruseMonitor::onPeriodicCollection(
-        time_point_millis time, SystemState systemState,
-        const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-        [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector,
+        time_point_millis time, bool isGarageModeActive,
+        const android::wp<UidStatsCollectorBaseInterface>& uidStatsCollectorBase,
         ResourceStats* resourceStats) {
-    android::sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
-    if (uidStatsCollectorSp == nullptr) {
+    android::sp<UidStatsCollectorBaseInterface> uidStatsCollectorBaseSp =
+            uidStatsCollectorBase.promote();
+    if (uidStatsCollectorBaseSp == nullptr) {
         return Error() << "Per-UID I/O stats collector must not be null";
     }
 
@@ -279,14 +279,13 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     mLastUserPackageIoMonitorTime = time;
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(curGmt);
 
-    auto uidStats = uidStatsCollectorSp->deltaStats();
-    if (uidStats.empty()) {
+    auto uidBaseStats = uidStatsCollectorBaseSp->deltaBaseStats();
+    if (uidBaseStats.empty()) {
         return {};
     }
     std::unordered_map<uid_t, IoOveruseStats> overusingNativeStats;
-    bool isGarageModeActive = systemState == SystemState::GARAGE_MODE;
-    for (const auto& curUidStats : uidStats) {
-        if (curUidStats.ioStats.sumWriteBytes() == 0 || !curUidStats.hasPackageInfo()) {
+    for (const auto& curUidBaseStats : uidBaseStats) {
+        if (curUidBaseStats.ioStats.sumWriteBytes() == 0 || !curUidBaseStats.hasPackageInfo()) {
             /* 1. Ignore UIDs with zero written bytes since the last collection because they are
              * either already accounted for or no writes made since system start.
              *
@@ -295,7 +294,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
              */
             continue;
         }
-        UserPackageIoUsage curUsage(curUidStats.packageInfo, curUidStats.ioStats,
+        UserPackageIoUsage curUsage(curUidBaseStats.packageInfo, curUidBaseStats.ioStats,
                                     isGarageModeActive);
 
         if (!mPrevBootIoUsageStatsById.empty()) {
@@ -327,7 +326,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
                 sum(dailyIoUsage->forgivenWriteBytes, forgivenWriteBytes);
 
         PackageIoOveruseStats stats;
-        stats.uid = curUidStats.packageInfo.packageIdentifier.uid;
+        stats.uid = curUidBaseStats.packageInfo.packageIdentifier.uid;
         stats.shouldNotify = false;
         stats.forgivenWriteBytes = dailyIoUsage->forgivenWriteBytes;
         stats.ioOveruseStats.startTime = startTime;
@@ -397,17 +396,6 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     return {};
 }
 
-Result<void> IoOveruseMonitor::onCustomCollection(
-        time_point_millis time, SystemState systemState,
-        [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
-        const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-        const android::wp<ProcStatCollectorInterface>& procStatCollector,
-        ResourceStats* resourceStats) {
-    // Nothing special for custom collection.
-    return onPeriodicCollection(time, systemState, uidStatsCollector, procStatCollector,
-                                resourceStats);
-}
-
 Result<void> IoOveruseMonitor::onPeriodicMonitor(
         time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
         const std::function<void()>& alertHandler) {
@@ -462,26 +450,14 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
     return {};
 }
 
-Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) const {
-    // TODO(b/183436216): Dump the list of killed/disabled packages. Dump the list of packages that
-    //  exceed xx% of their threshold.
-    return {};
-}
-
-Result<void> IoOveruseMonitor::onDumpProto(
-        [[maybe_unused]] const CollectionIntervals& collectionIntervals,
-        [[maybe_unused]] ProtoOutputStream& outProto) const {
-    // TODO(b/296123577): Dump the list of killed/disabled packages in proto format.
-    return {};
-}
-
 bool IoOveruseMonitor::dumpHelpText(int fd) const {
     return WriteStringToFd(StringPrintf(kHelpText, name().c_str(), kResetResourceOveruseStatsFlag),
                            fd);
 }
 
 void IoOveruseMonitor::requestTodayIoUsageStatsLocked() {
-    if (const auto status = mWatchdogServiceHelper->requestTodayIoUsageStats(); !status.isOk()) {
+    if (const auto status = mWatchdogServiceHelperBase->requestTodayIoUsageStats();
+        !status.isOk()) {
         // Request made only after CarWatchdogService connection is established. Logging the error
         // is enough in this case.
         ALOGE("Failed to request today I/O usage stats collected during previous boot: %s",
@@ -697,7 +673,7 @@ Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats)
 }
 
 Result<void> IoOveruseMonitor::resetIoOveruseStats(const std::vector<std::string>& packageNames) {
-    if (const auto status = mWatchdogServiceHelper->resetResourceOveruseStats(packageNames);
+    if (const auto status = mWatchdogServiceHelperBase->resetResourceOveruseStats(packageNames);
         !status.isOk()) {
         return Error() << "Failed to reset stats in watchdog service: " << status.getDescription();
     }

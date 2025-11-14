@@ -75,4 +75,8 @@
     <dimen name="pin_pad_key_height">108dp</dimen>
     <dimen name="pin_pad_key_margin">10dp</dimen>
     <dimen name="lock_pattern_dot_size">32dp</dimen>
+
+    <dimen name="safe_bounds_open_top">747px</dimen>
+    <dimen name="safe_bounds_close_top">2156px</dimen>
+    <dimen name="safe_bounds_close_bottom">2837px</dimen>
 </resources>

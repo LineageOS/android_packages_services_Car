@@ -33,5 +33,5 @@
     <string name="status_icon_display_status" msgid="8703788413735943940">"Configuración de pantalla"</string>
     <string name="status_icon_debug_status" msgid="3968999768592060199">"Configuración de depuración"</string>
     <string name="status_icon_sound_status" msgid="814152658790862843">"Configuración de sonido"</string>
-    <string name="status_icon_drive_mode" msgid="3768488232833133813">"En automóvil"</string>
+    <string name="status_icon_drive_mode" msgid="3768488232833133813">"Modo Conducción"</string>
 </resources>

@@ -60,6 +60,7 @@ import android.util.Log;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
@@ -99,9 +100,16 @@ public final class CarServiceUtils {
     private static final String ANDROID_KEYSTORE_NAME = "AndroidKeyStore";
     private static final String CIPHER_ALGORITHM = "AES/GCM/NoPadding";
     private static final int GCM_TAG_LENGTH = 128;
+    // Timeout (ms) for one handler thread to join after quitSafely.
+    private static final int THREAD_JOIN_TIMEOUT_MS = 10_000;
 
-    /** K: class name, V: HandlerThread */
+    private static final Object sLock = new Object();
+    /** K: handler thread name, V: HandlerThread */
+    @GuardedBy("sLock")
     private static final ArrayMap<String, HandlerThread> sHandlerThreads = new ArrayMap<>();
+    /** K: handler thread name, V: ref count for the HandlerThread */
+    @GuardedBy("sLock")
+    private static final ArrayMap<String, Integer> sHandlerThreadsRefCount = new ArrayMap<>();
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE,
             details = "private constructor")
@@ -222,16 +230,22 @@ public final class CarServiceUtils {
      * @param context The context of the package.
      * @param userId The id of the user which the content resolver is being requested for. It also
      * accepts {@link UserHandle#USER_CURRENT}.
+     * @return the context of the given user, or {@code null} if the user is invalid.
      */
+    @Nullable
     public static ContentResolver getContentResolverForUser(Context context,
             @UserIdInt int userId) {
         if (userId == UserHandle.CURRENT.getIdentifier()) {
             userId = ActivityManager.getCurrentUser();
         }
-        return context
-                .createContextAsUser(
-                        UserHandle.of(userId), /* flags= */ 0)
-                .getContentResolver();
+        Context userContext = null;
+        try {
+            userContext = context.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
+        } catch (Exception e) {
+            Slogf.e(TAG, "Failed to create context for user " + userId, e);
+        }
+
+        return userContext == null ? null : userContext.getContentResolver();
     }
 
     /**
@@ -327,7 +341,16 @@ public final class CarServiceUtils {
      *             runnable.
      */
     public static void runEmptyRunnableOnLooperSync(String name) {
-        runOnLooperSync(getHandlerThread(name).getLooper(), () -> {});
+        var handlerThread = getHandlerThread(name);
+        try {
+            runOnLooperSync(handlerThread.getLooper(), () -> {});
+        } finally {
+            try {
+                releaseHandlerThread(name);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**
@@ -522,18 +545,89 @@ public final class CarServiceUtils {
     /**
      * Gets a static instance of {@code HandlerThread} for the given {@code name}. If the thread
      * does not exist, create one and start it before returning.
+     *
+     * <p>NOTE: Caller must call {@link releaseHandlerThread} after using the handler thread to
+     * prevent resource leak.
+     *
+     * <p>NOTE: Caller must not call {@code quitSafely} on the thread or join the thread, otherwise
+     * it might affect other clients using the same thread with the same name. Use
+     * {@link releaseHandlerThread} instead.
      */
     public static HandlerThread getHandlerThread(String name) {
-        synchronized (sHandlerThreads) {
+        Slogf.i(TAG, "getHandlerThread: " + name);
+        synchronized (sLock) {
             HandlerThread thread = sHandlerThreads.get(name);
-            if (thread == null || !thread.isAlive()) {
-                Slogf.i(TAG, "Starting HandlerThread:" + name);
-                thread = new HandlerThread(name);
-                thread.start();
-                sHandlerThreads.put(name, thread);
+            Integer refCount = sHandlerThreadsRefCount.get(name);
+            if (refCount == null) {
+                refCount = 0;
             }
+            refCount++;
+            sHandlerThreadsRefCount.put(name, refCount);
+            if (thread != null && thread.isAlive()) {
+                Slogf.i(TAG, "Reuse handler thread from cache: " + name + ", current ref count: "
+                        + refCount);
+                return thread;
+            }
+
+            Slogf.i(TAG, "Starting HandlerThread: " + name);
+            thread = new HandlerThread(name);
+            thread.start();
+            sHandlerThreads.put(name, thread);
+
             return thread;
         }
+    }
+
+    private static void quitAndJoinThread(String name, HandlerThread thread)
+            throws InterruptedException {
+        Slogf.i(TAG, "Quit HandlerThread: " + name);
+        if (!thread.quitSafely()) {
+            Slogf.i(TAG, "The HandlerThread: " + name + " has already finished, do nothing");
+            return;
+        }
+        Slogf.i(TAG, "Waiting for HandlerThread: " + name + " to join");
+        thread.join(THREAD_JOIN_TIMEOUT_MS);
+        if (thread.isAlive()) {
+            var looper = thread.getLooper();
+            if (looper == null) {
+                Slogf.e(TAG, "HandleThread is stuck, looper is null");
+            } else {
+                var queue = looper.getQueue();
+                Slogf.e(TAG, "HandlerThread is stuck, looper is idle: %s, thread state: %s",
+                        queue.isIdle(), thread.getState());
+            }
+            throw new RuntimeException("HandlerThread: " + name + " not joined after: "
+                    + THREAD_JOIN_TIMEOUT_MS + "ms, maybe it is stuck?");
+        }
+        Slogf.i(TAG, "HandleThread: " + name + " joined");
+    }
+
+    /**
+     * Releases the handler thread got from {@link getHandlerThread}.
+     *
+     * <p>This reduce the ref count for the handler thread. If there are not other usage, this quits
+     * the thread and waits for it to join.
+     */
+    public static void releaseHandlerThread(String name) throws InterruptedException {
+        Slogf.i(TAG, "Release HandlerThread: " + name);
+        HandlerThread thread;
+        synchronized (sLock) {
+            Integer refCount = sHandlerThreadsRefCount.get(name);
+            if (refCount == null) {
+                Slogf.w(TAG, "No active handler thread for: " + name);
+                return;
+            }
+            Slogf.i(TAG, "Current handler thread ref count: %d", refCount);
+            if (refCount != 1) {
+                sHandlerThreadsRefCount.put(name, refCount - 1);
+                return;
+            }
+            thread = sHandlerThreads.get(name);
+            sHandlerThreads.remove(name);
+            sHandlerThreadsRefCount.remove(name);
+        }
+
+        quitAndJoinThread(name, thread);
     }
 
     /**
@@ -545,25 +639,39 @@ public final class CarServiceUtils {
     }
 
     /**
+     * Releases the handler thread got from {@link getCommonHandlerThread}.
+     *
+     * <p>This reduce the ref count for the handler thread. If there are not other usage, this quits
+     * the thread and waits for it to join.
+     */
+    public static void releaseCommonHandlerThread() throws InterruptedException {
+        releaseHandlerThread(COMMON_HANDLER_THREAD_NAME);
+    }
+
+    /**
      * Quits all the {@code HandlerThread} created via
      * {@link#getHandlerThread(String)}. This is useful only for testing.
      */
     @VisibleForTesting
     public static void quitHandlerThreads() throws InterruptedException {
-        ArrayList<HandlerThread> threads;
-        synchronized (sHandlerThreads) {
-            threads = new ArrayList<>(sHandlerThreads.values());
+        Slogf.i(TAG, "Quit all handler threads");
+        ArrayMap<String, HandlerThread> threadCopy = new ArrayMap<>();
+        synchronized (sLock) {
+            for (int i = 0; i < sHandlerThreads.size(); i++) {
+                threadCopy.put(sHandlerThreads.keyAt(i), sHandlerThreads.valueAt(i));
+            }
+            sHandlerThreads.clear();
+            sHandlerThreadsRefCount.clear();
         }
-        for (int i = 0; i < threads.size(); i++) {
-            var thread = threads.get(i);
+        for (int i = 0; i < threadCopy.size(); i++) {
+            var name = threadCopy.keyAt(i);
+            var thread = threadCopy.valueAt(i);
             if (!thread.isAlive()) {
                 continue;
             }
-            if (thread.quitSafely()) {
-                thread.join();
-            }
+            quitAndJoinThread(name, thread);
         }
-        synchronized (sHandlerThreads) {
+        synchronized (sLock) {
             for (int i = 0; i < sHandlerThreads.size(); i++) {
                 if (sHandlerThreads.valueAt(i).isAlive()) {
                     throw new IllegalStateException(
@@ -573,6 +681,22 @@ public final class CarServiceUtils {
                 }
             }
         }
+    }
+
+    /**
+     * Gets the names for the handler threads that are still alive.
+     */
+    @VisibleForTesting
+    public static List<String> getActiveHandlerThreadNames() {
+        List<String> names = new ArrayList<>();
+        synchronized (sLock) {
+            for (int i = 0; i < sHandlerThreads.size(); i++) {
+                if (sHandlerThreads.valueAt(i).isAlive()) {
+                    names.add(sHandlerThreads.keyAt(i));
+                }
+            }
+        }
+        return names;
     }
 
     /**

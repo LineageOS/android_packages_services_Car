@@ -101,26 +101,6 @@ flag {
 }
 
 flag {
-  name: "per_display_max_brightness"
-  namespace: "car_framework"
-  description: "Use per display max brightness defined by VHAL"
-  bug: "336831738"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-flag {
-  name: "multi_display_brightness_control"
-  namespace: "car_framework"
-  description: "Support multi display brightness control"
-  bug: "356419293"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-flag {
   name: "car_power_cancel_shell_command"
   is_exported: true
   namespace: "car_framework"
@@ -214,6 +194,13 @@ flag {
     bug: "401266742"
 }
 
+flag {
+    name: "audio_send_restrictions_to_oem_volume_service"
+    namespace: "car_framework"
+    description: "Controls whether to send audio gain config restrictions to oem volume service"
+    bug: "415404935"
+}
+
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"
@@ -278,18 +265,24 @@ flag {
   bug: "377378043"
 }
 
-# CarServiceBase
 flag {
-  name: "car_dump_to_proto"
+  name: "property_value_use_direct_executor"
   namespace: "car_framework"
-  description: "Controls whether dump to proto is an option for car services"
-  bug: "302596493"
+  description: "Uses direct executor instead of the single thread executor to deliver car property events to propertyHalService to improve performance"
+  bug: "402997840"
 }
 
 flag {
   name: "create_car_use_notifications"
   namespace: "car_framework"
   description: "Optimized Car.createCar implementation using ServiceManagerHelper.registerForNotifications and binder death recipient"
+  bug: "343489611"
+}
+
+flag {
+  name: "car_property_status_detailed_not_available"
+  namespace: "car_framework"
+  description: "Expose detailed not available status codes for CarPropertyValue"
   bug: "343489611"
 }
 
@@ -433,8 +426,16 @@ flag {
 flag {
     name: "vehicle_property_25q2_3p_permissions"
     namespace: "car_perception"
-    description: "Introduce new 3p accessible permisisons for previously defined vehicle properties"
+    description: "Introduce new 3p accessible permissions for previously defined vehicle properties"
     bug: "357910697"
+}
+
+# 3P VHAL Property Strategy
+flag {
+    name: "vehicle_property_enums_remove_system_api_tags"
+    namespace: "car_perception"
+    description: "Expose vehicle property enum constants as public APIs instead of system APIs"
+    bug: "402626294"
 }
 
 # DisplayCompat density feature
@@ -459,4 +460,12 @@ flag {
     namespace: "car_framework"
     description: "Enables suspension of templated media apps in cars."
     bug: "401584551"
+}
+
+# LargeParcelable
+flag {
+    name: "largeparcelable_use_native_parcel"
+    namespace: "car_framework"
+    description: "Use JNI native code for Parcel.marshall and Parcel.unmarshall to avoid memory copy"
+    bug: "188781089"
 }

@@ -54,6 +54,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Binder;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteCallbackList;
@@ -116,6 +117,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private static final String EVS_INTERFACE_NAME =
             "android.hardware.automotive.evs.IEvsEnumerator";
     private static final String EVS_DEFAULT_INSTANCE_NAME = "default";
+    private static final String STATE_MACHINE_HANDLER_THREAD_NAME =
+            StateMachine.class.getSimpleName();
 
 
     static final class EvsHalEvent {
@@ -156,6 +159,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private final Object mLock = new Object();
     private final ArraySet<IBinder> mSessionTokens = new ArraySet<>();
     private final boolean mIsEvsAvailable;
+    private final HandlerThread mStateMachineHandlerThread = CarServiceUtils.getHandlerThread(
+            STATE_MACHINE_HANDLER_THREAD_NAME);
+    private final Handler mStateMachineHandler = new Handler(
+            mStateMachineHandlerThread.getLooper());
 
     // This handler is to monitor the client sends a video stream request within a given time
     // after a state transition to the REQUESTED state.
@@ -338,7 +345,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 CarEvsServiceUtils.Parameters params = CarEvsServiceUtils.parse(rawString);
 
                 StateMachine s = new StateMachine(context, builtinContext, this,
-                        params.getActivityComponentName(), params.getType(), params.getCameraId());
+                        params.getActivityComponentName(), params.getType(), params.getCameraId(),
+                        mStateMachineHandler);
                 mServiceInstances.put(params.getType(), s);
             }
 
@@ -367,7 +375,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
             String cameraId = context.getString(R.string.config_evsRearviewCameraId);
             StateMachine s = new StateMachine(context, builtinContext, this, activityComponentName,
-                    CarEvsManager.SERVICE_TYPE_REARVIEW, cameraId);
+                    CarEvsManager.SERVICE_TYPE_REARVIEW, cameraId, mStateMachineHandler);
             mServiceInstances.put(CarEvsManager.SERVICE_TYPE_REARVIEW, s);
         }
 
@@ -391,6 +399,16 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 instance.bringActivityToForeground();
             }
         };
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(STATE_MACHINE_HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
     }
 
     @VisibleForTesting
@@ -977,7 +995,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
 
         StateMachine s = new StateMachine(mContext, mBuiltinContext, this, null,
-                serviceType, cameraId);
+                serviceType, cameraId, mStateMachineHandler);
         if (!s.init()) {
             Slogf.e(TAG_EVS, "Failed to initialize a requested service type.");
             return false;

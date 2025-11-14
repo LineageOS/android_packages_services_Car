@@ -17,7 +17,7 @@
 #pragma once
 
 #include "LooperWrapper.h"
-#include "WatchdogServiceHelper.h"
+#include "WatchdogServiceHelperBase.h"
 
 #include <aidl/android/automotive/watchdog/internal/ApplicationCategoryType.h>
 #include <aidl/android/automotive/watchdog/internal/PackageInfo.h>
@@ -45,6 +45,7 @@ namespace watchdog {
 class ServiceManager;
 class IoOveruseMonitor;
 class IoOveruseConfigs;
+class IoServiceManager;
 
 // Forward declaration for testing use only.
 namespace internal {
@@ -62,8 +63,8 @@ public:
     getPackageInfosForUids(const std::vector<uid_t>& uids) = 0;
 
 protected:
-    virtual android::base::Result<void> initWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) = 0;
+    virtual android::base::Result<void> initWatchdogServiceHelperBase(
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase) = 0;
     virtual void setPackageConfigurations(
             const std::unordered_set<std::string>& vendorPackagePrefixes,
             const std::unordered_map<
@@ -75,6 +76,7 @@ private:
     friend class ServiceManager;
     friend class IoOveruseMonitor;
     friend class IoOveruseConfigs;
+    friend class IoServiceManager;
 };
 
 /*
@@ -89,7 +91,7 @@ class PackageInfoResolver final : public PackageInfoResolverInterface {
 public:
     ~PackageInfoResolver() {
         std::unique_lock writeLock(mRWMutex);
-        mWatchdogServiceHelper.clear();
+        mWatchdogServiceHelperBase.clear();
         mUidToPackageInfoMapping.clear();
     }
 
@@ -99,8 +101,8 @@ public:
      */
     static std::shared_ptr<PackageInfoResolverInterface> getInstance();
 
-    android::base::Result<void> initWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
+    android::base::Result<void> initWatchdogServiceHelperBase(
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase);
 
     static void terminate();
 
@@ -140,7 +142,7 @@ public:
 private:
     // PackageInfoResolver instance can only be obtained via |getInstance|.
     PackageInfoResolver() :
-          mWatchdogServiceHelper(nullptr),
+          mWatchdogServiceHelperBase(nullptr),
           mUidToPackageInfoMapping({}),
           mVendorPackagePrefixes({}),
           mShouldTerminateLooper(false),
@@ -161,13 +163,14 @@ private:
     mutable std::shared_mutex mRWMutex;
 
     /*
-     * ServiceManager::startServices initializes PackageInfoResolver. However, between the
-     * |getInstance| and |initWatchdogServiceHelper| calls it initializes few other services, which
-     * may call |asyncFetchPackageNamesForUids| or |getPackageInfosForUids| simultaneously on a
-     * separate thread. In order to avoid a race condition between |initWatchdogServiceHelper| and
-     * |getPackage*ForUids| calls, mWatchdogServiceHelper is guarded by a read-write lock.
+     * IoServiceManager::startServices and ServiceManager::startServices initializes
+     * PackageInfoResolver. However, between the |getInstance| and |initWatchdogServiceHelperBase|
+     * calls it initializes few other services, which may call |asyncFetchPackageNamesForUids| or
+     * |getPackageInfosForUids| simultaneously on a separate thread. In order to avoid a race
+     * condition between |initWatchdogServiceHelperBase| and |getPackage*ForUids| calls,
+     * mWatchdogServiceHelperBase is guarded by a read-write lock.
      */
-    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mRWMutex);
+    android::sp<WatchdogServiceHelperBaseInterface> mWatchdogServiceHelperBase GUARDED_BY(mRWMutex);
     std::unordered_map<uid_t, aidl::android::automotive::watchdog::internal::PackageInfo>
             mUidToPackageInfoMapping GUARDED_BY(mRWMutex);
     std::vector<std::string> mVendorPackagePrefixes GUARDED_BY(mRWMutex);
@@ -187,7 +190,7 @@ private:
 
     friend class internal::PackageInfoResolverPeer;
     FRIEND_TEST(PackageInfoResolverTest, TestResolvesNativeUid);
-    FRIEND_TEST(PackageInfoResolverTest, TestResolvesApplicationUidFromWatchdogServiceHelper);
+    FRIEND_TEST(PackageInfoResolverTest, TestResolvesApplicationUidFromWatchdogServiceHelperBase);
     FRIEND_TEST(PackageInfoResolverTest, TestResolvesApplicationUidFromLocalCache);
 };
 

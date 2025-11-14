@@ -223,6 +223,8 @@
     <!-- Allowlisted packages for launch on a private display. -->
     <string-array name="config_defaultAllowlistLaunchOnPrivateDisplayPackages">
         <item>com.example.android.launchonprivatedisplay</item>
+        <item>com.google.android.apps.mediashell</item>
+        <item>org.chromium.chromecast.shell</item>
     </string-array>
 
     <!-- The number of the max cached processes in the system.
@@ -230,4 +232,11 @@
          the old value.
          TODO(b/375265023): Remove this config once the new default value is tested on AAOS. -->
     <integer name="config_customizedMaxCachedProcesses">32</integer>
+
+     <!-- True if the device requires AppWidgetService even if it does not have
+          the PackageManager.FEATURE_APP_WIDGETS feature. -->
+    <bool name="config_enableAppWidgetService">true</bool>
+
+    <!-- Whether to disallow the removal of the last admin user on device. -->
+    <bool name="config_disallowRemovingLastAdminUser">false</bool>
 </resources>

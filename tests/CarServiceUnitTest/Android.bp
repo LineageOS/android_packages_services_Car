@@ -1,0 +1,566 @@
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+
+package {
+    default_team: "trendy_team_aaos_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "CarServiceUnitTestDefaults",
+    static_libs: [
+        "CarServiceTestRule",
+        "SettingsLib",
+        "android.car.feature-aconfig-java",
+        "android.car.testapi",
+        "android.car.test.utils",
+        "androidx.test.core",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "car-service-test-static-lib",
+        "car-service-builtin-test-static-lib",
+        "car-helper-lib",
+        "com.android.car.test.lib",
+        "compatibility-device-util-axt",
+        "frameworks-base-testutils",
+        "flag-junit",
+        "ravenwood-junit",
+        "mockito-target-extended",
+        "platform-test-annotations",
+        "ravenwood-junit",
+        "servicestests-utils",
+        "truth",
+        "vehicle-hal-support-lib",
+    ],
+
+    srcs: [
+        "dep/src/**/*.java",
+    ],
+
+    libs: [
+        "android.car",
+        "android.car.builtin.impl",
+        "android.car.watchdoglib",
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+        "android.test.mock.stubs",
+        "framework",
+        "framework-res",
+    ],
+
+    optimize: {
+        enabled: false,
+    },
+
+    platform_apis: true,
+
+    certificate: "platform",
+
+    instrumentation_for: "CarService",
+
+    use_resource_processor: false,
+
+    test_suites: [
+        "device-tests",
+        "automotive-tests",
+    ],
+
+    aaptflags: [
+        "--extra-packages com.android.car",
+        "--auto-add-overlay",
+    ],
+
+    proto: {
+        type: "lite",
+    },
+
+    aidl: {
+        include_dirs: [
+            "packages/services/Car/car-lib/src",
+        ],
+    },
+
+    // mockito-target-inline dependency
+    jni_libs: [
+        "libcarservicejni",
+        "libcarservicejni_test",
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
+}
+
+android_test {
+    name: "CarServiceCarUnitTest",
+    team: "trendy_team_aaos_framework",
+
+    srcs: [
+        "src/com/android/car/*.java",
+        ":car-service-dump-proto-srcs",
+    ],
+
+    defaults: [
+        "car-framework-aconfig-libraries",
+        "CarServiceUnitTestDefaults",
+    ],
+
+    manifest: "AndroidCarServiceManifest.xml",
+
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+    test_config: "AndroidTest_CarTest.xml",
+}
+
+android_test {
+    name: "CarServiceWifiUnitTest",
+    team: "trendy_team_connectivity_telemetry",
+
+    srcs: [
+        "src/com/android/car/wifi/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_WifiTest.xml",
+}
+
+android_test {
+    name: "CarServiceWatchdogUnitTest",
+    team: "trendy_team_aaos_performance_triage",
+
+    srcs: [
+        "src/com/android/car/watchdog/*.java",
+        ":car-service-dump-proto-srcs",
+    ],
+    defaults: [
+        "car-framework-aconfig-libraries",
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_WatchdogTest.xml",
+}
+
+android_test {
+    name: "CarServiceVmsUnitTest",
+    team: "trendy_team_aaos_vac_triage",
+
+    srcs: [
+        "src/com/android/car/vms/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_VmsTest.xml",
+}
+
+android_test {
+    name: "CarServiceUtilUnitTest",
+    team: "trendy_team_aaos_framework",
+
+    srcs: [
+        "src/com/android/car/util/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_UtilTest.xml",
+}
+
+android_test {
+    name: "CarServiceUserUnitTest",
+    team: "trendy_team_aaos_user_triage",
+
+    srcs: [
+        "src/com/android/car/user/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_UserTest.xml",
+}
+
+android_test {
+    name: "CarServiceTelemetryUnitTest",
+    team: "trendy_team_connectivity_telemetry",
+
+    srcs: [
+        "src/com/android/car/telemetry/**/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_TelemetryTest.xml",
+}
+
+android_test {
+    name: "CarServiceSystemUiUnitTest",
+    team: "trendy_team_system_experience",
+
+    srcs: [
+        "src/com/android/car/systemui/keyguard/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_SystemUiTest.xml",
+}
+
+android_test {
+    name: "CarServiceSystemInterfaceUnitTest",
+    team: "trendy_team_aaos_carframework_triage",
+
+    srcs: [
+        "src/com/android/car/systeminterface/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_SystemInterfaceTest.xml",
+}
+
+android_test {
+    name: "CarServiceStorageMonitoringUnitTest",
+    team: "trendy_team_aaos_storage_triage",
+
+    srcs: [
+        "src/com/android/car/storagemonitoring/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_StorageMonitoringTest.xml",
+}
+
+android_test {
+    name: "CarServiceStatsUnitTest",
+    team: "trendy_team_aaos_vac_triage",
+
+    srcs: [
+        "src/com/android/car/stats/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_StatsTest.xml",
+}
+
+android_test {
+    name: "CarServiceRemoteAccessUnitTest",
+    team: "trendy_team_aaos_power_triage",
+
+    srcs: [
+        "src/com/android/car/remoteaccess/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_RemoteAccessTest.xml",
+}
+
+android_test {
+    name: "CarServicePropertyUnitTest",
+    team: "trendy_team_aaos_vac_triage",
+
+    srcs: [
+        "src/com/android/car/property/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_PropertyTest.xml",
+}
+
+android_test {
+    name: "CarServicePowerUnitTest",
+    team: "trendy_team_aaos_power_triage",
+
+    srcs: [
+        "src/com/android/car/power/*.java",
+        ":car-service-dump-proto-srcs",
+    ],
+
+    static_libs: select(release_flag("RELEASE_FRAMEWORK_NATIVE_POWER_NOTIFICATIONS"), {
+        true: [
+            "native_power_notifications_enabled",
+        ],
+        default: [
+            "native_power_notifications_disabled",
+        ],
+    }),
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+        "car-framework-aconfig-libraries",
+    ],
+
+    test_config: "AndroidTest_PowerTest.xml",
+}
+
+android_test {
+    name: "CarServicePmUnitTest",
+    team: "trendy_team_aaos_user_triage",
+
+    srcs: [
+        "src/com/android/car/pm/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_PmTest.xml",
+}
+
+android_test {
+    name: "CarServiceOsUnitTest",
+    team: "trendy_team_aaos_carframework_triage",
+
+    srcs: [
+        "src/com/android/car/os/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_OsTest.xml",
+}
+
+android_test {
+    name: "CarServiceOemUnitTest",
+    team: "trendy_team_aaos_audio_triage",
+
+    srcs: [
+        "src/com/android/car/oem/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_OemTest.xml",
+}
+
+android_test {
+    name: "CarServiceOccupantConnectionUnitTest",
+    team: "trendy_team_aaos_user_triage",
+
+    srcs: [
+        "src/com/android/car/occupantconnection/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_OccupantConnectionTest.xml",
+}
+
+android_test {
+    name: "CarServiceHalUnitTest",
+    team: "trendy_team_aaos_carframework_triage",
+
+    srcs: [
+        "src/com/android/car/hal/**/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_HalTest.xml",
+}
+
+android_test {
+    name: "CarServiceGarageModeUnitTest",
+    team: "trendy_team_aaos_power_triage",
+
+    srcs: [
+        "src/com/android/car/garagemode/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_GarageModeTest.xml",
+}
+
+android_test {
+    name: "CarServiceEvsUnitTest",
+    team: "trendy_team_perception_virtualization",
+
+    srcs: [
+        "src/com/android/car/evs/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_EvsTest.xml",
+}
+
+android_test {
+    name: "CarServiceClusterUnitTest",
+    team: "trendy_team_aaos_window_triage",
+
+    srcs: [
+        "src/com/android/car/cluster/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_ClusterTest.xml",
+}
+
+android_test {
+    name: "CarServiceBluetoothUnitTest",
+    team: "trendy_team_connectivity_telemetry",
+
+    srcs: [
+        "src/com/android/car/bluetooth/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_BluetoothTest.xml",
+}
+
+android_test {
+    name: "CarServiceAudioUnitTest",
+    team: "trendy_team_aaos_audio_triage",
+
+    srcs: [
+        "src/com/android/car/audio/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_AudioTest.xml",
+}
+
+android_test {
+    name: "CarServiceAmUnitTest",
+    team: "trendy_team_aaos_user_triage",
+
+    srcs: [
+        "src/com/android/car/am/*.java",
+    ],
+
+    static_libs: [
+        "WindowManager-Shell", // for CarActivityServiceTaskMonitorUnitTest
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_AmTest.xml",
+
+    manifest: "AndroidAmManifest.xml",
+}
+
+android_test {
+    name: "CarServiceAdminUnitTest",
+    team: "trendy_team_aaos_user_triage",
+
+    srcs: [
+        "src/com/android/car/admin/**/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_AdminTest.xml",
+}
+
+android_ravenwood_test {
+    name: "CarServiceHostUnitTest",
+    team: "trendy_team_aaos_framework",
+
+    srcs: [
+        "src/com/android/car/AidlVehicleStubUnitTest.java",
+        "src/com/android/car/CarDiagnosticServiceUnitTest.java",
+        "src/com/android/car/CarPropertyServiceUnitTest.java",
+        "src/com/android/car/hal/HalPropConfigTest.java",
+        "src/com/android/car/hal/VehicleHalTest.java",
+        "src/com/android/car/hal/fakevhal/FakeVhalConfigParserUnitTest.java",
+        "src/com/android/car/hal/fakevhal/FakeVehicleStubUnitTest.java",
+        "src/com/android/car/hal/property/*.java",
+        "src/com/android/car/systeminterface/DisplayInterfaceTest.java",
+        "src/com/android/car/user/InitialUserSetterTest.java",
+        "dep/src/com/android/car/user/MockedUserHandleBuilder.java",
+        // Don't depends on "com.android.car.test" because it uses
+        // "mockito-target-extended" which might not be the same mockito
+        // library used on host.
+        ":com.android.car.test.lib-srcs",
+    ],
+
+    static_libs: [
+        "CarServiceTestRule",
+        // Use the car-lib with fake dependencies because some real dependencies are missing on
+        // host.
+        "android.car-with-fake-dep",
+        "android.car.testapi",
+        "android.car.test.utils",
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+        "car-service-test-static-lib",
+        "compatibility-device-util-axt-ravenwood",
+    ],
+
+    libs: [
+        "android.test.base.stubs.system",
+        "framework-annotations-lib",
+    ],
+
+    jni_libs: [
+        "liblargeparcelablejni",
+    ],
+
+    platform_apis: true,
+
+    auto_gen_config: true,
+}

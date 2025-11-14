@@ -29,15 +29,9 @@ namespace watchdog {
 
 using ::aidl::android::automotive::watchdog::TimeoutLength;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
-using ::aidl::android::automotive::watchdog::internal::PackageInfo;
-using ::aidl::android::automotive::watchdog::internal::PackageIoOveruseStats;
-using ::aidl::android::automotive::watchdog::internal::ResourceStats;
-using ::aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::android::sp;
-using ::android::wp;
 using ::android::base::Error;
 using ::android::base::Result;
-using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::ScopedAStatus;
 using ::ndk::SpAIBinder;
 
@@ -60,11 +54,18 @@ void onBinderDied(void* cookie) {
 }  // namespace
 
 WatchdogServiceHelper::WatchdogServiceHelper() :
-      mWatchdogProcessService(nullptr),
-      mWatchdogServiceDeathRecipient(
-              ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(onBinderDied))),
-      mDeathRegistrationWrapper(sp<AIBinderDeathRegistrationWrapper>::make()),
-      mService(nullptr) {}
+      WatchdogServiceHelperBase(onBinderDied), mWatchdogProcessService(nullptr) {
+    mOnUnregisterServiceLocked = [this](const SpAIBinder& binder) -> ScopedAStatus {
+        if (mWatchdogProcessService == nullptr) {
+            return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
+                                                "Must initialize watchdog process service "
+                                                "before unregistering car watchdog "
+                                                "service");
+        }
+        mWatchdogProcessService->unregisterCarWatchdogService(binder);
+        return ScopedAStatus::ok();
+    };
+}
 
 Result<void> WatchdogServiceHelper::init(
         const sp<WatchdogProcessServiceInterface>& watchdogProcessService) {
@@ -77,100 +78,45 @@ Result<void> WatchdogServiceHelper::init(
 
 ScopedAStatus WatchdogServiceHelper::registerService(
         const std::shared_ptr<ICarWatchdogServiceForSystem>& service) {
-    if (service == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT, "Must provide non-null service");
-    }
-    const auto binder = service->asBinder();
-    AIBinder* aiBinder = binder.get();
-    {
-        std::unique_lock writeLock(mRWMutex);
+    std::function<ndk::ScopedAStatus(const SpAIBinder&)> onRegisterServiceLocked =
+            [this](const SpAIBinder& binder) -> ScopedAStatus {
         if (mWatchdogProcessService == nullptr) {
             return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                                "Must initialize watchdog service helper before "
-                                                "registering car watchdog service");
+                                                "Must initialize watchdog process service "
+                                                "before registering car watchdog service");
         }
-        if (mService != nullptr && mService->asBinder() == binder) {
-            return ScopedAStatus::ok();
-        }
-        unregisterServiceLocked(/*doUnregisterFromProcessService=*/true);
-        if (auto status = mWatchdogProcessService
-                                  ->registerCarWatchdogService(binder,
-                                                               sp<WatchdogServiceHelperInterface>::
-                                                                       fromExisting(this));
-            !status.isOk()) {
-            return status;
-        }
-        mService = service;
-    }
-    auto ret =
-            mDeathRegistrationWrapper->linkToDeath(aiBinder, mWatchdogServiceDeathRecipient.get(),
-                                                   static_cast<void*>(aiBinder));
-    if (!ret.isOk()) {
-        std::unique_lock writeLock(mRWMutex);
-        if (mService != nullptr && mService->asBinder() == binder) {
-            mWatchdogProcessService->unregisterCarWatchdogService(binder);
-            mService.reset();
-        }
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                            "Failed to register car watchdog service as it is "
-                                            "dead");
-    }
-    if (DEBUG) {
-        ALOGW("CarWatchdogService is registered");
-    }
-    return ScopedAStatus::ok();
+        return mWatchdogProcessService
+                ->registerCarWatchdogService(binder,
+                                             sp<WatchdogServiceHelperInterface>::fromExisting(
+                                                     this));
+    };
+    return registerServiceInternal(service, onRegisterServiceLocked, mOnUnregisterServiceLocked);
 }
 
 ScopedAStatus WatchdogServiceHelper::unregisterService(
         const std::shared_ptr<ICarWatchdogServiceForSystem>& service) {
-    if (service == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT, "Must provide non-null service");
-    }
-    std::unique_lock writeLock(mRWMutex);
-    if (const auto binder = service->asBinder();
-        mService == nullptr || binder != mService->asBinder()) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
-                                            "Failed to unregister car watchdog service as it is "
-                                            "not registered");
-    }
-    unregisterServiceLocked(/*doUnregisterFromProcessService=*/true);
-
-    if (DEBUG) {
-        ALOGW("CarWatchdogService is unregistered");
-    }
-    return ScopedAStatus::ok();
+    return unregisterServiceInternal(service, mOnUnregisterServiceLocked);
 }
 
 void WatchdogServiceHelper::handleBinderDeath(void* cookie) {
-    std::unique_lock writeLock(mRWMutex);
-    if (mService == nullptr) {
-        return;
-    }
-    const auto curBinder = mService->asBinder();
-    if (reinterpret_cast<uintptr_t>(curBinder.get()) != reinterpret_cast<uintptr_t>(cookie)) {
-        return;
-    }
-    ALOGW("Car watchdog service had died.");
-    mService.reset();
-    mWatchdogProcessService->unregisterCarWatchdogService(curBinder);
+    handleBinderDeathInternal(cookie, mOnUnregisterServiceLocked);
 }
 
 void WatchdogServiceHelper::terminate() {
-    std::unique_lock writeLock(mRWMutex);
-    unregisterServiceLocked(/*doUnregisterFromProcessService=*/true);
+    terminateInternal(mOnUnregisterServiceLocked);
     mWatchdogProcessService.clear();
 }
 
 ScopedAStatus WatchdogServiceHelper::checkIfAlive(const SpAIBinder& who, int32_t sessionId,
                                                   TimeoutLength timeout) const {
-    std::shared_ptr<ICarWatchdogServiceForSystem> service;
-    if (std::shared_lock readLock(mRWMutex); mService == nullptr || mService->asBinder() != who) {
+    auto service = checkServiceAndGetService(who);
+    if (service == nullptr) {
         return fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                             "Dropping checkIfAlive request as the given car "
-                                            "watchdog service binder isn't registered");
-    } else {
-        service = mService;
+                                            "watchdog service binder isn't "
+                                            "registered");
     }
+
     return service
             ->checkIfAlive(sessionId,
                            static_cast<
@@ -179,114 +125,54 @@ ScopedAStatus WatchdogServiceHelper::checkIfAlive(const SpAIBinder& who, int32_t
 }
 
 ScopedAStatus WatchdogServiceHelper::prepareProcessTermination(const SpAIBinder& who) {
-    std::shared_ptr<ICarWatchdogServiceForSystem> service;
-    if (std::shared_lock readLock(mRWMutex); mService == nullptr || mService->asBinder() != who) {
+    auto service = checkServiceAndGetService(who);
+    if (service == nullptr) {
         return fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                             "Dropping prepareProcessTermination request as the "
-                                            "given car watchdog service binder isn't registered");
-    } else {
-        service = mService;
+                                            "given car watchdog service binder isn't "
+                                            "registered");
     }
+
     auto status = service->prepareProcessTermination();
     if (status.isOk()) {
-        std::unique_lock writeLock(mRWMutex);
         /*
-         * prepareTermination callback is called when CarWatchdogService isn't responding, which
-         * indicates the CarWatchdogService is stuck, terminating, or restarting.
+         * prepareProcessTermination is called by WatchdogProcessService after unregistering the
+         * CarWatchdogService. So, there is no need to unregister the CarWatchdogService again.
+         * Thus, pass nullptr to |onUnregisterServiceLocked|.
+         *
+         * prepareProcessTermination callback is called when CarWatchdogService isn't responding,
+         * which indicates the CarWatchdogService is stuck, terminating, or restarting.
          *
          * When CarWatchdogService is terminating, it will issue an unregisterService call.
-         * If the unregisterService is executed after the previous |readLock| is released and the
-         * before current |writeLock| is acquired, the |mService| will be updated to null. Then it
-         * won't match |service|.
+         * If the unregisterService is executed after the |readLock| in
+         * WatchdogServiceHelperBase::checkServiceAndGetService is released and
+         * before the |writeLock| in WatchdogServiceHelperBase::unregisterServiceInternal is
+         * acquired, the |WatchdogServiceHelperBase::mService| will be updated to null.
+         * Then it won't match |service|.
          *
          * When CarWatchdogService is restarting, it will issue an registerService call. When the
-         * registerService is executed between after the previous |readLock| is released and before
-         * the current |writeLock| is acquired, the |mService| will be overwritten. This will lead
+         * registerService is executed between after the previous |readLock| in
+         * WatchdogServiceHelperBase::checkServiceAndGetService is released and before
+         * the current |writeLock| in WatchdogServiceHelperBase::unregisterServiceInternal is
+         * acquired, the |WatchdogServiceHelperBase::mService| will be overwritten. This will lead
          * to unregistering the new CarWatchdogService.
          *
-         * To avoid this race condition, check mService before proceeding with unregistering the
-         * CarWatchdogService.
+         * To avoid this race condition, check WatchdogServiceHelperBase::mService. This check is
+         * performed in WatchdogServiceHelperBase::unregisterServiceInternal.
          */
-        if (mService == service) {
-            // WatchdogProcessService unregisters the watchdog service before calling
-            // prepareProcessTermination. So skip unregistering from WatchdogProcessService.
-            unregisterServiceLocked(/*doUnregisterFromProcessService=*/false);
-        }
+        std::function<ScopedAStatus(const SpAIBinder&)> onUnregisterServiceLocked;
+        unregisterServiceInternal(service, onUnregisterServiceLocked);
     }
     return status;
 }
 
-void WatchdogServiceHelper::unregisterServiceLocked(bool doUnregisterFromProcessService) {
-    if (mService == nullptr) return;
-    const auto binder = mService->asBinder();
-    AIBinder* aiBinder = binder.get();
-    mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mWatchdogServiceDeathRecipient.get(),
-                                             static_cast<void*>(aiBinder));
-    if (doUnregisterFromProcessService) {
-        mWatchdogProcessService->unregisterCarWatchdogService(binder);
-    }
-    mService.reset();
-}
-
-ScopedAStatus WatchdogServiceHelper::getPackageInfosForUids(
-        const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
-        std::vector<PackageInfo>* packageInfos) const {
-    std::shared_ptr<ICarWatchdogServiceForSystem> service;
-    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                            "Watchdog service is not initialized");
-    } else {
-        service = mService;
-    }
-    /*
-     * The expected number of vendor package prefixes is in the order of 10s. Thus the overhead of
-     * forwarding these in each get call is very low.
-     */
-    return service->getPackageInfosForUids(uids, vendorPackagePrefixes, packageInfos);
-}
-
-ScopedAStatus WatchdogServiceHelper::resetResourceOveruseStats(
-        const std::vector<std::string>& packageNames) const {
-    std::shared_ptr<ICarWatchdogServiceForSystem> service;
-    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                            "Watchdog service is not initialized");
-    } else {
-        service = mService;
-    }
-    return service->resetResourceOveruseStats(packageNames);
-}
-
-ScopedAStatus WatchdogServiceHelper::requestTodayIoUsageStats() const {
-    std::shared_ptr<ICarWatchdogServiceForSystem> service;
-    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                            "Watchdog service is not initialized");
-    } else {
-        service = mService;
-    }
-    return service->requestTodayIoUsageStats();
-}
-
-ScopedAStatus WatchdogServiceHelper::onLatestResourceStats(
-        const std::vector<ResourceStats>& resourceStats) const {
-    std::shared_ptr<ICarWatchdogServiceForSystem> service;
-    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                            "Watchdog service is not initialized");
-    } else {
-        service = mService;
-    }
-    return service->onLatestResourceStats(resourceStats);
-}
-
 ScopedAStatus WatchdogServiceHelper::requestAidlVhalPid() const {
-    std::shared_ptr<ICarWatchdogServiceForSystem> service;
-    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                            "Watchdog service is not initialized");
-    } else {
-        service = mService;
+    auto service = getService();
+    if (service == nullptr) {
+        return fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
+                                            "Dropping requestAidlVhalPid request as the "
+                                            "car watchdog service binder isn't "
+                                            "registered");
     }
     return service->requestAidlVhalPid();
 }

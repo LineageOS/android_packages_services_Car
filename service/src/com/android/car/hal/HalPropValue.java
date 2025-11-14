@@ -25,7 +25,9 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.CarPropertyValue.CarPropertyStatus;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
@@ -71,11 +73,22 @@ public abstract class HalPropValue {
     public abstract int getPropId();
 
     /**
-     * Gets the property status.
+     * Gets the property system status.
      *
-     * @return The property status.
+     * The caller should verify that the returned status is one of {@code VehiclePropertyStatus}.
+     *
+     * @return The property system status.
      */
     public abstract int getStatus();
+
+    /**
+     * Gets the property vendor status.
+     *
+     * This is the vendor-specific status if the system status is not {@code AVAILABLE}.
+     */
+    public int getVendorStatus() {
+        return 0;
+    }
 
     /**
      * Get stored int32 values size.
@@ -241,8 +254,12 @@ public abstract class HalPropValue {
             // Fill in the default value, rawPropertyValue must not be null.
             rawPropertyValue = new RawPropertyValue(CarPropertyHelper.getDefaultValue(clazz));
         }
-        return new CarPropertyValue<>(mgrPropId, areaId, status, timestampNanos,
-                rawPropertyValue, isVhalPropId);
+        return new CarPropertyValue.Builder<>(mgrPropId, areaId)
+                .setSystemStatus(status)
+                .setVendorStatus(getVendorStatus())
+                .setTimestampNanos(timestampNanos)
+                .setRawPropertyValue(rawPropertyValue)
+                .setIsSimulationPropId(isVhalPropId).build();
     }
 
     private @Nullable RawPropertyValue<?> toRawPropertyValue(int mgrPropId, HalPropConfig config) {
@@ -299,6 +316,11 @@ public abstract class HalPropValue {
             Slogf.i(TAG, "Status mismatch, got " + other.getStatus() + " want " + getStatus());
             return false;
         }
+        if (other.getVendorStatus() != getVendorStatus()) {
+            Slogf.i(TAG, "Vendor status mismatch, got " + other.getVendorStatus() + " want "
+                    + getVendorStatus());
+            return false;
+        }
         if (!equalInt32Values(other)) {
             Slogf.i(TAG, "Int32Values mismatch, got " + other.dumpInt32Values() + " want "
                     + dumpInt32Values());
@@ -334,7 +356,8 @@ public abstract class HalPropValue {
         debugStringJoiner.add("Property ID: " + toPropertyIdString(getPropId()));
         debugStringJoiner.add("Area ID: " + toAreaIdString(getPropId(), getAreaId()));
         debugStringJoiner.add("ElapsedRealtimeNanos: " + getTimestamp());
-        debugStringJoiner.add("Status: " + toStatusString(getStatus()));
+        debugStringJoiner.add("SystemStatus: " + toStatusString(getStatus()));
+        debugStringJoiner.add("VendorStatus: " + getVendorStatus());
         debugStringJoiner.add("Value: " + toValueString(this));
         return "HalPropValue" + debugStringJoiner;
     }
@@ -465,24 +488,46 @@ public abstract class HalPropValue {
         return true;
     }
 
-    private static @CarPropertyValue.PropertyStatus int vehiclePropertyStatusToCarPropertyStatus(
-            @VehiclePropertyStatus int status) {
+    private static @CarPropertyStatus int vehiclePropertyStatusToCarPropertyStatus(
+            int status) {
         switch (status) {
             case VehiclePropertyStatus.AVAILABLE:
                 return CarPropertyValue.STATUS_AVAILABLE;
             case VehiclePropertyStatus.ERROR:
                 return CarPropertyValue.STATUS_ERROR;
             case VehiclePropertyStatus.NOT_AVAILABLE_GENERAL:
-                return CarPropertyValue.STATUS_UNAVAILABLE;
-            // TODO(b/381298607): Map these to individual CarPropertyValue status.
-            case VehiclePropertyStatus.NOT_AVAILABLE_DISABLED:  // Fallthrough
-            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW:  // Fallthrough
-            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH:  // Fallthrough
-            case VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY:  // Fallthrough
-            case VehiclePropertyStatus.NOT_AVAILABLE_SAFETY:  // Fallthrough
+                return CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_DISABLED:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_SAFETY:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
             case VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED:
-                return CarPropertyValue.STATUS_UNAVAILABLE;
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
         }
+        Slogf.e(TAG, "Unknown VehiclePropertyStatus: " + status + ", mapped to STATUS_ERROR");
         return CarPropertyValue.STATUS_ERROR;
+    }
+
+    private static boolean exposeDetailedNotAvailableStatus() {
+        // TODO(b/405477436): Add SDK version check once we have version code for 25Q4.
+        return Flags.carPropertyStatusDetailedNotAvailable();
     }
 }

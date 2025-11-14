@@ -230,6 +230,9 @@ public class DiagnosticHalService extends HalServiceBase {
         }
     }
 
+    @Override
+    public void destroy() {}
+
     /**
      * Returns the status of Diagnostic HAL.
      * @return true if Diagnostic HAL is ready after init call.

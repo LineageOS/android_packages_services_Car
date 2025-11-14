@@ -14,16 +14,26 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<selector
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:androidprv="http://schemas.android.com/apk/prv/res/android">
+    <item
+        android:state_checked="true" androidprv:state_ux_restricted="true"
+        android:alpha="0.12"
+        android:color="?oemColorOnSurface" />
+    <item
+        android:state_checked="false" androidprv:state_ux_restricted="true"
+        android:alpha="0.12"
+        android:color="?oemColorSurfaceContainerHighest" />
     <item
         android:state_checked="true" android:state_enabled="false"
-        android:alpha="?android:attr/disabledAlpha"
-        android:color="@color/car_switch_track_background_checked" />
+        android:alpha="0.12"
+        android:color="?oemColorOnSurface" />
     <item
         android:state_enabled="false"
-        android:alpha="?android:attr/disabledAlpha"
-        android:color="@color/car_switch_track_background_unchecked" />
+        android:alpha="0.12"
+        android:color="?oemColorSurfaceContainerHighest" />
     <item
-        android:state_checked="true" android:color="@color/car_switch_track_background_checked" />
-    <item android:color="@color/car_switch_track_background_unchecked" />
+        android:state_checked="true" android:color="?oemColorPrimary" />
+    <item android:color="?oemColorSurfaceContainerHighest" />
 </selector>

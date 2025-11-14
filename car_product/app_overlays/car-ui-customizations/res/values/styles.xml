@@ -64,31 +64,6 @@
         <item name="android:paddingEnd">@dimen/car_ui_padding_4</item>
     </style>
 
-    <style name="Widget.CarUi.SwitchPreference"/>
-
-    <style name="Widget.CarUi.SwitchPreference.Switch">
-        <item name="android:track">@drawable/car_ui_switch_track</item>
-        <item name="android:thumbTint">@color/car_ui_switch_thumb_color</item>
-    </style>
-
-    <style name="Widget.CarUi.SeekbarPreference"/>
-
-    <!-- Style applied to the seekbar widget within the seekbar preference -->
-    <style name="Widget.CarUi.SeekbarPreference.Seekbar">
-        <item name="android:background">@null</item>
-        <item name="android:clickable">false</item>
-        <item name="android:focusable">false</item>
-        <item name="android:thumb">@drawable/car_ui_seekbar_thumb_selectable</item>
-        <item name="android:progressDrawable">@drawable/car_ui_seekbar_track</item>
-        <item name="android:splitTrack">false</item>
-        <item name="android:thumbOffset">@dimen/car_ui_seekbar_thumb_offset</item>
-        <item name="android:paddingStart">@dimen/car_ui_seekbar_horizontal_padding</item>
-        <item name="android:paddingEnd">@dimen/car_ui_seekbar_horizontal_padding</item>
-        <item name="*android:useDisabledAlpha">true</item>
-        <item name="android:clipToOutline">false</item>
-        <item name="android:clipToPadding">false</item>
-    </style>
-
     <style name="TextAppearance.CarUi" parent="android:TextAppearance.DeviceDefault">
         <item name="android:textColor">@color/car_ui_text_color_primary</item>
         <item name="android:textAlignment">viewStart</item>
@@ -98,16 +73,18 @@
         <item name="android:textSize">32sp</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceCategoryTitle"
-           parent="TextAppearance.Car.Subhead.Medium">
-        <item name="android:textColor">@color/car_on_surface_variant</item>
+    <style name="PreferenceCategoryTitle">
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+        <item name="android:textColor">?android:colorAccent</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceSummary" parent="TextAppearance.Car.Body.Small">
+    <style name="PreferenceSummary">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">@color/car_ui_preference_summary_color</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceTitle" parent="TextAppearance.Car.Body.Large">
+    <style name="PreferenceTitle">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
         <item name="android:textColor">@color/car_ui_preference_title_color</item>
     </style>
 
@@ -121,13 +98,14 @@
         <item name="android:textColor">@color/car_ui_text_color_secondary</item>
     </style>
 
-    <style name="TextAppearance.CarUi.AlertDialog.Title" parent="TextAppearance.Car.Subhead.Large">
+    <style name="TextAppearance.CarUi.AlertDialog.Title" parent="android:TextAppearance.DeviceDefault.DialogWindowTitle">
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">@color/car_on_surface</item>
+        <item name="android:textColor">?android:colorForeground</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <style name="TextAppearance.CarUi.AlertDialog.Subtitle" parent="TextAppearance.Car.Body.Medium">
+    <style name="AlertDialogSubtitle">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 
     <style name="Widget.CarUi.Toolbar.Container"></style>
@@ -164,7 +142,7 @@
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
         <item name="android:gravity">center</item>
-        <item name="android:background">@drawable/car_ui_toolbar_tab_background</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
 </resources>

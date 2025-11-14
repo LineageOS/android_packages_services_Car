@@ -144,12 +144,16 @@ public final class CarAudioManager extends CarManagerBase {
      * {@link #isAudioFeatureEnabled(int)}
      *
      * <p>If enabled, audio mirroring can be managed by using the following APIs:
-     * {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)},
-     * {@link #clearAudioZonesMirrorStatusCallback()}, {@link #canEnableAudioMirror()},
-     * {@link #enableMirrorForAudioZones(List)}, {@link #extendAudioMirrorRequest(long, List)},
-     * {@link #disableAudioMirrorForZone(int)}, {@link #disableAudioMirror(long)},
-     * {@link #getMirrorAudioZonesForAudioZone(int)},
-     * {@link #getMirrorAudioZonesForMirrorRequest(long)}
+     * {@code CarAudioManager#setAudioZoneMirrorStatusCallback(Executor,
+     *      AudioZonesMirrorStatusCallback)},
+     * {@code CarAudioManager#clearAudioZonesMirrorStatusCallback()},
+     * {@code CarAudioManager#canEnableAudioMirror()},
+     * {@code CarAudioManager##enableMirrorForAudioZones(List)},
+     * {@code CarAudioManager#extendAudioMirrorRequest(long, List)},
+     * {@code CarAudioManager#disableAudioMirrorForZone(int)},
+     * {@code CarAudioManager#disableAudioMirror(long)},
+     * {@code CarAudioManager#getMirrorAudioZonesForAudioZone(int)},
+     * {@code CarAudioManager#getMirrorAudioZonesForMirrorRequest(long)}
      */
     public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5;
 
@@ -351,6 +355,32 @@ public final class CarAudioManager extends CarManagerBase {
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface AudioConfigStatus {}
+
+    /**
+     * This constant represents the default fade level where the audio is equally distributed
+     * between the front and rear audio speakers.
+     *
+     * @see #getFadeTowardFront()
+     * @see #setFadeTowardFront(float)
+     *
+     * @hide
+     */
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS)
+    public static final float AUDIO_DEFAULT_FADE_LEVEL = 0.0f;
+
+    /**
+     * This constant represents the default balance level where the audio is equally distributed
+     * between the right and left audio speakers.
+     *
+     * @see #getBalanceTowardRight()
+     * @see #setBalanceTowardRight(float)
+     *
+     * @hide
+     */
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS)
+    public static final float AUDIO_DEFAULT_BALANCE_LEVEL = 0.0f;
 
     private final ICarAudio mService;
     private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
@@ -618,6 +648,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @throws IllegalArgumentException if {@code value} is less than -1.0 or
      *                                  greater than 1.0
      * @see #setBalanceTowardRight(float)
+     * @see #getFadeTowardFront()
+     *
      * @hide
      */
     @SystemApi
@@ -631,6 +663,35 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Gets the relative fade value that defines the front-to-back volume distribution within the
+     * vehicle's cabin.
+     *
+     * <p>This value represents the relative volume level between the front and rear speakers.
+     * Positive values shift the balance toward the front, while negative values shift it toward the
+     * rear. A value of {@link #AUDIO_DEFAULT_FADE_LEVEL} represents an equal balance between front
+     * and rear.
+     *
+     * @return A float value representing the relative fade toward the front of the vehicle cabin,
+     *     if previously set via {@link #setFadeTowardFront(float)}. If the fade has not been set,
+     *     returns {@link #AUDIO_DEFAULT_FADE_LEVEL}.
+     *
+     * @see #setFadeTowardFront(float)
+     * @see #AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @FlaggedApi(Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS)
+    public float getFadeTowardFront() {
+        try {
+            return mService.getFadeTowardFront();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, AUDIO_DEFAULT_FADE_LEVEL);
+        }
+    }
+
+    /**
      * Adjust the relative volume on the left vs right side of the vehicle cabin.
      *
      * @param value in the range -1.0 to 1.0 for fully toward the left through
@@ -639,6 +700,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @throws IllegalArgumentException if {@code value} is less than -1.0 or
      *                                  greater than 1.0
      * @see #setFadeTowardFront(float)
+     * @see #getBalanceTowardRight()
+     *
      * @hide
      */
     @SystemApi
@@ -648,6 +711,35 @@ public final class CarAudioManager extends CarManagerBase {
             mService.setBalanceTowardRight(value);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Gets the relative balance value that defines the right-to-left volume distribution within the
+     * vehicle's cabin.
+     *
+     * <p>This value represents the relative volume level between the right and left speakers.
+     * Positive values shift the balance toward the right, while negative values shift it toward the
+     * left. A value of {@link #AUDIO_DEFAULT_BALANCE_LEVEL} represents an equal balance between
+     * right and left.
+     *
+     * @return A float value representing the relative balance toward the right of the vehicle
+     *     cabin, if previously set via {@link #setBalanceTowardRight(float)}. If the balance has
+     *     not been set, returns {@link #AUDIO_DEFAULT_BALANCE_LEVEL}.
+     *
+     * @see #setBalanceTowardRight(float)
+     * @see #AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @FlaggedApi(Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS)
+    public float getBalanceTowardRight() {
+        try {
+            return mService.getBalanceTowardRight();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, AUDIO_DEFAULT_BALANCE_LEVEL);
         }
     }
 

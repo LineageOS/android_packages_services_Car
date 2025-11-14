@@ -31,23 +31,6 @@
     <!-- Margin on top and bottom of scrollbar track. -->
     <dimen name="car_ui_scrollbar_separator_margin">0dp</dimen>
 
-    <!-- SeekBar dimensions. -->
-    <!-- Allows thumb to extend out of the range of the track. -->
-    <!-- For more information see android.widget.SeekBar#attr_android:thumbOffset. -->
-    <dimen name="car_ui_seekbar_thumb_offset">24dp</dimen>
-    <!-- Horizontal padding for the SeekBar.-->
-    <dimen name="car_ui_seekbar_horizontal_padding">24dp</dimen>
-    <!-- The SeekBar track height.-->
-    <dimen name="car_ui_seekbar_track_height">24dp</dimen>
-    <!-- Vertical padding that extends the touch area for the SeekBar. -->
-    <dimen name="car_ui_seekbar_track_vertical_padding">26dp</dimen>
-    <!-- The stroke with of the ring around the SeekBar thumb when selected. -->
-    <dimen name="car_ui_seekbar_thumb_selected_stroke_width">8dp</dimen>
-    <!-- The size of the SeekBar thumb. -->
-    <dimen name="car_ui_seekbar_thumb_size">68dp</dimen>
-    <!-- Should be the half of car_switch_track_height. -->
-    <dimen name="car_ui_seekbar_thumb_outer_radius">24dp</dimen>
-
     <!-- Height of the top toolbar row. This can be customized independently. -->
     <dimen name="car_ui_toolbar_first_row_height">@dimen/car_ui_toolbar_row_height</dimen>
     <!-- Margin at the start of the title when there is no logo present -->

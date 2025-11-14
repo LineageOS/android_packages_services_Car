@@ -22,7 +22,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
-import android.car.feature.Flags;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
@@ -39,7 +38,6 @@ import android.util.proto.ProtoOutputStream;
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneConfigProto;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneProto;
-import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -492,13 +490,9 @@ final class CarAudioZoneConfig {
      * Returns the car audio zone config info
      */
     CarAudioZoneConfigInfo getCarAudioZoneConfigInfo() {
-        if (Flags.carAudioDynamicDevices()) {
-            return new CarAudioZoneConfigInfo.Builder(mName, mZoneId, mZoneConfigId)
-                    .setConfigVolumeGroups(getVolumeGroupInfos()).setIsActive(isActive())
-                    .setIsSelected(isSelected()).setIsDefault(isDefault()).build();
-        }
-        // Keep legacy code till the flags becomes permanent
-        return new CarAudioZoneConfigInfo(mName, mZoneId, mZoneConfigId);
+        return new CarAudioZoneConfigInfo.Builder(mName, mZoneId, mZoneConfigId)
+                .setConfigVolumeGroups(getVolumeGroupInfos()).setIsActive(isActive())
+                .setIsSelected(isSelected()).setIsDefault(isDefault()).build();
     }
 
     boolean isActive() {

@@ -17,14 +17,16 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:state_activated="true" app:state_ux_restricted="true"
-        android:color="#1C66B5FF"/>
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="?android:attr/colorActivatedHighlight"/>
     <item android:state_activated="false" app:state_ux_restricted="true"
-        android:color="#75202124"/>
+        android:color="?android:attr/colorBackground"/>
     <item android:state_activated="true" android:state_enabled="false"
-        android:color="#1C66B5FF"/>
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="?android:attr/colorActivatedHighlight"/>
     <item android:state_activated="false" android:state_enabled="false"
-        android:color="#75202124"/>
+        android:color="?android:attr/colorBackground"/>
     <item android:state_activated="false"
-        android:color="#202124"/>
-    <item android:color="#3d66B5FF"/>
+        android:color="?android:attr/colorBackground"/>
+    <item android:color="?android:attr/colorActivatedHighlight"/>
 </selector>

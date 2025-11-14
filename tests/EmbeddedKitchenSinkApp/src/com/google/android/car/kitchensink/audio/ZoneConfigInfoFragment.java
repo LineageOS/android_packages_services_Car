@@ -20,7 +20,6 @@ import static com.google.android.car.kitchensink.R.layout.zone_config_item;
 import static com.google.android.car.kitchensink.R.string.config_name;
 import static com.google.android.car.kitchensink.R.string.generic_name_and_id;
 
-import android.car.feature.Flags;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.content.Context;
 import android.os.Bundle;
@@ -78,8 +77,7 @@ public final class ZoneConfigInfoFragment extends Fragment {
 
     boolean isSameConfig(CarAudioZoneConfigInfo info) {
         synchronized (mLock) {
-            return Flags.carAudioDynamicDevices()
-                    ? mInfo.hasSameConfigInfo(info) : mInfo.equals(info);
+            return mInfo.hasSameConfigInfo(info);
         }
     }
     void updateConfigInfo(CarAudioZoneConfigInfo info) {
@@ -95,12 +93,8 @@ public final class ZoneConfigInfoFragment extends Fragment {
     }
 
     private void updateConfigInfoInternal(CarAudioZoneConfigInfo info, Context context) {
-        if (Flags.carAudioDynamicDevices()) {
-            mDefaultTextView.setText(context.getString(R.string.generic_status_name_and_status,
-                    "Default", info.isDefault()));
-        } else {
-            mDefaultTextView.setVisibility(View.GONE);
-        }
+        mDefaultTextView.setText(context.getString(R.string.generic_status_name_and_status,
+                "Default", info.isDefault()));
         mSelectedTextView.setText(context.getString(R.string.generic_status_name_and_status,
                 "Selected", info.isSelected()));
         mActiveTextView.setText(context.getString(R.string.generic_status_name_and_status,

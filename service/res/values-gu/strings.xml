@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"કારની માહિતી"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"તમારી કારની માહિતીને ઍક્સેસ કરો"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"તમારી કારની માહિતી વાંચો"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"કારનો કૅમેરા ઍક્સેસ કરો"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"તમારી કારના કૅમેરાને ઍક્સેસ કરવાની મંજૂરી આપો."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"કારની ઊર્જાની માહિતીને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"તમારી કારની ઊર્જાની માહિતી ઍક્સેસ કરવાની મંજૂરી આપો."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"કારની ઊર્જાની માહિતી વાંચો"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"કારની ઊર્જાની માહિતી વાંચો."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"કારના EV ચાર્જ સેટિંગનું નિયંત્રણ કરો"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"તમારી કારના EV ચાર્જ સેટિંગનું નિયંત્રણ કરો."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"કારની રેંજનું બાકીનું મૂલ્ય ગોઠવો"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"કારની રેંજનું બાકીનું મૂલ્ય ગોઠવો."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"કારના HVACને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"તમારી કારની hvac ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"કારના માઇલેજની માહિતીને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"તમારી કારના માઇલેજની માહિતી ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"કારના માઇલેજની માહિતીને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"તમારી કારના માઇલેજની માહિતી ઍક્સેસ કરો."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"કારનું hvac નિયંત્રિત કરો"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"તમારી કારનું hvac નિયંત્રિત કરો."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"કારના માઇલેજની માહિતી વાંચો"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"તમારી કારના માઇલેજની માહિતી વાંચો."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"કારના માઇલેજની માહિતી વાંચો"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"તમારી કારના માઇલેજની માહિતી વાંચો."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"કારના હૉર્નની માહિતી વાંચો"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"તમારી કારના હૉર્નની માહિતી વાંચો."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"કારના હૉર્નને નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"તમારી કારનો હૉર્ન નિયંત્રિત કરો."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"કારના પેડલની માહિતી ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"તમારી કારના પેડલની માહિતી ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"કારની બ્રેકની માહિતી ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"તમારી કારની બ્રેકની માહિતી ઍક્સેસ કરો."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"કારના પેડલની માહિતી વાંચો"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"તમારી કારના પેડલની માહિતી વાંચો."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"કારની બ્રેકની માહિતી વાંચો"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"તમારી કારની બ્રેકની માહિતી વાંચો."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"કારની ગતિ વાંચો"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"તમારી કારની ગતિ ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"કારની ગતિની સ્થિતિને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"તમારી કારની ગતિની સ્થિતિને ઍક્સેસ કરો."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"તમારી કારની ઝડપ વાંચો."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"કારની ડાયનૅમિક સ્થિતિ વાંચો"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"તમારી કારની ડાયનૅમિક સ્થિતિ વાંચો."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"કારના ડાયનૅમિક સ્ટેટસને નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"તમારી કારના ડાયનૅમિક સ્ટેટસને નિયંત્રિત કરો."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"કારની વિક્રેતા ચૅનલને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"કાર સંબંધિત માહિતીના વિનિમય માટે તમારી કારના વિક્રેતાની ચૅનલ ઍક્સેસ કરો."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"કારની વિક્રેતા ચૅનલ વાંચો"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"કાર સંબંધિત માહિતીના વિનિમય માટે તમારી કારના વિક્રેતાની ચૅનલ વાંચો."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"કારના રેડિયોને મેનેજ કરો"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"તમારી કારનો રેડિયો ઍક્સેસ કરો."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"ફોનના ઇન્ટરફેસને કારના ડિસ્પ્લે પર પ્રોજેક્ટ કરો"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"EVS કૅમેરા સ્ટ્રીમને સબ્સ્ક્રાઇબ કરો"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"EVS સેવાનું સ્ટેટસ મૉનિટર કરો"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"EVS સેવાના સ્ટેટસમાં થનારા ફેરફારો સાંભળો"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"કારના એન્જિનની વિગતવાર માહિતીને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"તમારી કારના એન્જિનની વિગતવાર માહિતીને ઍક્સેસ કરો."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"કારના એન્જિનની વિગતો વાંચો"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"તમારી કારના એન્જિનની વિગતવાર માહિતી વાંચો."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"કારના એન્જિનની વિગતો વાંચો"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"તમારી કારના એન્જિનની વિગતવાર માહિતી વાંચો."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"કારના ઇંધણના દરવાજા અને ચાર્જ પોર્ટને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"કારના ઇંધણના દરવાજા અને ચાર્જ પોર્ટને ઍક્સેસ કરો."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"કારની \'ઈંધણની ટાંકી\'ના દરવાજા અને ચાર્જ પોર્ટની માહિતી વાંચો"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"કારની \'ઈંધણની ટાંકી\'ના દરવાજા અને ચાર્જ પોર્ટની માહિતી વાંચો."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"કારની \'ઈંધણની ટાંકી\'ના દરવાજા અને ચાર્જ પોર્ટનું નિયંત્રણ કરો"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"કારની \'ઈંધણની ટાંકી\'ના દરવાજા અને ચાર્જ પોર્ટનું નિયંત્રણ કરો."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"કારની ઓળખ વાંચો"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"કારની ઓળખને ઍક્સેસ કરો."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"કારની ઓળખ વાંચો."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"કારના દરવાજાને નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"કારના દરવાજાને નિયંત્રિત કરો."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"કારની બારીઓને નિયંત્રિત કરો"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"કારની એરબૅગ વિશે વાંચો."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"કારની એરબૅગને નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"કારની એરબૅગને નિયંત્રિત કરો."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"કારની પ્રાથમિક માહિતીને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"કારની મૂળભૂત માહિતીને ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"કારની વિશિષ્ટ માહિતીને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"કારની વિશિષ્ટ માહિતીને ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"કારના વિક્રેતાની પરવાનગી વિશેની માહિતીને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"કારના વિક્રેતાની પરવાનગી વિશેની માહિતીને ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"કારની બહારની લાઇટની સ્થિતિને વાંચો"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"કારની મૂળભૂત માહિતી વાંચો"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"કારની મૂળભૂત માહિતી વાંચો."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"કારની વિશિષ્ટ માહિતી વાંચો"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"કારની વિશિષ્ટ માહિતી વાંચો."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"કારના વિક્રેતાની પરવાનગીની માહિતી વાંચો"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"કારના વિક્રેતાની પરવાનગીની માહિતી વાંચો."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"કારની બહારની લાઇટની સ્થિતિ ઍક્સેસ કરો"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"કારની બહારની લાઇટની સ્થિતિને ઍક્સેસ કરો."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"કારની બહારની લાઇટનું સ્ટેટસ વાંચો"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"કારની બહારની લાઇટનું સ્ટેટસ વાંચો."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"કારના ગ્લવ બૉક્સની સ્થિતિને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"કારના ગ્લવ બૉક્સની સ્થિતિને ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"કારનો epoch સમય ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"કારનો epoch સમય ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"કારની બહારની લાઇટ વિશે વાંચો"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"કારના ગ્લવ બૉક્સની સ્થિતિ નિયંત્રિત કરો"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"કારના ગ્લવ બૉક્સની સ્થિતિ નિયંત્રિત કરો."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"કારના સમયગાળાના સમય વાંચો"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"કારના સમયગાળાના સમય વાંચો."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"કારની બહારની લાઇટ નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"કારની બહારની લાઇટને નિયંત્રિત કરો."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"કારની અંદરની લાઇટ વિશે વાંચો"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"કારની અંદરની લાઇટની સ્થિતિને ઍક્સેસ કરો."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"કારની અંદરની લાઇટની સ્થિતિ વાંચો"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"કારની અંદરની લાઇટની સ્થિતિ વાંચો."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"કારની અંદરની લાઇટને નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"કારની અંદરની લાઇટને નિયંત્રિત કરો."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"કારની બહારનું તાપમાન વાંચો"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"કારની બહારના તાપમાનને ઍક્સેસ કરો."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"કારના ટાયરની માહિતીને ઍક્સેસ કરો"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"કારના ટાયરની માહિતીને ઍક્સેસ કરો."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"કારની બહારના તાપમાન વાંચો."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"કારના ટાયરની માહિતી વાંચો"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"કારના ટાયરની માહિતી વાંચો."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"કારના ટાયરની માહિતી વાંચો"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"કારના ટાયરની માહિતી વાંચો."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"કારના સ્ટિઅરિંગના એંગલની માહિતી વાંચો"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"કારના સ્ટિઅરિંગના એંગલની માહિતી ઍક્સેસ કરો."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"કારના સ્ટિઅરિંગના એંગલની માહિતી વાંચો."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"કારના સ્ટિઅરિંગના એંગલની માહિતી વાંચો"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"કારના સ્ટિઅરિંગના એંગલની માહિતી ઍક્સેસ કરો."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"કારના સ્ટિઅરિંગના એંગલની માહિતી વાંચો."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"કારના ડિસ્પ્લે યુનિટ વાંચો"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"ડિસ્પ્લે યુનિટ વાંચો."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"કારના ડિસ્પ્લે યુનિટને નિયંત્રિત કરો"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"કારના પાવરટ્રેનની માહિતીને નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"કારના પાવરટ્રેનની માહિતીને નિયંત્રિત કરો."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"કારના પાવરટ્રેનની માહિતી વાંચો"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"કારના પાવરટ્રેનની માહિતીને ઍક્સેસ કરો."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"કારના પાવરટ્રેનની માહિતી વાંચો."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"કારના પાવરની સ્થિતિ વિશે વાંચો"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"કારના પાવરની સ્થિતિને ઍક્સેસ કરો."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"કારના પાવરની સ્થિતિ વાંચો."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"વિશ્વસનીય ડિવાઇસની નોંધણી કરો"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"વિશ્વસનીય ડિવાઇસના નોંધણીની મંજૂરી આપો"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"કારના પરીક્ષણ મોડને નિયંત્રિત કરો"</string>
@@ -260,6 +260,8 @@
     <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"વાહનની પ્રોપર્ટી રેકોર્ડ કરો"</string>
     <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"વાહનની પ્રોપર્ટી દાખલ કરો"</string>
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"વાહનની પ્રોપર્ટી દાખલ કરો"</string>
+    <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"પ્રોપર્ટી વિક્રેતાનું સ્ટેટસ વાંચવાની પરવાનગી"</string>
+    <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"પ્રોપર્ટી વિક્રેતાનું સ્ટેટસ વાંચવાની પરવાનગી"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN બસ નિષ્ફળ રહી"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN બસ પ્રતિસાદ આપતી નથી. હેડયુનિટ બોક્સને અનપ્લગ કરી ફરી પ્લગ કરો અને કારને ફરી શરૂ કરો"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"મારું ડિવાઇસ"</string>

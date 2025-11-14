@@ -18,6 +18,8 @@
           package="oem.brand.model.android.rro">
     <application android:hasCode="false" />
     <overlay
+        android:isStatic="false"
+        android:category="oem.token.framework"
         android:targetPackage="android"/>
 </manifest>
 

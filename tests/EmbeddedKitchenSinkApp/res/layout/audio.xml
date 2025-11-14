@@ -56,6 +56,17 @@
         <Space
             android:layout_width="3dp"
             android:layout_height="match_parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/request_audio_focus"/>
+        <CheckBox android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/request_focus"
+            android:checked="true" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
     </LinearLayout>
     <include android:id="@+id/audio_zone_configuration_layout"
         android:layout_width="fill_parent"

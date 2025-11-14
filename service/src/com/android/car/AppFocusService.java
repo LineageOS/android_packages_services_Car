@@ -86,8 +86,8 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     private final BinderInterfaceContainer.BinderEventHandler<IAppFocusListener>
             mAllBinderEventHandler = bInterface -> { /* nothing to do.*/ };
 
-    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+    private final String mClassName = getClass().getSimpleName();
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(mClassName);
     private final DispatchHandler mDispatchHandler = new DispatchHandler(mHandlerThread.getLooper(),
             this);
     private final Context mContext;
@@ -106,6 +106,15 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         mSystemActivityMonitoringService = systemActivityMonitoringService;
         mAllChangeClients = new ClientHolder(mAllBinderEventHandler);
         mAllOwnershipClients = new OwnershipClientHolder(this);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

@@ -31,7 +31,7 @@
         android:id="@+id/car_ui_alert_icon"
         android:layout_width="@dimen/car_ui_dialog_icon_size"
         android:layout_height="@dimen/car_ui_dialog_icon_size"
-        android:layout_marginBottom="@dimen/car_alert_dialog_padding"
+        android:layout_marginBottom="24dp"
         android:scaleType="fitCenter"/>
 
     <LinearLayout
@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/car_ui_alert_subtitle"
-            android:textAppearance="@style/TextAppearance.CarUi.AlertDialog.Subtitle"/>
+            style="@style/AlertDialogSubtitle"/>
     </LinearLayout>
 
 </LinearLayout>

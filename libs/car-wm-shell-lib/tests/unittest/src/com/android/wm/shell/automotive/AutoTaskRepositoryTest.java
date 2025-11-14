@@ -111,9 +111,9 @@ public class AutoTaskRepositoryTest {
         mTaskRepository = new AutoTaskRepository(mContext, mShellTaskOrganizer);
         mRootTaskStackTask1 = createMockTaskInfo(ROOT_TASK_ID_1);
         mRootTaskStackTask2 = createMockTaskInfo(ROOT_TASK_ID_2);
-        mRootTaskStack1 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
+        mRootTaskStack1 = new RootTaskStack(ROOT_TASK_ID_1, 0, mock(SurfaceControl.class),
                 "testRootTaskStack1", mRootTaskStackTask1);
-        mRootTaskStack2 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
+        mRootTaskStack2 = new RootTaskStack(ROOT_TASK_ID_2, 0, mock(SurfaceControl.class),
                 "testRootTaskStack2", mRootTaskStackTask2);
     }
 

@@ -100,11 +100,13 @@ final class AidlVehicleStub extends VehicleStub {
 
     private static final String TAG = CarLog.tagFor(AidlVehicleStub.class);
     private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
+    private static final String CLASS_NAME = AidlVehicleStub.class.getSimpleName();
 
     private final IVehicle mAidlVehicle;
     private final HalPropValueBuilder mPropValueBuilder;
     private final GetSetValuesCallback mGetSetValuesCallback;
     private final HandlerThread mHandlerThread;
+    private final HandlerThread mCreatedHandlerThread;
     private final Handler mHandler;
     private final AtomicLong mRequestId = new AtomicLong(0);
     private final Object mLock = new Object();
@@ -161,16 +163,20 @@ final class AidlVehicleStub extends VehicleStub {
 
     @VisibleForTesting
     AidlVehicleStub(IVehicle aidlVehicle) {
-        this(aidlVehicle,
-                CarServiceUtils.getHandlerThread(AidlVehicleStub.class.getSimpleName()),
-                new SystemHistogramFactory());
+        this(aidlVehicle, /* handlerThread= */ null, new SystemHistogramFactory());
     }
 
     @VisibleForTesting
-    AidlVehicleStub(IVehicle aidlVehicle, HandlerThread handlerThread,
+    AidlVehicleStub(IVehicle aidlVehicle, @Nullable HandlerThread handlerThread,
             HistogramFactoryInterface histogramFactory) {
         mAidlVehicle = aidlVehicle;
         mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
+        if (handlerThread == null) {
+            mCreatedHandlerThread = CarServiceUtils.getHandlerThread(CLASS_NAME);
+            handlerThread = mCreatedHandlerThread;
+        } else {
+            mCreatedHandlerThread = null;
+        }
         mHandlerThread = handlerThread;
         mHandler = new Handler(mHandlerThread.getLooper());
         mGetSetValuesCallback = new GetSetValuesCallback();
@@ -197,6 +203,20 @@ final class AidlVehicleStub extends VehicleStub {
             return mPendingAsyncRequestPool.size()
                     + mPendingSyncGetValueRequestPool.size()
                     + mPendingSyncSetValueRequestPool.size();
+        }
+    }
+
+    @Override
+    public void destroy() {
+        if (mCreatedHandlerThread == null) {
+            // We use the handler thread passed in through constructor, the caller is supposed
+            // to release the handler thread.
+            return;
+        }
+        try {
+            CarServiceUtils.releaseHandlerThread(CLASS_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 

@@ -23,18 +23,18 @@ from pathlib import Path
 # Helper method that strips out the parameter names of methods. This will allow users to change
 # parameter names for hidden apis without mistaking them as having been removed.
 # [^ ]* --> Negation set on SPACE character. This wll match everything until a SPACE.
-# *?(?=\)) --> This means the character ')' will not be included in the match.
-# [^ (]*?(?=\)) --> This will handle the last parameter at the end of a method signature.
+# *?(?=\\)) --> This means the character ')' will not be included in the match.
+# [^ (]*?(?=\\)) --> This will handle the last parameter at the end of a method signature.
 # It excludes matching any '(' characters when there are no parameters, i.e. method().
 # [^ ]*?(?=,) --> This will handle multiple parameters delimited by commas.
 def strip_param_names(api):
     # get the arguments first
-    argGroup = re.search("\((.*)\)",api)
+    argGroup = re.search("\\((.*)\\)",api)
     if argGroup is None:
         return api
     arg = argGroup.group(0)
-    new_arg = re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', "", arg)
-    return re.sub("\((.*)\)", new_arg, api)
+    new_arg = re.sub('[^ (]*?(?=\\))|[^ ]*?(?=,)', "", arg)
+    return re.sub("\\((.*)\\)", new_arg, api)
 
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
@@ -83,10 +83,10 @@ new_hidden_apis = set(new_hidden_apis)
 all_apis = [strip_param_names(i) for i in all_apis]
 
 # Read current class list
-existing_car_api_classes_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/" \
+existing_car_api_classes_path = rootDir + "/packages/services/Car/tests/CarServiceUnitTest/" \
                                           "res/raw/car_api_classes.txt"
 existing_car_built_in_classes_path = rootDir + "/packages/services/Car/tests/" \
-                                               "carservice_unit_test/res/raw/" \
+                                               "CarServiceUnitTest/res/raw/" \
                                                "car_built_in_api_classes.txt"
 existing_class_list = []
 with open(existing_car_api_classes_path) as f:
@@ -115,16 +115,16 @@ if error != "":
     sys.exit(1)
 
 # read existing hidden APIs
-existing_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
+existing_hidden_apis_path = rootDir + "/packages/services/Car/tests/CarServiceUnitTest/res/raw" \
                              "/car_hidden_apis.txt"
 
 # hidden_apis_previous_releases contains all the cumulative hidden apis added in previous releases.
 # If some hidden API was added in T-QPR and removed in master, then one should be able
 # to identify it. Accordingly, a new file will need to be generated for each release.
 hidden_apis_previous_releases_paths = [
-    "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.3.txt",
-    "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.2.txt",
-    "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.1.txt"
+    "/packages/services/Car/tests/CarServiceUnitTest/res/raw/car_hidden_apis_release_33.3.txt",
+    "/packages/services/Car/tests/CarServiceUnitTest/res/raw/car_hidden_apis_release_33.2.txt",
+    "/packages/services/Car/tests/CarServiceUnitTest/res/raw/car_hidden_apis_release_33.1.txt"
 ]
 
 existing_hidden_apis = set()

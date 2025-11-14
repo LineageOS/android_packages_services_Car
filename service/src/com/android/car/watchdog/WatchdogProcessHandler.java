@@ -21,7 +21,6 @@ import static android.car.watchdog.CarWatchdogManager.TIMEOUT_MODERATE;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_NORMAL;
 import static android.car.watchdog.CarWatchdogManager.TimeoutLengthEnum;
 
-import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -68,8 +67,7 @@ public final class WatchdogProcessHandler {
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final PackageInfoHandler mPackageInfoHandler;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-    private final Handler mServiceHandler = new Handler(getHandlerThread(
-            CarWatchdogService.class.getSimpleName()).getLooper());
+    private final Handler mServiceHandler;
     private final Object mLock = new Object();
     /*
      * Keeps the list of car watchdog client according to timeout:
@@ -103,14 +101,17 @@ public final class WatchdogProcessHandler {
     private long mOverriddenClientHealthCheckWindowMs = MISSING_INT_PROPERTY_VALUE;
 
     public WatchdogProcessHandler(ICarWatchdogServiceForSystem serviceImpl,
-            CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler) {
+            CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
+            Handler serviceHandler) {
         mWatchdogServiceForSystem = serviceImpl;
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
+        mServiceHandler = serviceHandler;
     }
 
     /** Initializes the handler. */
     public void init() {
+        Trace.beginSection("WdProcessHandler.init");
         synchronized (mLock) {
             for (int timeout : ALL_TIMEOUTS) {
                 mClientMap.put(timeout, new ArrayList<ClientInfo>());
@@ -130,6 +131,7 @@ public final class WatchdogProcessHandler {
         if (CarWatchdogService.DEBUG) {
             Slogf.d(CarWatchdogService.TAG, "WatchdogProcessHandler is initialized");
         }
+        Trace.endSection();
     }
 
     /** Dumps its state. */
@@ -194,70 +196,80 @@ public final class WatchdogProcessHandler {
 
     /** Registers the client callback */
     public void registerClient(ICarWatchdogServiceCallback client, @TimeoutLengthEnum int timeout) {
-        synchronized (mLock) {
-            ArrayList<ClientInfo> clients = mClientMap.get(timeout);
-            if (clients == null) {
-                Slogf.w(CarWatchdogService.TAG, "Cannot register the client: invalid timeout");
-                return;
-            }
-            IBinder binder = client.asBinder();
-            for (int i = 0; i < clients.size(); i++) {
-                ClientInfo clientInfo = clients.get(i);
-                if (binder == clientInfo.client.asBinder()) {
-                    throw new IllegalStateException(
-                            "Cannot register the client: the client(pid:" + clientInfo.pid
-                                    + ") has been already registered");
+        Trace.beginSection("WdProcessHandler.registerClient");
+        try {
+            synchronized (mLock) {
+                ArrayList<ClientInfo> clients = mClientMap.get(timeout);
+                if (clients == null) {
+                    Slogf.w(CarWatchdogService.TAG, "Cannot register the client: invalid timeout");
+                    return;
+                }
+                IBinder binder = client.asBinder();
+                for (int i = 0; i < clients.size(); i++) {
+                    ClientInfo clientInfo = clients.get(i);
+                    if (binder == clientInfo.client.asBinder()) {
+                        throw new IllegalStateException(
+                                "Cannot register the client: the client(pid:" + clientInfo.pid
+                                        + ") has been already registered");
+                    }
+                }
+                int pid = Binder.getCallingPid();
+                int callingUid = Binder.getCallingUid();
+                ClientInfo clientInfo = new ClientInfo(client, pid, callingUid, timeout);
+                // PackageInfoHandler may need to retrieve the packageName from system server
+                // using a binder call. Thus, retrieving the packageName from PackageInfoHandler is
+                // posted on the looper and is resolved asynchronously.
+                mServiceHandler.post(() -> {
+                    clientInfo.packageName = mPackageInfoHandler.getNamesForUids(
+                            new int[]{callingUid}).get(callingUid, null);
+                });
+                try {
+                    clientInfo.linkToDeath();
+                } catch (RemoteException e) {
+                    Slogf.w(CarWatchdogService.TAG,
+                            "Cannot register the client: linkToDeath to the client failed");
+                    return;
+                }
+                clients.add(clientInfo);
+                if (CarWatchdogService.DEBUG) {
+                    Slogf.d(CarWatchdogService.TAG, "Registered client: %s", clientInfo);
                 }
             }
-            int pid = Binder.getCallingPid();
-            int callingUid = Binder.getCallingUid();
-            ClientInfo clientInfo = new ClientInfo(client, pid, callingUid, timeout);
-            // PackageInfoHandler may need to retrieve the packageName from system server
-            // using a binder call. Thus, retrieving the packageName from PackageInfoHandler is
-            // posted on the looper and is resolved asynchronously.
-            mServiceHandler.post(() -> {
-                clientInfo.packageName = mPackageInfoHandler.getNamesForUids(
-                        new int[]{callingUid}).get(callingUid, null);
-            });
-            try {
-                clientInfo.linkToDeath();
-            } catch (RemoteException e) {
-                Slogf.w(CarWatchdogService.TAG,
-                        "Cannot register the client: linkToDeath to the client failed");
-                return;
-            }
-            clients.add(clientInfo);
-            if (CarWatchdogService.DEBUG) {
-                Slogf.d(CarWatchdogService.TAG, "Registered client: %s", clientInfo);
-            }
+        } finally {
+            Trace.endSection();
         }
     }
 
     /** Unregisters the previously registered client callback */
     public void unregisterClient(ICarWatchdogServiceCallback client) {
-        ClientInfo clientInfo;
-        synchronized (mLock) {
-            IBinder binder = client.asBinder();
-            // Even if a client did not respond to the latest ping, CarWatchdogService should honor
-            // the unregister request at this point and remove it from all internal caches.
-            // Otherwise, the client might be killed even after unregistering.
-            Optional<ClientInfo> optionalClientInfo = removeFromClientMapsLocked(binder);
-            if (optionalClientInfo.isEmpty()) {
-                Slogf.w(CarWatchdogService.TAG,
-                        "Cannot unregister the client: the client has not been registered before");
-                return;
-            }
-            clientInfo = optionalClientInfo.get();
-            for (int i = 0; i < mClientsNotResponding.size(); i++) {
-                ClientInfo notRespondingClientInfo = mClientsNotResponding.get(i);
-                if (binder == notRespondingClientInfo.client.asBinder()) {
-                    mClientsNotResponding.remove(i);
-                    break;
+        Trace.beginSection("WdProcessHandler.unregisterClient");
+        try {
+            ClientInfo clientInfo;
+            synchronized (mLock) {
+                IBinder binder = client.asBinder();
+                // Even if a client did not respond to the latest ping, CarWatchdogService should
+                // honor the unregister request at this point and remove it from all internal
+                // caches. Otherwise, the client might be killed even after unregistering.
+                Optional<ClientInfo> optionalClientInfo = removeFromClientMapsLocked(binder);
+                if (optionalClientInfo.isEmpty()) {
+                    Slogf.w(CarWatchdogService.TAG, "Cannot unregister the client: the client has "
+                            + "not been registered before");
+                    return;
+                }
+                clientInfo = optionalClientInfo.get();
+                for (int i = 0; i < mClientsNotResponding.size(); i++) {
+                    ClientInfo notRespondingClientInfo = mClientsNotResponding.get(i);
+                    if (binder == notRespondingClientInfo.client.asBinder()) {
+                        mClientsNotResponding.remove(i);
+                        break;
+                    }
                 }
             }
-        }
-        if (CarWatchdogService.DEBUG) {
-            Slogf.d(CarWatchdogService.TAG, "Unregistered client: %s", clientInfo);
+            if (CarWatchdogService.DEBUG) {
+                Slogf.d(CarWatchdogService.TAG, "Unregistered client: %s", clientInfo);
+            }
+        } finally {
+            Trace.endSection();
         }
     }
 
@@ -284,18 +296,23 @@ public final class WatchdogProcessHandler {
 
     /** Tells the handler that the client is alive. */
     public void tellClientAlive(ICarWatchdogServiceCallback client, int sessionId) {
-        synchronized (mLock) {
-            for (int timeout : ALL_TIMEOUTS) {
-                if (!mClientCheckInProgress.get(timeout)) {
-                    continue;
-                }
-                SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
-                ClientInfo clientInfo = pingedClients.get(sessionId);
-                if (clientInfo != null && clientInfo.client.asBinder() == client.asBinder()) {
-                    pingedClients.remove(sessionId);
-                    return;
+        Trace.beginSection("WdProcessHandler.tellClientAlive");
+        try {
+            synchronized (mLock) {
+                for (int timeout : ALL_TIMEOUTS) {
+                    if (!mClientCheckInProgress.get(timeout)) {
+                        continue;
+                    }
+                    SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
+                    ClientInfo clientInfo = pingedClients.get(sessionId);
+                    if (clientInfo != null && clientInfo.client.asBinder() == client.asBinder()) {
+                        pingedClients.remove(sessionId);
+                        return;
+                    }
                 }
             }
+        } finally {
+            Trace.endSection();
         }
     }
 
@@ -340,34 +357,37 @@ public final class WatchdogProcessHandler {
      */
     public void asyncFetchAidlVhalPid() {
         mServiceHandler.post(() -> {
-            Trace.beginSection("WatchdogProcessHandler.asyncFetchAidlVhalPid");
-            int pid = CarServiceHelperWrapper.getInstance().fetchAidlVhalPid();
-            if (pid < 0) {
-                Slogf.e(CarWatchdogService.TAG, "Failed to fetch AIDL VHAL pid from"
-                        + " CarServiceHelperService");
-                Trace.endSection();
-                return;
-            }
+            Trace.beginSection("WdProcessHandler.asyncFetchAidlVhalPid");
             try {
-                mCarWatchdogDaemonHelper.onAidlVhalPidFetched(pid);
-            } catch (RemoteException e) {
-                Slogf.e(CarWatchdogService.TAG,
-                        "Failed to notify car watchdog daemon of the AIDL VHAL pid");
+                int pid = CarServiceHelperWrapper.getInstance().fetchAidlVhalPid();
+                if (pid < 0) {
+                    Slogf.e(CarWatchdogService.TAG, "Failed to fetch AIDL VHAL pid from"
+                            + " CarServiceHelperService");
+                    return;
+                }
+                try {
+                    mCarWatchdogDaemonHelper.onAidlVhalPidFetched(pid);
+                } catch (RemoteException e) {
+                    Slogf.e(CarWatchdogService.TAG,
+                            "Failed to notify car watchdog daemon of the AIDL VHAL pid");
+                }
+            } finally {
+                Trace.endSection();
             }
-            Trace.endSection();
         });
     }
 
     /** Enables/disables the watchdog daemon client health check process. */
     void controlProcessHealthCheck(boolean enable) {
-        Trace.beginSection("WatchdogProcessHandler-healthCheckEnabled-" + enable);
+        Trace.beginSection("WdProcessHandler.controlProcessHealthCheck(enable=" + enable + ")");
         try {
             mCarWatchdogDaemonHelper.controlProcessHealthCheck(enable);
         } catch (RemoteException e) {
             Slogf.w(CarWatchdogService.TAG,
                     "Cannot enable/disable the car watchdog daemon health check process: %s", e);
+        } finally {
+            Trace.endSection();
         }
-        Trace.endSection();
     }
 
     private void onClientDeath(ICarWatchdogServiceCallback client, @TimeoutLengthEnum int timeout) {
@@ -380,7 +400,7 @@ public final class WatchdogProcessHandler {
         // For critical clients, the response status are checked just before reporting to car
         // watchdog daemon. For moderate and normal clients, the status are checked after allowed
         // delay per timeout.
-        Trace.beginSection("WatchdogProcessHandler.doHealthCheck");
+        Trace.beginSection("WdProcessHandler.doHealthCheck(sessionId=" + sessionId + ")");
         analyzeClientResponse(TIMEOUT_CRITICAL);
         reportHealthCheckResult(sessionId);
         sendPingToClients(TIMEOUT_CRITICAL);
@@ -392,7 +412,7 @@ public final class WatchdogProcessHandler {
     private void analyzeClientResponse(@TimeoutLengthEnum int timeout) {
         // Clients which are not responding are stored in mClientsNotResponding, and will be dumped
         // and killed at the next response of CarWatchdogService to car watchdog daemon.
-        Trace.beginSection("WatchdogProcessHandler.analyzeClientResponse");
+        Trace.beginSection("WdProcessHandler.analyzeClientResponse(timeout=" + timeout + ")");
         synchronized (mLock) {
             SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
             for (int i = 0; i < pingedClients.size(); i++) {
@@ -409,7 +429,7 @@ public final class WatchdogProcessHandler {
     }
 
     private void sendPingToClients(@TimeoutLengthEnum int timeout) {
-        Trace.beginSection("WatchdogProcessHandler.sendPingToClients");
+        Trace.beginSection("WdProcessHandler.sendPingToClients(timeout=" + timeout + ")");
         ArrayList<ClientInfo> clientsToCheck;
         synchronized (mLock) {
             SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
@@ -476,7 +496,7 @@ public final class WatchdogProcessHandler {
     }
 
     private void reportHealthCheckResult(int sessionId) {
-        Trace.beginSection("WatchdogProcessHandler.reportHealthCheckResult");
+        Trace.beginSection("WdProcessHandler.reportHealthCheckResult(sessionId=" + sessionId + ")");
         List<ProcessIdentifier> clientsNotResponding;
         ArrayList<ClientInfo> clientsToNotify;
         synchronized (mLock) {

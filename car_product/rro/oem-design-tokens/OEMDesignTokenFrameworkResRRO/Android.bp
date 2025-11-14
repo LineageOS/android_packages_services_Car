@@ -16,24 +16,77 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-runtime_resource_overlay {
+android_app {
     name: "OEMDesignTokenFrameworkResRRO",
-    resource_dirs: ["res"],
+    resource_dirs: [
+        "res",
+    ],
     certificate: "platform",
     manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    aaptflags: [
+        "--no-resource-deduping",
+        "--no-resource-removal",
+    ],
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
     static_libs: [
         "OEMDesignTokenBase",
-        "OEMDesignTokenShim",
+        "oem-token-lib",
     ],
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
 }
 
-runtime_resource_overlay {
-    name: "OEMNorthStarFrameworkResRRO",
-    resource_dirs: ["res"],
+android_app {
+    name: "OEMDesignTokenCwFrameworkResRRO",
+    resource_dirs: [
+        "res",
+    ],
     certificate: "platform",
     manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    aaptflags: [
+        "--no-resource-deduping",
+        "--no-resource-removal",
+    ],
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
+    static_libs: [
+        "CwBase",
+        "oem-token-lib",
+    ],
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+}
+
+android_app {
+    name: "OEMNorthStarFrameworkResRRO",
+    resource_dirs: [
+        "res",
+    ],
+    certificate: "platform",
+    manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    aaptflags: [
+        "--no-resource-deduping",
+        "--no-resource-removal",
+    ],
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
     static_libs: [
         "NorthStarBase",
-        "NorthStarShim",
+        "oem-token-lib",
     ],
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
 }

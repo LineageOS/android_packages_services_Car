@@ -22,7 +22,6 @@ import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_FAILED;
 
-import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.Car;
@@ -74,8 +73,9 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
     private final TetheringManager mTetheringManager;
     private final CarPowerManagementService mCarPowerManagementService;
     private final CarUserService mCarUserService;
-    private final HandlerThread mHandlerThread =
-            getHandlerThread(getClass().getSimpleName());
+    private final String mHandlerThreadName = getClass().getSimpleName();
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            mHandlerThreadName);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
 
@@ -151,7 +151,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                     // If the persist tethering setting is turned off, auto shutdown must be
                     // re-enabled.
                     boolean persistTetheringSettingEnabled =
-                            mFeatureFlags.persistApSettings() && TextUtils.equals("true",
+                            TextUtils.equals("true",
                                     Settings.Global.getString(mContext.getContentResolver(),
                                             ENABLE_PERSISTENT_TETHERING));
                     setSoftApAutoShutdownEnabled(!persistTetheringSettingEnabled);
@@ -165,7 +165,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         mContext = context;
         mIsPersistTetheringCapabilitiesEnabled = context.getResources().getBoolean(
                 R.bool.config_enablePersistTetheringCapabilities);
-        mIsPersistTetheringSettingEnabled = mFeatureFlags.persistApSettings() && TextUtils.equals(
+        mIsPersistTetheringSettingEnabled = TextUtils.equals(
                 "true",
                 Settings.Global.getString(context.getContentResolver(),
                         ENABLE_PERSISTENT_TETHERING));
@@ -173,6 +173,15 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         mTetheringManager = context.getSystemService(TetheringManager.class);
         mCarPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
         mCarUserService = CarLocalServices.getService(CarUserService.class);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mHandlerThreadName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
@@ -187,12 +196,9 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         mWifiManager.registerSoftApCallback(mHandler::post, mSoftApCallback);
         mCarUserService.runOnUser0Unlock(this::onSystemUserUnlocked);
         mCarPowerManagementService.registerListener(mCarPowerStateListener);
-
-        if (mFeatureFlags.persistApSettings()) {
-            mContext.getContentResolver().registerContentObserver(Settings.Global.getUriFor(
-                            ENABLE_PERSISTENT_TETHERING), /* notifyForDescendants= */ false,
-                    mPersistTetheringObserver);
-        }
+        mContext.getContentResolver().registerContentObserver(Settings.Global.getUriFor(
+                        ENABLE_PERSISTENT_TETHERING), /* notifyForDescendants= */ false,
+                mPersistTetheringObserver);
     }
 
     @Override
@@ -204,10 +210,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
 
         mWifiManager.unregisterSoftApCallback(mSoftApCallback);
         mCarPowerManagementService.unregisterListener(mCarPowerStateListener);
-
-        if (mFeatureFlags.persistApSettings()) {
-            mContext.getContentResolver().unregisterContentObserver(mPersistTetheringObserver);
-        }
+        mContext.getContentResolver().unregisterContentObserver(mPersistTetheringObserver);
     }
 
     @Override

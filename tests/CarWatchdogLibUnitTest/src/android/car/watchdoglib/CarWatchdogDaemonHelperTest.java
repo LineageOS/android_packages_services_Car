@@ -18,6 +18,8 @@ package android.car.watchdoglib;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
 
+import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.CarServiceUtils.runEmptyRunnableOnLooperSync;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
@@ -38,7 +40,6 @@ import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageInfo;
-import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
@@ -46,6 +47,8 @@ import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -69,6 +72,7 @@ import java.util.List;
  * <p>This class contains unit tests for the {@link CarWatchdogDaemonHelper}.
  */
 public class CarWatchdogDaemonHelperTest {
+    private static final String TAG = CarWatchdogDaemonHelperTest.class.getSimpleName();
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
             "android.automotive.watchdog.internal.ICarWatchdog/default";
     private static final int MAX_WAIT_TIME_MS = 3000;
@@ -84,6 +88,8 @@ public class CarWatchdogDaemonHelperTest {
     private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private MockitoSession mMockSession;
     private IBinder.DeathRecipient mCarWatchdogDaemonBinderDeathRecipient;
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
 
     @Before
     public void setUp() throws Exception {
@@ -96,8 +102,13 @@ public class CarWatchdogDaemonHelperTest {
                 () -> ServiceManager.checkService(CAR_WATCHDOG_DAEMON_INTERFACE));
         when(mFakeCarWatchdog.asBinder()).thenReturn(mBinder);
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mBinder, mFakeCarWatchdog);
-        mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper();
+
+        mHandlerThread = getHandlerThread(TAG);
+        mHandler = new Handler(mHandlerThread.getLooper());
+
+        mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(mHandler);
         mCarWatchdogDaemonHelper.connect();
+        runEmptyRunnableOnLooperSync(TAG);
         captureAndVerifyRegistrationWithDaemon();
     }
 
@@ -109,25 +120,30 @@ public class CarWatchdogDaemonHelperTest {
             // When using inline mock maker, clean up inline mocks to prevent OutOfMemory errors.
             // See https://github.com/mockito/mockito/issues/1614 and b/259280359.
             Mockito.framework().clearInlineMocks();
+            mHandlerThread.quitSafely();
         }
     }
 
     @Test
     public void testConnection() {
-        CarWatchdogDaemonHelper carWatchdogDaemonHelper = new CarWatchdogDaemonHelper();
+        CarWatchdogDaemonHelper carWatchdogDaemonHelper = new CarWatchdogDaemonHelper(mHandler);
         carWatchdogDaemonHelper.addOnConnectionChangeListener(mListener);
 
         carWatchdogDaemonHelper.connect();
+
+        runEmptyRunnableOnLooperSync(TAG);
 
         verify(mListener).onConnectionChange(true);
     }
 
     @Test
-    public void testRemoveConnectionChangeListener() {
-        CarWatchdogDaemonHelper carWatchdogDaemonHelper = new CarWatchdogDaemonHelper();
+    public void testRemoveConnectionChangeListener() throws Exception {
+        CarWatchdogDaemonHelper carWatchdogDaemonHelper = new CarWatchdogDaemonHelper(mHandler);
         carWatchdogDaemonHelper.addOnConnectionChangeListener(mListener);
         carWatchdogDaemonHelper.removeOnConnectionChangeListener(mListener);
         carWatchdogDaemonHelper.connect();
+
+        runEmptyRunnableOnLooperSync(TAG);
 
         verify(mListener, never()).onConnectionChange(true);
     }
@@ -326,7 +342,8 @@ public class CarWatchdogDaemonHelperTest {
     }
 
     private void captureAndVerifyRegistrationWithDaemon() throws RemoteException {
-        verify(mBinder, atLeastOnce()).linkToDeath(mDeathRecipientCaptor.capture(), anyInt());
+        verify(mBinder, atLeastOnce())
+                .linkToDeath(mDeathRecipientCaptor.capture(), anyInt());
         mCarWatchdogDaemonBinderDeathRecipient = mDeathRecipientCaptor.getValue();
         assertWithMessage("Watchdog daemon binder death recipient")
                 .that(mCarWatchdogDaemonBinderDeathRecipient).isNotNull();
@@ -375,15 +392,7 @@ public class CarWatchdogDaemonHelperTest {
         }
 
         @Override
-        public void latestIoOveruseStats(List<PackageIoOveruseStats> ioOveruseStats) {}
-
-        @Override
         public void resetResourceOveruseStats(List<String> packageNames) {}
-
-        @Override
-        public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
-            return new ArrayList<>();
-        }
 
         @Override
         public void onLatestResourceStats(List<ResourceStats> resourceStats) {}

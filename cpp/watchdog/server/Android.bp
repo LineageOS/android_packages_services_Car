@@ -123,6 +123,7 @@ cc_library {
     srcs: [
         "src/IoOveruseConfigs.cpp",
         "src/IoOveruseMonitor.cpp",
+        "src/IoOveruseMonitorWrapper.cpp",
         "src/OveruseConfigurationXmlHelper.cpp",
         "src/PerformanceProfiler.cpp",
         "src/PressureMonitor.cpp",
@@ -188,6 +189,7 @@ cc_test {
     srcs: [
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoOveruseMonitorTest.cpp",
+        "tests/IoOveruseMonitorWrapperTest.cpp",
         "tests/PerformanceProfilerTest.cpp",
         "tests/PressureMonitorTest.cpp",
         "tests/LooperStub.cpp",
@@ -203,13 +205,14 @@ cc_test {
         "tests/UidProcStatsCollectorTest.cpp",
         "tests/UidCpuStatsCollectorTest.cpp",
         "tests/UidStatsCollectorBaseTest.cpp",
+        "tests/UidStatsCollectorBaseTestUtils.cpp",
         "tests/UidStatsCollectorTest.cpp",
         "tests/WatchdogBinderMediatorTest.cpp",
         "tests/WatchdogInternalHandlerTest.cpp",
         "tests/WatchdogPerfServiceTest.cpp",
         "tests/WatchdogProcessServiceTest.cpp",
+        "tests/WatchdogServiceHelperBaseTest.cpp",
         "tests/WatchdogServiceHelperTest.cpp",
-
     ],
     static_libs: [
         "android.hardware.automotive.vehicle@2.0",
@@ -269,6 +272,7 @@ cc_library {
         "src/WatchdogBinderMediator.cpp",
         "src/WatchdogInternalHandler.cpp",
         "src/WatchdogServiceHelper.cpp",
+        "src/WatchdogServiceHelperBase.cpp",
     ],
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",
@@ -305,6 +309,7 @@ cc_library {
         "libpilotwatchdog_service_manager_defaults",
     ],
     srcs: [
+        "src/IoServiceManager.cpp",
         "src/ServiceManager.cpp",
     ],
 }

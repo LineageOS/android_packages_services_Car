@@ -183,8 +183,9 @@ public final class CarFeatureController implements CarServiceBase {
     private final List<String> mNonUserDefaultEnabledFeaturesFromConfig;
     private final List<String> mDisabledFeaturesFromVhal;
 
+    private final String mClassName = getClass().getSimpleName();
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+            mClassName);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final Object mLock = new Object();
 
@@ -258,6 +259,15 @@ public final class CarFeatureController implements CarServiceBase {
     @VisibleForTesting
     List<String> getDisabledFeaturesFromVhal() {
         return mDisabledFeaturesFromVhal;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

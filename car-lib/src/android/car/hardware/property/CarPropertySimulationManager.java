@@ -25,7 +25,7 @@ import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
-import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.builtin.os.BuildHelper;
@@ -38,7 +38,6 @@ import android.util.Log;
 
 import com.android.car.internal.ICarBase;
 import com.android.car.internal.os.HandlerExecutor;
-import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -56,7 +55,7 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
-@SystemApi
+@TestApi
 @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
 public final class CarPropertySimulationManager extends CarManagerBase {
 
@@ -145,7 +144,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES)
     @NonNull
@@ -181,7 +180,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES)
     public boolean isRecordingVehicleProperties() {
@@ -205,7 +204,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES)
     public void stopRecordingVehicleProperties() {
@@ -251,7 +250,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
     public long enableInjectionMode(@NonNull List<Integer> propertyIdsFromRealHardware) {
@@ -272,6 +271,11 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      * Disables vehicle property injection mode. See
      * {@link CarPropertySimulationManager#enableInjectionMode}
      *
+     * <p>Stop injecting vehicle properties.
+     *
+     * <p><b>Note: </b>If a property injection is happening at the same time, the injected property
+     * may still be delivered to the clients after this method is called.
+     *
      * <p>This method is system-wide.
      *
      * <p>This method is idempotent. If the vehicle property injection is already
@@ -282,7 +286,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
     public void disableInjectionMode() {
@@ -304,7 +308,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
     public boolean isVehiclePropertyInjectionModeEnabled() {
@@ -335,7 +339,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
     @Nullable
@@ -380,7 +384,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
     public void injectVehicleProperties(@NonNull List<CarPropertyValue> carPropertyValues) {
@@ -416,7 +420,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
     @NonNull
@@ -430,8 +434,11 @@ public final class CarPropertySimulationManager extends CarManagerBase {
         if (!BuildHelper.isDebuggableBuild()) {
             throw new IllegalStateException("not eng or user-debug build");
         }
-        return new CarPropertyValue<>(propertyId, areaId, status, timestampNanos,
-                new RawPropertyValue(value));
+        return new CarPropertyValue.Builder<T>(propertyId, areaId)
+                .setSystemStatus(status)
+                .setTimestampNanos(timestampNanos)
+                .setValue(value)
+                .build();
     }
 
     /** @hide */
@@ -464,7 +471,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @hide
      */
-    @SystemApi
+    @TestApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     public interface CarRecorderListener {
         /**
@@ -476,7 +483,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
          *
          * @hide
          */
-        @SystemApi
+        @TestApi
         @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
         void onCarPropertyEvents(@NonNull List<CarPropertyValue<?>> carPropertyValues);
 
@@ -486,7 +493,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
          *
          * @hide
          */
-        @SystemApi
+        @TestApi
         @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
         void onRecordingFinished();
     }

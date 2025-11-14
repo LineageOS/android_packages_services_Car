@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Impormasyon ng sasakyan"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"i-access ang impormasyon ng iyong sasakyan"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"basahin ang impormasyon ng iyong kotse"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"i-access ang camera ng sasakyan"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"I-access ang (mga) camera ng iyong sasakyan."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"i-access ang impormasyon ng enerhiya ng sasakyan"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"I-access ang impormasyon sa enerhiya ng iyong sasakyan."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"basahin ang impormasyon ng energy ng kotse"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Basahin ang impormasyon ng energy ng iyong kotse."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Kontrolin ang mga setting ng pag-charge ng EV ng kotse"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Kontrolin ang mga setting ng pag-charge ng EV ng iyong kotse."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"isaayos ang natitirang range ng sasakyan"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Isaayos ang value ng natitirang range ng sasakyan."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"i-access ang hvac ng sasakyan"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"I-access ang hvac ng iyong sasakyan."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"i-access ang impormasyon ng mileage ng sasakyan"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"I-access ang impormasyon sa mileage ng iyong sasakyan."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"i-access ang impormasyon ng mileage ng kotse"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"I-access ang impormasyon sa mileage ng iyong kotse."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"kontrolin ang hvac ng kotse"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Kontrolin ang hvac ng iyong kotse."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"basahin ang impormasyon ng mileage ng kotse"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Basahin ang impormasyon ng mileage ng iyong kotse."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"basahin ang impormasyon ng mileage ng kotse"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Basahin ang impormasyon ng mileage ng iyong kotse."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"i-read ang impormasyon ng busina ng kotse"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"I-read ang impormasyon ng busina ng iyong kotse."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"kontrolin ang busina ng kotse"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Kontrolin ang busina ng iyong kotse."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"i-access ang impormasyon ng pedal ng kotse"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"I-access ang impormasyon ng pedal ng iyong kotse."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"i-access ang impormasyon ng preno ng kotse"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"I-access ang impormasyon ng preno ng iyong kotse."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"basahin ang impormasyon ng pedal ng kotse"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Basahin ang impormasyon ng pedal ng iyong kotse."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"basahin ang impormasyon ng preno ng kotse"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Basahin ang impormasyon ng preno ng iyong kotse."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"basahin ang bilis ng sasakyan"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"I-access ang bilis ng iyong sasakyan."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"i-access ang status ng dynamics ng sasakyan"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"I-access ang status ng dynamics ng iyong sasakyan."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Basahin ang bilis ng iyong kotse."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"basahin ang status ng dynamics ng kotse"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Basahin ang status ng dynamics ng iyong kotse."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"kontrolin ang status ng dynamics ng kotse"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Kontrolin ang status ng dynamics ng iyong kotse."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"i-access ang vendor channel ng sasakyan"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"I-access ang channel ng vendor ng iyong sasakyan para makipagpalitan ng impormasyong partikular sa sasakyan."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"basahin ang channel ng vendor ng kotse"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Basahin ang channel ng vendor ng iyong kotse para makipagpalitan ng impormasyong partikular sa kotse."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"pamahalaan ang radyo ng sasakyan"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"I-access ang radyo ng iyong sasakyan."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"mag-project ng interface mula sa isang telepono sa display ng sasakyan"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Mag-subscribe sa mga stream ng camera ng EVS"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Subaybayan ang status ng serbisyo ng EVS"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Pakinggan ang mga pagbabago sa status ng serbisyo ng EVS"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"i-access ang mga detalye ng makina ng sasakyan"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"I-access ang detalyadong impormasyon sa makina ng iyong sasakyan."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"basahin ang detalyadong makina ng kotse"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Basahin ang detalyadong impormasyon ng makina ng iyong kotse."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"basahin ang detalyadong makina ng kotse"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Basahin ang detalyadong impormasyon ng makina ng iyong kotse."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"i-access ang takip ng gasolina at charge port ng sasakyan"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"I-access ang takip ng gasolina at charge port ng sasakyan."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"basahin ang takip ng gasolina at charge port ng kotse"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Basahin ang takip ng gasolina at charge port ng kotse."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kontrolin ang takip ng gasolina at charge port ng sasakyan"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Kontrolin ang takip ng gasolina at charge port ng sasakyan."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"basahin ang pagkakakilanlan ng sasakyan"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"I-access ang pagkakakilanlan ng sasakyan."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Basahin ang pagkakakilanlan ng kotse."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"kontrolin ang mga pintuan ng sasakyan"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Kontrolin ang mga pintuan ng sasakyan."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"kontrolin ang mga bintana ng sasakyan"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"I-read ang mga airbag ng kotse."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"kontrolin ang mga airbag ng sasakyan"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Kontrolin ang mga airbag ng sasakyan."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"i-access ang pangunahing impormasyon ng sasakyan"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"I-access ang pangunahing impormasyon ng sasakyan."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"i-access ang privileged na impormasyon ng sasakyan"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"I-access ang privileged na impormasyon ng sasakyan."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"i-access ang impormasyon ng pahintulot ng vendor ng sasakyan"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"I-access ang impormasyon ng pahintulot ng vendor ng sasakyan."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"basahin ang status ng mga ilaw sa labas ng sasakyan"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"basahin ang pangunahing impormasyon ng kotse"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Basahin ang pangunahing impormasyon ng kotse."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"basahin ang privileged na impormasyon ng kotse"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Basahin ang privileged na impormasyon ng kotse."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"basahin ang impormasyon ng pahintulot ng vendor ng kotse"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Basahin ang impormasyon ng pahintulot ng vendor ng kotse."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"i-access ang status ng mga ilaw sa labas ng kotse"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"I-access ang status ng mga ilaw sa labas ng sasakyan."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"basahin ang status ng mga ilaw sa labas ng kotse"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Basahin ang status ng mga ilaw sa labas ng kotse."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"i-access ang status ng glove box ng kotse"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"I-access ang status ng glove box ng kotse."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"i-access ang epoch time ng sasakyan"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"I-access ang epoch time ng sasakyan."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"basahin ang mga ilaw sa labas ng sasakyan"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"kontrolin ang status ng glove box ng kotse"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Kontrolin ang status ng glove box ng kotse."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"basahin ang epoch time ng kotse"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Basahin ang epoch time ng kotse."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"kontrolin ang mga ilaw sa labas ng kotse"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Kontrolin ang mga ilaw sa labas ng sasakyan."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"basahin ang mga ilaw sa loob ng sasakyan"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"I-access ang status ng mga ilaw sa loob ng sasakyan."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"basahin ang status ng mga ilaw sa loob ng kotse"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Basahin ang status ng mga ilaw sa loob ng kotse."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"kontrolin ang mga ilaw sa loob ng sasakyan"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Kontrolin ang mga ilaw sa loob ng sasakyan."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"basahin ang temperatura sa labas ng sasakyan"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"I-access ang temperatura sa labas ng sasakyan."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"i-access ang mga impormasyon ng mga gulong ng sasakyan"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"I-access ang impormasyon ng gulong ng sasakyan."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Basahin ang temperatura sa labas ng kotse."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"basahin ang impormasyon ng gulong ng kotse"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Basahin ang impormasyon ng gulong ng kotse."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"basahin ang impormasyon ng gulong ng kotse"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Basahin ang impormasyon ng gulong ng kotse."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"basahin ang impormasyon ng anggulo ng pagmamaneho ng sasakyan"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"I-access ang impormasyon ng anggulo ng pagmamaneho ng sasakyan."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Basahin ang impormasyon ng steering angle ng kotse."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"basahin ang impormasyon ng steering angle ng kotse"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"I-access ang impormasyon ng steering angle ng kotse."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Basahin ang impormasyon ng steering angle ng kotse."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"basahin ang mga display unit ng sasakyan"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Basahin ang mga display unit."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"kontrolin ang mga display unit ng sasakyan"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"kontrolin ang impormasyon ng powertrain ng kotse"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Kontrolin ang impormasyon ng powertrain ng kotse."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"basahin ang impormasyon ng powertrain ng sasakyan"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"I-access ang impormasyon ng powertrain ng sasakyan."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Basahin ang impormasyon ng powertrain ng kotse."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"basahin ang status ng power ng sasakyan"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"I-access ang status ng power ng sasakyan."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Basahin ang status ng power ng kotse."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Mag-enroll ng Pinagkakatiwalaang Device"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Payagan ang Pag-enroll ng Pinagkakatiwalaang Device"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Kontrolin ang test mode ng kotse"</string>
@@ -260,6 +260,8 @@
     <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"i-record ang mga property ng sasakyan"</string>
     <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"i-inject ang mga property ng sasakyan"</string>
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"i-inject ang mga property ng sasakyan"</string>
+    <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"basahin ang status ng vendor ng property"</string>
+    <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"basahin ang status ng vendor ng property"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Hindi gumana ang CAN bus"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Hindi tumugon ang CAN bus. Hugutin at muling isaksak ang headunit box at i-restart ang sasakyan"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Aking Device"</string>

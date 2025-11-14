@@ -478,6 +478,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$ShadeSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$RegionalPreferencesActivity"
             android:enabled="false"
             android:exported="false"
@@ -1245,7 +1254,30 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity
+            android:name="com.android.settings.supervision.SupervisionDashboardActivity"
+            android:featureFlag="android.app.supervision.flags.enable_supervision_settings_screen"
+            tools:node="remove" />
+
         <activity android:name="com.android.settings.supervision.ConfirmSupervisionCredentialsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="android.app.supervision.flags.supervision_manager_apis"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity android:name="com.android.settings.supervision.EnableSupervisionActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="android.app.supervision.flags.supervision_manager_apis"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity android:name="com.android.settings.supervision.DisableSupervisionActivity"
             android:enabled="false"
             android:exported="false"
             android:featureFlag="android.app.supervision.flags.supervision_manager_apis"
@@ -1480,6 +1512,15 @@
 
         <activity
             android:name="com.android.settings.password.ScreenLockSuggestionActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.password.SetScreenLockDialogActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -1802,6 +1843,15 @@
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
         </activity>
+
+        <receiver
+            android:name="com.android.settings.bluetooth.LeAudioProfileEnablementRequestReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
 
         <activity
             android:name="com.android.settings.ActivityPicker"
@@ -2194,6 +2244,16 @@
             android:name="com.android.settings.Settings$SoundSettingsActivity"
             android:enabled="false"
             android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$VibrationIntensitySettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.device_state"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -3119,7 +3179,7 @@
         </activity>
 
         <activity
-            android:name="com.android.settings.spa.search.SpaSearchLandingActivity"
+            android:name="com.android.settings.spa.search.SettingsSpaSearchLandingActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -3141,6 +3201,15 @@
             android:enabled="false"
             android:exported="false"
             android:featureFlag="android.view.contentprotection.flags.exported_settings_activity_enabled"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$NotificationBundlesActivity"
+            android:enabled="false"
+            android:exported="false"
             tools:node="merge"
             tools:replace="android:exported, android:enabled">
             <intent-filter tools:node="removeAll"/>
@@ -3470,6 +3539,16 @@
         </receiver>
 
         <receiver
+            android:name="com.android.settings.dream.BootBroadcastReceiver"
+            android:featureFlag="com.android.settings.flags.resolve_missing_when_to_dream"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
             android:name="com.android.settings.development.Enable16KBootReceiver"
             android:enabled="false"
             android:exported="false"
@@ -3503,6 +3582,14 @@
         </receiver>
 
         <receiver android:name="com.android.settings.accessibility.HighContrastTextMigrationReceiver"
+            android:exported="false"
+            android:enabled="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver android:name="com.android.settings.accessibility.notification.SurveyNotificationReceiver"
             android:exported="false"
             android:enabled="false"
             tools:node="merge"
@@ -3656,7 +3743,7 @@
         </service>
 
         <service
-          android:name="com.android.settings.service.PreferenceService"
+          android:name="com.android.settingslib.service.SettingsPreferenceService"
           android:enabled="false"
           android:exported="false"
           android:featureFlag="com.android.settingslib.flags.settings_catalyst"
@@ -3665,5 +3752,14 @@
           <intent-filter tools:node="removeAll" />
         </service>
 
+        <service
+          android:name="com.android.settings.appfunctions.DeviceStateAppFunctionService"
+          android:enabled="false"
+          android:exported="false"
+          tools:node="merge"
+          android:featureFlag="com.android.settings.flags.device_state"
+          tools:replace="android:exported,android:enabled,android:featureFlag">
+          <intent-filter tools:node="removeAll" />
+        </service>
     </application>
 </manifest>

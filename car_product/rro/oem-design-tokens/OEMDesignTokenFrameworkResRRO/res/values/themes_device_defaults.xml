@@ -23,34 +23,86 @@
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
-        <item name="android:colorAccent">@color/car_primary</item>
-        <item name="android:colorBackground">@color/car_background</item>
-        <item name="android:colorBackgroundFloating">@color/car_background</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorBackground">?oemColorBackground</item>
+        <item name="android:colorBackgroundFloating">?oemColorBackground</item>
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
+        <item name="android:colorActivatedHighlight">?oemColorPrimaryContainer</item>
+        <item name="android:colorControlActivated">?oemColorSecondaryContainer</item>
         <item name="android:colorControlHighlight">@color/car_control_highlight</item>
         <item name="android:colorControlNormal">@color/btn_device_default</item>
-        <item name="android:colorPrimary">@color/car_primary</item>
-        <item name="android:colorPrimaryDark">@color/car_primary</item>
-        <item name="android:colorForeground">@color/car_on_background</item>
-        <item name="android:editTextColor">@color/car_on_surface</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorForeground">?oemColorOnBackground</item>
+        <item name="android:editTextColor">?oemColorOnSurface</item>
         <item name="android:listPreferredItemHeightSmall">@*android:dimen/car_single_line_list_item_height</item>
         <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
         <item name="android:statusBarColor">@android:color/black</item>
         <item name="android:textColorHint">@*android:color/car_body2</item>
-        <item name="android:textColorPrimary">@color/car_on_background</item>
-        <item name="android:textColorPrimaryDisableOnly">@color/car_on_background</item>
-        <item name="android:textColorPrimaryInverse">@color/car_background</item>
-        <item name="android:textColorSecondary">@color/car_secondary</item>
-        <item name="android:textColorSecondaryInverse">@color/car_on_secondary</item>
-        <item name="android:textColorTertiary">@color/car_secondary</item>
-        <item name="android:textColorTertiaryInverse">@color/car_on_secondary</item>
-        <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
-        <item name="android:textAppearanceButton">@*android:style/TextAppearance.DeviceDefault.Widget.Button</item>
+        <item name="android:textColorPrimary">?oemColorOnBackground</item>
+        <item name="android:textColorPrimaryDisableOnly">?oemColorOnBackground</item>
+        <item name="android:textColorPrimaryInverse">?oemColorBackground</item>
+        <item name="android:textColorSecondary">?oemColorOnSurfaceVariant</item>
+        <item name="android:textColorSecondaryInverse">?oemColorSurfaceVariant</item>
+        <item name="android:textColorTertiary">?oemColorSecondary</item>
+        <item name="android:textColorTertiaryInverse">?oemColorOnSecondary</item>
+        <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
         <item name="android:actionBarSize">@*android:dimen/car_app_bar_height</item>
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
-        <item name="android:isLightTheme">false</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
+
+        <item name="oemColorPrimary">@color/color_primary</item>
+        <item name="oemColorOnPrimary">@color/color_on_primary</item>
+        <item name="oemColorPrimaryContainer">@color/color_primary_container</item>
+        <item name="oemColorOnPrimaryContainer">@color/color_on_primary_container</item>
+        <item name="oemColorSecondary">@color/color_secondary</item>
+        <item name="oemColorOnSecondary">@color/color_on_secondary</item>
+        <item name="oemColorSecondaryContainer">@color/color_secondary_container</item>
+        <item name="oemColorOnSecondaryContainer">@color/color_on_secondary_container</item>
+        <item name="oemColorTertiary">@color/color_tertiary</item>
+        <item name="oemColorError">@color/color_error</item>
+        <item name="oemColorBackground">@color/color_background</item>
+        <item name="oemColorOnBackground">@color/color_on_background</item>
+        <item name="oemColorSurface">@color/color_surface</item>
+        <item name="oemColorOnSurface">@color/color_on_surface</item>
+        <item name="oemColorSurfaceVariant">@color/color_surface_variant</item>
+        <item name="oemColorOnSurfaceVariant">@color/color_on_surface_variant</item>
+        <item name="oemColorSurfaceInverse">@color/color_surface_inverse</item>
+        <item name="oemColorOnSurfaceInverse">@color/color_on_surface_inverse</item>
+        <item name="oemColorOutline">@color/color_outline</item>
+        <item name="oemColorSurfaceContainerLow">@color/color_surface_container_low</item>
+        <item name="oemColorSurfaceContainerHighest">@color/color_surface_container_highest</item>
+        <item name="oemColorSecondaryPalette80">@color/color_secondary_palette_80</item>
+        <item name="oemColorNeutralPalette40">@color/color_neutral_palette_40</item>
+        <item name="oemColorNeutralVariantPalette60">@color/color_neutral_variant_palette_60</item>
+        <item name="oemTextAppearanceDisplayLarge">@style/TextAppearance.Display.Large</item>
+        <item name="oemTextAppearanceDisplayMedium">@style/TextAppearance.Display.Medium</item>
+        <item name="oemTextAppearanceDisplaySmall">@style/TextAppearance.Display.Small</item>
+        <item name="oemTextAppearanceHeadlineLarge">@style/TextAppearance.Headline.Large</item>
+        <item name="oemTextAppearanceHeadlineMedium">@style/TextAppearance.Headline.Medium</item>
+        <item name="oemTextAppearanceHeadlineSmall">@style/TextAppearance.Headline.Small</item>
+        <item name="oemTextAppearanceTitleLarge">@style/TextAppearance.Title.Large</item>
+        <item name="oemTextAppearanceTitleMedium">@style/TextAppearance.Title.Medium</item>
+        <item name="oemTextAppearanceTitleSmall">@style/TextAppearance.Title.Small</item>
+        <item name="oemTextAppearanceLabelLarge">@style/TextAppearance.Label.Large</item>
+        <item name="oemTextAppearanceLabelMedium">@style/TextAppearance.Label.Medium</item>
+        <item name="oemTextAppearanceLabelSmall">@style/TextAppearance.Label.Small</item>
+        <item name="oemTextAppearanceBodyLarge">@style/TextAppearance.Body.Large</item>
+        <item name="oemTextAppearanceBodyMedium">@style/TextAppearance.Body.Medium</item>
+        <item name="oemTextAppearanceBodySmall">@style/TextAppearance.Body.Small</item>
+        <item name="oemShapeCornerNone">@dimen/shape_corner_none</item>
+        <item name="oemShapeCornerExtraSmall">@dimen/shape_corner_extra_small</item>
+        <item name="oemShapeCornerSmall">@dimen/shape_corner_small</item>
+        <item name="oemShapeCornerMedium">@dimen/shape_corner_medium</item>
+        <item name="oemShapeCornerLarge">@dimen/shape_corner_large</item>
+        <item name="oemShapeCornerExtraLarge">@dimen/shape_corner_extra_large</item>
+        <item name="oemShapeCornerFull">@dimen/shape_corner_full</item>
     </style>
 
     <style name="Theme.DeviceDefault" parent="Theme.DeviceDefaultBaseCar">
@@ -58,16 +110,16 @@
     </style>
 
     <style name="Theme.DeviceDefault.Dialog" parent="android:Theme.Material.Dialog">
-        <item name="android:textAppearanceLarge">@*android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceMedium">@*android:style/TextAppearance.DeviceDefault.Medium</item>
-        <item name="android:textAppearanceSmall">@*android:style/TextAppearance.DeviceDefault.Small</item>
-        <item name="android:textAppearanceLargeInverse">@*android:style/TextAppearance.DeviceDefault.Large.Inverse</item>
-        <item name="android:textAppearanceMediumInverse">@*android:style/TextAppearance.DeviceDefault.Medium.Inverse</item>
-        <item name="android:textAppearanceSmallInverse">@*android:style/TextAppearance.DeviceDefault.Small.Inverse</item>
-        <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
-        <item name="android:textAppearanceButton">@*android:style/TextAppearance.DeviceDefault.Widget.Button</item>
+        <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceLargeInverse">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMediumInverse">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmallInverse">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
         <item name="android:alertDialogStyle">@*android:style/AlertDialog.DeviceDefault</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
@@ -75,24 +127,24 @@
         <item name="android:buttonBarPositiveButtonStyle">@*android:style/Widget.DeviceDefault.Button.Colored</item>
         <item name="android:buttonBarNegativeButtonStyle">@*android:style/Widget.DeviceDefault.Button</item>
         <item name="android:buttonBarNeutralButtonStyle">@*android:style/Widget.DeviceDefault.Button</item>
-        <item name="android:colorAccent">@color/car_primary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
         <item name="android:colorBackground">@android:color/transparent</item>
-        <item name="android:colorBackgroundFloating">@color/car_background</item>
+        <item name="android:colorBackgroundFloating">?oemColorBackground</item>
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
         <item name="android:colorControlHighlight">@color/car_control_highlight</item>
         <item name="android:colorControlNormal">@color/btn_device_default</item>
-        <item name="android:colorPrimary">@color/car_primary</item>
-        <item name="android:colorPrimaryDark">@color/car_primary</item>
-        <item name="android:colorForeground">@color/car_on_background</item>
-        <item name="android:editTextColor">@color/car_on_surface</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorForeground">?oemColorOnBackground</item>
+        <item name="android:editTextColor">?oemColorOnSurface</item>
         <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
         <item name="android:textColorHint">@*android:color/car_body2</item>
-        <item name="android:textColorPrimary">@color/car_on_background</item>
-        <item name="android:textColorPrimaryDisableOnly">@color/car_on_background</item>
-        <item name="android:textColorAlertDialogListItem">@color/car_on_background</item>
-        <item name="android:textColorPrimaryInverse">@color/car_background</item>
-        <item name="android:textColorSecondary">@color/car_secondary</item>
-        <item name="android:textColorSecondaryInverse">@color/car_on_secondary</item>
+        <item name="android:textColorPrimary">?oemColorOnBackground</item>
+        <item name="android:textColorPrimaryDisableOnly">?oemColorOnBackground</item>
+        <item name="android:textColorAlertDialogListItem">?oemColorOnBackground</item>
+        <item name="android:textColorPrimaryInverse">?oemColorBackground</item>
+        <item name="android:textColorSecondary">?oemColorSecondary</item>
+        <item name="android:textColorSecondaryInverse">?oemColorOnSecondary</item>
         <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
     </style>
 
@@ -102,36 +154,36 @@
     </style>
 
     <style name="Theme.DeviceDefault.Dialog.Alert" parent="android:Theme.Material.Dialog.Alert">
-        <item name="android:textAppearanceLarge">@*android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceMedium">@*android:style/TextAppearance.DeviceDefault.Medium</item>
-        <item name="android:textAppearanceSmall">@*android:style/TextAppearance.DeviceDefault.Small</item>
-        <item name="android:textAppearanceButton">@*android:style/TextAppearance.DeviceDefault.Widget.Button</item>
+        <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
         <item name="android:alertDialogStyle">@*android:style/AlertDialog.DeviceDefault</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
-        <item name="android:colorAccent">@color/car_primary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
         <item name="android:colorBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundFloating">@android:color/transparent</item>
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
         <item name="android:colorControlHighlight">@color/car_control_highlight</item>
         <item name="android:colorControlNormal">@color/btn_device_default</item>
-        <item name="android:colorControlActivated">@color/car_control_highlight</item>
-        <item name="android:colorPrimary">@color/car_primary</item>
-        <item name="android:colorPrimaryDark">@color/car_primary</item>
-        <item name="android:colorForeground">@color/car_on_background</item>
-        <item name="android:editTextColor">@color/car_on_surface</item>
+        <item name="android:colorControlActivated">?oemColorSecondaryContainer</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorForeground">?oemColorOnBackground</item>
+        <item name="android:editTextColor">?oemColorOnSurface</item>
         <item name="android:listPreferredItemHeightSmall">@*android:dimen/car_single_line_list_item_height</item>
         <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
         <item name="android:textColorHint">@*android:color/car_body2</item>
-        <item name="android:textColorPrimary">@color/car_on_background</item>
-        <item name="android:textColorPrimaryDisableOnly">@color/car_on_background</item>
-        <item name="android:textColorSecondary">@color/car_secondary</item>
-        <item name="android:textColorAlertDialogListItem">@color/car_on_background</item>
-        <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:textColorPrimary">?oemColorOnBackground</item>
+        <item name="android:textColorPrimaryDisableOnly">?oemColorOnBackground</item>
+        <item name="android:textColorSecondary">?oemColorSecondary</item>
+        <item name="android:textColorAlertDialogListItem">?oemColorOnBackground</item>
+        <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
         <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
         <item name="android:windowMinWidthMajor">@dimen/car_dialog_min_width_major</item>
     </style>
@@ -146,7 +198,7 @@
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
         <!--  To simulate transparency over light (white) background, we don't need a selector. -->
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
-        <item name="android:isLightTheme">false</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
     </style>
     <style name="Theme.DeviceDefault.Light.Dialog" parent="android:Theme.DeviceDefault.Dialog"/>
     <style name="Theme.DeviceDefault.Light.Dialog.Alert" parent="android:Theme.DeviceDefault.Dialog.Alert"/>
@@ -156,23 +208,23 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
-        <item name="android:isLightTheme">false</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
     </style>
     <style name="Theme.DeviceDefault.NoActionBar" parent="android:Theme.DeviceDefault">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
-        <item name="android:isLightTheme">false</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
     </style>
 
     <style name="Theme.DeviceDefault.InputMethod" parent="android:Theme.Material.InputMethod">
         <!-- Color palette -->
-        <item name="android:colorAccent">@color/car_primary</item>
-        <item name="android:colorBackground">@color/car_background</item>
-        <item name="android:listDivider">@*android:color/car_keyboard_divider_line</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorBackground">?oemColorBackground</item>
+        <item name="android:listDivider">?oemColorOutline</item>
         <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
-        <item name="android:textColorPrimary">@*android:color/car_keyboard_text_primary_color</item>
-        <item name="android:textColorSecondary">@*android:color/car_keyboard_text_secondary_color</item>
+        <item name="android:textColorPrimary">?oemColorOnSurface</item>
+        <item name="android:textColorSecondary">?oemColorOnSurfaceVariant</item>
     </style>
 
     <style name="Theme.DeviceDefault.Settings" parent="android:Theme.DeviceDefault"/>
@@ -181,7 +233,56 @@
     <!-- This theme is applied as the app base. Attributes not defined in app/ activity themes will fallthrough to this
     theme. This makes it app facing, regardless if the app is directly using it or a theme that inherits from it.  -->
     <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="Theme.DeviceDefaultBaseCar">
-        <item name="android:isLightTheme">false</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
+    </style>
+
+    <style name="OemThemeOverlay">
+        <item name="oemColorPrimary">?com.android.oem.tokens:attr/colorPrimary</item>
+        <item name="oemColorOnPrimary">?com.android.oem.tokens:attr/colorOnPrimary</item>
+        <item name="oemColorPrimaryContainer">?com.android.oem.tokens:attr/colorPrimaryContainer</item>
+        <item name="oemColorOnPrimaryContainer">?com.android.oem.tokens:attr/colorOnPrimaryContainer</item>
+        <item name="oemColorSecondary">?com.android.oem.tokens:attr/colorSecondary</item>
+        <item name="oemColorOnSecondary">?com.android.oem.tokens:attr/colorOnSecondary</item>
+        <item name="oemColorSecondaryContainer">?com.android.oem.tokens:attr/colorSecondaryContainer</item>
+        <item name="oemColorOnSecondaryContainer">?com.android.oem.tokens:attr/colorOnSecondaryContainer</item>
+        <item name="oemColorTertiary">?com.android.oem.tokens:attr/colorTertiary</item>
+        <item name="oemColorError">?com.android.oem.tokens:attr/colorError</item>
+        <item name="oemColorBackground">?com.android.oem.tokens:attr/colorBackground</item>
+        <item name="oemColorOnBackground">?com.android.oem.tokens:attr/colorOnBackground</item>
+        <item name="oemColorSurface">?com.android.oem.tokens:attr/colorSurface</item>
+        <item name="oemColorOnSurface">?com.android.oem.tokens:attr/colorOnSurface</item>
+        <item name="oemColorSurfaceVariant">?com.android.oem.tokens:attr/colorSurfaceVariant</item>
+        <item name="oemColorOnSurfaceVariant">?com.android.oem.tokens:attr/colorOnSurfaceVariant</item>
+        <item name="oemColorSurfaceInverse">?com.android.oem.tokens:attr/colorSurfaceInverse</item>
+        <item name="oemColorOnSurfaceInverse">?com.android.oem.tokens:attr/colorOnSurfaceInverse</item>
+        <item name="oemColorOutline">?com.android.oem.tokens:attr/colorOutline</item>
+        <item name="oemColorSurfaceContainerLow">?com.android.oem.tokens:attr/colorSurfaceContainerLow</item>
+        <item name="oemColorSurfaceContainerHighest">?com.android.oem.tokens:attr/colorSurfaceContainerHighest</item>
+        <item name="oemColorSecondaryPalette80">?com.android.oem.tokens:attr/colorSecondaryPalette80</item>
+        <item name="oemColorNeutralPalette40">?com.android.oem.tokens:attr/colorNeutralPalette40</item>
+        <item name="oemColorNeutralVariantPalette60">?com.android.oem.tokens:attr/colorNeutralVariantPalette60</item>
+        <item name="oemTextAppearanceDisplayLarge">?com.android.oem.tokens:attr/textAppearanceDisplayLarge</item>
+        <item name="oemTextAppearanceDisplayMedium">?com.android.oem.tokens:attr/textAppearanceDisplayMedium</item>
+        <item name="oemTextAppearanceDisplaySmall">?com.android.oem.tokens:attr/textAppearanceDisplaySmall</item>
+        <item name="oemTextAppearanceHeadlineLarge">?com.android.oem.tokens:attr/textAppearanceHeadlineLarge</item>
+        <item name="oemTextAppearanceHeadlineMedium">?com.android.oem.tokens:attr/textAppearanceHeadlineMedium</item>
+        <item name="oemTextAppearanceHeadlineSmall">?com.android.oem.tokens:attr/textAppearanceHeadlineSmall</item>
+        <item name="oemTextAppearanceTitleLarge">?com.android.oem.tokens:attr/textAppearanceTitleLarge</item>
+        <item name="oemTextAppearanceTitleMedium">?com.android.oem.tokens:attr/textAppearanceTitleMedium</item>
+        <item name="oemTextAppearanceTitleSmall">?com.android.oem.tokens:attr/textAppearanceTitleSmall</item>
+        <item name="oemTextAppearanceLabelLarge">?com.android.oem.tokens:attr/textAppearanceLabelLarge</item>
+        <item name="oemTextAppearanceLabelMedium">?com.android.oem.tokens:attr/textAppearanceLabelMedium</item>
+        <item name="oemTextAppearanceLabelSmall">?com.android.oem.tokens:attr/textAppearanceLabelSmall</item>
+        <item name="oemTextAppearanceBodyLarge">?com.android.oem.tokens:attr/textAppearanceBodyLarge</item>
+        <item name="oemTextAppearanceBodyMedium">?com.android.oem.tokens:attr/textAppearanceBodyMedium</item>
+        <item name="oemTextAppearanceBodySmall">?com.android.oem.tokens:attr/textAppearanceBodySmall</item>
+        <item name="oemShapeCornerNone">?com.android.oem.tokens:attr/shapeCornerNone</item>
+        <item name="oemShapeCornerExtraSmall">?com.android.oem.tokens:attr/shapeCornerExtraSmall</item>
+        <item name="oemShapeCornerSmall">?com.android.oem.tokens:attr/shapeCornerSmall</item>
+        <item name="oemShapeCornerMedium">?com.android.oem.tokens:attr/shapeCornerMedium</item>
+        <item name="oemShapeCornerLarge">?com.android.oem.tokens:attr/shapeCornerLarge</item>
+        <item name="oemShapeCornerExtraLarge">?com.android.oem.tokens:attr/shapeCornerExtraLarge</item>
+        <item name="oemShapeCornerFull">?com.android.oem.tokens:attr/shapeCornerFull</item>
     </style>
 
     <!-- DeviceDefault theme for the default system theme.  -->
@@ -212,19 +313,19 @@
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
 
         <!-- Color palette -->
-        <item name="android:colorPrimary">@color/car_primary</item>
-        <item name="android:colorPrimaryDark">@color/car_primary</item>
-        <item name="android:colorAccent">@color/car_primary</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
         <item name="android:colorError">@*android:color/error_color_device_default_light</item>
-        <item name="android:colorBackgroundFloating">@color/car_background</item>
+        <item name="android:colorBackgroundFloating">?oemColorBackground</item>
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
-        <item name="android:colorControlHighlight">@color/car_control_highlight</item>
+        <item name="android:colorControlHighlight">?oemColorSecondaryContainer</item>
         <item name="android:colorControlNormal">@color/btn_device_default</item>
-        <item name="android:colorForeground">@color/car_on_background</item>
-        <item name="android:editTextColor">@color/car_on_surface</item>
+        <item name="android:colorForeground">?oemColorOnBackground</item>
+        <item name="android:editTextColor">?oemColorOnSurface</item>
         <item name="android:textColorHint">@*android:color/car_body2</item>
-        <item name="android:textColorPrimary">@color/car_on_background</item>
-        <item name="android:textColorSecondary">@color/car_secondary</item>
+        <item name="android:textColorPrimary">?oemColorOnBackground</item>
+        <item name="android:textColorSecondary">?oemColorSecondary</item>
 
         <!-- Progress bar attributes -->
         <item name="*android:colorProgressBackgroundNormal">@*android:color/config_progress_background_tint</item>
@@ -234,9 +335,9 @@
         <item name="android:toolbarStyle">@*android:style/Widget.DeviceDefault.Toolbar</item>
 
         <item name="*android:toastFrameBackground">@drawable/toast_frame</item>
-        <item name="android:textAppearanceListItem">@android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceListItemSmall">@android:style/TextAppearance.DeviceDefault.Large</item>
-        <item name="android:textAppearanceListItemSecondary">@android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
 
         <!-- Icon sizes -->
         <item name="*android:iconfactoryIconSize">@*android:dimen/resolver_icon_size</item>
@@ -248,9 +349,9 @@
     behind them. -->
     <style name="Theme.DeviceDefault.Wallpaper" parent="android:Theme.DeviceDefault">
         <!-- Color palette -->
-        <item name="android:colorPrimary">@color/car_primary</item>
-        <item name="android:colorPrimaryDark">@color/car_primary</item>
-        <item name="android:colorAccent">@color/car_primary</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
         <item name="android:colorError">@*android:color/error_color_device_default_dark</item>
 
         <!-- Dialog attributes -->
@@ -258,7 +359,7 @@
         <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
 
         <!-- Text styles -->
-        <item name="android:textAppearanceButton">@*android:style/TextAppearance.DeviceDefault.Widget.Button</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
 
         <!-- Button styles -->
         <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
@@ -280,9 +381,9 @@
     behind them and without an action bar. -->
     <style name="Theme.DeviceDefault.Wallpaper.NoTitleBar" parent="android:Theme.DeviceDefault.Wallpaper">
         <!-- Color palette -->
-        <item name="android:colorPrimary">@color/car_primary</item>
-        <item name="android:colorPrimaryDark">@color/car_primary</item>
-        <item name="android:colorAccent">@color/car_primary</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
         <item name="android:colorError">@*android:color/error_color_device_default_dark</item>
 
         <!-- Dialog attributes -->
@@ -290,7 +391,7 @@
         <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
 
         <!-- Text styles -->
-        <item name="android:textAppearanceButton">@*android:style/TextAppearance.DeviceDefault.Widget.Button</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
 
         <!-- Button styles -->
         <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
@@ -312,9 +413,9 @@
     Used for Autofill screens.-->
     <style name="Theme.DeviceDefault.Panel" parent="android:Theme.Material.Panel">
         <!-- Color palette -->
-        <item name="android:colorPrimary">@color/car_primary</item>
-        <item name="android:colorPrimaryDark">@color/car_primary</item>
-        <item name="android:colorAccent">@color/car_primary</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
         <item name="android:colorError">@*android:color/error_color_device_default_light</item>
 
         <!-- Dialog attributes -->
@@ -322,7 +423,7 @@
         <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
 
         <!-- Text styles -->
-        <item name="android:textAppearanceButton">@*android:style/TextAppearance.DeviceDefault.Widget.Button</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
 
         <!-- Button styles -->
         <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>

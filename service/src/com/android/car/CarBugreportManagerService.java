@@ -98,8 +98,9 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     private final boolean mIsUserBuild;
     private final Object mLock = new Object();
 
+    private final String mClassName = getClass().getSimpleName();
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+            mClassName);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     @VisibleForTesting
     final AtomicBoolean mIsServiceRunning = new AtomicBoolean(false);
@@ -119,6 +120,15 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     CarBugreportManagerService(Context context, boolean isUserBuild) {
         mContext = context;
         mIsUserBuild = isUserBuild;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

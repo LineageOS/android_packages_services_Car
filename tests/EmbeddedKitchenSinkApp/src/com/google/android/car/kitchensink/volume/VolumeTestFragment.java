@@ -20,6 +20,7 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENT
 
 import android.car.Car;
 import android.car.Car.CarServiceLifecycleListener;
+import android.car.feature.Flags;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioManager.CarVolumeCallback;
 import android.car.media.CarVolumeGroupEvent;
@@ -146,6 +147,12 @@ public final class VolumeTestFragment extends Fragment {
                     mEventCallback);
         }
         mCarAudioManager.registerCarVolumeCallback(mCarVolumeCallback);
+        if (Flags.audioFadeBalanceGetterApis()) {
+            mFader.setProgress(convertFloatToSeekBarProgress(
+                    mCarAudioManager.getFadeTowardFront()));
+            mBalance.setProgress(convertFloatToSeekBarProgress(
+                    mCarAudioManager.getBalanceTowardRight()));
+        }
     };
 
     @Override
@@ -162,14 +169,13 @@ public final class VolumeTestFragment extends Fragment {
         viewPager.setAdapter(mAudioZoneAdapter);
         mZonesTabLayout.setupWithViewPager(viewPager);
 
-        SeekBar.OnSeekBarChangeListener seekListener =
-                new SeekBar.OnSeekBarChangeListener() {
+        SeekBar.OnSeekBarChangeListener seekListener = new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                final float percent = (progress - 100) / 100.0f;
+                final float level = convertSeekBarProgressToFloat(progress);
                 if (seekBar.getId() == R.id.fade_bar) {
-                    mCarAudioManager.setFadeTowardFront(percent);
+                    mCarAudioManager.setFadeTowardFront(level);
                 } else {
-                    mCarAudioManager.setBalanceTowardRight(percent);
+                    mCarAudioManager.setBalanceTowardRight(level);
                 }
             }
 
@@ -229,5 +235,13 @@ public final class VolumeTestFragment extends Fragment {
                 fragment.sendEventReceivedMessage(event);
             }
         }
+    }
+
+    private static int convertFloatToSeekBarProgress(float level) {
+        return Math.round(level * 100) + 100;
+    }
+
+    private static float convertSeekBarProgressToFloat(int percent) {
+        return (percent - 100) / 100.0f;
     }
 }

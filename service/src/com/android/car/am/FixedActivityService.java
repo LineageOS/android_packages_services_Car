@@ -22,6 +22,7 @@ import static android.os.Process.INVALID_UID;
 import static com.android.car.CarLog.TAG_AM;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.CarServiceUtils.isEventOfType;
+import static com.android.car.CarServiceUtils.releaseHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -85,6 +86,7 @@ import java.util.Set;
 public final class FixedActivityService implements CarServiceBase {
 
     private static final boolean DBG = Slogf.isLoggable(TAG_AM, Log.DEBUG);
+    private static final String CLASS_NAME = FixedActivityService.class.getSimpleName();
 
     private static final long RECHECK_INTERVAL_MS = 500;
     private static final int MAX_NUMBER_OF_CONSECUTIVE_CRASH_RETRY = 5;
@@ -280,9 +282,17 @@ public final class FixedActivityService implements CarServiceBase {
         mContext = context;
         mActivityService = activityService;
         mDm = displayManager;
-        mHandler = new Handler(getHandlerThread(
-                FixedActivityService.class.getSimpleName()).getLooper());
+        mHandler = new Handler(getHandlerThread(CLASS_NAME).getLooper());
         mUserHandleHelper = userHandleHelper;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            releaseHandlerThread(CLASS_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

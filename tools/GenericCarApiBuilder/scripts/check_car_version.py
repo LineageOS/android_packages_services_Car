@@ -35,12 +35,12 @@ exempt_apis = [
 ]
 
 def strip_param_names(api):
-    argGroup = re.search("\((.*)\)",api)
+    argGroup = re.search("\\((.*)\\)",api)
     if argGroup is None:
         return api
     arg = argGroup.group(0)
-    new_arg = re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', "", arg)
-    return re.sub("\((.*)\)", new_arg, api)
+    new_arg = re.sub('[^ (]*?(?=\\))|[^ ]*?(?=,)', "", arg)
+    return re.sub("\\((.*)\\)", new_arg, api)
 
 # The min car version is separated by a `|` in the string.
 def get_version(api):

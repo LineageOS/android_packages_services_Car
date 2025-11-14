@@ -16,6 +16,7 @@
 
 package android.car.hardware;
 
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
@@ -28,6 +29,7 @@ import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
 import android.car.feature.Flags;
@@ -36,6 +38,7 @@ import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.RawPropertyValue;
+import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -56,12 +59,17 @@ public final class CarPropertyValue<T> implements Parcelable {
 
     private final int mPropertyId;
     private final int mAreaId;
-    private final int mStatus;
+    private final int mSystemStatus;
     private final long mTimestampNanos;
     private final RawPropertyValue<T> mValue;
     private final boolean mIsSimulationPropId;
+    private final int mVendorStatus;
 
-    /** @removed accidentally exposed previously */
+    /**
+     * @removed accidentally exposed previously
+     *
+     * This is now deprecated and not used any more. Internally we use CarPropertyStatus instead.
+     */
     @IntDef({
         STATUS_AVAILABLE,
         STATUS_UNAVAILABLE,
@@ -71,19 +79,253 @@ public final class CarPropertyValue<T> implements Parcelable {
     public @interface PropertyStatus {}
 
     /**
+     * All possible status for a car property value.
+     *
+     * @hide
+     */
+    @IntDef({
+        STATUS_AVAILABLE,
+        STATUS_ERROR,
+        STATUS_NOT_AVAILABLE_GENERAL,
+        STATUS_NOT_AVAILABLE_DISABLED,
+        STATUS_NOT_AVAILABLE_SPEED_LOW,
+        STATUS_NOT_AVAILABLE_SPEED_HIGH,
+        STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+        STATUS_NOT_AVAILABLE_SAFETY,
+        STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarPropertyStatus {}
+
+    /**
      * {@code CarPropertyValue} is available.
      */
     public static final int STATUS_AVAILABLE = 0;
 
     /**
-     * {@code CarPropertyValue} is unavailable.
+     * {@code CarPropertyValue} is not available for general reason.
      */
     public static final int STATUS_UNAVAILABLE = 1;
+
+    /**
+     * {@code CarPropertyValue} is not available for general reason.
+     *
+     * Same as {@link #STATUS_UNAVAILABLE} but with a more specific name.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_GENERAL = 1;
 
     /**
      * {@code CarPropertyValue} has an error.
      */
     public static final int STATUS_ERROR = 2;
+
+    /**
+     * {@code CarPropertyValue} is not available because the property feature is disabled.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_DISABLED = 3;
+
+    /**
+     * {@code CarPropertyValue} is not available because the vehicle speed is too low.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SPEED_LOW = 4;
+
+    /**
+     * {@code CarPropertyValue} is not available because the vehicle speed is too high.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SPEED_HIGH = 5;
+
+    /**
+     * {@code CarPropertyValue} is not available because of bad camera or sensor
+     * visibility. Examples might be bird poop blocking the camera or a bumper cover blocking an
+     * ultrasonic sensor.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_POOR_VISIBILITY = 6;
+
+    /**
+     * {@code CarPropertyValue} is not available because of safety reasons. Eg. System could be
+     * in a faulty state, an object or person could be blocking the requested operation such as
+     * closing a trunk door, etc..
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SAFETY = 7;
+
+    /**
+     * {@code CarPropertyValue} is not available because the sub-system for the feature is not
+     * connected.
+     *
+     * <p>E.g. the trailer light property is in this state if the trailer is not attached.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 8;
+
+    /**
+     * Builder for CarPropertyValue.
+     *
+     * This is preferred over directly using CarPropertyValue constructor.
+     *
+     * @param <T> refer to {@link Parcel#writeValue(java.lang.Object)} to get a list of all
+     *            supported types. The class should be visible to framework as default class loader
+     *            is being used here.
+     *
+     * @hide
+     */
+    @TestApi
+    public static class Builder<T> {
+        private final int mPropertyId;
+        private final int mAreaId;
+
+        private long mTimestampNanos;
+        private RawPropertyValue mRawPropertyValue;
+        private int mSystemStatus = CarPropertyValue.STATUS_AVAILABLE;
+        private boolean mIsSimulationPropId;
+        private int mVendorStatus;
+        private boolean mBuilt;
+
+        /**
+         * Creates a builder for {@link CarPropertyValue}.
+         *
+         * @param propertyId The property identifier, see constants in
+         *                   {@link android.car.VehiclePropertyIds} for system defined property IDs.
+         * @param areaId     The area identifier. Must be {@code 0} if property is
+         *                   {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}.
+         *                   Otherwise, it must be one or more OR'd together constants of this
+         *                   property's
+         *                   {@link android.car.VehicleAreaType}:
+         *                     <ul>
+         *                       <li>{@code VehicleAreaWindow}</li>
+         *                       <li>{@code VehicleAreaDoor}</li>
+         *                       <li>{@link android.car.VehicleAreaSeat}</li>
+         *                       <li>{@code VehicleAreaMirror}</li>
+         *                       <li>{@link android.car.VehicleAreaWheel}</li>
+         *                     </ul>
+         *
+         * @hide
+         */
+        @TestApi
+        public Builder(int propertyId, int areaId) {
+            this.mPropertyId = propertyId;
+            this.mAreaId = areaId;
+        }
+
+        /**
+         * Sets the property value.
+         *
+         * @param value Value of Property
+         *
+         * @hide
+         */
+        @TestApi
+        public Builder<T> setValue(T value) {
+            Objects.requireNonNull(value, "value for propertyId: "
+                    + VehiclePropertyIds.toString(mPropertyId) + ", areaId: "
+                    + toAreaIdString(mPropertyId, mAreaId)
+                    + " must not be null");
+            mRawPropertyValue = new RawPropertyValue(value);
+            return this;
+        }
+
+        /**
+         * Sets the raw property value.
+         *
+         * Raw property value is a parcelable structure containing the actual property type. It
+         * typically comes from VHAL.
+         *
+         * Note: This is intentionally not exposed through {@code TestApi} because
+         * {@link RawPropertyValue} is an internal type.
+         *
+         * @param rawPropertyValue Value of the property.
+         *
+         * @hide
+         */
+        public Builder<T> setRawPropertyValue(RawPropertyValue rawPropertyValue) {
+            mRawPropertyValue = rawPropertyValue;
+            return this;
+        }
+
+        /**
+         * Sets the property timestamp in Nanoseconds.
+         *
+         * @param timestampNanos  Elapsed time in nanoseconds since boot
+         *
+         * @hide
+         */
+        @TestApi
+        public Builder<T> setTimestampNanos(long timestampNanos) {
+            mTimestampNanos = timestampNanos;
+            return this;
+        }
+
+        /**
+         * Sets the property system status.
+         *
+         * Must be one of {@link CarPropertyStatus}.
+         *
+         * @hide
+         */
+        @TestApi
+        public Builder<T> setSystemStatus(@CarPropertyStatus int systemStatus) {
+            mSystemStatus = systemStatus;
+            return this;
+        }
+
+        /**
+         * Sets the property vendor status.
+         *
+         * @hide
+         */
+        @TestApi
+        public Builder<T> setVendorStatus(int vendorStatus) {
+            mVendorStatus = vendorStatus;
+            return this;
+        }
+
+        /**
+         * Sets whether the property is a Simulation property.
+         *
+         * @param isSimulationPropId If the property is a Simulation property.
+         *
+         * @hide
+         */
+        @TestApi
+        public Builder<T> setIsSimulationPropId(boolean isSimulationPropId) {
+            mIsSimulationPropId = isSimulationPropId;
+            return this;
+        }
+
+        /**
+         * Builds the {@link CarPropertyValue}.
+         *
+         * Only allowed to be built once. Property value must be set via {@link setValue} or
+         * {@link setRawPropertyValue}.
+         *
+         * @return The built instance.
+         *
+         * @hide
+         */
+        @TestApi
+        public CarPropertyValue<T> build() {
+            Preconditions.checkState(!mBuilt, "CarPropertyValue.Builder must only be built once");
+            Preconditions.checkState(mRawPropertyValue != null,
+                    "Value must be set before building");
+            return new CarPropertyValue(this);
+        }
+    }
+
+    private CarPropertyValue(Builder builder) {
+        builder.mBuilt = true;
+        mPropertyId = builder.mPropertyId;
+        mAreaId = builder.mAreaId;
+        mSystemStatus = builder.mSystemStatus;
+        mTimestampNanos = builder.mTimestampNanos;
+        mValue = builder.mRawPropertyValue;
+        mIsSimulationPropId = builder.mIsSimulationPropId;
+        mVendorStatus = builder.mVendorStatus;
+    }
 
     /**
      * Creates an instance of {@code CarPropertyValue}.
@@ -105,7 +347,7 @@ public final class CarPropertyValue<T> implements Parcelable {
      * @hide
      */
     public CarPropertyValue(int propertyId, int areaId, T value) {
-        this(propertyId, areaId, /* timestampNanos= */ 0, value);
+        this(new Builder(propertyId, areaId).setValue(value));
     }
 
     /**
@@ -133,14 +375,14 @@ public final class CarPropertyValue<T> implements Parcelable {
      * @hide
      */
     public CarPropertyValue(int propertyId, int areaId, long timestampNanos, T value) {
-        this(propertyId, areaId, CarPropertyValue.STATUS_AVAILABLE, timestampNanos, value);
+        this(new Builder(propertyId, areaId)
+                .setTimestampNanos(timestampNanos)
+                .setValue(value));
     }
 
     /**
-     * Creates an instance of {@code CarPropertyValue}. The {@code timestampNanos} is the time in
-     * nanoseconds at which the event happened. For a given car property, each new {@code
-     * CarPropertyValue} should be monotonically increasing using the same time base as
-     * {@link android.os.SystemClock#elapsedRealtimeNanos()}.
+     * Creates an instance of {@code CarPropertyValue}.
+     *
      *
      * @param propertyId The property identifier, see constants in
      *                   {@link android.car.VehiclePropertyIds} for system defined property IDs.
@@ -157,67 +399,14 @@ public final class CarPropertyValue<T> implements Parcelable {
      *                     </ul>
      * @param status           The status of the property.
      * @param timestampNanos   Elapsed time in nanoseconds since boot
-     * @param rawPropertyValue Value of the property.
-     *
+     * @param value            Value of the property
      * @hide
      */
-    public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos,
-            RawPropertyValue<T> rawPropertyValue) {
-        this(propertyId, areaId, status, timestampNanos, rawPropertyValue,
-                /* isSimulationPropId= */ false);
-    }
-
-    /**
-     * Creates an instance of {@code CarPropertyValue}. The {@code timestampNanos} is the time in
-     * nanoseconds at which the event happened. For a given car property, each new {@code
-     * CarPropertyValue} should be monotonically increasing using the same time base as
-     * {@link android.os.SystemClock#elapsedRealtimeNanos()}.
-     *
-     * @param propertyId The property identifier, see constants in
-     *                   {@link android.car.VehiclePropertyIds} for system defined property IDs.
-     * @param areaId     The area identifier. Must be {@code 0} if property is
-     *                   {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}. Otherwise, it
-     *                   must be one or more OR'd together constants of this property's
-     *                   {@link android.car.VehicleAreaType}:
-     *                     <ul>
-     *                       <li>{@code VehicleAreaWindow}</li>
-     *                       <li>{@code VehicleAreaDoor}</li>
-     *                       <li>{@link android.car.VehicleAreaSeat}</li>
-     *                       <li>{@code VehicleAreaMirror}</li>
-     *                       <li>{@link android.car.VehicleAreaWheel}</li>
-     *                     </ul>
-     * @param status           The status of the property.
-     * @param timestampNanos   Elapsed time in nanoseconds since boot
-     * @param rawPropertyValue Value of the property.
-     * @param isSimulationPropId     If the property is a Simulation property.
-     *
-     * @hide
-     */
-    public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos,
-            RawPropertyValue<T> rawPropertyValue, boolean isSimulationPropId) {
-        mPropertyId = propertyId;
-        mAreaId = areaId;
-        mStatus = status;
-        mTimestampNanos = timestampNanos;
-        mValue = rawPropertyValue;
-        mIsSimulationPropId = isSimulationPropId;
-    }
-
-
-    /**
-     * @hide
-     *
-     * @deprecated use {@link CarPropertyValue#CarPropertyValue(int, int, long, T)} instead
-     */
-    @Deprecated
     public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos, T value) {
-
-        this(propertyId, areaId, status, timestampNanos, new RawPropertyValue(
-                Objects.requireNonNull(value, "value for propertyId: "
-                        + VehiclePropertyIds.toString(propertyId) + ", areaId: "
-                        + toAreaIdString(propertyId, areaId) + ", status: " + status
-                        + " must not be null")
-        ));
+        this(new Builder(propertyId, areaId)
+                .setSystemStatus(status)
+                .setTimestampNanos(timestampNanos)
+                .setValue(value));
     }
 
     /**
@@ -230,11 +419,12 @@ public final class CarPropertyValue<T> implements Parcelable {
     public CarPropertyValue(Parcel in) {
         mPropertyId = in.readInt();
         mAreaId = in.readInt();
-        mStatus = in.readInt();
+        mSystemStatus = in.readInt();
         mTimestampNanos = in.readLong();
         mValue = (RawPropertyValue<T>) in.readParcelable(RawPropertyValue.class.getClassLoader(),
                 RawPropertyValue.class);
         mIsSimulationPropId = in.readBoolean();
+        mVendorStatus = in.readInt();
     }
 
     public static final Creator<CarPropertyValue> CREATOR = new Creator<CarPropertyValue>() {
@@ -259,10 +449,11 @@ public final class CarPropertyValue<T> implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mPropertyId);
         dest.writeInt(mAreaId);
-        dest.writeInt(mStatus);
+        dest.writeInt(mSystemStatus);
         dest.writeLong(mTimestampNanos);
         dest.writeParcelable(mValue, /* parcelableFlags= */ 0);
         dest.writeBoolean(mIsSimulationPropId);
+        dest.writeInt(mVendorStatus);
     }
 
     /**
@@ -295,12 +486,44 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
+     * Returns the property status of {@code CarPropertyValue}.
+     *
+     * <p>Possible return values are one of:
+     *  <ul>
+     *      <li><code>STATUS_AVAILABLE</code></li>
+     *      <li><code>STATUS_ERROR</code></li>
+     *      <li><code>STATUS_NOT_AVAILABLE_GENERAL</code></li>
+     *      <li><code>STATUS_NOT_AVAILABLE_DISABLED</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_LOW</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_HIGH</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_POOR_VISIBILITY</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SAFETY</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED</code> (Since Android 25Q4)</li>
+     *  </ul>
+     *
      * @return The property status of {@code CarPropertyValue}
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS)
-    @PropertyStatus
+    @CarPropertyStatus
     public int getPropertyStatus() {
-        return mStatus;
+        return mSystemStatus;
+    }
+
+    /**
+     * Returns the vendor-specific property status.
+     *
+     * The meaning for the returned status code is vendor specific. It is parsed from the status
+     * returned from VHAL. For example, if VHAL returns 0x00011001, 0x1001 is the system status
+     * (NOT_AVAILABLE_DISABLED), 0x0001 is the vendor status.
+     *
+     * @return The vendor status code.
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    @SystemApi
+    public int getPropertyVendorStatus() {
+        return mVendorStatus;
     }
 
     /**
@@ -308,9 +531,9 @@ public final class CarPropertyValue<T> implements Parcelable {
      * @deprecated Use {@link #getPropertyStatus} instead.
      */
     @Deprecated
-    @PropertyStatus
+    @CarPropertyStatus
     public int getStatus() {
-        return mStatus;
+        return mSystemStatus;
     }
 
     /**
@@ -349,7 +572,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * Returns weather the propertyId is Simulation Property Id.
+     * Returns whether the propertyId is Simulation Property Id.
      *
      * <p>Simulation property is a property which is used by car service and vehicle hardware but
      * is not defined in {@link android.car.VehiclePropertyIds}
@@ -381,7 +604,9 @@ public final class CarPropertyValue<T> implements Parcelable {
                 + "mPropertyId=0x" + toHexString(mPropertyId)
                 + ", propertyName=" + propertyIdToString
                 + ", mAreaId=" + toAreaIdString(mPropertyId, mAreaId)
-                + ", mStatus=" + constantToString(CarPropertyValue.class, "STATUS_", mStatus)
+                + ", mSystemStatus="
+                + constantToString(CarPropertyValue.class, "STATUS_", mSystemStatus)
+                + ", mVendorStatus=" + mVendorStatus
                 + ", mTimestampNanos=" + mTimestampNanos
                 + ", mValue=" + mValue;
         if (Flags.carPropertySimulation()) {
@@ -398,7 +623,8 @@ public final class CarPropertyValue<T> implements Parcelable {
     @Override
     public int hashCode() {
         return Arrays.hashCode(new Object[]{
-                mPropertyId, mAreaId, mStatus, mTimestampNanos, mValue});
+                mPropertyId, mAreaId, mSystemStatus, mTimestampNanos, mValue,
+                mIsSimulationPropId, mVendorStatus});
     }
 
     /** Checks equality with passed {@code object}. */
@@ -412,8 +638,10 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
         CarPropertyValue<?> carPropertyValue = (CarPropertyValue<?>) object;
         return mPropertyId == carPropertyValue.mPropertyId && mAreaId == carPropertyValue.mAreaId
-                && mStatus == carPropertyValue.mStatus
+                && mSystemStatus == carPropertyValue.mSystemStatus
                 && mTimestampNanos == carPropertyValue.mTimestampNanos
-                && Objects.equals(mValue, carPropertyValue.mValue);
+                && Objects.equals(mValue, carPropertyValue.mValue)
+                && mIsSimulationPropId == carPropertyValue.mIsSimulationPropId
+                && mVendorStatus == carPropertyValue.mVendorStatus;
     }
 }

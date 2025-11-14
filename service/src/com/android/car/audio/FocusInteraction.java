@@ -39,6 +39,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.settings.CarSettings;
+import android.content.ContentResolver;
 import android.database.ContentObserver;
 import android.media.AudioAttributes;
 import android.net.Uri;
@@ -48,7 +49,6 @@ import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
-import com.android.car.CarServiceUtils;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto.CarAudioFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -329,23 +329,26 @@ final class FocusInteraction {
 
     @GuardedBy("mLock")
     private final SparseArray<SparseArray<Integer>> mInteractionMatrix;
+    @GuardedBy("mLock")
+    private int mUserId;
 
     private ContentObserver mContentObserver;
 
     private final CarAudioSettings mCarAudioFocusSettings;
-
+    private final Handler mHandler;
     private final ContentObserverFactory mContentObserverFactory;
-    private int mUserId;
+
 
     /**
      * Constructs a focus interaction instance.
      */
     FocusInteraction(CarAudioSettings carAudioSettings,
-            ContentObserverFactory contentObserverFactory) {
+            ContentObserverFactory contentObserverFactory, Handler handler) {
         mCarAudioFocusSettings = Objects.requireNonNull(carAudioSettings,
                 "Car Audio Settings can not be null.");
         mContentObserverFactory = Objects.requireNonNull(contentObserverFactory,
                 "Content Observer Factory can not be null.");
+        mHandler = Objects.requireNonNull(handler, "Handler can not be null");
         mInteractionMatrix = INTERACTION_MATRIX.clone();
     }
 
@@ -453,8 +456,11 @@ final class FocusInteraction {
     void setUserIdForSettings(@UserIdInt int userId) {
         synchronized (mLock) {
             if (mContentObserver != null) {
-                mCarAudioFocusSettings.getContentResolverForUser(mUserId)
-                        .unregisterContentObserver(mContentObserver);
+                ContentResolver prevContentResolver =
+                        mCarAudioFocusSettings.getContentResolverForUser(mUserId);
+                if (prevContentResolver != null) {
+                    prevContentResolver.unregisterContentObserver(mContentObserver);
+                }
                 mContentObserver = null;
             }
             mUserId = userId;
@@ -462,11 +468,8 @@ final class FocusInteraction {
                 setRejectNavigationOnCallLocked(false);
                 return;
             }
-            var carHandlerThread = CarServiceUtils.getHandlerThread(
-                    CarAudioService.class.getSimpleName());
             mContentObserver = mContentObserverFactory.createObserver(
-                    this::navigationOnCallSettingChanged,
-                    new Handler(carHandlerThread.getLooper()));
+                    this::navigationOnCallSettingChanged, mHandler);
             mCarAudioFocusSettings.getContentResolverForUser(mUserId)
                     .registerContentObserver(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI,
                             /* notifyForDescendants= */false, mContentObserver);

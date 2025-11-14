@@ -49,10 +49,7 @@
     <item target="color/car_ui_text_color_secondary" value="@color/car_ui_text_color_secondary"/>
     <item target="color/car_ui_toolbar_menu_item_icon_background_color" value="@color/car_ui_toolbar_menu_item_icon_background_color"/>
     <item target="color/car_ui_toolbar_menu_item_icon_color" value="@color/car_ui_toolbar_menu_item_icon_color"/>
-    <item target="color/car_ui_toolbar_tab_selected_color" value="@color/car_ui_toolbar_tab_selected_color"/>
-    <item target="color/car_ui_toolbar_tab_unselected_color" value="@color/car_ui_toolbar_tab_unselected_color"/>
-    <item target="color/car_ui_scrollbar_thumb" value="@color/car_ui_scrollbar_thumb"/>
-    <item target="color/car_ui_activity_background_color" value="@color/car_ui_activity_background_color"/>
+    <item target="color/car_ui_toolbar_tab_item_selector" value="@color/car_ui_toolbar_tab_item_selector"/>
 
     <item target="dimen/car_ui_toolbar_margin" value="@dimen/car_ui_toolbar_margin"/>
     <item target="dimen/car_ui_toolbar_menu_item_icon_size" value="@dimen/car_ui_toolbar_menu_item_icon_size"/>
@@ -62,7 +59,6 @@
 
     <item target="drawable/car_ui_icon_arrow_back" value="@drawable/car_ui_icon_arrow_back"/>
     <item target="drawable/car_ui_list_item_divider" value="@drawable/car_ui_list_item_divider"/>
-    <item target="drawable/car_ui_list_item_background" value="@drawable/car_ui_list_item_background"/>
     <item target="drawable/car_ui_list_item_avatar_icon_outline" value="@drawable/car_ui_list_item_avatar_icon_outline"/>
     <item target="drawable/car_ui_toolbar_background" value="@drawable/car_ui_toolbar_background" />
     <item target="drawable/car_ui_toolbar_menu_item_icon_background" value="@drawable/car_ui_toolbar_menu_item_icon_background"/>
@@ -110,8 +106,6 @@
     <item target="id/car_ui_toolbar_title_logo" value="@id/car_ui_toolbar_title_logo" />
     <item target="id/car_ui_toolbar_title" value="@id/car_ui_toolbar_title" />
     <item target="id/list" value="@id/list"/>
-    <item target="id/seekbar" value="@id/seekbar"/>
-    <item target="id/seekbar_value" value="@id/seekbar_value"/>
     <item target="id/car_ui_alert_icon" value="@id/car_ui_alert_icon"/>
     <item target="id/car_ui_alert_title" value="@id/car_ui_alert_title"/>
     <item target="id/car_ui_alert_subtitle" value="@id/car_ui_alert_subtitle"/>
@@ -128,8 +122,6 @@
     <item target="layout/car_ui_preference_two_action_switch" value="@layout/car_ui_preference_two_action_switch"/>
     <item target="layout/car_ui_preference_two_action_text" value="@layout/car_ui_preference_two_action_text"/>
     <item target="layout/car_ui_preference_two_action_text_borderless" value="@layout/car_ui_preference_two_action_text_borderless"/>
-    <item target="layout/car_ui_preference_widget_switch" value="@layout/car_ui_preference_widget_switch"/>
-    <item target="layout/car_ui_preference_widget_seekbar" value="@layout/car_ui_preference_widget_seekbar"/>
     <item target="layout/car_ui_two_action_preference" value="@layout/car_ui_two_action_preference"/>
     <item target="layout/car_ui_toolbar_menu_item_primary" value="@layout/car_ui_toolbar_menu_item_primary"/>
     <item target="layout/car_ui_toolbar_menu_item" value="@layout/car_ui_toolbar_menu_item"/>
@@ -137,18 +129,12 @@
     <item target="layout/car_ui_toolbar" value="@layout/car_ui_toolbar"/>
 
     <item target="style/TextAppearance.CarUi.AlertDialog.Title" value="@style/TextAppearance.CarUi.AlertDialog.Title"/>
-    <item target="style/TextAppearance.CarUi.AlertDialog.Subtitle" value="@style/TextAppearance.CarUi.AlertDialog.Subtitle"/>
     <item target="style/TextAppearance.CarUi.Body1" value="@style/TextAppearance.CarUi.Body1"/>
     <item target="style/TextAppearance.CarUi.Body3" value="@style/TextAppearance.CarUi.Body3"/>
     <item target="style/TextAppearance.CarUi.ListItem" value="@style/TextAppearance.CarUi.ListItem"/>
     <item target="style/TextAppearance.CarUi.ListItem.Body" value="@style/TextAppearance.CarUi.ListItem.Body"/>
-    <item target="style/TextAppearance.CarUi.PreferenceCategoryTitle" value="@style/TextAppearance.CarUi.PreferenceCategoryTitle"/>
-    <item target="style/TextAppearance.CarUi.PreferenceSummary" value="@style/TextAppearance.CarUi.PreferenceSummary"/>
-    <item target="style/TextAppearance.CarUi.PreferenceTitle" value="@style/TextAppearance.CarUi.PreferenceTitle"/>
     <item target="style/TextAppearance.CarUi" value="@style/TextAppearance.CarUi"/>
     <item target="style/Widget.CarUi.Button.Borderless.Colored" value="@style/Widget.CarUi.Button.Borderless.Colored"/>
-    <item target="style/Widget.CarUi.SeekbarPreference.Seekbar" value="@style/Widget.CarUi.SeekbarPreference.Seekbar"/>
-    <item target="style/Widget.CarUi.SeekbarPreference" value="@style/Widget.CarUi.SeekbarPreference"/>
     <item target="style/Widget.CarUi.Toolbar.MenuItem.IndividualContainer" value="@style/Widget.CarUi.Toolbar.MenuItem.IndividualContainer"/>
     <item target="style/Widget.CarUi.Toolbar.MenuItem" value="@style/Widget.CarUi.Toolbar.MenuItem"/>
     <item target="style/Widget.CarUi.Toolbar.NavIconContainer" value="@style/Widget.CarUi.Toolbar.NavIconContainer"/>

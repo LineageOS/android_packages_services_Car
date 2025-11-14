@@ -201,35 +201,37 @@ public final class WatchdogStorage {
 
     /** Saves the given user package settings entries and returns whether the change succeeded. */
     public boolean saveUserPackageSettings(List<UserPackageSettingsEntry> entries) {
-        Trace.beginSection("WatchdogStorage.saveUserPackageSettings");
-        ArraySet<Integer> usersWithMissingIds = new ArraySet<>();
+        Trace.beginSection("WdStorage.saveUserPackageSettings");
         boolean isWriteSuccessful = false;
-        SQLiteDatabase db = getDatabase(/* isWritable= */ true);
         try {
-            db.beginTransaction();
-            for (int i = 0; i < entries.size(); ++i) {
-                UserPackageSettingsEntry entry = entries.get(i);
-                // Note: DO NOT replace existing entries in the UserPackageSettingsTable because
-                // the replace operation deletes the old entry and inserts a new entry in the
-                // table. This deletes the entries (in other tables) that are associated with
-                // the old userPackageId. And also the userPackageId is auto-incremented.
-                if (mUserPackagesByKey.get(UserPackage.getKey(entry.userId, entry.packageName))
-                        != null && UserPackageSettingsTable.updateEntry(db, entry)) {
-                    continue;
+            ArraySet<Integer> usersWithMissingIds = new ArraySet<>();
+            SQLiteDatabase db = getDatabase(/* isWritable= */ true);
+            try {
+                db.beginTransaction();
+                for (int i = 0; i < entries.size(); ++i) {
+                    UserPackageSettingsEntry entry = entries.get(i);
+                    // Note: DO NOT replace existing entries in the UserPackageSettingsTable because
+                    // the replace operation deletes the old entry and inserts a new entry in the
+                    // table. This deletes the entries (in other tables) that are associated with
+                    // the old userPackageId. And also the userPackageId is auto-incremented.
+                    if (mUserPackagesByKey.get(UserPackage.getKey(entry.userId, entry.packageName))
+                            != null && UserPackageSettingsTable.updateEntry(db, entry)) {
+                        continue;
+                    }
+                    usersWithMissingIds.add(entry.userId);
+                    if (!UserPackageSettingsTable.replaceEntry(db, entry)) {
+                        return false;
+                    }
                 }
-                usersWithMissingIds.add(entry.userId);
-                if (!UserPackageSettingsTable.replaceEntry(db, entry)) {
-                    Trace.endSection();
-                    return false;
-                }
+                db.setTransactionSuccessful();
+                isWriteSuccessful = true;
+            } finally {
+                db.endTransaction();
             }
-            db.setTransactionSuccessful();
-            isWriteSuccessful = true;
+            populateUserPackages(db, usersWithMissingIds);
         } finally {
-            db.endTransaction();
+            Trace.endSection();
         }
-        populateUserPackages(db, usersWithMissingIds);
-        Trace.endSection();
         return isWriteSuccessful;
     }
 
@@ -268,7 +270,7 @@ public final class WatchdogStorage {
             }
             long includingStartEpochSeconds = mTimeSource.getCurrentDate().toEpochSecond();
             long excludingEndEpochSeconds = mTimeSource.getCurrentDateTime().toEpochSecond();
-            ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> ioUsagesById;
+            ArrayMap<String, PackageIoUsage> ioUsagesById;
             ioUsagesById = IoUsageStatsTable.queryStats(getDatabase(/* isWritable= */ false),
                     includingStartEpochSeconds, excludingEndEpochSeconds);
             for (int i = 0; i < ioUsagesById.size(); ++i) {
@@ -428,7 +430,7 @@ public final class WatchdogStorage {
             Slogf.w(TAG, "No I/O usage stats provided to forgive historical overuses.");
             return;
         }
-        Trace.beginSection("WatchdogStorage.forgiveHistoricalOveruses");
+        Trace.beginSection("WdStorage.forgiveHistoricalOveruses");
         ZonedDateTime currentDate =
                 mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
         long includingStartEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
@@ -458,7 +460,7 @@ public final class WatchdogStorage {
      * @param aliveUserIds Array of alive user ids.
      */
     public void syncUsers(int[] aliveUserIds) {
-        Trace.beginSection("WatchdogStorage.syncUsers");
+        Trace.beginSection("WdStorage.syncUsers");
         IntArray aliveUsers = IntArray.wrap(aliveUserIds);
         for (int i = mUserPackagesByKey.size() - 1; i >= 0; --i) {
             UserPackage userPackage = mUserPackagesByKey.valueAt(i);
@@ -477,7 +479,7 @@ public final class WatchdogStorage {
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         List<ContentValues> rows = new ArrayList<>(entries.size());
         try {
-            Trace.beginSection("WatchdogStorage.saveIoUsageStats");
+            Trace.beginSection("WdStorage.saveIoUsageStats");
             for (int i = 0; i < entries.size(); ++i) {
                 IoUsageStatsEntry entry = entries.get(i);
                 UserPackage userPackage = mUserPackagesByKey.get(
@@ -811,7 +813,8 @@ public final class WatchdogStorage {
 
         public static void deleteUserPackage(SQLiteDatabase db, @UserIdInt int userId,
                 String packageName) {
-            Trace.beginSection("WatchdogStorage-deletePackage: " + packageName + " : " + userId);
+            Trace.beginSection("WdStorage.deleteUserPackage(package=" + packageName + ", userId="
+                    + userId + ")");
             String whereClause = COLUMN_USER_ID + "= ? and " + COLUMN_PACKAGE_NAME + "= ?";
             String[] whereArgs = new String[]{String.valueOf(userId), packageName};
             int deletedRows = db.delete(TABLE_NAME, whereClause, whereArgs);
@@ -843,10 +846,9 @@ public final class WatchdogStorage {
     static final class IoUsageStatsEntry {
         public final @UserIdInt int userId;
         public final String packageName;
-        public final WatchdogPerfHandler.PackageIoUsage ioUsage;
+        public final PackageIoUsage ioUsage;
 
-        IoUsageStatsEntry(@UserIdInt int userId,
-                String packageName, WatchdogPerfHandler.PackageIoUsage ioUsage) {
+        IoUsageStatsEntry(@UserIdInt int userId, String packageName, PackageIoUsage ioUsage) {
             this.userId = userId;
             this.packageName = packageName;
             this.ioUsage = ioUsage;
@@ -978,8 +980,9 @@ public final class WatchdogStorage {
             return values;
         }
 
-        public static ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> queryStats(
-                SQLiteDatabase db, long includingStartEpochSeconds, long excludingEndEpochSeconds) {
+        public static ArrayMap<String, PackageIoUsage> queryStats(SQLiteDatabase db,
+                                                                  long includingStartEpochSeconds,
+                                                                  long excludingEndEpochSeconds) {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.append("SELECT ")
                     .append(COLUMN_USER_PACKAGE_ID).append(", ")
@@ -1003,7 +1006,7 @@ public final class WatchdogStorage {
             String[] selectionArgs = new String[]{String.valueOf(includingStartEpochSeconds),
                     String.valueOf(excludingEndEpochSeconds)};
 
-            ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> ioUsageById = new ArrayMap<>();
+            ArrayMap<String, PackageIoUsage> ioUsageById = new ArrayMap<>();
             try (Cursor cursor = db.rawQuery(queryBuilder.toString(), selectionArgs)) {
                 while (cursor.moveToNext()) {
                     android.automotive.watchdog.IoOveruseStats ioOveruseStats =
@@ -1025,9 +1028,8 @@ public final class WatchdogStorage {
                     forgivenWriteBytes.backgroundBytes = cursor.getLong(12);
                     forgivenWriteBytes.garageModeBytes = cursor.getLong(13);
 
-                    ioUsageById.put(cursor.getString(0), new WatchdogPerfHandler.PackageIoUsage(
-                            ioOveruseStats, forgivenWriteBytes,
-                            /* forgivenOveruses= */ cursor.getInt(3),
+                    ioUsageById.put(cursor.getString(0), new PackageIoUsage(ioOveruseStats,
+                            forgivenWriteBytes, /* forgivenOveruses= */ cursor.getInt(3),
                             /* totalTimesKilled= */ cursor.getInt(4)));
                 }
             }
