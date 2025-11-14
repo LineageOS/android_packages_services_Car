@@ -297,7 +297,7 @@ flag {
   name: "car_property_status_detailed_not_available"
   namespace: "car_framework"
   description: "Expose detailed not available status codes for CarPropertyValue"
-  bug: "343489611"
+  bug: "458533407"
 }
 
 flag {
