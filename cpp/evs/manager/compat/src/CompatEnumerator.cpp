@@ -59,21 +59,16 @@ CompatEnumerator::CompatEnumerator() {
         return;
     }
 
-    if (!mCameraManager->getOpenSharedCameraFn() ||
-        !mCameraManager->getIsCameraDeviceSharingSupportedFn() ||
-        !mCameraManager->getCaptureSessionSharedStartStreamingFn() ||
-        !mCameraManager->getCaptureSessionSharedStopStreamingFn()) {
-        LOG(ERROR) << "Camera sharing and streaming functions are not available.";
-        mIsReady = false;
-        return;
-    }
-
-    if (!mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get())) {
-        // TODO (b/450290164): remove this check and call ACameraManager_openCamera in instead if
-        // camera device sharing is not supported.
-        LOG(ERROR) << "Camera device sharing is not supported on this device.";
-        mIsReady = false;
-        return;
+    if (mCameraManager->getIsCameraDeviceSharingSupportedFn() &&
+        mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get())) {
+        if (!mCameraManager->getOpenSharedCameraFn() ||
+            !mCameraManager->getCaptureSessionSharedStartStreamingFn() ||
+            !mCameraManager->getCaptureSessionSharedStopStreamingFn()) {
+            LOG(ERROR) << "Camera device sharing is supported but one or more required functions "
+                          "are not available.";
+            mIsReady = false;
+            return;
+        }
     }
     initializeAvailabilityCallbacks();
     mIsReady = true;
@@ -459,6 +454,8 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const St
     bool success = true;
     std::vector<std::string> openedInThisCall;
 
+    bool isSharingSupported =
+            mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get());
     {
         std::lock_guard lock(mLock);
         for (const auto& id : physicalCameraIds) {
@@ -472,20 +469,27 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const St
                          .onClientSharedAccessPriorityChanged =
                                  &CompatEnumerator::onClientSharedAccessPriorityChanged
                 };
-                bool isPrimaryClient = false;
-                ACameraManager_openSharedCamera_fn openSharedCameraFn =
-                        mCameraManager->getOpenSharedCameraFn();
-                if (!openSharedCameraFn) {
-                    LOG(ERROR) << "ACameraManager_openSharedCamera function not loaded.";
-                    success = false;
-                    break;
+                camera_status_t openCameraStatus;
+                // Default to primary client. if camera sharing is not supported.
+                bool isPrimaryClient = true;
+                if (isSharingSupported) {
+                    ACameraManager_openSharedCamera_fn openSharedCameraFn =
+                            mCameraManager->getOpenSharedCameraFn();
+                    if (!openSharedCameraFn) {
+                        LOG(ERROR) << "ACameraManager_openSharedCamera function not loaded.";
+                        success = false;
+                        break;
+                    }
+                    openCameraStatus = openSharedCameraFn(mCameraManager->get(), id.c_str(),
+                                                          &callbacks, &device, &isPrimaryClient);
+                } else {
+                    openCameraStatus = ACameraManager_openCamera(mCameraManager->get(), id.c_str(),
+                                                                 &callbacks, &device);
                 }
-                camera_status_t status = openSharedCameraFn(mCameraManager->get(), id.c_str(),
-                                                            &callbacks, &device, &isPrimaryClient);
 
-                if (status != ACAMERA_OK || device == nullptr) {
+                if (openCameraStatus != ACAMERA_OK || device == nullptr) {
                     LOG(ERROR) << "Failed to open hardware camera " << id
-                               << ", status = " << status;
+                               << ", status = " << openCameraStatus;
                     success = false;
                     break;
                 }
