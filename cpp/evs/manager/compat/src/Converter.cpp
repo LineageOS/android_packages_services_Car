@@ -17,11 +17,13 @@
 #include "Converter.h"
 
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
+#include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <aidl/android/hardware/automotive/evs/Stream.h>
 #include <aidl/android/hardware/graphics/common/PixelFormat.h>
 #include <aidlcommonsupport/NativeHandle.h>
 #include <android-base/logging.h>
 #include <android/hardware_buffer.h>
+#include <camera/NdkCameraError.h>
 #include <camera/NdkCameraMetadata.h>
 #include <hardware/gralloc.h>
 #include <media/NdkImageReader.h>
@@ -35,6 +37,7 @@ namespace android::hardware::automotive::evs::compat {
 
 using aidl::android::hardware::automotive::evs::BufferDesc;
 using aidl::android::hardware::automotive::evs::CameraDesc;
+using aidl::android::hardware::automotive::evs::EvsResult;
 using aidl::android::hardware::automotive::evs::Stream;
 using aidl::android::hardware::graphics::common::PixelFormat;
 
@@ -166,5 +169,46 @@ media_status_t Converter::toBufferDesc(AImage* image, uint32_t bufferId,
     outBufferDesc.pixelSizeBytes = -1;
 
     return AMEDIA_OK;
+}
+
+EvsResult Converter::toEvsResult(camera_status_t status) {
+    switch (status) {
+        case ACAMERA_OK:
+            // Operation succeeded.
+            return EvsResult::OK;
+        case ACAMERA_ERROR_INVALID_PARAMETER:
+        case ACAMERA_ERROR_METADATA_NOT_FOUND:
+        case ACAMERA_ERROR_STREAM_CONFIGURE_FAIL:
+            // Errors related to invalid arguments or configuration.
+            return EvsResult::INVALID_ARG;
+        case ACAMERA_ERROR_CAMERA_DISCONNECTED:
+        case ACAMERA_ERROR_SESSION_CLOSED:
+            // Camera/session is no longer available.
+            return EvsResult::OWNERSHIP_LOST;
+        case ACAMERA_ERROR_NOT_ENOUGH_MEMORY:
+            // Memory allocation failure.
+            return EvsResult::BUFFER_NOT_AVAILABLE;
+        case ACAMERA_ERROR_CAMERA_DEVICE:
+        case ACAMERA_ERROR_CAMERA_SERVICE:
+        case ACAMERA_ERROR_INVALID_OPERATION:
+        case ACAMERA_ERROR_UNKNOWN:
+            // Fatal errors in the camera device, service, or unknown internal errors.
+            return EvsResult::UNDERLYING_SERVICE_ERROR;
+        case ACAMERA_ERROR_CAMERA_IN_USE:
+        case ACAMERA_ERROR_MAX_CAMERA_IN_USE:
+            // Camera or system resources are currently busy.
+            return EvsResult::RESOURCE_BUSY;
+        case ACAMERA_ERROR_CAMERA_DISABLED:
+        case ACAMERA_ERROR_PERMISSION_DENIED:
+            // Access to the camera is not allowed.
+            return EvsResult::PERMISSION_DENIED;
+        case ACAMERA_ERROR_UNSUPPORTED_OPERATION:
+            // The requested operation is not supported.
+            return EvsResult::NOT_SUPPORTED;
+        default:
+            // Catch-all for any other errors.
+            LOG(ERROR) << "Unknown camera status: " << status;
+            return EvsResult::UNDERLYING_SERVICE_ERROR;
+    }
 }
 }  // namespace android::hardware::automotive::evs::compat
