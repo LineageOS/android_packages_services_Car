@@ -67,6 +67,13 @@ public:
                  ACameraCaptureSession** session));
     MOCK_METHOD(void, ACameraCaptureSession_close, (ACameraCaptureSession * session));
 
+    MOCK_METHOD(camera_status_t, ACameraCaptureSessionShared_startStreaming,
+                (ACameraCaptureSession * session,
+                 ACameraCaptureSession_captureCallbacksV2* callbacks, int numWindows,
+                 ANativeWindow** windows, int* sequenceId));
+    MOCK_METHOD(camera_status_t, ACameraCaptureSessionShared_stopStreaming,
+                (ACameraCaptureSession * session));
+
     MOCK_METHOD(camera_status_t, ACameraDevice_createCaptureRequest,
                 (const ACameraDevice* device, ACameraDevice_request_template templateId,
                  ACaptureRequest** request));
@@ -74,17 +81,23 @@ public:
                 (ACaptureRequest * request, const ACameraOutputTarget* outputTarget));
     MOCK_METHOD(void, ACaptureRequest_free, (ACaptureRequest * request));
 
-    MOCK_METHOD(camera_status_t, ACameraCaptureSession_setRepeatingRequest,
-                (ACameraCaptureSession * session, ACameraCaptureSession_captureCallbacks* callbacks,
-                 int numRequests, ACaptureRequest** requests, int* sequenceId));
+    MOCK_METHOD(camera_status_t, ACameraCaptureSession_setRepeatingRequestV2,
+                (ACameraCaptureSession * session,
+                 ACameraCaptureSession_captureCallbacksV2* callbacks, int numRequests,
+                 ACaptureRequest** requests, int* sequenceId));
     MOCK_METHOD(camera_status_t, ACameraCaptureSession_stopRepeating,
                 (ACameraCaptureSession * session));
 
     MOCK_METHOD(camera_status_t, ACameraMetadata_getConstEntry,
                 (const ACameraMetadata* metadata, uint32_t tag,
                  ACameraMetadata_const_entry* entry));
+    MOCK_METHOD(camera_status_t, ACameraMetadata_getAllTags,
+                (const ACameraMetadata* metadata, int32_t* numEntries, const uint32_t** tags));
     MOCK_METHOD(ACameraMetadata*, ACameraMetadata_copy, (const ACameraMetadata* src));
     MOCK_METHOD(void, ACameraMetadata_free, (ACameraMetadata * metadata));
+
+    MOCK_METHOD(camera_status_t, ACaptureRequest_setEntry_u8,
+                (ACaptureRequest * request, uint32_t tag, uint32_t count, const uint8_t* data));
 
     static void setMockInstance(MockNdkCamera* mock) { sMockInstance = mock; }
 

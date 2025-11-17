@@ -253,6 +253,8 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         when(mContext.getApplicationInfo()).thenReturn(mApplicationInfo);
         when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE))
+                .thenReturn(PackageManager.PERMISSION_GRANTED);
 
         mContinuousCarPropertyConfig = CarPropertyConfig.newBuilder(Integer.class,
                 VENDOR_CONTINUOUS_PROPERTY, VEHICLE_AREA_TYPE_GLOBAL)
@@ -313,6 +315,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         when(mFeatureFlags.handlePropertyEventsInBinderThread()).thenReturn(true);
         when(mFeatureFlags.alwaysSendInitialValueEvent()).thenReturn(true);
         when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
+        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
 
         mCarPropertyManager.setFeatureFlags(mFeatureFlags);
     }
@@ -485,6 +488,44 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         CarInternalErrorException exception = assertThrows(CarInternalErrorException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
 
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    public void testGetProperty_internalError_withVendorErrorCode_noPermission_afterC()
+            throws Exception {
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                                        VENDOR_ERROR_CODE)));
+
+        CarInternalErrorException exception =
+                assertThrows(
+                        CarInternalErrorException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThrows(SecurityException.class, exception::getVendorErrorCode);
+    }
+
+    @Test
+    public void testGetProperty_internalError_withVendorErrorCode_hasPermission_afterC()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                                        VENDOR_ERROR_CODE)));
+
+        CarInternalErrorException exception =
+                assertThrows(
+                        CarInternalErrorException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
         assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
     }
 
@@ -697,6 +738,44 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
 
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    public void testGetProperty_notAvailable_withVendorErrorCode_noPermission_afterC()
+            throws Exception {
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                                        VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThrows(SecurityException.class, exception::getVendorErrorCode);
+    }
+
+    @Test
+    public void testGetProperty_notAvailable_withVendorErrorCode_hasPermission_afterC()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                                        VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
         assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
     }
 
@@ -1480,6 +1559,76 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void testPropertyAsyncError_getVendorErrorCode_noPermission_afterC()
+            throws RemoteException {
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        doAnswer(
+                        (invocation) -> {
+                            Object[] args = invocation.getArguments();
+                            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                                    (IAsyncPropertyResultCallback) args[1];
+
+                            GetSetValueResult getValueResult =
+                                    GetSetValueResult.newErrorResult(
+                                            /* requestId= */ 0,
+                                            CarPropertyErrorCodes.createFromVhalStatusCode(
+                                                    VehicleHalStatusCode.STATUS_INTERNAL_ERROR
+                                                            | (VENDOR_ERROR_CODE << 16)));
+
+                            getAsyncPropertyResultCallback.onGetValueResults(
+                                    new GetSetValueResultList(List.of(getValueResult)));
+                            return null;
+                        })
+                .when(mICarProperty)
+                .getPropertiesAsync(any(), any(), anyLong());
+
+        mCarPropertyManager.getPropertiesAsync(
+                List.of(createGetPropertyRequest()), null, null, mGetPropertyCallback);
+
+        verify(mGetPropertyCallback, timeout(1000)).onFailure(mPropertyAsyncErrorCaptor.capture());
+
+        PropertyAsyncError error = mPropertyAsyncErrorCaptor.getValue();
+
+        assertThrows(SecurityException.class, error::getVendorErrorCode);
+    }
+
+    @Test
+    public void testPropertyAsyncError_getVendorErrorCode_hasPermission_afterC()
+            throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        doAnswer(
+                        (invocation) -> {
+                            Object[] args = invocation.getArguments();
+                            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                                    (IAsyncPropertyResultCallback) args[1];
+
+                            GetSetValueResult getValueResult =
+                                    GetSetValueResult.newErrorResult(
+                                            /* requestId= */ 0,
+                                            CarPropertyErrorCodes.createFromVhalStatusCode(
+                                                    VehicleHalStatusCode.STATUS_INTERNAL_ERROR
+                                                            | (VENDOR_ERROR_CODE << 16)));
+
+                            getAsyncPropertyResultCallback.onGetValueResults(
+                                    new GetSetValueResultList(List.of(getValueResult)));
+                            return null;
+                        })
+                .when(mICarProperty)
+                .getPropertiesAsync(any(), any(), anyLong());
+
+        mCarPropertyManager.getPropertiesAsync(
+                List.of(createGetPropertyRequest()), null, null, mGetPropertyCallback);
+
+        verify(mGetPropertyCallback, timeout(1000)).onFailure(mPropertyAsyncErrorCaptor.capture());
+
+        PropertyAsyncError error = mPropertyAsyncErrorCaptor.getValue();
+
+        assertThat(error.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testSetProperty_setsValue() throws RemoteException {
         mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f);
 
@@ -1666,12 +1815,112 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void testSetProperty_notAvailable_withVendorErrorCode_noPermission_afterC()
+            throws Exception {
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                                        VENDOR_ERROR_CODE)))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThrows(SecurityException.class, exception::getVendorErrorCode);
+    }
+
+    @Test
+    public void testSetProperty_notAvailable_withVendorErrorCode_hasPermission_afterC()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                                        VENDOR_ERROR_CODE)))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testSetProperty_internalErrorAfterU_withVendorErrorCode() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
         CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
                 HVAC_TEMPERATURE_SET, 0, 17.0f);
-        doThrow(new ServiceSpecificException(combineErrors(
-                VehicleHalStatusCode.STATUS_INTERNAL_ERROR, VENDOR_ERROR_CODE))).when(mICarProperty)
+        doThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                                        VENDOR_ERROR_CODE)))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        CarInternalErrorException exception =
+                assertThrows(
+                        CarInternalErrorException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    public void testSetProperty_internalError_withVendorErrorCode_noPermission_afterC()
+            throws Exception {
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                                        VENDOR_ERROR_CODE)))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        CarInternalErrorException exception =
+                assertThrows(
+                        CarInternalErrorException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThrows(SecurityException.class, exception::getVendorErrorCode);
+    }
+
+    @Test
+    public void testSetProperty_internalError_withVendorErrorCode_hasPermission_afterC()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                                        VENDOR_ERROR_CODE)))
+                .when(mICarProperty)
                 .setProperty(eq(carPropertyValue), any());
 
         CarInternalErrorException exception =  assertThrows(CarInternalErrorException.class,

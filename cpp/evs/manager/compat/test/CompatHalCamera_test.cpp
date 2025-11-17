@@ -61,8 +61,9 @@ protected:
         mMockCameraManager->openSharedCamera("mockCam0", &device);
 
         aidlevs::Stream streamConfig;
-        mHalCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
-                                                                 streamConfig);
+        mHalCamera =
+                ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
+                                                            streamConfig, true, mMockCameraManager);
 
         // Set up MockNdkCamera
         MockNdkCamera::setMockInstance(&mMockNdkCamera);
@@ -168,7 +169,8 @@ TEST_F(CompatHalCameraTest, clientStreamStarting_Success) {
             }));
     EXPECT_CALL(mMockNdkCamera, ACaptureRequest_addTarget(dummyCaptureRequest, dummyOutputTarget))
             .WillOnce(Return(ACAMERA_OK));
-    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_setRepeatingRequest(dummySession, _, 1, _, _))
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraCaptureSession_setRepeatingRequestV2(dummySession, _, 1, _, _))
             .WillOnce(Return(ACAMERA_OK));
 
     ::ndk::ScopedAStatus status = mHalCamera->clientStreamStarting();
@@ -210,6 +212,178 @@ TEST_F(CompatHalCameraTest, clientStreamStarting_StartStreamFail) {
     EXPECT_EQ(status.getServiceSpecificError(),
               static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     EXPECT_EQ(mHalCamera->mStreamState, CompatHalCamera::STOPPED);
+}
+
+TEST_F(CompatHalCameraTest, clientStreamStarting_PrimaryClient) {
+    mHalCamera->setPrimaryClient(true);
+
+    // Common NDK setup calls
+    EXPECT_CALL(mMockNdkCamera, AImageReader_newWithUsage(_, _, _, _, _, _))
+            .WillOnce(Invoke([](int32_t, int32_t, int32_t, uint64_t, int32_t,
+                                AImageReader** reader) -> media_status_t {
+                *reader = dummyReader;
+                return AMEDIA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, AImageReader_getWindow(_, _))
+            .WillOnce(Invoke([](AImageReader*, ANativeWindow** window) -> media_status_t {
+                *window = dummyWindow;
+                return AMEDIA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, AImageReader_setImageListener(_, _)).WillOnce(Return(AMEDIA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraOutputTarget_create(_, _))
+            .WillOnce(Invoke([](ANativeWindow*, ACameraOutputTarget** outputTarget) {
+                *outputTarget = dummyOutputTarget;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutput_create(_, _))
+            .WillOnce(Invoke([](ANativeWindow*, ACaptureSessionOutput** output) {
+                *output = dummySessionOutput;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutputContainer_create(_))
+            .WillOnce(Invoke([](ACaptureSessionOutputContainer** container) {
+                *container = dummyOutputContainer;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutputContainer_add(_, _))
+            .WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraDevice_createCaptureRequest(_, _, _))
+            .WillOnce(Invoke([](const ACameraDevice*, ACameraDevice_request_template,
+                                ACaptureRequest** request) {
+                *request = dummyCaptureRequest;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureRequest_addTarget(_, _)).WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraDevice_createCaptureSession(_, _, _, _))
+            .WillOnce(Invoke([](ACameraDevice*, const ACaptureSessionOutputContainer*,
+                                const ACameraCaptureSession_stateCallbacks*,
+                                ACameraCaptureSession** session) {
+                *session = dummySession;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_setRepeatingRequestV2(_, _, _, _, _))
+            .Times(1);
+
+    // Non-primary client specific calls - SHOULD NOT be called
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSessionShared_startStreaming(_, _, _, _, _)).Times(0);
+
+    mHalCamera->clientStreamStarting();
+}
+
+TEST_F(CompatHalCameraTest, clientStreamStarting_SecondaryClient) {
+    mHalCamera->setPrimaryClient(false);
+
+    // Common NDK setup calls
+    EXPECT_CALL(mMockNdkCamera, AImageReader_newWithUsage(_, _, _, _, _, _))
+            .WillOnce(Invoke([](int32_t, int32_t, int32_t, uint64_t, int32_t,
+                                AImageReader** reader) -> media_status_t {
+                *reader = dummyReader;
+                return AMEDIA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, AImageReader_getWindow(_, _))
+            .WillOnce(Invoke([](AImageReader*, ANativeWindow** window) -> media_status_t {
+                *window = dummyWindow;
+                return AMEDIA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, AImageReader_setImageListener(_, _)).WillOnce(Return(AMEDIA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraOutputTarget_create(_, _))
+            .WillOnce(Invoke([](ANativeWindow*, ACameraOutputTarget** outputTarget) {
+                *outputTarget = dummyOutputTarget;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutput_create(_, _))
+            .WillOnce(Invoke([](ANativeWindow*, ACaptureSessionOutput** output) {
+                *output = dummySessionOutput;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutputContainer_create(_))
+            .WillOnce(Invoke([](ACaptureSessionOutputContainer** container) {
+                *container = dummyOutputContainer;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutputContainer_add(_, _))
+            .WillOnce(Return(ACAMERA_OK));
+
+    // Non-primary client specific calls
+    EXPECT_CALL(mMockNdkCamera, ACameraDevice_createCaptureSession(_, _, _, _))
+            .WillOnce(Invoke([](ACameraDevice*, const ACaptureSessionOutputContainer*,
+                                const ACameraCaptureSession_stateCallbacks*,
+                                ACameraCaptureSession** session) {
+                *session = dummySession;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(*mMockCameraManager, getCaptureSessionSharedStartStreamingFn())
+            .WillOnce(Return(&ACameraCaptureSessionShared_startStreaming));
+
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraCaptureSessionShared_startStreaming(dummySession, _, 1, _, _))
+            .WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraDevice_createCaptureRequest(_, _, _)).Times(0);
+    EXPECT_CALL(mMockNdkCamera, ACaptureRequest_addTarget(_, _)).Times(0);
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_setRepeatingRequestV2(_, _, _, _, _))
+            .Times(0);
+
+    mHalCamera->clientStreamStarting();
+}
+
+TEST_F(CompatHalCameraTest, cleanUpNdkStreamResources_PrimaryClient) {
+    aidlevs::Stream streamConfig;
+    mHalCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "mockCam0", nullptr,
+                                                             streamConfig, /*isPrimary=*/true,
+                                                             mMockCameraManager);
+
+    // Set up dummy NDK objects to be "cleaned up"
+    mHalCamera->mImageReader = dummyReader;
+    mHalCamera->mWindow = dummyWindow;
+    mHalCamera->mOutputTarget = dummyOutputTarget;
+    mHalCamera->mSessionOutput = dummySessionOutput;
+    mHalCamera->mOutputs = dummyOutputContainer;
+    mHalCamera->mSession = dummySession;
+    mHalCamera->mCaptureRequest = dummyCaptureRequest;
+
+    // Expect clean up calls for primary client
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_stopRepeating(dummySession)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_close(dummySession)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureRequest_free(dummyCaptureRequest)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutputContainer_free(dummyOutputContainer)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutput_free(dummySessionOutput)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACameraOutputTarget_free(dummyOutputTarget)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, AImageReader_delete(dummyReader)).Times(1);
+
+    // Expect NO calls for secondary client cleanup
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSessionShared_stopStreaming(dummySession)).Times(0);
+
+    mHalCamera->cleanUpNdkStreamResources();
+}
+
+TEST_F(CompatHalCameraTest, cleanUpNdkStreamResources_SecondaryClient) {
+    // Recreate HalCamera as a secondary client
+    mHalCamera->setPrimaryClient(false);
+
+    // Set up dummy NDK objects to be "cleaned up"
+    mHalCamera->mImageReader = dummyReader;
+    mHalCamera->mWindow = dummyWindow;
+    mHalCamera->mOutputTarget = dummyOutputTarget;
+    mHalCamera->mSessionOutput = dummySessionOutput;
+    mHalCamera->mOutputs = dummyOutputContainer;
+    mHalCamera->mSession = dummySession;
+    mHalCamera->mCaptureRequest = dummyCaptureRequest;
+
+    // Expect clean up calls for secondary client
+    EXPECT_CALL(*mMockCameraManager, getCaptureSessionSharedStopStreamingFn())
+            .WillOnce(Return(&ACameraCaptureSessionShared_stopStreaming));
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_close(dummySession)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureRequest_free(dummyCaptureRequest)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutputContainer_free(dummyOutputContainer)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutput_free(dummySessionOutput)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACameraOutputTarget_free(dummyOutputTarget)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, AImageReader_delete(dummyReader)).Times(1);
+
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSessionShared_stopStreaming(dummySession))
+            .WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_stopRepeating(dummySession)).Times(0);
+
+    mHalCamera->cleanUpNdkStreamResources();
 }
 
 TEST_F(CompatHalCameraTest, deliverFrame_EmptyBuffer) {
@@ -408,4 +582,43 @@ TEST_F(CompatHalCameraTest, MetadataHandling) {
     mHalCamera.reset();
 }
 
+TEST_F(CompatHalCameraTest, updateRequest_Success) {
+    // Set state to RUNNING and create a dummy session and request
+    {
+        std::lock_guard<std::mutex> lock(mHalCamera->mMutex);
+        mHalCamera->mStreamState = CompatHalCamera::RUNNING;
+        mHalCamera->mSession = dummySession;
+        mHalCamera->mCaptureRequest = dummyCaptureRequest;
+    }
+
+    // Create dummy metadata with a setting
+    camera_metadata_t* rawMetadata = allocate_camera_metadata(1, 1);
+    ASSERT_NE(rawMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON;
+    add_camera_metadata_entry(rawMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1);
+    ACameraMetadata* settings = reinterpret_cast<ACameraMetadata*>(rawMetadata);
+
+    // Mock NDK calls
+    uint32_t tag = ACAMERA_CONTROL_AE_MODE;
+    ACameraMetadata_const_entry entry;
+    entry.tag = tag;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &aeMode;
+
+    EXPECT_CALL(mMockNdkCamera, ACaptureRequest_setEntry_u8(dummyCaptureRequest, tag, 1, &aeMode))
+            .WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraCaptureSession_setRepeatingRequestV2(dummySession, _, 1, _, _))
+            .WillOnce(Return(ACAMERA_OK));
+
+    // Call the method under test
+    ::ndk::ScopedAStatus status = mHalCamera->updateRequest(entry);
+
+    // Verify
+    EXPECT_TRUE(status.isOk());
+
+    // Clean up
+    free_camera_metadata(rawMetadata);
+}
 }  // namespace android::hardware::automotive::evs::compat

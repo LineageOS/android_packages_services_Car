@@ -52,23 +52,6 @@ CompatEnumerator::CompatEnumerator() {
         mIsReady = false;
         return;
     }
-    // Dynamically load libcamera2ndk.so
-    mLibHandle = dlopen("libcamera2ndk.so", RTLD_NOW);
-    if (!mLibHandle) {
-        LOG(ERROR) << "Failed to dlopen libcamera2ndk.so: " << dlerror();
-        mIsReady = false;
-        return;
-    }
-    mOpenSharedCameraFn = reinterpret_cast<ACameraManager_openSharedCamera_fn>(
-            dlsym(mLibHandle, "ACameraManager_openSharedCamera"));
-    if (!mOpenSharedCameraFn) {
-        LOG(ERROR) << "Failed to dlsym ACameraManager_openSharedCamera: " << dlerror();
-        dlclose(mLibHandle);
-        mLibHandle = nullptr;
-        mIsReady = false;
-        return;
-    }
-
     mCameraManager = std::make_unique<NdkCameraManager>();
     if (!mCameraManager->isAvailable()) {
         LOG(ERROR) << "Camera manager is not available.";
@@ -76,8 +59,18 @@ CompatEnumerator::CompatEnumerator() {
         return;
     }
 
+    if (mCameraManager->getIsCameraDeviceSharingSupportedFn() &&
+        mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get())) {
+        if (!mCameraManager->getOpenSharedCameraFn() ||
+            !mCameraManager->getCaptureSessionSharedStartStreamingFn() ||
+            !mCameraManager->getCaptureSessionSharedStopStreamingFn()) {
+            LOG(ERROR) << "Camera device sharing is supported but one or more required functions "
+                          "are not available.";
+            mIsReady = false;
+            return;
+        }
+    }
     initializeAvailabilityCallbacks();
-
     mIsReady = true;
 }
 
@@ -104,10 +97,6 @@ CompatEnumerator::CompatEnumerator(std::unique_ptr<ICameraManager> cameraManager
 CompatEnumerator::~CompatEnumerator() {
     if (mCameraManager && mCameraManager->isAvailable()) {
         mCameraManager->unregisterAvailabilityCallback(&mAvailabilityCallbacks);
-    }
-    if (mLibHandle) {
-        dlclose(mLibHandle);
-        mLibHandle = nullptr;
     }
 }
 
@@ -392,6 +381,37 @@ void CompatEnumerator::onDeviceError(void* context, ACameraDevice* device, int e
     self->handleDeviceStatusChange(device, __FUNCTION__, &error);
 }
 
+void CompatEnumerator::onClientSharedAccessPriorityChanged(void* context, ACameraDevice* device,
+                                                           bool isPrimaryClient) {
+    if (!device || !context) {
+        LOG(ERROR) << __FUNCTION__ << " called with a null device or context.";
+        return;
+    }
+    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+    if (!self) {
+        LOG(ERROR) << "Failed to cast context to CompatEnumerator.";
+        return;
+    }
+    const char* cameraId = ACameraDevice_getId(device);
+    if (!cameraId) {
+        LOG(ERROR) << "Failed to get camera ID from device.";
+        return;
+    }
+
+    std::lock_guard lock(self->mLock);
+    auto it = self->mActiveCameras.find(cameraId);
+    if (it == self->mActiveCameras.end()) {
+        LOG(WARNING) << "Camera " << cameraId << " not found in active list.";
+        return;
+    }
+    if (!it->second) {
+        LOG(ERROR) << "CompatHalCamera instance for " << cameraId << " is null.";
+        return;
+    }
+    it->second->setPrimaryClient(isPrimaryClient);
+    LOG(INFO) << "Camera " << cameraId << " is now " << (isPrimaryClient ? "primary" : "secondary");
+}
+
 void CompatEnumerator::removeActiveCamera(const char* cameraId) {
     if (!cameraId) return;
     // mLock is already held by the caller
@@ -434,6 +454,8 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const St
     bool success = true;
     std::vector<std::string> openedInThisCall;
 
+    bool isSharingSupported =
+            mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get());
     {
         std::lock_guard lock(mLock);
         for (const auto& id : physicalCameraIds) {
@@ -441,18 +463,33 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const St
             if (it == mActiveCameras.end()) {
                 ACameraDevice* device = nullptr;
                 ACameraDevice_StateCallbacks callbacks = {
-                        .context = this,
-                        .onDisconnected = &CompatEnumerator::onDeviceDisconnected,
-                        .onError = &CompatEnumerator::onDeviceError,
-                        .onClientSharedAccessPriorityChanged = nullptr  // Not used for now
+                         .context = this,
+                         .onDisconnected = &CompatEnumerator::onDeviceDisconnected,
+                         .onError = &CompatEnumerator::onDeviceError,
+                         .onClientSharedAccessPriorityChanged =
+                                 &CompatEnumerator::onClientSharedAccessPriorityChanged
                 };
-                bool isPrimaryClient = false;
-                camera_status_t status = mOpenSharedCameraFn(mCameraManager->get(), id.c_str(),
-                                                             &callbacks, &device, &isPrimaryClient);
+                camera_status_t openCameraStatus;
+                // Default to primary client. if camera sharing is not supported.
+                bool isPrimaryClient = true;
+                if (isSharingSupported) {
+                    ACameraManager_openSharedCamera_fn openSharedCameraFn =
+                            mCameraManager->getOpenSharedCameraFn();
+                    if (!openSharedCameraFn) {
+                        LOG(ERROR) << "ACameraManager_openSharedCamera function not loaded.";
+                        success = false;
+                        break;
+                    }
+                    openCameraStatus = openSharedCameraFn(mCameraManager->get(), id.c_str(),
+                                                          &callbacks, &device, &isPrimaryClient);
+                } else {
+                    openCameraStatus = ACameraManager_openCamera(mCameraManager->get(), id.c_str(),
+                                                                 &callbacks, &device);
+                }
 
-                if (status != ACAMERA_OK || device == nullptr) {
+                if (openCameraStatus != ACAMERA_OK || device == nullptr) {
                     LOG(ERROR) << "Failed to open hardware camera " << id
-                               << ", status = " << status;
+                               << ", status = " << openCameraStatus;
                     success = false;
                     break;
                 }
@@ -470,8 +507,9 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const St
                 }
 
                 std::shared_ptr<CompatHalCamera> halCamera =
-                        ::ndk::SharedRefBase::make<CompatHalCamera>(device, id, desc_ptr,
-                                                                    streamCfg);
+                        ::ndk::SharedRefBase::make<CompatHalCamera>(device, id, desc_ptr, streamCfg,
+                                                                    isPrimaryClient,
+                                                                    mCameraManager.get());
                 if (!halCamera) {
                     LOG(ERROR) << "Failed to allocate CompatHalCamera object for " << id;
                     ACameraDevice_close(device);

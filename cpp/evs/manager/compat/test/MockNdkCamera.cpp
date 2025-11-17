@@ -104,14 +104,26 @@ void ACaptureRequest_free(ACaptureRequest* request) {
     MockNdkCamera::getMockInstance()->ACaptureRequest_free(request);
 }
 
-camera_status_t ACameraCaptureSession_setRepeatingRequest(
-        ACameraCaptureSession* session, ACameraCaptureSession_captureCallbacks* callbacks,
+camera_status_t ACameraCaptureSession_setRepeatingRequestV2(
+        ACameraCaptureSession* session, ACameraCaptureSession_captureCallbacksV2* callbacks,
         int numRequests, ACaptureRequest** requests, int* sequenceId) {
-    return MockNdkCamera::getMockInstance()->ACameraCaptureSession_setRepeatingRequest(session,
-                                                                                       callbacks,
-                                                                                       numRequests,
-                                                                                       requests,
-                                                                                       sequenceId);
+    return MockNdkCamera::getMockInstance()
+            ->ACameraCaptureSession_setRepeatingRequestV2(session, callbacks, numRequests, requests,
+                                                          sequenceId);
+}
+
+camera_status_t ACameraCaptureSessionShared_startStreaming(
+        ACameraCaptureSession* session, ACameraCaptureSession_captureCallbacksV2* callbacks,
+        int numWindows, ANativeWindow** windows, int* sequenceId) {
+    return MockNdkCamera::getMockInstance()->ACameraCaptureSessionShared_startStreaming(session,
+                                                                                        callbacks,
+                                                                                        numWindows,
+                                                                                        windows,
+                                                                                        sequenceId);
+}
+
+camera_status_t ACameraCaptureSessionShared_stopStreaming(ACameraCaptureSession* session) {
+    return MockNdkCamera::getMockInstance()->ACameraCaptureSessionShared_stopStreaming(session);
 }
 
 camera_status_t ACameraCaptureSession_stopRepeating(ACameraCaptureSession* session) {
@@ -149,6 +161,16 @@ ACameraMetadata* ACameraMetadata_copy(const ACameraMetadata* src) {
 
 void ACameraMetadata_free(ACameraMetadata* metadata) {
     MockNdkCamera::getMockInstance()->ACameraMetadata_free(metadata);
+}
+
+camera_status_t ACameraMetadata_getAllTags(const ACameraMetadata* metadata, int32_t* numEntries,
+                                           const uint32_t** tags) {
+    return MockNdkCamera::getMockInstance()->ACameraMetadata_getAllTags(metadata, numEntries, tags);
+}
+
+camera_status_t ACaptureRequest_setEntry_u8(ACaptureRequest* request, uint32_t tag, uint32_t count,
+                                            const uint8_t* data) {
+    return MockNdkCamera::getMockInstance()->ACaptureRequest_setEntry_u8(request, tag, count, data);
 }
 
 #ifdef __cplusplus

@@ -1351,6 +1351,15 @@
             android:featureFlag="android.app.supervision.flags.enable_supervision_settings_screen"
             tools:node="remove" />
 
+        <activity android:name="com.android.settings.supervision.SupervisionPinManagementActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="android.app.supervision.flags.enable_supervision_settings_ui_updates"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity android:name="com.android.settings.supervision.ConfirmSupervisionCredentialsActivity"
             android:enabled="false"
             android:exported="false"

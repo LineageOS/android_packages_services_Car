@@ -19,7 +19,9 @@ package android.car.hardware.property;
 
 import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.car.Car;
 import android.car.VehiclePropertyIds;
 
 /**
@@ -28,23 +30,26 @@ import android.car.VehiclePropertyIds;
 public class CarInternalErrorException extends RuntimeException {
     private static final int VENDOR_ERROR_CODE_SUCCESS = 0;
 
-    private int mVendorErrorCode;
+    private final int mVendorErrorCode;
+    private final boolean mCanReadVendorErrorCode;
 
-    /**
-     * @hide
-     */
-    public CarInternalErrorException(int propertyId, int areaId) {
-        this(propertyId, areaId, VENDOR_ERROR_CODE_SUCCESS);
+    /** @hide */
+    public CarInternalErrorException(
+            int propertyId, int areaId, boolean canReadVendorErrorCode) {
+        this(propertyId, areaId, VENDOR_ERROR_CODE_SUCCESS, canReadVendorErrorCode);
     }
 
-    /**
-     * @hide
-     */
-    public CarInternalErrorException(int propertyId, int areaId, int vendorErrorCode) {
+    /** @hide */
+    public CarInternalErrorException(
+            int propertyId,
+            int areaId,
+            int vendorErrorCode,
+            boolean canReadVendorErrorCode) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
                 + toAreaIdString(propertyId, areaId) + " - raised an internal error in cars with "
                 + "vendor error code: " + vendorErrorCode);
         mVendorErrorCode = vendorErrorCode;
+        mCanReadVendorErrorCode = canReadVendorErrorCode;
     }
 
     /**
@@ -56,7 +61,21 @@ public class CarInternalErrorException extends RuntimeException {
      * @hide
      */
     @SystemApi
+    @RequiresPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE)
     public int getVendorErrorCode() {
+        // Note that we have already filtered out the vendor error code at the car service
+        // layer if the client does not have the permission. We are checking here to throw
+        // SecurityException but this is not a security enforcement. Even if the client bypass
+        // this check here, the vendor error code still would be 0 if the client does not
+        // have the permission.
+        // TODO(b/455051947): Validate car service filtering in CTS.
+        // TODO(b/415128639): Filter vendor error code in CarService.
+        if (!mCanReadVendorErrorCode) {
+            throw new SecurityException(
+                    "Client does not have the required permission: "
+                            + Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE
+                            + " to call getVendorErrorCode");
+        }
         return mVendorErrorCode;
     }
 }

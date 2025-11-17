@@ -126,6 +126,13 @@ static void onCaptureStarted(void* context, ACameraCaptureSession* session,
                              const ACaptureRequest* request, int64_t timestamp) {
     LOG(DEBUG) << "NDK Camera capture started";
 }
+
+static void onCaptureStartedV2(void* context, ACameraCaptureSession* session,
+                               const ACaptureRequest* request, int64_t timestamp,
+                               int64_t frameNumber) {
+    LOG(DEBUG) << "NDK Camera capture started V2";
+}
+
 static void onCaptureProgressed(void* context, ACameraCaptureSession* session,
                                 ACaptureRequest* request, const ACameraMetadata* result) {
     LOG(DEBUG) << "NDK Camera capture progressed";
@@ -166,8 +173,13 @@ static void onCaptureBufferLost(void* context, ACameraCaptureSession* session,
 
 CompatHalCamera::CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
                                  const aidlevs::CameraDesc* desc,
-                                 const aidlevs::Stream& streamConfig) :
-      mDevice(device), mCameraId(cameraId), mStreamConfig(streamConfig) {
+                                 const aidlevs::Stream& streamConfig, bool isPrimaryClient,
+                                 ICameraManager* cameraManager) :
+      mDevice(device),
+      mCameraId(cameraId),
+      mStreamConfig(streamConfig),
+      mIsPrimaryClient(isPrimaryClient),
+      mCameraManager(cameraManager) {
     if (desc) {
         mCameraDesc = *desc;
     }
@@ -186,6 +198,11 @@ CompatHalCamera::~CompatHalCamera() {
         ACameraMetadata_free(mLatestMetadata);
         mLatestMetadata = nullptr;
     }
+}
+
+void CompatHalCamera::setPrimaryClient(bool isPrimaryClient) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    mIsPrimaryClient = isPrimaryClient;
 }
 
 void CompatHalCamera::requestNewFrame(std::shared_ptr<CompatVirtualCamera> client,
@@ -469,9 +486,23 @@ void CompatHalCamera::cleanUpNdkStreamResources() {
     }
     if (mSession) {
         // Stop the repeating request first
-        camera_status_t status = ACameraCaptureSession_stopRepeating(mSession);
-        if (status != ACAMERA_OK) {
-            LOG(ERROR) << "Failed to stop repeating request, status: " << status;
+        camera_status_t status;
+        if (mIsPrimaryClient) {
+            status = ACameraCaptureSession_stopRepeating(mSession);
+            if (status != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to stop repeating request, status: " << status;
+            }
+        } else {
+            ACameraCaptureSessionShared_stopStreaming_fn stopStreamingFn =
+                    mCameraManager->getCaptureSessionSharedStopStreamingFn();
+            if (!stopStreamingFn) {
+                LOG(ERROR) << "ACameraCaptureSessionShared_stopStreaming function not loaded.";
+            } else {
+                status = stopStreamingFn(mSession);
+                if (status != ACAMERA_OK) {
+                    LOG(ERROR) << "Failed to stop shared streaming request, status: " << status;
+                }
+            }
         }
 
         std::unique_lock<std::mutex> lock(mMutex);
@@ -601,46 +632,66 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
 
-    // Create Capture Request
-    // Use TEMPLATE_PREVIEW because high frame rate is given priority over the highest-quality
-    // post-processing in this mode, which is aligned with evs use case to display a live video
-    // stream from an automotive camera with the lowest possible latency.
-    cameraStatus = ACameraDevice_createCaptureRequest(mDevice, TEMPLATE_PREVIEW, &mCaptureRequest);
-    if (cameraStatus != ACAMERA_OK || !mCaptureRequest) {
-        LOG(ERROR) << "Failed to create ACaptureRequest, status: " << cameraStatus;
-        cleanUpNdkStreamResources();
-        return ScopedAStatus::fromServiceSpecificError(
-                static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+    mCaptureCallbacksV2.context = this;
+    mCaptureCallbacksV2.onCaptureStarted = onCaptureStartedV2;
+    mCaptureCallbacksV2.onCaptureProgressed = onCaptureProgressed;
+    mCaptureCallbacksV2.onCaptureCompleted = onCaptureCompleted;
+    mCaptureCallbacksV2.onCaptureFailed = onCaptureFailed;
+    mCaptureCallbacksV2.onCaptureBufferLost = onCaptureBufferLost;
+    if (mIsPrimaryClient) {
+        // Create Capture Request
+        // Use TEMPLATE_PREVIEW because high frame rate is given priority over the highest-quality
+        // post-processing in this mode, which is aligned with evs use case to display a live video
+        // stream from an automotive camera with the lowest possible latency.
+        cameraStatus =
+                ACameraDevice_createCaptureRequest(mDevice, TEMPLATE_PREVIEW, &mCaptureRequest);
+        if (cameraStatus != ACAMERA_OK || !mCaptureRequest) {
+            LOG(ERROR) << "Failed to create ACaptureRequest, status: " << cameraStatus;
+            cleanUpNdkStreamResources();
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
+
+        // Add target to request
+        cameraStatus = ACaptureRequest_addTarget(mCaptureRequest, mOutputTarget);
+        if (cameraStatus != ACAMERA_OK) {
+            LOG(ERROR) << "Failed to add target to capture request, status: " << cameraStatus;
+            cleanUpNdkStreamResources();
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
+
+        // Start the repeating request
+        cameraStatus = ACameraCaptureSession_setRepeatingRequestV2(mSession, &mCaptureCallbacksV2,
+                                                                   1, &mCaptureRequest, nullptr);
+        if (cameraStatus != ACAMERA_OK) {
+            LOG(ERROR) << "Failed to start repeating request, status: " << cameraStatus;
+            cleanUpNdkStreamResources();
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
+        LOG(INFO) << "Successfully started NDK stream for primary client on camera " << mCameraId;
+    } else {
+        // Start the shared streaming request
+        ACameraCaptureSessionShared_startStreaming_fn startStreamingFn =
+                mCameraManager->getCaptureSessionSharedStartStreamingFn();
+        if (!startStreamingFn) {
+            LOG(ERROR) << "ACameraCaptureSessionShared_startStreaming function not loaded.";
+            cleanUpNdkStreamResources();
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
+        int captureSequenceId = 0;
+        cameraStatus =
+                startStreamingFn(mSession, &mCaptureCallbacksV2, 1, &mWindow, &captureSequenceId);
+        if (cameraStatus != ACAMERA_OK) {
+            LOG(ERROR) << "Failed to start shared streaming request, status: " << cameraStatus;
+            cleanUpNdkStreamResources();
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
+        LOG(INFO) << "Successfully started shared NDK stream for camera " << mCameraId;
     }
-
-    // Add target to request
-    cameraStatus = ACaptureRequest_addTarget(mCaptureRequest, mOutputTarget);
-    if (cameraStatus != ACAMERA_OK) {
-        LOG(ERROR) << "Failed to add target to capture request, status: " << cameraStatus;
-        cleanUpNdkStreamResources();
-        return ScopedAStatus::fromServiceSpecificError(
-                static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
-    }
-
-    // Set up capture callbacks
-    mCaptureCallbacks.context = this;
-    mCaptureCallbacks.onCaptureStarted = onCaptureStarted;
-    mCaptureCallbacks.onCaptureProgressed = onCaptureProgressed;
-    mCaptureCallbacks.onCaptureCompleted = CompatHalCamera::onCaptureCompleted;
-    mCaptureCallbacks.onCaptureFailed = onCaptureFailed;
-    mCaptureCallbacks.onCaptureBufferLost = onCaptureBufferLost;
-
-    // Start the repeating request
-    cameraStatus = ACameraCaptureSession_setRepeatingRequest(mSession, &mCaptureCallbacks, 1,
-                                                             &mCaptureRequest, nullptr);
-    if (cameraStatus != ACAMERA_OK) {
-        LOG(ERROR) << "Failed to start repeating request, status: " << cameraStatus;
-        cleanUpNdkStreamResources();
-        return ScopedAStatus::fromServiceSpecificError(
-                static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
-    }
-
-    LOG(INFO) << "Successfully started NDK stream for camera " << mCameraId;
     return ScopedAStatus::ok();
 }
 
@@ -672,6 +723,66 @@ ACameraMetadata* CompatHalCamera::getLatestMetadata() const {
         return nullptr;
     }
     return ACameraMetadata_copy(mLatestMetadata);
+}
+
+::ndk::ScopedAStatus CompatHalCamera::updateRequest(const ACameraMetadata_const_entry& entry) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mStreamState != RUNNING || !mSession || !mCaptureRequest) {
+        LOG(WARNING) << "Cannot update request when stream is not running.";
+        return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                static_cast<int32_t>(aidlevs::EvsResult::RESOURCE_BUSY));
+    }
+
+    camera_status_t status = ACAMERA_OK;
+    switch (entry.type) {
+        case ACAMERA_TYPE_BYTE:
+            status = ACaptureRequest_setEntry_u8(mCaptureRequest, entry.tag, entry.count,
+                                                 entry.data.u8);
+            break;
+        case ACAMERA_TYPE_INT32:
+            status = ACaptureRequest_setEntry_i32(mCaptureRequest, entry.tag, entry.count,
+                                                  entry.data.i32);
+            break;
+        case ACAMERA_TYPE_FLOAT:
+            status = ACaptureRequest_setEntry_float(mCaptureRequest, entry.tag, entry.count,
+                                                    entry.data.f);
+            break;
+        case ACAMERA_TYPE_INT64:
+            status = ACaptureRequest_setEntry_i64(mCaptureRequest, entry.tag, entry.count,
+                                                  entry.data.i64);
+            break;
+        case ACAMERA_TYPE_DOUBLE:
+            status = ACaptureRequest_setEntry_double(mCaptureRequest, entry.tag, entry.count,
+                                                     entry.data.d);
+            break;
+        case ACAMERA_TYPE_RATIONAL:
+            status = ACaptureRequest_setEntry_rational(mCaptureRequest, entry.tag, entry.count,
+                                                       entry.data.r);
+            break;
+        default:
+            LOG(ERROR) << "Unsupported metadata type " << entry.type << " for tag " << entry.tag;
+            return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int>(aidlevs::EvsResult::INVALID_ARG));
+    }
+
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "Failed to set entry for tag " << entry.tag << ", type " << entry.type
+                   << ", error: " << status;
+        return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    // Resubmit the request
+    status = ACameraCaptureSession_setRepeatingRequestV2(mSession, &mCaptureCallbacksV2, 1,
+                                                         &mCaptureRequest, nullptr);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "Failed to update repeating request, status: " << status;
+        return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    LOG(DEBUG) << "Successfully updated request for tag " << entry.tag;
+    return ::ndk::ScopedAStatus::ok();
 }
 
 }  // namespace android::hardware::automotive::evs::compat

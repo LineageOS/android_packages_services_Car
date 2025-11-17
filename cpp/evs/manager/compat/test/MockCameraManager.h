@@ -35,6 +35,13 @@ public:
                 (const ACameraManager_AvailabilityCallbacks* callback), (override));
     MOCK_METHOD(camera_status_t, unregisterAvailabilityCallback,
                 (const ACameraManager_AvailabilityCallbacks* callback), (override));
+    MOCK_METHOD(ACameraManager_openSharedCamera_fn, getOpenSharedCameraFn, (), (override));
+    MOCK_METHOD(ACameraManager_isCameraDeviceSharingSupported_fn,
+                getIsCameraDeviceSharingSupportedFn, (), (override));
+    MOCK_METHOD(ACameraCaptureSessionShared_startStreaming_fn,
+                getCaptureSessionSharedStartStreamingFn, (), (override));
+    MOCK_METHOD(ACameraCaptureSessionShared_stopStreaming_fn,
+                getCaptureSessionSharedStopStreamingFn, (), (override));
 };
 
 }  // namespace android::hardware::automotive::evs::compat

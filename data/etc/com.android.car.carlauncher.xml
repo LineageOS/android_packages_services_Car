@@ -36,6 +36,7 @@
         <permission name="com.android.car.docklib.permission.BROADCAST_SENDER"/>
         <!-- Used for checking media notifications -->
         <permission name="android.permission.ACCESS_NOTIFICATIONS"/>
-        <permission name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"/>
+	<permission name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"/>
+	<permission name="android.permission.BIND_APPWIDGET"/>
     </privapp-permissions>
 </permissions>

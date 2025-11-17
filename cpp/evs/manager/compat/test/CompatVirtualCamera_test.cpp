@@ -55,8 +55,9 @@ protected:
         mMockCameraManager->openSharedCamera("mockCam0", &device);
 
         aidlevs::Stream streamConfig;
-        mMockHalCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
-                                                                     streamConfig);
+        mMockHalCamera =
+                ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
+                                                            streamConfig, true, mMockCameraManager);
         mHalCameras.push_back(mMockHalCamera);
 
         mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mHalCameras);
@@ -97,7 +98,8 @@ protected:
         ACameraDevice* device = reinterpret_cast<ACameraDevice*>(0x1234);
         aidlevs::Stream streamConfig;
         auto halCamera =
-                ::ndk::SharedRefBase::make<CompatHalCamera>(device, cameraId, &desc, streamConfig);
+                ::ndk::SharedRefBase::make<CompatHalCamera>(device, cameraId, &desc, streamConfig,
+                                                            true, mMockCameraManager);
         mTestHalCameras.push_back(halCamera);
 
         // 6. Create CompatVirtualCamera
@@ -154,7 +156,7 @@ TEST_F(CompatVirtualCameraTest, getPhysicalCameraInfo_Success) {
     validDesc.id = "mockCam1";
     std::shared_ptr<CompatHalCamera> halCameraWithDesc =
             ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "mockCam1", &validDesc,
-                                                        streamConfig);
+                                                        streamConfig, true, mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCameraWithDesc};
     std::shared_ptr<CompatVirtualCamera> virtualCamera =
             ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
@@ -287,7 +289,8 @@ TEST_F(CompatVirtualCameraTest, getCameraInfo_PhysicalCamera) {
     expectedDesc.id = "mockCam_physical";
     std::shared_ptr<CompatHalCamera> halCamera =
             ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "mockCam_physical",
-                                                        &expectedDesc, streamConfig);
+                                                        &expectedDesc, streamConfig, true,
+                                                        mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
     auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
 
@@ -304,7 +307,7 @@ TEST_F(CompatVirtualCameraTest, getCameraInfo_LogicalCamera) {
     aidlevs::Stream streamConfig;
     std::shared_ptr<CompatHalCamera> mockHalCamera2 =
             ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice2, "mockCam1", nullptr,
-                                                        streamConfig);
+                                                        streamConfig, true, mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> logicalHalCameras = {mHalCameras[0],
                                                                        mockHalCamera2};
     auto logicalVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(logicalHalCameras);
@@ -341,8 +344,9 @@ TEST_F(CompatVirtualCameraTest, getCameraInfo_ExpiredHalCamera) {
     {
         ACameraDevice* dummyDevice = reinterpret_cast<ACameraDevice*>(0xDEADBEEF);
         aidlevs::Stream streamConfig;
-        auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "expiredCam",
-                                                                     nullptr, streamConfig);
+        auto halCamera =
+                ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "expiredCam", nullptr,
+                                                            streamConfig, true, mMockCameraManager);
         std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
         virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
     }  // halCamera is destroyed here, weak_ptr in virtualCamera should be expired
@@ -427,7 +431,8 @@ TEST_F(CompatVirtualCameraTest, startVideoStream_Success) {
             }));
     EXPECT_CALL(mMockNdkCamera, ACaptureRequest_addTarget(dummyCaptureRequest, dummyOutputTarget))
             .WillOnce(Return(ACAMERA_OK));
-    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_setRepeatingRequest(dummySession, _, 1, _, _))
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraCaptureSession_setRepeatingRequestV2(dummySession, _, 1, _, _))
             .WillOnce(Return(ACAMERA_OK));
 
     auto mockStream = ::ndk::SharedRefBase::make<MockEvsCameraStream>();
@@ -448,7 +453,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_logicalCamera) {
     // Add a second, distinct camera to make it logical
     auto anotherMockHalCamera =
             ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "mockCam1", nullptr,
-                                                        aidlevs::Stream());
+                                                        aidlevs::Stream(), true,
+                                                        mMockCameraManager);
     halCameras.push_back(anotherMockHalCamera);
     auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
 
@@ -466,7 +472,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_halCameraNotAvailable) {
         // Create a HalCamera that will go out of scope, leaving an expired weak_ptr in the virtual
         // camera.
         auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "test", nullptr,
-                                                                     aidlevs::Stream());
+                                                                     aidlevs::Stream(), true,
+                                                                     mMockCameraManager);
         std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
         virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
     }
@@ -495,7 +502,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_emptyMetadata) {
     desc.id = "testCam";
     // desc.metadata is empty by default
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
     auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
 
@@ -610,11 +618,13 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsAutoWhiteBalanceAndTemp
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_AUTO, ACAMERA_CONTROL_AWB_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                        awbModes.data(), awbModes.size()), 0);
+                                        awbModes.data(), awbModes.size()),
+              0);
     std::vector<int32_t> tempRange = {2000, 8000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
                                         ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
-                                        tempRange.data(), tempRange.size()), 0);
+                                        tempRange.data(), tempRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -625,7 +635,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsAutoWhiteBalanceAndTemp
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -679,12 +690,14 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportTemperature_inval
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                        awbModes.data(), awbModes.size()), 0);
+                                        awbModes.data(), awbModes.size()),
+              0);
     // Invalid range
     std::vector<int32_t> tempRange = {8000, 2000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
                                         ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
-                                        tempRange.data(), tempRange.size()), 0);
+                                        tempRange.data(), tempRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -695,7 +708,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportTemperature_inval
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -712,11 +726,13 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsOnlyWhiteBalanceTempera
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                        awbModes.data(), awbModes.size()), 0);
+                                        awbModes.data(), awbModes.size()),
+              0);
     std::vector<int32_t> tempRange = {2000, 8000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
                                         ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
-                                        tempRange.data(), tempRange.size()), 0);
+                                        tempRange.data(), tempRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -727,7 +743,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsOnlyWhiteBalanceTempera
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -781,10 +798,12 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsAutoAndAbsoluteExposure
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_ON, ACAMERA_CONTROL_AE_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                        aeModes.data(), aeModes.size()), 0);
+                                        aeModes.data(), aeModes.size()),
+              0);
     std::vector<int64_t> exposureRange = {1000, 100000000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
-                                        exposureRange.data(), exposureRange.size()), 0);
+                                        exposureRange.data(), exposureRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -795,7 +814,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsAutoAndAbsoluteExposure
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -849,11 +869,13 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportAbsoluteExposure_
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                        aeModes.data(), aeModes.size()), 0);
+                                        aeModes.data(), aeModes.size()),
+              0);
     // Invalid range
     std::vector<int64_t> exposureRange = {100000000, 1000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
-                                        exposureRange.data(), exposureRange.size()), 0);
+                                        exposureRange.data(), exposureRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -864,7 +886,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportAbsoluteExposure_
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -881,10 +904,12 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsOnlyAbsoluteExposure) {
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                        aeModes.data(), aeModes.size()), 0);
+                                        aeModes.data(), aeModes.size()),
+              0);
     std::vector<int64_t> exposureRange = {1000, 100000000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
-                                        exposureRange.data(), exposureRange.size()), 0);
+                                        exposureRange.data(), exposureRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -895,7 +920,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsOnlyAbsoluteExposure) {
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -1105,11 +1131,13 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_whiteBalanceTemperature) {
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                        awbModes.data(), awbModes.size()), 0);
+                                        awbModes.data(), awbModes.size()),
+              0);
     std::vector<int32_t> tempRange = {2000, 8000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
                                         ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
-                                        tempRange.data(), tempRange.size()), 0);
+                                        tempRange.data(), tempRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -1120,7 +1148,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_whiteBalanceTemperature) {
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -1152,10 +1181,12 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_absoluteExposure) {
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                        aeModes.data(), aeModes.size()), 0);
+                                        aeModes.data(), aeModes.size()),
+              0);
     std::vector<int64_t> exposureRange = {1000, 100000000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
-                                        exposureRange.data(), exposureRange.size()), 0);
+                                        exposureRange.data(), exposureRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -1166,7 +1197,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_absoluteExposure) {
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -1251,6 +1283,1254 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_autoFocus) {
     EXPECT_EQ(outRange.min, 0);
     EXPECT_EQ(outRange.max, 1);
     EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_failsForLogicalCamera) {
+    // A logical camera has more than one HAL camera, which does not support
+    // parameter programming.
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mMockHalCamera);
+    auto anotherMockHalCamera =
+            ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "mockCam1", nullptr,
+                                                        aidlevs::Stream(), true,
+                                                        mMockCameraManager);
+    halCameras.push_back(anotherMockHalCamera);
+    auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            virtualCamera->getIntParameter(aidlevs::CameraParam::BRIGHTNESS, &values);
+
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_failsWhenHalCameraNotAvailable) {
+    std::shared_ptr<CompatVirtualCamera> virtualCamera;
+    {
+        // Create a HalCamera that will go out of scope, leaving an expired weak_ptr
+        auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "test", nullptr,
+                                                                     aidlevs::Stream(), true,
+                                                                     mMockCameraManager);
+        std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
+        virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+    }
+
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            virtualCamera->getIntParameter(aidlevs::CameraParam::BRIGHTNESS, &values);
+
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_failsWhenGetCameraInfoFails) {
+    // The mVirtualCamera from SetUp is configured with a HalCamera that has a null
+    // CameraDesc, which will cause getCameraInfo() to fail inside
+    // populateSupportedParametersLocked().
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::BRIGHTNESS, &values);
+
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_failsWhenMetadataIsEmpty) {
+    aidlevs::CameraDesc desc;
+    desc.id = "testCam";
+    // desc.metadata is empty by default
+    auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
+    auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            virtualCamera->getIntParameter(aidlevs::CameraParam::BRIGHTNESS, &values);
+
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_unsupportedParam) {
+    // Setup with metadata that supports BRIGHTNESS
+    std::vector<int32_t> range = {-5, 5};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AE_COMPENSATION_RANGE, range);
+
+    // Request a different parameter (CONTRAST)
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::CONTRAST, &values);
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_failsWhenGetLatestMetadataFails) {
+    // 1. Setup with metadata that supports BRIGHTNESS, so populate succeeds.
+    std::vector<int32_t> range = {-5, 5};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AE_COMPENSATION_RANGE, range);
+
+    // 2. The underlying HalCamera's mLatestMetadata is nullptr by default, so
+    //    getLatestMetadata() will return nullptr. We'll mock the NDK free
+    //    function to ensure it's not called on a nullptr.
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(_)).Times(0);
+
+    // 3. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::BRIGHTNESS, &values);
+
+    // 4. Verify failure
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_brightness_aeOn) {
+    // 1. Setup with metadata that supports BRIGHTNESS
+    std::vector<int32_t> range = {-5, 5};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AE_COMPENSATION_RANGE, range);
+
+    // 2. Create a separate metadata object for the latest capture result
+    camera_metadata_t* latestMetadata =
+            allocate_camera_metadata(2, sizeof(int32_t) + sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    int32_t exposureValue = 3;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION,
+                                        &exposureValue, 1),
+              0);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata to return the latest metadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry aeEntry{};
+    aeEntry.tag = ACAMERA_CONTROL_AE_MODE;
+    aeEntry.type = ACAMERA_TYPE_BYTE;
+    aeEntry.count = 1;
+    aeEntry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(aeEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry exposureEntry{};
+    exposureEntry.tag = ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION;
+    exposureEntry.type = ACAMERA_TYPE_INT32;
+    exposureEntry.count = 1;
+    exposureEntry.data.i32 = &exposureValue;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet,
+                                              ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(exposureEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::BRIGHTNESS, &values);
+
+    // 5. Verify success and the returned value
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], exposureValue);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_brightness_aeOff) {
+    // 1. Setup with metadata that supports BRIGHTNESS
+    std::vector<int32_t> range = {-5, 5};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AE_COMPENSATION_RANGE, range);
+
+    // 2. Create a separate metadata object for the latest capture result
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata to return the latest metadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry aeEntry{};
+    aeEntry.tag = ACAMERA_CONTROL_AE_MODE;
+    aeEntry.type = ACAMERA_TYPE_BYTE;
+    aeEntry.count = 1;
+    aeEntry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(aeEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::BRIGHTNESS, &values);
+
+    // 5. Verify NOT_SUPPORTED is returned
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_gain_manualControl) {
+    // 1. Setup with metadata that supports GAIN
+    std::vector<int32_t> range = {100, 1600};
+    setupCameraWithMetadata(ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE, range);
+
+    // 2. Create a separate metadata object for the latest capture result
+    camera_metadata_t* latestMetadata =
+            allocate_camera_metadata(3, sizeof(int32_t) + sizeof(uint8_t) * 2);
+    ASSERT_NE(latestMetadata, nullptr);
+    int32_t sensitivityValue = 800;  // Example sensitivity value
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_SENSOR_SENSITIVITY,
+                                        &sensitivityValue, 1),
+              0);
+    uint8_t controlMode = ACAMERA_CONTROL_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_MODE, &controlMode, 1), 0);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON;  // AE mode doesn't matter if control mode is OFF
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata to return the latest metadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry controlEntry{};
+    controlEntry.tag = ACAMERA_CONTROL_MODE;
+    controlEntry.type = ACAMERA_TYPE_BYTE;
+    controlEntry.count = 1;
+    controlEntry.data.u8 = &controlMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(controlEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry aeEntry{};
+    aeEntry.tag = ACAMERA_CONTROL_AE_MODE;
+    aeEntry.type = ACAMERA_TYPE_BYTE;
+    aeEntry.count = 1;
+    aeEntry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(aeEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry sensitivityEntry{};
+    sensitivityEntry.tag = ACAMERA_SENSOR_SENSITIVITY;
+    sensitivityEntry.type = ACAMERA_TYPE_INT32;
+    sensitivityEntry.count = 1;
+    sensitivityEntry.data.i32 = &sensitivityValue;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_SENSOR_SENSITIVITY, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(sensitivityEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::GAIN, &values);
+
+    // 5. Verify success and the returned value
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], sensitivityValue);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_gain_autoControl) {
+    // 1. Setup with metadata that supports GAIN
+    std::vector<int32_t> range = {100, 1600};
+    setupCameraWithMetadata(ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE, range);
+
+    // 2. Create a separate metadata object for the latest capture result
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(2, sizeof(uint8_t) * 2);
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t controlMode = ACAMERA_CONTROL_MODE_AUTO;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_MODE, &controlMode, 1), 0);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata to return the latest metadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry controlEntry{};
+    controlEntry.tag = ACAMERA_CONTROL_MODE;
+    controlEntry.type = ACAMERA_TYPE_BYTE;
+    controlEntry.count = 1;
+    controlEntry.data.u8 = &controlMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(controlEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry aeEntry{};
+    aeEntry.tag = ACAMERA_CONTROL_AE_MODE;
+    aeEntry.type = ACAMERA_TYPE_BYTE;
+    aeEntry.count = 1;
+    aeEntry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(aeEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::GAIN, &values);
+
+    // 5. Verify NOT_SUPPORTED is returned
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_autoGain_off) {
+    // 1. Setup with metadata that supports AUTOGAIN
+    std::vector<int32_t> range = {100, 1600};
+    setupCameraWithMetadata(ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE, range);
+
+    // 2. Create metadata for the latest capture result with AE mode OFF
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_AE_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::AUTOGAIN, &values);
+
+    // 5. Verify success and that the value is 0 (OFF)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], 0);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_autoGain_on) {
+    // 1. Setup with metadata that supports AUTOGAIN
+    std::vector<int32_t> range = {100, 1600};
+    setupCameraWithMetadata(ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE, range);
+
+    // 2. Create metadata for the latest capture result with AE mode ON
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON_AUTO_FLASH;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_AE_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::AUTOGAIN, &values);
+
+    // 5. Verify success and that the value is 1 (ON)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], 1);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_autoWhiteBalance_on) {
+    // 1. Setup with metadata that supports AUTO_WHITE_BALANCE
+    std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_AUTO};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AWB_AVAILABLE_MODES, awbModes);
+
+    // 2. Create metadata for the latest capture result with AWB mode AUTO
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t awbMode = ACAMERA_CONTROL_AWB_MODE_AUTO;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AWB_MODE, &awbMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_AWB_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &awbMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AWB_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::AUTO_WHITE_BALANCE, &values);
+
+    // 5. Verify success and that the value is 1 (ON)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], 1);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_autoWhiteBalance_off) {
+    // 1. Setup with metadata that supports AUTO_WHITE_BALANCE
+    std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_AUTO, ACAMERA_CONTROL_AWB_MODE_OFF};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AWB_AVAILABLE_MODES, awbModes);
+
+    // 2. Create metadata for the latest capture result with AWB mode OFF
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t awbMode = ACAMERA_CONTROL_AWB_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AWB_MODE, &awbMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_AWB_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &awbMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AWB_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::AUTO_WHITE_BALANCE, &values);
+
+    // 5. Verify success and that the value is 0 (OFF)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], 0);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_whiteBalanceTemperature_awbOff) {
+    // 1. Setup with metadata that supports WHITE_BALANCE_TEMPERATURE
+    mRawMetadata = allocate_camera_metadata(2, sizeof(uint8_t) + sizeof(int32_t) * 2);
+    ASSERT_NE(mRawMetadata, nullptr);
+    uint8_t awbMode = ACAMERA_CONTROL_AWB_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES, &awbMode,
+                                        1),
+              0);
+    std::vector<int32_t> tempRange = {2000, 8000};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
+                                        ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
+                                        tempRange.data(), tempRange.size()),
+              0);
+    ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
+
+    // Create camera with this metadata
+    size_t size = get_camera_metadata_size(mRawMetadata);
+    std::vector<uint8_t> metadataVector(size);
+    memcpy(metadataVector.data(), mRawMetadata, size);
+    aidlevs::CameraDesc desc;
+    desc.id = "testCam";
+    desc.metadata = metadataVector;
+    auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
+    mTestHalCameras.push_back(halCamera);
+    mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
+
+    // 2. Create metadata for the latest capture result
+    camera_metadata_t* latestMetadata =
+            allocate_camera_metadata(2, sizeof(int32_t) + sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    int32_t tempValue = 5500;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE,
+                                        &tempValue, 1),
+              0);
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AWB_MODE, &awbMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry awbEntry{};
+    awbEntry.tag = ACAMERA_CONTROL_AWB_MODE;
+    awbEntry.type = ACAMERA_TYPE_BYTE;
+    awbEntry.count = 1;
+    awbEntry.data.u8 = &awbMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AWB_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(awbEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry tempEntry{};
+    tempEntry.tag = ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE;
+    tempEntry.type = ACAMERA_TYPE_INT32;
+    tempEntry.count = 1;
+    tempEntry.data.i32 = &tempValue;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet,
+                                              ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(tempEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::WHITE_BALANCE_TEMPERATURE,
+                                            &values);
+
+    // 5. Verify success and the returned value
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], tempValue);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_whiteBalanceTemperature_awbOn) {
+    // 1. Setup with metadata that supports WHITE_BALANCE_TEMPERATURE
+    mRawMetadata = allocate_camera_metadata(2, sizeof(uint8_t) * 2 + sizeof(int32_t) * 2);
+    ASSERT_NE(mRawMetadata, nullptr);
+    uint8_t awbMode = ACAMERA_CONTROL_AWB_MODE_AUTO;
+    std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_OFF, ACAMERA_CONTROL_AWB_MODE_AUTO};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
+                                        awbModes.data(), awbModes.size()),
+              0);
+    std::vector<int32_t> tempRange = {2000, 8000};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
+                                        ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
+                                        tempRange.data(), tempRange.size()),
+              0);
+    ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
+
+    // Create camera with this metadata
+    size_t size = get_camera_metadata_size(mRawMetadata);
+    std::vector<uint8_t> metadataVector(size);
+    memcpy(metadataVector.data(), mRawMetadata, size);
+    aidlevs::CameraDesc desc;
+    desc.id = "testCam";
+    desc.metadata = metadataVector;
+    auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
+    mTestHalCameras.push_back(halCamera);
+    mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
+
+    // 2. Create metadata for the latest capture result
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AWB_MODE, &awbMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry awbEntry{};
+    awbEntry.tag = ACAMERA_CONTROL_AWB_MODE;
+    awbEntry.type = ACAMERA_TYPE_BYTE;
+    awbEntry.count = 1;
+    awbEntry.data.u8 = &awbMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AWB_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(awbEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::WHITE_BALANCE_TEMPERATURE,
+                                            &values);
+
+    // 5. Verify NOT_SUPPORTED is returned
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_sharpness) {
+    // 1. Setup with metadata that supports SHARPNESS
+    std::vector<uint8_t> edgeModes = {ACAMERA_EDGE_MODE_FAST};
+    setupCameraWithMetadata(ACAMERA_EDGE_AVAILABLE_EDGE_MODES, edgeModes);
+
+    // 2. Create metadata for the latest capture result
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t edgeMode = ACAMERA_EDGE_MODE_HIGH_QUALITY;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_EDGE_MODE, &edgeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_EDGE_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &edgeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_EDGE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::SHARPNESS, &values);
+
+    // 5. Verify success and the returned value
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], edgeMode);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_autoExposure_off) {
+    // 1. Setup with metadata that supports AUTO_EXPOSURE
+    std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF, ACAMERA_CONTROL_AE_MODE_ON};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AE_AVAILABLE_MODES, aeModes);
+
+    // 2. Create metadata for the latest capture result with AE mode OFF
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_AE_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::AUTO_EXPOSURE, &values);
+
+    // 5. Verify success and that the value is 0 (OFF)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], 0);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_autoExposure_on) {
+    // 1. Setup with metadata that supports AUTO_EXPOSURE
+    std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF, ACAMERA_CONTROL_AE_MODE_ON};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AE_AVAILABLE_MODES, aeModes);
+
+    // 2. Create metadata for the latest capture result with AE mode ON
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_AE_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::AUTO_EXPOSURE, &values);
+
+    // 5. Verify success and that the value is 1 (ON)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], 1);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_absoluteExposure_manualControl) {
+    // 1. Setup with metadata that supports ABSOLUTE_EXPOSURE
+    mRawMetadata = allocate_camera_metadata(3, sizeof(uint8_t) * 2 + sizeof(int64_t) * 2);
+    ASSERT_NE(mRawMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES, &aeMode,
+                                        1),
+              0);
+    uint8_t controlMode = ACAMERA_CONTROL_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_MODE, &controlMode, 1), 0);
+    std::vector<int64_t> expRange = {1000L, 100000000L};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
+                                        expRange.data(), expRange.size()),
+              0);
+    ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
+
+    // Create camera with this metadata
+    size_t size = get_camera_metadata_size(mRawMetadata);
+    std::vector<uint8_t> metadataVector(size);
+    memcpy(metadataVector.data(), mRawMetadata, size);
+    aidlevs::CameraDesc desc;
+    desc.id = "testCam";
+    desc.metadata = metadataVector;
+    auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
+    mTestHalCameras.push_back(halCamera);
+    mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
+
+    // 2. Create metadata for the latest capture result
+    camera_metadata_t* latestMetadata =
+            allocate_camera_metadata(3, sizeof(int64_t) + sizeof(uint8_t) * 2);
+    ASSERT_NE(latestMetadata, nullptr);
+    int64_t expValue = 50000000L;  // 50ms
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_SENSOR_EXPOSURE_TIME, &expValue, 1),
+              0);
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_MODE, &controlMode, 1), 0);
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry controlEntry{};
+    controlEntry.tag = ACAMERA_CONTROL_MODE;
+    controlEntry.type = ACAMERA_TYPE_BYTE;
+    controlEntry.count = 1;
+    controlEntry.data.u8 = &controlMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(controlEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry aeEntry{};
+    aeEntry.tag = ACAMERA_CONTROL_AE_MODE;
+    aeEntry.type = ACAMERA_TYPE_BYTE;
+    aeEntry.count = 1;
+    aeEntry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(aeEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry expEntry{};
+    expEntry.tag = ACAMERA_SENSOR_EXPOSURE_TIME;
+    expEntry.type = ACAMERA_TYPE_INT64;
+    expEntry.count = 1;
+    expEntry.data.i64 = &expValue;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_SENSOR_EXPOSURE_TIME, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(expEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::ABSOLUTE_EXPOSURE, &values);
+
+    // 5. Verify success and the returned value (converted to microseconds)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], static_cast<int32_t>(expValue / 1000));
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_absoluteExposure_autoControl) {
+    // 1. Setup with metadata that supports ABSOLUTE_EXPOSURE
+    mRawMetadata = allocate_camera_metadata(3, sizeof(uint8_t) * 3 + sizeof(int64_t) * 2);
+    ASSERT_NE(mRawMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON;
+    std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF, ACAMERA_CONTROL_AE_MODE_ON};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
+                                        aeModes.data(), aeModes.size()),
+              0);
+    uint8_t controlMode = ACAMERA_CONTROL_MODE_AUTO;
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_MODE, &controlMode, 1), 0);
+    std::vector<int64_t> expRange = {1000L, 100000000L};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
+                                        expRange.data(), expRange.size()),
+              0);
+    ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
+
+    // Create camera with this metadata
+    size_t size = get_camera_metadata_size(mRawMetadata);
+    std::vector<uint8_t> metadataVector(size);
+    memcpy(metadataVector.data(), mRawMetadata, size);
+    aidlevs::CameraDesc desc;
+    desc.id = "testCam";
+    desc.metadata = metadataVector;
+    auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
+    mTestHalCameras.push_back(halCamera);
+    mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
+
+    // 2. Create metadata for the latest capture result
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(2, sizeof(uint8_t) * 2);
+    ASSERT_NE(latestMetadata, nullptr);
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_MODE, &controlMode, 1), 0);
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry controlEntry{};
+    controlEntry.tag = ACAMERA_CONTROL_MODE;
+    controlEntry.type = ACAMERA_TYPE_BYTE;
+    controlEntry.count = 1;
+    controlEntry.data.u8 = &controlMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(controlEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry aeEntry{};
+    aeEntry.tag = ACAMERA_CONTROL_AE_MODE;
+    aeEntry.type = ACAMERA_TYPE_BYTE;
+    aeEntry.count = 1;
+    aeEntry.data.u8 = &aeMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AE_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(aeEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::ABSOLUTE_EXPOSURE, &values);
+
+    // 5. Verify NOT_SUPPORTED is returned
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_autoFocus_off) {
+    // 1. Setup with metadata that supports AUTO_FOCUS
+    std::vector<uint8_t> afModes = {ACAMERA_CONTROL_AF_MODE_OFF, ACAMERA_CONTROL_AF_MODE_AUTO};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AF_AVAILABLE_MODES, afModes);
+
+    // 2. Create metadata for the latest capture result with AF mode OFF
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AF_MODE, &afMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_AF_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &afMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AF_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::AUTO_FOCUS, &values);
+
+    // 5. Verify success and that the value is 0 (OFF)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], 0);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_autoFocus_on) {
+    // 1. Setup with metadata that supports AUTO_FOCUS
+    std::vector<uint8_t> afModes = {ACAMERA_CONTROL_AF_MODE_OFF, ACAMERA_CONTROL_AF_MODE_AUTO};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AF_AVAILABLE_MODES, afModes);
+
+    // 2. Create metadata for the latest capture result with AF mode ON
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t afMode = ACAMERA_CONTROL_AF_MODE_AUTO;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AF_MODE, &afMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_AF_MODE;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &afMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AF_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::AUTO_FOCUS, &values);
+
+    // 5. Verify success and that the value is 1 (ON)
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], 1);
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_absoluteFocus_afOff) {
+    // 1. Setup with metadata that supports ABSOLUTE_FOCUS
+    std::vector<float> minFocus = {10.0f};
+    setupCameraWithMetadata(ACAMERA_LENS_INFO_MINIMUM_FOCUS_DISTANCE, minFocus);
+
+    // 2. Create metadata for the latest capture result
+    camera_metadata_t* latestMetadata =
+            allocate_camera_metadata(2, sizeof(float) + sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    float focusValue = 5.0f;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_LENS_FOCUS_DISTANCE, &focusValue,
+                                        1),
+              0);
+    uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AF_MODE, &afMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry afEntry{};
+    afEntry.tag = ACAMERA_CONTROL_AF_MODE;
+    afEntry.type = ACAMERA_TYPE_BYTE;
+    afEntry.count = 1;
+    afEntry.data.u8 = &afMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AF_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(afEntry), Return(ACAMERA_OK)));
+
+    ACameraMetadata_const_entry focusEntry{};
+    focusEntry.tag = ACAMERA_LENS_FOCUS_DISTANCE;
+    focusEntry.type = ACAMERA_TYPE_FLOAT;
+    focusEntry.count = 1;
+    focusEntry.data.f = &focusValue;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_LENS_FOCUS_DISTANCE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(focusEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::ABSOLUTE_FOCUS, &values);
+
+    // 5. Verify success and the returned value
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], static_cast<int32_t>(focusValue * 100.0f));
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_absoluteFocus_afOn) {
+    // 1. Setup with metadata that supports ABSOLUTE_FOCUS
+    std::vector<float> minFocus = {10.0f};
+    setupCameraWithMetadata(ACAMERA_LENS_INFO_MINIMUM_FOCUS_DISTANCE, minFocus);
+
+    // 2. Create metadata for the latest capture result
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(uint8_t));
+    ASSERT_NE(latestMetadata, nullptr);
+    uint8_t afMode = ACAMERA_CONTROL_AF_MODE_AUTO;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AF_MODE, &afMode, 1), 0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry afEntry{};
+    afEntry.tag = ACAMERA_CONTROL_AF_MODE;
+    afEntry.type = ACAMERA_TYPE_BYTE;
+    afEntry.count = 1;
+    afEntry.data.u8 = &afMode;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_AF_MODE, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(afEntry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::ABSOLUTE_FOCUS, &values);
+
+    // 5. Verify NOT_SUPPORTED is returned
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameter_absoluteZoom) {
+    // 1. Setup with metadata that supports ABSOLUTE_ZOOM
+    std::vector<float> zoomRange = {0.5f, 100.0f};
+    setupCameraWithMetadata(ACAMERA_CONTROL_ZOOM_RATIO_RANGE, zoomRange);
+
+    // 2. Create metadata for the latest capture result
+    camera_metadata_t* latestMetadata = allocate_camera_metadata(1, sizeof(float));
+    ASSERT_NE(latestMetadata, nullptr);
+    float zoomValue = 2.0f;
+    ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_ZOOM_RATIO, &zoomValue, 1),
+              0);
+    auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);
+
+    // 3. Mock getLatestMetadata
+    auto mockHalCamera = mTestHalCameras[0];
+    auto* metadataCopy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadataCopyForGet = reinterpret_cast<ACameraMetadata*>(0x1113);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(ndkLatestMetadata))
+            .WillOnce(Return(metadataCopy));
+    mockHalCamera->handleCaptureCompleted(ndkLatestMetadata);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadataCopy))
+            .WillOnce(Return(metadataCopyForGet));
+
+    ACameraMetadata_const_entry entry{};
+    entry.tag = ACAMERA_CONTROL_ZOOM_RATIO;
+    entry.type = ACAMERA_TYPE_FLOAT;
+    entry.count = 1;
+    entry.data.f = &zoomValue;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraMetadata_getConstEntry(metadataCopyForGet, ACAMERA_CONTROL_ZOOM_RATIO, _))
+            .WillOnce(::testing::DoAll(SetArgPointee<2>(entry), Return(ACAMERA_OK)));
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopyForGet)).Times(1);
+
+    // 4. Call getIntParameter
+    std::vector<int32_t> values;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameter(aidlevs::CameraParam::ABSOLUTE_ZOOM, &values);
+
+    // 5. Verify success and the returned value
+    ASSERT_TRUE(status.isOk());
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], static_cast<int32_t>(zoomValue * 100.0f));
+
+    // 6. Clean up
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadataCopy)).Times(1);
+    free_camera_metadata(latestMetadata);
 }
 
 }  // namespace android::hardware::automotive::evs::compat
