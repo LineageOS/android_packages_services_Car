@@ -31,6 +31,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,6 +72,9 @@ public final class CarEvsManagerUnitTest {
         CarEvsManager.SERVICE_TYPE_FRONT_PASSENGERSVIEW,
         CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW,
     };
+
+    // Timeout for waiting on asynchronous callbacks.
+    private static final long TIMEOUT_MS = 1000;
 
     @Mock private ICarBase mMockCar;
     @Mock private CarEvsStatusListener mMockCarEvsStatusListener;
@@ -187,8 +191,10 @@ public final class CarEvsManagerUnitTest {
         ICarEvsStreamCallback cb = mCarEvsStreamCallbackCaptor.getValue();
         cb.onStreamEvent(CarEvsManager.SERVICE_TYPE_REARVIEW,
                 CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
-        verify(mMockCarEvsStreamCallback, atLeastOnce()).onStreamEvent(
-                CarEvsManager.SERVICE_TYPE_REARVIEW, CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
+        verify(mMockCarEvsStreamCallback, timeout(TIMEOUT_MS).atLeastOnce())
+                .onStreamEvent(
+                        CarEvsManager.SERVICE_TYPE_REARVIEW,
+                        CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
 
         int bufferId = 1;
         HardwareBuffer hwbuffer =
@@ -199,7 +205,7 @@ public final class CarEvsManagerUnitTest {
         CarEvsBufferDescriptor buffer = new CarEvsBufferDescriptor(bufferId,
                 CarEvsManager.SERVICE_TYPE_REARVIEW, hwbuffer);
         cb.onNewFrame(buffer);
-        verify(mMockCarEvsStreamCallback, atLeastOnce()).onNewFrame(buffer);
+        verify(mMockCarEvsStreamCallback, timeout(TIMEOUT_MS).atLeastOnce()).onNewFrame(buffer);
     }
 
     @Test
