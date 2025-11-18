@@ -279,14 +279,74 @@ class AutoTaskStackControllerImpl @Inject constructor(
             autoTaskRepository.onTaskVanished(rootTaskStack, taskInfo)
         }
 
-        override fun onBackPressedOnTaskRoot(taskInfo: ActivityManager.RunningTaskInfo?) {
+        /**
+         * Called when a back press is triggered on the root task, or moveTaskToBack() is called on
+         * an activity.
+         *
+         * Note: rootTaskStackListener.onBackPressedOnTaskRoot() is always called before
+         * rootTaskStackListener.moveRootTaskToBack() is potentially called.
+         */
+        override fun onBackPressedOnTaskRoot(
+            taskInfo: ActivityManager.RunningTaskInfo?,
+            isFromMoveActivityTaskToBack: Boolean
+        ) {
             if (taskInfo == null) {
                 throw IllegalArgumentException("taskInfo can't be null in onBackPressedOnTaskRoot")
             }
-            super.onBackPressedOnTaskRoot(taskInfo)
-            rootTaskStackListener.onBackPressedOnTaskRoot(taskInfo)
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "onBackPressedOnTaskRoot: task#%d, isFromMoveActivityTaskToBack:%b",
+                taskInfo.taskId,
+                isFromMoveActivityTaskToBack
+            )
+            super.onBackPressedOnTaskRoot(taskInfo, isFromMoveActivityTaskToBack)
+            rootTaskStackListener.onBackPressedOnTaskRoot(taskInfo, isFromMoveActivityTaskToBack)
+            if (isFromMoveActivityTaskToBack) {
+                handleMoveTaskToBack(taskInfo)
+            } else {
+                handleBackButtonPress(taskInfo)
+            }
+        }
 
-            // Handle back event and close the task.
+        /**
+         * Handles the request to move a task to the back. If the task has a parent task and has a
+         * opaque siblings, move the task to the back. Otherwise, defer to ScalableUI to handle it.
+         * TODO(b/409394537): try alternative solutions, such as having a per root task
+         *  visibility barrier, or creating a new always hidden root task.
+         */
+        private fun handleMoveTaskToBack(taskInfo: ActivityManager.RunningTaskInfo) {
+            val parentTaskId = taskInfo.parentTaskId
+            if (parentTaskId != INVALID_TASK_ID) {
+                val allTasksOnDisplay = taskOrganizer.getRunningTasks(taskInfo.displayId)
+                val parentTaskInfo = allTasksOnDisplay.find { it.taskId == parentTaskId }
+                if (parentTaskInfo != null) {
+                    val hasOpaqueSibling = allTasksOnDisplay.any {
+                            sibling -> sibling.parentTaskId == parentTaskId &&
+                            sibling.taskId != taskInfo.taskId &&
+                            !sibling.isActivityStackTransparent
+                    }
+                    if (hasOpaqueSibling) {
+                        val taskToken = parentTaskInfo?.token
+                        ProtoLog.d(
+                            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                            "handleMoveTaskToBack: targetTask#${taskInfo.taskId}, token $taskToken"
+                        )
+                        if (taskToken != null) {
+                            val wct = WindowContainerTransaction()
+                            // false for onTop means move to bottom of its current parent
+                            wct.reorder(taskToken, false)
+                            taskOrganizer.applyTransaction(wct)
+                        }
+                        return
+                    }
+                }
+                // Defer to ScalableUI to handle this case.
+                rootTaskStackListener.moveRootTaskToBack(taskInfo)
+            }
+        }
+
+        /** Handle back event and close the task. */
+        private fun handleBackButtonPress(taskInfo: ActivityManager.RunningTaskInfo) {
             ProtoLog.i(
                 CAR_WM_SHELL_TASK_STACK_CONTROLLER,
                 "Received onBackPressedOnTaskRoot, closing the task: %s",

@@ -16,6 +16,7 @@
 
 package com.android.wm.shell.automotive
 
+import android.app.ActivityManager
 import com.android.wm.shell.ShellTaskOrganizer
 
 /**
@@ -30,4 +31,7 @@ interface RootTaskStackListener : ShellTaskOrganizer.TaskListener {
     fun onRootTaskStackCreated(rootTaskStack: RootTaskStack)
     fun onRootTaskStackInfoChanged(rootTaskStack: RootTaskStack)
     fun onRootTaskStackDestroyed(rootTaskStack: RootTaskStack)
+
+    // TODO(b/464035997): Remove this method.
+    fun moveRootTaskToBack(taskInfo: ActivityManager.RunningTaskInfo)
 }
