@@ -50,7 +50,7 @@ message CarWatchdogDumpProto {
 // compatibility and consistent behavior.
 //
 // TvWatchdogService Proto:
-// frameworks/base/core/proto/android/server/tv/watchdogservice_dump.proto
+// frameworks/opt/tv/tvsystem/services/proto/tvatoms.proto
 
 message UserPackageInfo {
   optional int32 user_id = 1;
