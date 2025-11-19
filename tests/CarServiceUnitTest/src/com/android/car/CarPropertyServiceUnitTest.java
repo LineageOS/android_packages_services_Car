@@ -2272,6 +2272,67 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void testGetAndDispatchInitialValue_serviceSpecificException_withVendorStatusPermission()
+            throws Exception {
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS);
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
+        int vhalStatusCode = VehicleHalStatusCode.STATUS_INTERNAL_ERROR | (VENDOR_ERROR_CODE << 16);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
+        doThrow(new ServiceSpecificException(vhalStatusCode))
+                .when(mHalService)
+                .getProperty(SPEED_ID, 0);
+
+        mService.getAndDispatchInitialValue(List.of(newPropIdAreaId(SPEED_ID, 0)), mockHandler);
+
+        verify(mockHandler, timeout(DEFAULT_CALLBACK_TIMEOUT))
+                .onEvent(mPropertyEventCaptor.capture());
+
+        List<CarPropertyEvent> eventList = mPropertyEventCaptor.getValue();
+
+        assertThat(eventList).hasSize(1);
+        assertThat(
+                        eventList
+                                .get(0)
+                                .getCarPropertyValue()
+                                .cloneWithPermissionToReadPropertyVendorStatus()
+                                .getPropertyVendorStatus())
+                .isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    public void
+            testGetAndDispatchInitialValue_serviceSpecificException_withoutVendorStatusPermission()
+                    throws Exception {
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS);
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
+        int vhalStatusCode = VehicleHalStatusCode.STATUS_INTERNAL_ERROR | (VENDOR_ERROR_CODE << 16);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
+        doThrow(new ServiceSpecificException(vhalStatusCode))
+                .when(mHalService)
+                .getProperty(SPEED_ID, 0);
+
+        mService.getAndDispatchInitialValue(List.of(newPropIdAreaId(SPEED_ID, 0)), mockHandler);
+
+        verify(mockHandler, timeout(DEFAULT_CALLBACK_TIMEOUT))
+                .onEvent(mPropertyEventCaptor.capture());
+
+        List<CarPropertyEvent> eventList = mPropertyEventCaptor.getValue();
+
+        assertThat(eventList).hasSize(1);
+        assertThat(
+                        eventList
+                                .get(0)
+                                .getCarPropertyValue()
+                                .cloneWithPermissionToReadPropertyVendorStatus()
+                                .getPropertyVendorStatus())
+                .isEqualTo(NO_ERROR);
+    }
+
+    @Test
     public void testGetMinMaxSupportedValue() throws Exception {
         MinMaxSupportedPropertyValue minMaxSupportedPropertyValue = mock(
                 MinMaxSupportedPropertyValue.class);
