@@ -22,12 +22,12 @@ package android.automotive.watchdog.internal;
 @Backing(type="int")
 enum GarageMode {
   /**
-   * The system is in normal mode.
+   * The system is in normal mode. Serves as IDLE_MODE_OFF on non-automotive form-factors.
    */
   GARAGE_MODE_OFF,
 
   /**
-   * The system is in garage mode.
+   * The system is in garage mode. Serves as IDLE_MODE_ON on non-automotive form-factors.
    */
   GARAGE_MODE_ON,
 }
