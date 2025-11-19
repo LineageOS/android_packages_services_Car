@@ -33,6 +33,8 @@ import com.google.android.car.kitchensink.R;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * A service that receives Perfetto traces and saves them to disk.
@@ -44,12 +46,12 @@ public class PerfettoReportService extends TraceReportService {
     private static final String TAG = PerfettoReportService.class.getSimpleName();
     private static final String NOTIFICATION_CHANNEL_ID = "KITCHENSINK_PERFETTO_REPORT_SERVICE";
     private static final int NOTIFICATION_ID = 1;
-    public static final String TRACE_FILES_ROOT_DIR = "perfetto_traces";
 
     private NotificationManager mNotificationManager;
     private NotificationChannel mNotificationChannel;
     private String mNotificationTitle;
     private String mNotificationContent;
+    private long mMaxDiskUsageBytes;
 
     @Override
     public void onCreate() {
@@ -68,23 +70,23 @@ public class PerfettoReportService extends TraceReportService {
         mNotificationTitle = getString(R.string.perfetto_issue_detected_notification_title);
         mNotificationContent = getString(R.string.perfetto_issue_detected_notification_content);
         mNotificationManager.createNotificationChannel(mNotificationChannel);
+        mMaxDiskUsageBytes = getResources().getInteger(R.integer.perfetto_trace_max_disk_usage_mib)
+                * 1024L * 1024L;
     }
 
+    /**
+     * Called when a new trace is available.
+     *
+     * <p>This method deletes old traces based on retention policy and disk usage, then saves the
+     * new trace to disk.
+     */
     @Override
     public void onReportTrace(TraceParams args) {
-        Log.d(TAG, "Received trace with UUID '" + args.getUuid().toString() + "'");
-        String fileName = "perfetto_" + args.getUuid().toString() + ".trace";
-
+        String uuid = args.getUuid().toString();
+        Log.d(TAG, "Received trace with UUID '" + uuid + "'");
+        PerfettoController.deleteOldTraces(this);
         try {
-            File traceDir = new File(getFilesDir(), TRACE_FILES_ROOT_DIR);
-            if (!traceDir.exists()) {
-                traceDir.mkdirs();
-            }
-            File f = new File(traceDir, fileName);
-            boolean created = f.createNewFile();
-            if (!created) {
-                throw new IllegalStateException("Failed to create file");
-            }
+            File f = PerfettoController.createTraceFile(this, uuid);
             try (AutoCloseInputStream i = new AutoCloseInputStream(args.getFd())) {
                 try (FileOutputStream o = new FileOutputStream(f)) {
                     o.write(i.readAllBytes());
@@ -94,6 +96,39 @@ public class PerfettoReportService extends TraceReportService {
             sendNotification();
         } catch (IOException e) {
             throw new IllegalStateException("IO Exception", e);
+        }
+        deleteTracesByDiskUsage();
+    }
+
+    private void deleteTracesByDiskUsage() {
+        File[] traceFiles = PerfettoController.listTraceFiles(this);
+        if (traceFiles == null || traceFiles.length == 0) {
+            return;
+        }
+        long currentDiskUsageBytes = 0;
+        for (File traceFile : traceFiles) {
+            currentDiskUsageBytes += traceFile.length();
+        }
+
+        if (currentDiskUsageBytes <= mMaxDiskUsageBytes) {
+            Log.d(TAG, "Current disk usage (" + currentDiskUsageBytes
+                    + " bytes) is below the max limit (" + mMaxDiskUsageBytes + " bytes)");
+            return;
+        }
+
+        Arrays.sort(traceFiles, Comparator.comparingLong(File::lastModified));
+
+        for (File traceFile : traceFiles) {
+            long fileSize = traceFile.length();
+            if (traceFile.delete()) {
+                Log.d(TAG, "Deleted old trace file to free up space: " + traceFile.getName());
+                currentDiskUsageBytes -= fileSize;
+                if (currentDiskUsageBytes <= mMaxDiskUsageBytes) {
+                    break;
+                }
+            } else {
+                Log.w(TAG, "Failed to delete old trace file: " + traceFile.getName());
+            }
         }
     }
 

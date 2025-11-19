@@ -53,6 +53,8 @@ public class PerfettoTraceListActivity extends Activity {
             return;
         }
 
+        PerfettoController.deleteOldTraces(this);
+
         setContentView(R.layout.perfetto_trace_list_activity);
         Button backButton = findViewById(R.id.back_button);
 
@@ -68,10 +70,7 @@ public class PerfettoTraceListActivity extends Activity {
 
     private void showTraceList() {
         ListView listView = findViewById(R.id.trace_list);
-        File traceDir = new File(getFilesDir(), PerfettoReportService.TRACE_FILES_ROOT_DIR);
-        File[] traceFiles = traceDir.listFiles((dir, name) -> name.startsWith("perfetto_")
-                && name.endsWith(".trace"));
-
+        File[] traceFiles = PerfettoController.listTraceFiles(this);
         if (traceFiles == null || traceFiles.length == 0) {
             String[] noFiles = {getString(R.string.perfetto_trace_list_no_files)};
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this,

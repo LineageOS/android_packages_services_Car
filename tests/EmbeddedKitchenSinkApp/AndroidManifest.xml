@@ -568,8 +568,20 @@
 
         <service android:name=".perfetto.PerfettoReportService"
                  android:exported="true"
+                 android:systemUserOnly="true"
                  android:singleUser="true"
                  android:permission="android.permission.BIND_TRACE_REPORT_SERVICE"/>
+
+        <receiver
+            android:name=".perfetto.PerfettoController$BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:systemUserOnly="true"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <activity android:name=".perfetto.PerfettoTraceListActivity"
             android:theme="@style/KitchenSinkActivityTheme"
