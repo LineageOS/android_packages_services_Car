@@ -41,7 +41,7 @@
             systemui:icon="@drawable/car_ic_home"
             systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;launchFlags=0x14000000;end"
             systemui:systemBarDisableFlags="home"
-            systemui:controller="com.android.systemui.car.systembar.HomeButtonController"/>
+            systemui:controller="com.android.systemui.car.systembar.home.HomeButtonController"/>
 
         <com.android.systemui.car.systembar.CarSystemBarButton
             android:id="@+id/passenger_home"
@@ -52,7 +52,7 @@
             systemui:icon="@drawable/car_ic_home"
             systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;launchFlags=0x14000000;end"
             systemui:systemBarDisableFlags="home"
-            systemui:controller="com.android.systemui.car.systembar.PassengerHomeButtonController"/>
+            systemui:controller="com.android.systemui.car.systembar.passengerhome.PassengerHomeButtonController"/>
 
         <Space
             android:layout_width="0dp"
@@ -162,6 +162,6 @@
             systemui:icon="@drawable/car_ic_home"
             systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;launchFlags=0x14000000;end"
             systemui:systemBarDisableFlags="home"
-            systemui:controller="com.android.systemui.car.systembar.HomeButtonController"/>
+            systemui:controller="com.android.systemui.car.systembar.home.HomeButtonController"/>
     </LinearLayout>
 </com.android.systemui.car.systembar.CarSystemBarView>
