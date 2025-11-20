@@ -100,7 +100,9 @@ public final class CarAudioContextToAudioAttributeValidityTest {
         //     instead introduce new API to query valid usages, tracked in b/376918085
         //     in the meantime, hardcode the new value since we can't use the flag as it
         //     is found by reflection
-        if (field.getName().startsWith("USAGE_SPEAKER_CLEANUP")) {
+        if (field.getName().startsWith("USAGE_SPEAKER_CLEANUP")
+                || field.getName().startsWith("USAGE_RINGTONE_VIBRATION")
+                || field.getName().startsWith("USAGE_NOTIFICATION_VIBRATION")) {
             return false;
         }
         return (field.getType() == int.class)
