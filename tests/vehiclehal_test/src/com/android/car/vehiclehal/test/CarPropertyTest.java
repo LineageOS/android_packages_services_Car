@@ -31,7 +31,6 @@ import android.car.hardware.property.VehicleVendorPermission;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
 import android.os.ConditionVariable;
-import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
 
@@ -49,6 +48,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The test suite will execute end-to-end Car Property API test by generating VHAL property data
@@ -326,8 +327,12 @@ public class CarPropertyTest extends E2eCarTestBase {
 
         // We expect the 3rd property update event to come since it is in the correct order.
         GearEventTestCallback cb = new GearEventTestCallback(expectedEvents.get(2));
-        propMgr.registerCallback(cb, VehiclePropertyIds.GEAR_SELECTION,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        assertThat(
+                        propMgr.registerCallback(
+                                cb,
+                                VehiclePropertyIds.GEAR_SELECTION,
+                                CarPropertyManager.SENSOR_RATE_ONCHANGE))
+                .isTrue();
         injectEventFromVehicleSide(expectedEvents);
         assertThat(cb.waitForEvent(PROP_CHANGE_TIMEOUT_MS)).isTrue();
 
@@ -454,7 +459,18 @@ public class CarPropertyTest extends E2eCarTestBase {
      */
     private void injectEventFromVehicleSide(List<CarPropertyValue> expectedEvents)
             throws IOException {
-        Long startTime = SystemClock.elapsedRealtimeNanos();
+        // VHAL properties may use a different time base than Android.
+        // Use the last event timestamp as the base timestamp for injecting events.
+        String vehiclePropValueStr =
+                mCarTestManager.dumpVhal(
+                        List.of("--get", Integer.toString(expectedEvents.get(0).getPropertyId())),
+                        VHAL_DUMP_TIMEOUT_MS);
+        Pattern pattern = Pattern.compile("timestamp: (\\d+)");
+        Matcher matcher = pattern.matcher(vehiclePropValueStr);
+
+        assertThat(matcher.find()).isTrue();
+
+        long startTime = Long.parseLong(matcher.group(1));
         for (CarPropertyValue propertyValue : expectedEvents) {
             String propIdStr = Integer.toString(propertyValue.getPropertyId());
             String areaIdStr = Integer.toString(propertyValue.getAreaId());
