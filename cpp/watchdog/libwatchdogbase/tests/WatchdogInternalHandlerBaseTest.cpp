@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "MockIoOveruseMonitor.h"
+#include "MockIoOveruseMonitorBase.h"
 #include "MockWatchdogPerfServiceBase.h"
 #include "MockWatchdogServiceHelperBase.h"
 #include "WatchdogInternalHandlerBase.h"
@@ -94,16 +94,16 @@ protected:
     virtual void SetUp() {
         mMockWatchdogPerfServiceBase = sp<MockWatchdogPerfServiceBase>::make();
         mMockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
-        mMockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
+        mMockIoOveruseMonitorBase = sp<MockIoOveruseMonitorBase>::make();
         mWatchdogInternalHandlerBase =
                 SharedRefBase::make<WatchdogInternalHandlerBase>(mMockWatchdogServiceHelperBase,
                                                                  mMockWatchdogPerfServiceBase,
-                                                                 mMockIoOveruseMonitor);
+                                                                 mMockIoOveruseMonitorBase);
     }
     virtual void TearDown() {
         mMockWatchdogServiceHelperBase.clear();
         mMockWatchdogPerfServiceBase.clear();
-        mMockIoOveruseMonitor.clear();
+        mMockIoOveruseMonitorBase.clear();
         mWatchdogInternalHandlerBase.reset();
         mScopedChangeCallingUid.clear();
     }
@@ -115,7 +115,7 @@ protected:
 
     sp<MockWatchdogServiceHelperBase> mMockWatchdogServiceHelperBase;
     sp<MockWatchdogPerfServiceBase> mMockWatchdogPerfServiceBase;
-    sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
+    sp<MockIoOveruseMonitorBase> mMockIoOveruseMonitorBase;
     std::shared_ptr<WatchdogInternalHandlerBase> mWatchdogInternalHandlerBase;
     sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
 };
@@ -124,22 +124,22 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestInit) {
     std::shared_ptr<WatchdogInternalHandlerBase> internalHandlerBase = SharedRefBase::make<
             WatchdogInternalHandlerBase>(sp<MockWatchdogServiceHelperBase>::make(),
                                          sp<MockWatchdogPerfServiceBase>::make(),
-                                         sp<MockIoOveruseMonitor>::make());
+                                         sp<MockIoOveruseMonitorBase>::make());
 
     ASSERT_RESULT_OK(internalHandlerBase->init());
 
     ASSERT_NE(internalHandlerBase->mWatchdogServiceHelperBase, nullptr);
-    ASSERT_NE(internalHandlerBase->mIoOveruseMonitor, nullptr);
+    ASSERT_NE(internalHandlerBase->mIoOveruseMonitorBase, nullptr);
     ASSERT_NE(internalHandlerBase->mWatchdogPerfServiceBase, nullptr);
 }
 
 TEST_F(WatchdogInternalHandlerBaseTest, TestErrorOnInitWithNullServiceInstances) {
     auto mockWatchdogPerfServiceBase = sp<MockWatchdogPerfServiceBase>::make();
     auto mockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
-    auto mockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
+    auto mockIoOveruseMonitorBase = sp<MockIoOveruseMonitorBase>::make();
     std::shared_ptr<WatchdogInternalHandlerBase> internalHandlerBase =
             SharedRefBase::make<WatchdogInternalHandlerBase>(nullptr, mockWatchdogPerfServiceBase,
-                                                             mockIoOveruseMonitor);
+                                                             mockIoOveruseMonitorBase);
 
     EXPECT_FALSE(internalHandlerBase->init().ok())
             << "No error returned on nullptr watchdog service helper";
@@ -147,7 +147,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestErrorOnInitWithNullServiceInstances)
 
     internalHandlerBase =
             SharedRefBase::make<WatchdogInternalHandlerBase>(mockWatchdogServiceHelperBase, nullptr,
-                                                             mockIoOveruseMonitor);
+                                                             mockIoOveruseMonitorBase);
 
     EXPECT_FALSE(internalHandlerBase->init().ok())
             << "No error returned on nullptr watchdog performance service";
@@ -171,13 +171,13 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestErrorOnInitWithNullServiceInstances)
 TEST_F(WatchdogInternalHandlerBaseTest, TestTerminate) {
     ASSERT_NE(mWatchdogInternalHandlerBase->mWatchdogServiceHelperBase, nullptr);
     ASSERT_NE(mWatchdogInternalHandlerBase->mWatchdogPerfServiceBase, nullptr);
-    ASSERT_NE(mWatchdogInternalHandlerBase->mIoOveruseMonitor, nullptr);
+    ASSERT_NE(mWatchdogInternalHandlerBase->mIoOveruseMonitorBase, nullptr);
 
     mWatchdogInternalHandlerBase->terminate();
 
     ASSERT_EQ(mWatchdogInternalHandlerBase->mWatchdogServiceHelperBase, nullptr);
     ASSERT_EQ(mWatchdogInternalHandlerBase->mWatchdogPerfServiceBase, nullptr);
-    ASSERT_EQ(mWatchdogInternalHandlerBase->mIoOveruseMonitor, nullptr);
+    ASSERT_EQ(mWatchdogInternalHandlerBase->mIoOveruseMonitorBase, nullptr);
 }
 
 TEST_F(WatchdogInternalHandlerBaseTest, TestDump) {
@@ -187,8 +187,9 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestDump) {
 TEST_F(WatchdogInternalHandlerBaseTest, TestRegisterCarWatchdogService) {
     setSystemCallingUid();
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, isInitialized()).WillOnce(Return(false));
-    EXPECT_CALL(*mMockWatchdogPerfServiceBase, registerIoOveruseMonitor(Eq(mMockIoOveruseMonitor)))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, isInitialized()).WillOnce(Return(false));
+    EXPECT_CALL(*mMockWatchdogPerfServiceBase,
+                registerIoOveruseMonitorBase(Eq(mMockIoOveruseMonitorBase)))
             .WillOnce(Return(Result<void>()));
     EXPECT_CALL(*mMockWatchdogPerfServiceBase, onCarWatchdogServiceRegistered()).Times(1);
 
@@ -293,7 +294,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestNotifyGarageModeOff) {
 TEST_F(WatchdogInternalHandlerBaseTest, TestOnUserStateChangeWithRemovedUser) {
     setSystemCallingUid();
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, removeStatsForUser(/*userId=*/234567));
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, removeStatsForUser(/*userId=*/234567));
 
     StateType type = StateType::USER_STATE;
     auto status =
@@ -305,7 +306,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestOnUserStateChangeWithRemovedUser) {
 }
 
 TEST_F(WatchdogInternalHandlerBaseTest, TestErrorOnOnUserStateChangeWithInvalidArgs) {
-    EXPECT_CALL(*mMockIoOveruseMonitor, removeStatsForUser(_)).Times(0);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, removeStatsForUser(_)).Times(0);
 
     StateType type = StateType::USER_STATE;
 
@@ -332,7 +333,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestErrorOnNotifySystemStateChangeWithNo
 TEST_F(WatchdogInternalHandlerBaseTest, TestUpdateResourceOveruseConfigurations) {
     setSystemCallingUid();
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, updateResourceOveruseConfigurations(_))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, updateResourceOveruseConfigurations(_))
             .WillOnce(Return(Result<void>()));
 
     auto status = mWatchdogInternalHandlerBase->updateResourceOveruseConfigurations(
@@ -343,7 +344,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestUpdateResourceOveruseConfigurations)
 
 TEST_F(WatchdogInternalHandlerBaseTest,
        TestErrorOnUpdateResourceOveruseConfigurationsWithNonSystemCallingUid) {
-    EXPECT_CALL(*mMockIoOveruseMonitor, updateResourceOveruseConfigurations(_)).Times(0);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, updateResourceOveruseConfigurations(_)).Times(0);
 
     auto status = mWatchdogInternalHandlerBase->updateResourceOveruseConfigurations(
             std::vector<ResourceOveruseConfiguration>{});
@@ -356,7 +357,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestGetResourceOveruseConfigurations) {
     setSystemCallingUid();
 
     std::vector<ResourceOveruseConfiguration> configs;
-    EXPECT_CALL(*mMockIoOveruseMonitor, getResourceOveruseConfigurations(Pointer(&configs)))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, getResourceOveruseConfigurations(Pointer(&configs)))
             .WillOnce(Return(Result<void>()));
 
     auto status = mWatchdogInternalHandlerBase->getResourceOveruseConfigurations(&configs);
@@ -366,7 +367,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestGetResourceOveruseConfigurations) {
 
 TEST_F(WatchdogInternalHandlerBaseTest,
        TestErrorOnGetResourceOveruseConfigurationsWithNonSystemCallingUid) {
-    EXPECT_CALL(*mMockIoOveruseMonitor, getResourceOveruseConfigurations(_)).Times(0);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, getResourceOveruseConfigurations(_)).Times(0);
 
     std::vector<ResourceOveruseConfiguration> configs;
 
@@ -378,7 +379,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestOnTodayIoUsageStatsFetched) {
     setSystemCallingUid();
 
     std::vector<UserPackageIoUsageStats> userPackageIoUsageStats = {};
-    EXPECT_CALL(*mMockIoOveruseMonitor, onTodayIoUsageStatsFetched(userPackageIoUsageStats))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, onTodayIoUsageStatsFetched(userPackageIoUsageStats))
             .Times(1);
 
     auto status = mWatchdogInternalHandlerBase->onTodayIoUsageStatsFetched(userPackageIoUsageStats);
@@ -388,7 +389,7 @@ TEST_F(WatchdogInternalHandlerBaseTest, TestOnTodayIoUsageStatsFetched) {
 
 TEST_F(WatchdogInternalHandlerBaseTest,
        TestErrorOnOnTodayIoUsageStatsFetchedWithNonSystemCallingUid) {
-    EXPECT_CALL(*mMockIoOveruseMonitor, onTodayIoUsageStatsFetched(_)).Times(0);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, onTodayIoUsageStatsFetched(_)).Times(0);
 
     ASSERT_FALSE(mWatchdogInternalHandlerBase->onTodayIoUsageStatsFetched({}).isOk())
             << "onTodayIoUsageStatsFetched " << kFailOnNonSystemCallingUidMessage;

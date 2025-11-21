@@ -15,7 +15,7 @@
  */
 
 #include "LooperStub.h"
-#include "MockIoOveruseMonitor.h"
+#include "MockIoOveruseMonitorBase.h"
 #include "MockProcDiskStatsCollector.h"
 #include "MockUidStatsCollectorBase.h"
 #include "MockWatchdogServiceHelperBase.h"
@@ -162,7 +162,7 @@ protected:
     virtual void SetUp() {
         mMockUidStatsCollectorBase = sp<MockUidStatsCollectorBase>::make();
         mMockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
-        mMockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
+        mMockIoOveruseMonitorBase = sp<MockIoOveruseMonitorBase>::make();
         mMockProcDiskStatsCollector = sp<NiceMock<MockProcDiskStatsCollector>>::make();
         mService = sp<WatchdogPerfServiceBase>::make(mMockWatchdogServiceHelperBase, nullptr);
         mServicePeer = sp<internal::WatchdogPerfServiceBasePeer>::make(mService);
@@ -172,7 +172,7 @@ protected:
     virtual void TearDown() {
         if (auto event = mServicePeer->getCurrCollectionEvent();
             event != EventType::INIT && event != EventType::TERMINATED) {
-            EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+            EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
             mService->terminate();
         }
         mService.clear();
@@ -180,16 +180,16 @@ protected:
         mLooperStub.clear();
         mMockUidStatsCollectorBase.clear();
         mMockWatchdogServiceHelperBase.clear();
-        mMockIoOveruseMonitor.clear();
+        mMockIoOveruseMonitorBase.clear();
         mMockProcDiskStatsCollector.clear();
     }
 
     void startService() {
         mServicePeer->init(mLooperStub, mMockUidStatsCollectorBase, mMockProcDiskStatsCollector);
 
-        EXPECT_CALL(*mMockIoOveruseMonitor, init()).Times(1);
+        EXPECT_CALL(*mMockIoOveruseMonitorBase, init()).Times(1);
 
-        ASSERT_RESULT_OK(mService->registerIoOveruseMonitor(mMockIoOveruseMonitor));
+        ASSERT_RESULT_OK(mService->registerIoOveruseMonitorBase(mMockIoOveruseMonitorBase));
 
         EXPECT_CALL(*mMockUidStatsCollectorBase, init()).Times(1);
         EXPECT_CALL(*mMockProcDiskStatsCollector, init()).Times(1);
@@ -203,7 +203,7 @@ protected:
 
     void checkPeriodicCollectionStarted() {
         EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-        EXPECT_CALL(*mMockIoOveruseMonitor,
+        EXPECT_CALL(*mMockIoOveruseMonitorBase,
                     onPeriodicCollection(_, _, Eq(mMockUidStatsCollectorBase), _))
                 .Times(1);
 
@@ -219,7 +219,7 @@ protected:
     }
 
     void skipPeriodicMonitorEvents() {
-        EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicMonitor(_, _, _)).Times(2);
+        EXPECT_CALL(*mMockIoOveruseMonitorBase, onPeriodicMonitor(_, _, _)).Times(2);
         ASSERT_RESULT_OK(mLooperStub->pollCache());
         ASSERT_RESULT_OK(mLooperStub->pollCache());
     }
@@ -229,7 +229,7 @@ protected:
     }
 
     void skipPeriodicCollection() {
-        EXPECT_CALL(*mMockIoOveruseMonitor,
+        EXPECT_CALL(*mMockIoOveruseMonitorBase,
                     onPeriodicCollection(_, /*isGarageModeActive=*/false, _, _))
                 .Times(1);
         ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -238,7 +238,7 @@ protected:
     void verifyAndClearExpectations() {
         Mock::VerifyAndClearExpectations(mMockUidStatsCollectorBase.get());
         Mock::VerifyAndClearExpectations(mMockProcDiskStatsCollector.get());
-        Mock::VerifyAndClearExpectations(mMockIoOveruseMonitor.get());
+        Mock::VerifyAndClearExpectations(mMockIoOveruseMonitorBase.get());
         Mock::VerifyAndClearExpectations(mMockWatchdogServiceHelperBase.get());
     }
 
@@ -248,7 +248,7 @@ protected:
     sp<MockUidStatsCollectorBase> mMockUidStatsCollectorBase;
     sp<MockProcDiskStatsCollector> mMockProcDiskStatsCollector;
     sp<MockWatchdogServiceHelperBase> mMockWatchdogServiceHelperBase;
-    sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
+    sp<MockIoOveruseMonitorBase> mMockIoOveruseMonitorBase;
 };
 
 }  // namespace
@@ -256,9 +256,9 @@ protected:
 TEST_F(WatchdogPerfServiceBaseTest, TestServiceStartAndTerminate) {
     mServicePeer->init(mLooperStub, mMockUidStatsCollectorBase, mMockProcDiskStatsCollector);
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, init()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, init()).Times(1);
 
-    ASSERT_RESULT_OK(mService->registerIoOveruseMonitor(mMockIoOveruseMonitor));
+    ASSERT_RESULT_OK(mService->registerIoOveruseMonitorBase(mMockIoOveruseMonitorBase));
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, init()).Times(1);
     EXPECT_CALL(*mMockProcDiskStatsCollector, init()).Times(1);
@@ -281,7 +281,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestServiceStartAndTerminate) {
                       .count(),
               sysprop::periodicCollectionInterval().value());
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 
     mService->terminate();
 
@@ -299,7 +299,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     EXPECT_CALL(*mMockProcDiskStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
+                onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -311,7 +312,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
 
     // #2 Periodic monitor
     EXPECT_CALL(*mMockProcDiskStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
+                onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -334,7 +336,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
             constructResourceStats(expectedResourceOveruseStats),
     };
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .Times(1)
@@ -386,7 +388,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
     };
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .Times(1)
@@ -421,7 +423,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
 
     // #8 Custom collection
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .Times(1);
@@ -448,7 +450,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
 
     // #10 Switch to periodic collection
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .Times(1);
@@ -465,7 +467,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
 
     // #11 Periodic monitor.
     EXPECT_CALL(*mMockProcDiskStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
+                onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -473,7 +476,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
     ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestPeriodicMonitorIntervalSecs.count());
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 }
 
 TEST_F(WatchdogPerfServiceBaseTest, TestCollectionTerminatesOnZeroEnabledCollectors) {
@@ -482,7 +485,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestCollectionTerminatesOnZeroEnabledCollect
     ON_CALL(*mMockUidStatsCollectorBase, enabled()).WillByDefault(Return(false));
 
     // Collection should terminate and call io overuse monitor's terminate method on error.
-    EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
@@ -499,7 +502,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestCollectionTerminatesOnDataCollectorError
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).WillOnce(Return(errorRes));
 
     // Collection should terminate and call io overuse monitor's terminate method on error.
-    EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
@@ -513,13 +516,13 @@ TEST_F(WatchdogPerfServiceBaseTest, TestCollectionTerminatesOnIoOveruseMonitorEr
 
     // Inject io overuse monitor error.
     Result<void> errorRes = Error() << "Failed to process data";
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .WillOnce(Return(errorRes));
 
     // Collection should terminate and call io overuse monitor's terminate method on error.
-    EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
@@ -549,7 +552,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestCustomCollection) {
                                          kTestCustomCollectionIntervalSecs.count());
     for (int i = 0; i <= maxIterations; ++i) {
         EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-        EXPECT_CALL(*mMockIoOveruseMonitor,
+        EXPECT_CALL(*mMockIoOveruseMonitorBase,
                     onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                          Eq(mMockUidStatsCollectorBase), _))
                 .Times(1);
@@ -576,7 +579,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestCustomCollection) {
             << " seconds";
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
-    EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 }
 
 TEST_F(WatchdogPerfServiceBaseTest, TestPeriodicMonitorRequestsCollection) {
@@ -586,7 +589,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestPeriodicMonitorRequestsCollection) {
 
     // Periodic monitor issuing an alert to start new collection.
     EXPECT_CALL(*mMockProcDiskStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
+                onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
             .WillOnce([&](auto, auto, const auto& alertHandler) -> Result<void> {
                 alertHandler();
                 return {};
@@ -600,7 +604,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestPeriodicMonitorRequestsCollection) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .Times(1);
@@ -612,7 +616,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestPeriodicMonitorRequestsCollection) {
 
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 }
 
 TEST_F(WatchdogPerfServiceBaseTest, TestSystemStateSwitch) {
@@ -621,7 +625,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestSystemStateSwitch) {
     ASSERT_NO_FATAL_FAILURE(checkPeriodicCollectionStarted());
     ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicCollection(_, /*isGarageModeActive=*/false, _, _))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
+                onPeriodicCollection(_, /*isGarageModeActive=*/false, _, _))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -632,7 +637,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestSystemStateSwitch) {
 
     mService->setSystemState(SystemState::GARAGE_MODE);
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicCollection(_, /*isGarageModeActive=*/true, _, _))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
+                onPeriodicCollection(_, /*isGarageModeActive=*/true, _, _))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -643,14 +649,15 @@ TEST_F(WatchdogPerfServiceBaseTest, TestSystemStateSwitch) {
 
     mService->setSystemState(SystemState::NORMAL_MODE);
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicCollection(_, /*isGarageModeActive=*/false, _, _))
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
+                onPeriodicCollection(_, /*isGarageModeActive=*/false, _, _))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
-    EXPECT_CALL(*mMockIoOveruseMonitor, terminate()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 }
 
 TEST_F(WatchdogPerfServiceBaseTest, TestOnCarWatchdogServiceRegistered) {
@@ -661,8 +668,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestOnCarWatchdogServiceRegistered) {
 
     // Expect because the next pollCache call will result in an onPeriodicMonitor call
     // because no message is sent to process unsent resource stats
-    EXPECT_CALL(*mMockIoOveruseMonitor, onPeriodicMonitor(_, _, _)).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor, onCarWatchdogServiceRegistered()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, onPeriodicMonitor(_, _, _)).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, onCarWatchdogServiceRegistered()).Times(1);
     EXPECT_CALL(*mMockWatchdogServiceHelperBase, onLatestResourceStats(_)).Times(0);
 
     mService->onCarWatchdogServiceRegistered();
@@ -678,8 +685,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestOnCarWatchdogServiceRegisteredWithUnsent
     ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor, onCarWatchdogServiceRegistered()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, onCarWatchdogServiceRegistered()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .Times(1)
@@ -711,8 +718,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestUnsentResourceStatsEviction) {
     ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor, onCarWatchdogServiceRegistered()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase, onCarWatchdogServiceRegistered()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .Times(1)
@@ -768,7 +775,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestUnsentResourceStatsMaxCacheSize) {
         });
 
         EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-        EXPECT_CALL(*mMockIoOveruseMonitor,
+        EXPECT_CALL(*mMockIoOveruseMonitorBase,
                     onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                          Eq(mMockUidStatsCollectorBase), _))
                 .Times(1)
@@ -802,7 +809,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestUnsentResourceStatsMaxCacheSize) {
     std::vector<ResourceStats> actualResourceStats;
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
-    EXPECT_CALL(*mMockIoOveruseMonitor,
+    EXPECT_CALL(*mMockIoOveruseMonitorBase,
                 onPeriodicCollection(_, /*isGarageModeActive=*/false,
                                      Eq(mMockUidStatsCollectorBase), _))
             .Times(1)

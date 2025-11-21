@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "IoOveruseMonitor.h"
+#include "IoOveruseMonitorBase.h"
 #include "WatchdogInternalHandlerBase.h"
 #include "WatchdogPerfServiceBase.h"
 #include "WatchdogServiceHelperBase.h"
@@ -68,7 +68,7 @@ public:
     WatchdogBinderMediatorBase(
             const android::sp<WatchdogPerfServiceBaseInterface>& watchdogPerfServiceBase,
             const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
-            const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
+            const android::sp<IoOveruseMonitorBaseInterface>& ioOveruseMonitorBase,
             const std::function<android::base::Result<void>(const char*, ndk::ICInterface*, bool,
                                                             int)>& addServiceHandler = nullptr);
     ~WatchdogBinderMediatorBase() { terminate(); }
@@ -124,7 +124,7 @@ protected:
     android::base::Result<void> init();
 
     void terminate() {
-        mIoOveruseMonitor.clear();
+        mIoOveruseMonitorBase.clear();
         if (mWatchdogInternalHandler != nullptr) {
             mWatchdogInternalHandler->terminate();
             mWatchdogInternalHandler.reset();
@@ -134,7 +134,7 @@ protected:
     std::shared_ptr<WatchdogInternalHandlerInterface> mWatchdogInternalHandler;
 
 private:
-    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
+    android::sp<IoOveruseMonitorBaseInterface> mIoOveruseMonitorBase;
 
     // Used by tests to stub the call to IServiceManager.
     std::function<android::base::Result<void>(const char*, ndk::ICInterface*, bool, int)>

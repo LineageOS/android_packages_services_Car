@@ -21,7 +21,7 @@
 #endif
 #define DEBUG false  // STOPSHIP if true.
 
-#include "IoOveruseMonitor.h"
+#include "IoOveruseMonitorBase.h"
 
 #include "IoServiceManager.h"
 #include "PackageInfoResolver.h"
@@ -159,7 +159,7 @@ std::tuple<int32_t, PerStateBytes> calculateOveruseAndForgivenBytes(PerStateByte
 }
 
 void onBinderDied(void* cookie) {
-    const auto& thiz = IoServiceManager::getInstance()->getIoOveruseMonitor();
+    const auto& thiz = IoServiceManager::getInstance()->getIoOveruseMonitorBase();
     if (thiz == nullptr) {
         return;
     }
@@ -175,7 +175,7 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& 
     return calculateStartAndDuration(currentGmt);
 }
 
-IoOveruseMonitor::IoOveruseMonitor(
+IoOveruseMonitorBase::IoOveruseMonitorBase(
         const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
         const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver,
         AIBinder_DeathRecipient* binderRecipient) :
@@ -199,7 +199,7 @@ IoOveruseMonitor::IoOveruseMonitor(
     }
 }
 
-Result<void> IoOveruseMonitor::init() {
+Result<void> IoOveruseMonitorBase::init() {
     std::unique_lock writeLock(mRwMutex);
     if (isInitializedLocked()) {
         return Error() << "Cannot initialize " << name() << " more than once";
@@ -223,7 +223,7 @@ Result<void> IoOveruseMonitor::init() {
     return {};
 }
 
-void IoOveruseMonitor::terminate() {
+void IoOveruseMonitorBase::terminate() {
     ALOGW("Terminating %s", name().c_str());
     if (mWriteToDiskThread.joinable()) {
         mWriteToDiskThread.join();
@@ -246,14 +246,14 @@ void IoOveruseMonitor::terminate() {
     return;
 }
 
-void IoOveruseMonitor::onCarWatchdogServiceRegistered() {
+void IoOveruseMonitorBase::onCarWatchdogServiceRegistered() {
     std::unique_lock writeLock(mRwMutex);
     if (!mDidReadTodayPrevBootStats) {
         requestTodayIoUsageStatsLocked();
     }
 }
 
-Result<void> IoOveruseMonitor::onPeriodicCollection(
+Result<void> IoOveruseMonitorBase::onPeriodicCollection(
         time_point_millis time, bool isGarageModeActive,
         const android::wp<UidStatsCollectorBaseInterface>& uidStatsCollectorBase,
         ResourceStats* resourceStats) {
@@ -401,7 +401,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     return {};
 }
 
-Result<void> IoOveruseMonitor::onPeriodicMonitor(
+Result<void> IoOveruseMonitorBase::onPeriodicMonitor(
         time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
         const std::function<void()>& alertHandler) {
     if (procDiskStatsCollector == nullptr) {
@@ -455,12 +455,12 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
     return {};
 }
 
-bool IoOveruseMonitor::dumpHelpText(int fd) const {
+bool IoOveruseMonitorBase::dumpHelpText(int fd) const {
     return WriteStringToFd(StringPrintf(kHelpText, name().c_str(), kResetResourceOveruseStatsFlag),
                            fd);
 }
 
-void IoOveruseMonitor::requestTodayIoUsageStatsLocked() {
+void IoOveruseMonitorBase::requestTodayIoUsageStatsLocked() {
     if (const auto status = mWatchdogServiceHelperBase->requestTodayIoUsageStats();
         !status.isOk()) {
         // Request made only after CarWatchdogService connection is established. Logging the error
@@ -474,7 +474,7 @@ void IoOveruseMonitor::requestTodayIoUsageStatsLocked() {
     }
 }
 
-Result<void> IoOveruseMonitor::onTodayIoUsageStatsFetched(
+Result<void> IoOveruseMonitorBase::onTodayIoUsageStatsFetched(
         const std::vector<UserPackageIoUsageStats>& userPackageIoUsageStats) {
     std::unique_lock writeLock(mRwMutex);
     if (mDidReadTodayPrevBootStats) {
@@ -494,7 +494,7 @@ Result<void> IoOveruseMonitor::onTodayIoUsageStatsFetched(
     return {};
 }
 
-void IoOveruseMonitor::notifyNativePackagesLocked(
+void IoOveruseMonitorBase::notifyNativePackagesLocked(
         const std::unordered_map<uid_t, IoOveruseStats>& statsByUid) {
     for (const auto& [uid, ioOveruseStats] : statsByUid) {
         IResourceOveruseListener* listener;
@@ -513,7 +513,7 @@ void IoOveruseMonitor::notifyNativePackagesLocked(
     }
 }
 
-Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
+Result<void> IoOveruseMonitorBase::updateResourceOveruseConfigurations(
         const std::vector<ResourceOveruseConfiguration>& configs) {
     std::unique_lock writeLock(mRwMutex);
     if (!isInitializedLocked()) {
@@ -561,7 +561,7 @@ Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
     return {};
 }
 
-Result<void> IoOveruseMonitor::getResourceOveruseConfigurations(
+Result<void> IoOveruseMonitorBase::getResourceOveruseConfigurations(
         std::vector<ResourceOveruseConfiguration>* configs) const {
     std::shared_lock readLock(mRwMutex);
     if (!isInitializedLocked()) {
@@ -571,7 +571,7 @@ Result<void> IoOveruseMonitor::getResourceOveruseConfigurations(
     return {};
 }
 
-Result<void> IoOveruseMonitor::addIoOveruseListener(
+Result<void> IoOveruseMonitorBase::addIoOveruseListener(
         const std::shared_ptr<IResourceOveruseListener>& listener) {
     if (listener == nullptr) {
         return Error(EX_ILLEGAL_ARGUMENT) << "Must provide non-null listener";
@@ -611,7 +611,7 @@ Result<void> IoOveruseMonitor::addIoOveruseListener(
     return {};
 }
 
-Result<void> IoOveruseMonitor::removeIoOveruseListener(
+Result<void> IoOveruseMonitorBase::removeIoOveruseListener(
         const std::shared_ptr<IResourceOveruseListener>& listener) {
     if (listener == nullptr) {
         return Error(EX_ILLEGAL_ARGUMENT) << "Must provide non-null listener";
@@ -637,9 +637,9 @@ Result<void> IoOveruseMonitor::removeIoOveruseListener(
     return {};
 }
 
-Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats) const {
+Result<void> IoOveruseMonitorBase::getIoOveruseStats(IoOveruseStats* ioOveruseStats) const {
     if (!isInitialized()) {
-        return Error(EX_ILLEGAL_STATE) << "I/O overuse monitor is not initialized";
+        return Error(EX_ILLEGAL_STATE) << "I/O overuse monitor base is not initialized";
     }
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
     const auto packageInfosByUid = mPackageInfoResolver->getPackageInfosForUids({callingUid});
@@ -677,7 +677,8 @@ Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats)
     return {};
 }
 
-Result<void> IoOveruseMonitor::resetIoOveruseStats(const std::vector<std::string>& packageNames) {
+Result<void> IoOveruseMonitorBase::resetIoOveruseStats(
+        const std::vector<std::string>& packageNames) {
     if (const auto status = mWatchdogServiceHelperBase->resetResourceOveruseStats(packageNames);
         !status.isOk()) {
         return Error() << "Failed to reset stats in watchdog service: " << status.getDescription();
@@ -695,7 +696,7 @@ Result<void> IoOveruseMonitor::resetIoOveruseStats(const std::vector<std::string
     return {};
 }
 
-void IoOveruseMonitor::removeStatsForUser(userid_t userId) {
+void IoOveruseMonitorBase::removeStatsForUser(userid_t userId) {
     std::unique_lock writeLock(mRwMutex);
     for (auto it = mUserPackageDailyIoUsageById.begin();
          it != mUserPackageDailyIoUsageById.end();) {
@@ -726,7 +727,7 @@ void IoOveruseMonitor::removeStatsForUser(userid_t userId) {
     }
 }
 
-void IoOveruseMonitor::handleBinderDeath(void* cookie) {
+void IoOveruseMonitorBase::handleBinderDeath(void* cookie) {
     uintptr_t cookieId = reinterpret_cast<uintptr_t>(cookie);
 
     std::unique_lock writeLock(mRwMutex);
@@ -739,8 +740,8 @@ void IoOveruseMonitor::handleBinderDeath(void* cookie) {
                                  });
 }
 
-bool IoOveruseMonitor::findListenerAndProcessLocked(uintptr_t binderPtrId,
-                                                    const Processor& processor) {
+bool IoOveruseMonitorBase::findListenerAndProcessLocked(uintptr_t binderPtrId,
+                                                        const Processor& processor) {
     for (auto it = mOveruseListenersByUid.begin(); it != mOveruseListenersByUid.end(); ++it) {
         uintptr_t curBinderPtrId = reinterpret_cast<uintptr_t>(it->second->asBinder().get());
         if (curBinderPtrId != binderPtrId) {
@@ -754,9 +755,9 @@ bool IoOveruseMonitor::findListenerAndProcessLocked(uintptr_t binderPtrId,
     return false;
 }
 
-IoOveruseMonitor::UserPackageIoUsage::UserPackageIoUsage(const PackageInfo& pkgInfo,
-                                                         const UidIoStats& uidIoStats,
-                                                         const bool isGarageModeActive) {
+IoOveruseMonitorBase::UserPackageIoUsage::UserPackageIoUsage(const PackageInfo& pkgInfo,
+                                                             const UidIoStats& uidIoStats,
+                                                             const bool isGarageModeActive) {
     packageInfo = pkgInfo;
     if (isGarageModeActive) {
         writtenBytes.garageModeBytes = uidIoStats.sumWriteBytes();
@@ -766,7 +767,7 @@ IoOveruseMonitor::UserPackageIoUsage::UserPackageIoUsage(const PackageInfo& pkgI
     }
 }
 
-IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::operator+=(
+IoOveruseMonitorBase::UserPackageIoUsage& IoOveruseMonitorBase::UserPackageIoUsage::operator+=(
         const UserPackageIoUsage& r) {
     if (id() == r.id()) {
         packageInfo = r.packageInfo;
@@ -775,7 +776,7 @@ IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::oper
     return *this;
 }
 
-IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::operator+=(
+IoOveruseMonitorBase::UserPackageIoUsage& IoOveruseMonitorBase::UserPackageIoUsage::operator+=(
         const IoUsageStats& ioUsageStats) {
     writtenBytes = sum(writtenBytes, ioUsageStats.writtenBytes);
     forgivenWriteBytes = sum(forgivenWriteBytes, ioUsageStats.forgivenWriteBytes);
@@ -783,11 +784,11 @@ IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::oper
     return *this;
 }
 
-const std::string IoOveruseMonitor::UserPackageIoUsage::id() const {
+const std::string IoOveruseMonitorBase::UserPackageIoUsage::id() const {
     return uniquePackageIdStr(packageInfo.packageIdentifier);
 }
 
-void IoOveruseMonitor::UserPackageIoUsage::resetStats() {
+void IoOveruseMonitorBase::UserPackageIoUsage::resetStats() {
     writtenBytes = {};
     forgivenWriteBytes = {};
     totalOveruses = 0;

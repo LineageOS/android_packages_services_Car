@@ -203,8 +203,8 @@ public:
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
           mDataProcessors({}) {}
 
-    android::base::Result<void> registerIoOveruseMonitor(
-            [[maybe_unused]] android::sp<IoOveruseMonitorInterface> ioOveruseMonitor) override {
+    android::base::Result<void> registerIoOveruseMonitorBase(
+            [[maybe_unused]] android::sp<IoOveruseMonitorBaseInterface> ioOveruseMonitor) override {
         // Implemented in registerDataProcessor.
         return android::base::Error() << "This method should only be called from the base"
                                          " class' instance. Use registerDataProcessor in the"

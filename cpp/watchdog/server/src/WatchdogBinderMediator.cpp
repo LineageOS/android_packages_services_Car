@@ -55,17 +55,16 @@ WatchdogBinderMediator::WatchdogBinderMediator(
         const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
         const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
         const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-        const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper,
+        const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
         const AddServiceFunction& addServiceHandler) :
-      WatchdogBinderMediatorBase(watchdogPerfService, watchdogServiceHelper,
-                                 ioOveruseMonitorWrapper, addServiceHandler),
+      WatchdogBinderMediatorBase(watchdogPerfService, watchdogServiceHelper, ioOveruseMonitor,
+                                 addServiceHandler),
       mWatchdogProcessService(watchdogProcessService) {
     if (watchdogServiceHelper != nullptr) {
         mWatchdogInternalHandler =
                 SharedRefBase::make<WatchdogInternalHandler>(watchdogServiceHelper,
                                                              mWatchdogProcessService,
-                                                             watchdogPerfService,
-                                                             ioOveruseMonitorWrapper);
+                                                             watchdogPerfService, ioOveruseMonitor);
     }
 }
 

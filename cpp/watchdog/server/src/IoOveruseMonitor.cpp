@@ -17,7 +17,7 @@
 #define LOG_TAG "carwatchdogd"
 #define DEBUG false  // STOPSHIP if true.
 
-#include "IoOveruseMonitorWrapper.h"
+#include "IoOveruseMonitor.h"
 
 #include "ServiceManager.h"
 
@@ -30,7 +30,7 @@ namespace {
 using ::android::sp;
 
 void onBinderDied(void* cookie) {
-    const auto& thiz = ServiceManager::getInstance()->getIoOveruseMonitorWrapper();
+    const auto& thiz = ServiceManager::getInstance()->getIoOveruseMonitor();
     if (thiz == nullptr) {
         return;
     }
@@ -39,17 +39,17 @@ void onBinderDied(void* cookie) {
 
 }  // namespace
 
-IoOveruseMonitorWrapper::IoOveruseMonitorWrapper(
+IoOveruseMonitor::IoOveruseMonitor(
         const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
         const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
-      IoOveruseMonitor(watchdogServiceHelperBase, packageInfoResolver,
-                       // In carwatchdogd on Automotive, the IoServiceManager
-                       // instance is not available. Pass a new DeathRecipient
-                       // explicitly to facilitate invoking the ServiceManager
-                       // instance instead.
-                       AIBinder_DeathRecipient_new(onBinderDied)) {}
+      IoOveruseMonitorBase(watchdogServiceHelperBase, packageInfoResolver,
+                           // In carwatchdogd on Automotive, the IoServiceManager
+                           // instance is not available. Pass a new DeathRecipient
+                           // explicitly to facilitate invoking the ServiceManager
+                           // instance instead.
+                           AIBinder_DeathRecipient_new(onBinderDied)) {}
 
-IoOveruseMonitorWrapper::~IoOveruseMonitorWrapper() {
+IoOveruseMonitor::~IoOveruseMonitor() {
     terminate();
 }
 
