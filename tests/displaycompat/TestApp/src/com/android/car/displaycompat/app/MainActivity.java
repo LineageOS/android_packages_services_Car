@@ -76,6 +76,7 @@ public class MainActivity extends Activity {
         mImmersiveButton = findViewById(R.id.immersive);
         mNonDcActivity = findViewById(R.id.non_dc_activity);
         mLetterboxButton = findViewById(R.id.letterbox);
+        Button resizableActivityButton = findViewById(R.id.resizable);
 
         mNextButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, IgnoreDecorActivity.class);
@@ -85,6 +86,10 @@ public class MainActivity extends Activity {
             Intent intent = new Intent();
             intent.setComponent(new ComponentName(/* pkg= */ "com.android.car.displaycompat.intent",
                     /* cls= */ "com.android.car.displaycompat.intent.MainActivity"));
+            startActivity(intent);
+        });
+        resizableActivityButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ResizableActivity.class);
             startActivity(intent);
         });
 
