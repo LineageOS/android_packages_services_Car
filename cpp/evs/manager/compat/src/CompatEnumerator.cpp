@@ -187,6 +187,7 @@ ScopedAStatus CompatEnumerator::getCameraList(std::vector<CameraDesc>* _aidl_ret
         return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
     }
 
+    std::unique_lock lock(mLock);
     ScopedAStatus status = initCameraDescs();
     if (!status.isOk()) {
         return status;
@@ -450,7 +451,6 @@ void CompatEnumerator::removeActiveCamera(const char* cameraId) {
 }
 
 void CompatEnumerator::cleanupOpenedCameras(const std::vector<std::string>& cameraIds) {
-    std::lock_guard lock(mLock);
     for (const auto& idToClose : cameraIds) {
         removeActiveCamera(idToClose.c_str());
     }
@@ -623,6 +623,7 @@ ScopedAStatus CompatEnumerator::setCameraGroupMap(const CameraGroupMap& cameraGr
         return ::ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
     }
 
+    std::unique_lock lock(mLock);
     if (mCameraDescs.empty()) {
         ScopedAStatus status = initCameraDescs();
         if (!status.isOk()) {
@@ -669,6 +670,7 @@ ScopedAStatus CompatEnumerator::setCameraGroupMap(const CameraGroupMap& cameraGr
 
 std::unordered_set<std::string> CompatEnumerator::getPhysicalCameraIds(
         const std::string& cameraId) {
+    std::shared_lock lock(mLock);
     if (mCameraGroupMap) {
         auto it = mCameraGroupMap->find(cameraId);
         if (it != mCameraGroupMap->end()) {

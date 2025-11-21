@@ -97,7 +97,7 @@ public:
     ::ndk::ScopedAStatus setCameraGroupMap(const CameraGroupMap& cameraGroupMap);
 
 private:
-    ::ndk::ScopedAStatus initCameraDescs();
+    ::ndk::ScopedAStatus initCameraDescs() REQUIRES(mLock);
     static void onDeviceDisconnected(void* context, ACameraDevice* device);
     static void onDeviceError(void* context, ACameraDevice* device, int error);
     static void onClientSharedAccessPriorityChanged(void* context, ACameraDevice* device,
