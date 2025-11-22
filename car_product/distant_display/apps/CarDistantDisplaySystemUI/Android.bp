@@ -62,6 +62,7 @@ android_app {
         proguard_flags_files: [
             "proguard.flags",
         ],
+        included_proguard_flags_files: [":CarSystemUI-proguard-deps"],
     },
     dxflags: ["--multi-dex"],
 
