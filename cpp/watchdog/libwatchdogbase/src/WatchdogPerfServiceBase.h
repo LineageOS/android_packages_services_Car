@@ -37,7 +37,6 @@
 #include <time.h>
 
 #include <string>
-#include <thread>  // NOLINT(build/c++11)
 #include <unordered_set>
 
 namespace android {
@@ -141,11 +140,11 @@ public:
     // Initialize collection intervals and I/O collectors.
     virtual void init() = 0;
     /**
-     * Starts the periodic collection in the looper handler on a new thread and returns
+     * Starts the periodic collection in the looper handler on the main thread and returns
      * immediately. Must be called only once. Otherwise, returns an error.
      */
     virtual android::base::Result<void> start() = 0;
-    // Terminates the collection thread and returns.
+    // Terminates the collection and returns.
     virtual void terminate() = 0;
     // Sets the system state.
     virtual void setSystemState(SystemState systemState) = 0;
@@ -164,14 +163,18 @@ public:
     virtual android::base::Result<void> onDump(int fd) const = 0;
     // Dumps the help text.
     virtual bool dumpHelpText(int fd) const = 0;
+
+    // Polls handler looper.
+    virtual void pollLooper() = 0;
 };
 
 class WatchdogPerfServiceBase : public WatchdogPerfServiceBaseInterface {
 public:
     WatchdogPerfServiceBase(
+            const sp<LooperWrapper>& mainLooper,
             const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
             const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
-          mHandlerLooper(android::sp<LooperWrapper>::make()),
+          mHandlerLooper(mainLooper),
           mSystemState(NORMAL_MODE),
           mUnsentResourceStats({}),
           mPeriodicCollection({}),
@@ -202,6 +205,8 @@ public:
     android::base::Result<void> onDump(int fd) const override;
 
     bool dumpHelpText(int fd) const override;
+
+    void pollLooper() override;
 
 protected:
     struct EventMetadata {
@@ -276,8 +281,8 @@ protected:
     // Check if IoOveruseMonitor was registered.
     virtual bool isDataProcessorRegisteredLocked();
 
-    // Start the first collection event in mCollectionThread.
-    virtual void startFirstCollectionEventLocked();
+    // Start the first collection event.
+    virtual void startCollectionLocked();
 
     // Handles unsent resource stats.
     android::base::Result<void> handleUnsentResourceStatsLocked();
@@ -320,13 +325,10 @@ protected:
     // Handles extra message logic.
     virtual android::base::Result<void> handleMessageExtension(const Message& message);
 
-    // Thread on which the actual collection happens.
-    std::thread mCollectionThread;
-
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;
 
-    // Handler looper to execute different collection events on the collection thread.
+    // Handler looper to execute different collection events on the main thread.
     android::sp<LooperWrapper> mHandlerLooper GUARDED_BY(mMutex);
 
     // Current system state.

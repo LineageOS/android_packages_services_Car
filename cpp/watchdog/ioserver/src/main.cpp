@@ -17,15 +17,18 @@
 #define LOG_TAG "iowatchdogd"
 
 #include "IoServiceManager.h"
+#include "LooperWrapper.h"
 
 #include <binder/IPCThreadState.h>
 #include <binder/ProcessState.h>
 #include <log/log.h>
 
 using ::android::IPCThreadState;
+using ::android::Looper;
 using ::android::ProcessState;
 using ::android::sp;
 using ::android::automotive::watchdog::IoServiceManager;
+using ::android::automotive::watchdog::LooperWrapper;
 
 const size_t kMaxBinderThreadCount = 16;
 
@@ -37,17 +40,21 @@ int main(int /*argc*/, char** /*argv*/) {
     ps->giveThreadPoolName();
     IPCThreadState::self()->disableBackgroundScheduling(true);
 
-    auto result = IoServiceManager::getInstance()->startServices();
+    sp<LooperWrapper> mainLooper(sp<LooperWrapper>::make());
+    mainLooper->setLooper(Looper::prepare(/*opts=*/0));
+
+    std::shared_ptr<IoServiceManager> ioServiceManager = IoServiceManager::getInstance();
+
+    auto result = ioServiceManager->startServices(mainLooper);
     if (!result.ok()) {
         ALOGE("Failed to start services: %s", result.error().message().c_str());
         IoServiceManager::terminate();
         exit(result.error().code());
     }
 
-    // Loop forever -- the binder calls remain responsive in their pool of threads.
-    // TODO(b/452971312): Start a looper in main.cpp and pass it to WatchdogPerfServiceBase
-    while (true) {
-    }
+    // Loop forever -- the performance collection runs on the main thread in a handler, and the
+    // binder calls remain responsive in their pool of threads.
+    ioServiceManager->pollLooper();
     ALOGW("I/O Watchdog server escaped from its loop.");
     IoServiceManager::terminate();
 

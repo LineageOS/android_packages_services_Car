@@ -68,6 +68,7 @@ constexpr const int32_t kTestPackageIoOveruseStatsUid = 100124036;
 constexpr const int32_t kTestPerStateForegroundBytes = 1000;
 constexpr const int32_t kTestPerStateBackgroundBytes = 2000;
 constexpr const int32_t kTestPerStateGarageModeBytes = 3000;
+constexpr char kTestLooperThreadName[] = "WdPerfSvcTest";
 
 std::string toString(const std::vector<ResourceStats>& resourceStats) {
     std::string buffer;
@@ -101,11 +102,9 @@ public:
           mService(service) {}
     WatchdogPerfServiceBasePeer() = delete;
 
-    void init(const sp<LooperWrapper>& looper,
-              const sp<UidStatsCollectorBaseInterface>& uidStatsCollectorBase,
+    void init(const sp<UidStatsCollectorBaseInterface>& uidStatsCollectorBase,
               const sp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector) {
         Mutex::Autolock lock(mService->mMutex);
-        mService->mHandlerLooper = looper;
         mService->mUidStatsCollectorBase = uidStatsCollectorBase;
         mService->mProcDiskStatsCollector = procDiskStatsCollector;
     }
@@ -135,14 +134,6 @@ public:
                 .count();
     }
 
-    std::future<void> joinCollectionThread() {
-        return std::async([&]() {
-            if (mService->mCollectionThread.joinable()) {
-                mService->mCollectionThread.join();
-            }
-        });
-    }
-
     Result<std::unordered_set<std::string>> onFilterPackagesFlag(const char** args,
                                                                  uint32_t valuePos,
                                                                  uint32_t numArgs) {
@@ -164,9 +155,11 @@ protected:
         mMockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
         mMockIoOveruseMonitorBase = sp<MockIoOveruseMonitorBase>::make();
         mMockProcDiskStatsCollector = sp<NiceMock<MockProcDiskStatsCollector>>::make();
-        mService = sp<WatchdogPerfServiceBase>::make(mMockWatchdogServiceHelperBase, nullptr);
-        mServicePeer = sp<internal::WatchdogPerfServiceBasePeer>::make(mService);
         mLooperStub = sp<LooperStub>::make();
+        mService = sp<WatchdogPerfServiceBase>::make(mLooperStub, mMockWatchdogServiceHelperBase,
+                                                     nullptr);
+        mServicePeer = sp<internal::WatchdogPerfServiceBasePeer>::make(mService);
+        prepareLooper();
     }
 
     virtual void TearDown() {
@@ -175,9 +168,11 @@ protected:
             EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
             mService->terminate();
         }
+        wakeAndJoinLooper();
         mService.clear();
         mServicePeer.clear();
         mLooperStub.clear();
+        mLooper.clear();
         mMockUidStatsCollectorBase.clear();
         mMockWatchdogServiceHelperBase.clear();
         mMockIoOveruseMonitorBase.clear();
@@ -185,7 +180,7 @@ protected:
     }
 
     void startService() {
-        mServicePeer->init(mLooperStub, mMockUidStatsCollectorBase, mMockProcDiskStatsCollector);
+        mServicePeer->init(mMockUidStatsCollectorBase, mMockProcDiskStatsCollector);
 
         EXPECT_CALL(*mMockIoOveruseMonitorBase, init()).Times(1);
 
@@ -242,19 +237,45 @@ protected:
         Mock::VerifyAndClearExpectations(mMockWatchdogServiceHelperBase.get());
     }
 
+    void prepareLooper() {
+        mLooper = Looper::prepare(/*opts=*/0);
+        mLooperStub->setLooper(mLooper);
+        mHandlerLooperThread = std::thread([this]() {
+            Looper::setForThread(mLooper);
+            if (int result = pthread_setname_np(pthread_self(), kTestLooperThreadName);
+                result != 0) {
+                ALOGE("Failed to set test looper thread name: %s", strerror(result));
+            }
+            mService->pollLooper();
+        });
+    }
+
+    void wakeAndJoinLooper() {
+        mLooperStub->wake();
+        if (mHandlerLooperThread.joinable()) {
+            mHandlerLooperThread.join();
+        }
+    }
+
+    std::future<void> joinCollectionThread() {
+        return std::async([&]() { wakeAndJoinLooper(); });
+    }
+
     sp<WatchdogPerfServiceBase> mService;
     sp<internal::WatchdogPerfServiceBasePeer> mServicePeer;
     sp<LooperStub> mLooperStub;
+    sp<Looper> mLooper;
     sp<MockUidStatsCollectorBase> mMockUidStatsCollectorBase;
     sp<MockProcDiskStatsCollector> mMockProcDiskStatsCollector;
     sp<MockWatchdogServiceHelperBase> mMockWatchdogServiceHelperBase;
     sp<MockIoOveruseMonitorBase> mMockIoOveruseMonitorBase;
+    std::thread mHandlerLooperThread;
 };
 
 }  // namespace
 
 TEST_F(WatchdogPerfServiceBaseTest, TestServiceStartAndTerminate) {
-    mServicePeer->init(mLooperStub, mMockUidStatsCollectorBase, mMockProcDiskStatsCollector);
+    mServicePeer->init(mMockUidStatsCollectorBase, mMockProcDiskStatsCollector);
 
     EXPECT_CALL(*mMockIoOveruseMonitorBase, init()).Times(1);
 
@@ -265,8 +286,6 @@ TEST_F(WatchdogPerfServiceBaseTest, TestServiceStartAndTerminate) {
 
     mService->init();
     ASSERT_RESULT_OK(mService->start());
-
-    ASSERT_TRUE(mService->mCollectionThread.joinable()) << "Collection thread not created";
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, collect()).Times(1);
 
@@ -284,8 +303,6 @@ TEST_F(WatchdogPerfServiceBaseTest, TestServiceStartAndTerminate) {
     EXPECT_CALL(*mMockIoOveruseMonitorBase, terminate()).Times(1);
 
     mService->terminate();
-
-    ASSERT_FALSE(mService->mCollectionThread.joinable()) << "Collection thread did not terminate";
 }
 
 TEST_F(WatchdogPerfServiceBaseTest, TestValidCollectionSequence) {
@@ -489,7 +506,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestCollectionTerminatesOnZeroEnabledCollect
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
-    ASSERT_EQ(mServicePeer->joinCollectionThread().wait_for(1s), std::future_status::ready)
+    ASSERT_EQ(joinCollectionThread().wait_for(1s), std::future_status::ready)
             << "Collection thread didn't terminate within 1 second.";
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::TERMINATED);
 }
@@ -506,7 +523,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestCollectionTerminatesOnDataCollectorError
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
-    ASSERT_EQ(mServicePeer->joinCollectionThread().wait_for(1s), std::future_status::ready)
+    ASSERT_EQ(joinCollectionThread().wait_for(1s), std::future_status::ready)
             << "Collection thread didn't terminate within 1 second.";
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::TERMINATED);
 }
@@ -526,7 +543,7 @@ TEST_F(WatchdogPerfServiceBaseTest, TestCollectionTerminatesOnIoOveruseMonitorEr
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
-    ASSERT_EQ(mServicePeer->joinCollectionThread().wait_for(1s), std::future_status::ready)
+    ASSERT_EQ(joinCollectionThread().wait_for(1s), std::future_status::ready)
             << "Collection thread didn't terminate within 1 second.";
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::TERMINATED);
 }
@@ -842,6 +859,8 @@ TEST_F(WatchdogPerfServiceBaseTest, TestUnsentResourceStatsMaxCacheSize) {
 }
 
 TEST_F(WatchdogPerfServiceBaseTest, TestOnFilterPackagesFlag) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+
     const char* test_flags[] = {"flag1", "flag2", "flag3"};
     const char** args = test_flags;
     std::unordered_set<std::string> filterPackages;

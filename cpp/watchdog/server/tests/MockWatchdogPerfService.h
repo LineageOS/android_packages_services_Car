@@ -55,6 +55,7 @@ public:
     MOCK_METHOD(android::base::Result<void>, onDumpProto, (android::util::ProtoOutputStream&),
                 (const, override));
     MOCK_METHOD(bool, dumpHelpText, (int fd), (const, override));
+    MOCK_METHOD(void, pollLooper, (), (override));
     MOCK_METHOD(void, handleMessage, (const Message&), (override));
 };
 
