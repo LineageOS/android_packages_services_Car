@@ -52,12 +52,15 @@ public class PerfettoFragment extends Fragment {
     private String mStatusPrefix;
     private ScrollView mScrollView;
     private ImageView mFabView;
+    private TextView mTipBanner;
+    private Boolean mHasAutoPushConfig;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPerfettoController = new PerfettoController(getContext());
         mStatusPrefix = getString(R.string.perfetto_status_prefix);
+        mHasAutoPushConfig = !getString(R.string.config_perfettoTraceConfigFileOnBoot).isEmpty();
     }
 
     @Override
@@ -68,6 +71,7 @@ public class PerfettoFragment extends Fragment {
         mStatusView = view.findViewById(R.id.tv_status);
         mScrollView = view.findViewById(R.id.scroll_view);
         mFabView = view.findViewById(R.id.fab_scroll_to_top);
+        mTipBanner = view.findViewById(R.id.tip_banner);
 
         Button pushButton = view.findViewById(R.id.btn_push_default_config);
         pushButton.setOnClickListener(v -> pushDefaultFieldTraceConfig());
@@ -96,6 +100,21 @@ public class PerfettoFragment extends Fragment {
             });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateTipBanner();
+    }
+
+    private void updateTipBanner() {
+        if (mHasAutoPushConfig) {
+            mTipBanner.setVisibility(View.GONE);
+        } else {
+            mTipBanner.setText(R.string.perfetto_tip_auto_push_config);
+            mTipBanner.setVisibility(View.VISIBLE);
+        }
     }
 
     /**

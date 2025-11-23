@@ -16,4 +16,5 @@
  <resources>
     <integer name="perfetto_trace_retention_days">90</integer>
     <integer name="perfetto_trace_max_disk_usage_mib">1024</integer>
+    <integer name="config_perfettoTraceConfigBufferSizeMultiplierOnBoot">1</integer>
 </resources>
