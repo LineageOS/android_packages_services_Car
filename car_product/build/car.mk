@@ -174,7 +174,9 @@ PRODUCT_PACKAGES += \
 # CarSystemUIPassengerOverlay is an RRO package required for enabling unique look
 # and feel for Passenger(Secondary) User.
 ifeq ($(ENABLE_PASSENGER_SYSTEMUI_RRO), true)
-PRODUCT_PACKAGES += CarSystemUIPassengerOverlay
+PRODUCT_PACKAGES += \
+    CarSystemUIPassengerOverlay \
+    CarDewdDisabledRRO
 endif  # ENABLE_PASSENGER_SYSTEMUI_RRO
 
 # System Server components
