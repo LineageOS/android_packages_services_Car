@@ -32,6 +32,7 @@ import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.SyncResultCallback;
 import android.car.test.AbstractExpectableTestCase;
@@ -66,11 +68,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -452,7 +457,7 @@ public final class CarUserManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testSetSwitchUserIdUICallback_success() throws Exception {
+    public void testSetUserSwitchUiCallback_success() throws Exception {
         UserSwitchUiCallback callback = (u)-> {};
 
         mMgr.setUserSwitchUiCallback(callback);
@@ -461,17 +466,35 @@ public final class CarUserManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testSetSwitchUserUICallback_nullCallback() throws Exception {
+    public void testSetUserSwitchUiCallback_nullCallback() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> mMgr.setUserSwitchUiCallback(null));
     }
 
     @Test
-    public void testSetSwitchUserUICallback_success() throws Exception {
-        UserHandleSwitchUiCallback callback = (u)-> {};
+    public void testSetUserSwitchUiCallback_nullExecutor() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mMgr.setUserSwitchUiCallback(/* executor= */ null, u -> {}));
+    }
 
-        mMgr.setUserSwitchUiCallback(Runnable::run, callback);
+    @Test
+    public void testSetUserSwitchUiCallback_usesSpecifiedExecutor() throws Exception {
+        int testUserId = 108;
+        CountDownLatch latch = new CountDownLatch(1);
+        Executor executor = command -> {
+            latch.countDown();
+            command.run();
+        };
+        UserHandleSwitchUiCallback mockCallback = mock(UserHandleSwitchUiCallback.class);
+        ArgumentCaptor<ICarResultReceiver> captor =
+                ArgumentCaptor.forClass(ICarResultReceiver.class);
 
-        verify(mService).setUserSwitchUiCallback(any());
+        mMgr.setUserSwitchUiCallback(executor, mockCallback);
+
+        verify(mService).setUserSwitchUiCallback(captor.capture());
+        captor.getValue().send(testUserId, /* unused= */ null);
+
+        latch.await();  // Ensures that the executor was run.
+        verify(mockCallback).onUserSwitchStart(UserHandle.of(testUserId));
     }
 
     @Test
