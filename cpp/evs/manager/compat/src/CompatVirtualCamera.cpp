@@ -765,11 +765,43 @@ ScopedAStatus CompatVirtualCamera::importExternalBuffers(
 }
 
 ScopedAStatus CompatVirtualCamera::pauseVideoStream() {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    std::lock_guard lock(mMutex);
+    if (mStreamState != RUNNING) {
+        LOG(DEBUG) << "Stream is not running, ignoring pause request.";
+        return ScopedAStatus::ok();
+    }
+
+    for (auto&& [_, hal_camera_weak] : mHalCameras) {
+        if (auto hal_camera = hal_camera_weak.lock()) {
+            ScopedAStatus status = hal_camera->pauseStream();
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to pause stream for " << hal_camera->getId();
+                return status;
+            }
+        }
+    }
+
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::resumeVideoStream() {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    std::lock_guard lock(mMutex);
+    if (mStreamState != RUNNING) {
+        LOG(DEBUG) << "Stream is not paused, ignoring resume request.";
+        return ScopedAStatus::ok();
+    }
+
+    for (auto&& [_, hal_camera_weak] : mHalCameras) {
+        if (auto hal_camera = hal_camera_weak.lock()) {
+            ScopedAStatus status = hal_camera->resumeStream();
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to resume stream for " << hal_camera->getId();
+                return status;
+            }
+        }
+    }
+
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::setExtendedInfo(

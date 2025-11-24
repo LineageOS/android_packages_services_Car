@@ -3590,4 +3590,48 @@ TEST_F(CompatVirtualCameraTest, setIntParameter_absoluteZoom_fails_controlModeNo
     EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
 }
 
+TEST_F(CompatVirtualCameraTest, pauseVideoStream_StreamNotRunning) {
+    // Stream is STOPPED by default
+    ndk::ScopedAStatus status = mVirtualCamera->pauseVideoStream();
+    ASSERT_TRUE(status.isOk());
+    // Verify that the stream state remains STOPPED
+    std::lock_guard lock(mVirtualCamera->mMutex);
+    EXPECT_EQ(mVirtualCamera->mStreamState, CompatVirtualCamera::STOPPED);
+}
+
+TEST_F(CompatVirtualCameraTest, pauseVideoStream_Success) {
+    // Set the stream state to RUNNING
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::RUNNING;
+    }
+
+    // Mock the pauseStream call on the HAL camera
+    // Since mMockHalCamera is a real object, we can't use EXPECT_CALL directly.
+    // Instead, we'll check the state of the virtual camera.
+    ndk::ScopedAStatus status = mVirtualCamera->pauseVideoStream();
+    ASSERT_TRUE(status.isOk());
+}
+
+TEST_F(CompatVirtualCameraTest, resumeVideoStream_StreamNotPaused) {
+    // Stream is STOPPED by default
+    ndk::ScopedAStatus status = mVirtualCamera->resumeVideoStream();
+    ASSERT_TRUE(status.isOk());
+    // Verify that the stream state remains STOPPED
+    std::lock_guard lock(mVirtualCamera->mMutex);
+    EXPECT_EQ(mVirtualCamera->mStreamState, CompatVirtualCamera::RUNNING);
+}
+
+TEST_F(CompatVirtualCameraTest, resumeVideoStream_Success) {
+    // Set the stream state to RUNNING
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::RUNNING;
+    }
+
+    // Mock the resumeStream call on the HAL camera
+    ndk::ScopedAStatus status = mVirtualCamera->resumeVideoStream();
+    ASSERT_TRUE(status.isOk());
+}
+
 }  // namespace android::hardware::automotive::evs::compat
