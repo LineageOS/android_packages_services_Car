@@ -17,7 +17,6 @@
 #pragma once
 
 #include "IoOveruseMonitor.h"
-#include "IoOveruseMonitorWrapper.h"
 #include "ThreadPriorityController.h"
 #include "WatchdogInternalHandlerBase.h"
 #include "WatchdogPerfService.h"
@@ -58,10 +57,10 @@ public:
             const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
             const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
             const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
-            const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper) :
+            const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor) :
           WatchdogInternalHandlerBase(watchdogServiceHelperBase, watchdogPerfService,
-                                      ioOveruseMonitorWrapper),
-          mIoOveruseMonitorWrapper(ioOveruseMonitorWrapper),
+                                      ioOveruseMonitor),
+          mIoOveruseMonitor(ioOveruseMonitor),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
           mThreadPriorityController(std::make_unique<ThreadPriorityController>()) {}
@@ -137,7 +136,7 @@ public:
         WatchdogInternalHandlerBase::terminate();
         mWatchdogProcessService.clear();
         mWatchdogPerfService.clear();
-        mIoOveruseMonitorWrapper.clear();
+        mIoOveruseMonitor.clear();
     }
 
 private:
@@ -155,7 +154,7 @@ private:
             const aidl::android::automotive::watchdog::internal::UserState& userState) override;
     void setThreadPriorityController(std::unique_ptr<ThreadPriorityControllerInterface> controller);
 
-    android::sp<IoOveruseMonitorWrapperInterface> mIoOveruseMonitorWrapper;
+    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
     std::unique_ptr<ThreadPriorityControllerInterface> mThreadPriorityController;

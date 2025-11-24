@@ -167,17 +167,52 @@ void WatchdogPerfService::initInternalLocked() {
     mProcStatCollector->init();
 }
 
+Result<void> WatchdogPerfService::start() {
+    {
+        Mutex::Autolock lock(mMutex);
+        if (mCollectionThread.joinable()) {
+            return Error(INVALID_OPERATION) << "Cannot start " << kServiceName << " more than once";
+        }
+    }
+    return WatchdogPerfServiceBase::start();
+}
+
 bool WatchdogPerfService::isDataProcessorRegisteredLocked() {
     return !mDataProcessors.empty();
 }
 
-void WatchdogPerfService::startFirstCollectionEventLocked() {
-    notifySystemStartUpLocked();
-    mCurrCollectionEvent = EventType::BOOT_TIME_COLLECTION;
-    mBoottimeCollection.lastPollElapsedRealTimeNs = mHandlerLooper->now();
-    mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
-    mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
-                                EventType::BOOT_TIME_COLLECTION);
+void WatchdogPerfService::startCollectionLocked() {
+    mCollectionThread = std::thread([&]() {
+        {
+            Mutex::Autolock lock(mMutex);
+            if (EventType expected = EventType::INIT; mCurrCollectionEvent != expected) {
+                ALOGE("Skipping performance data collection as the current collection event "
+                      "%s != %s",
+                      toString(mCurrCollectionEvent), toString(expected));
+                return;
+            }
+            notifySystemStartUpLocked();
+            mCurrCollectionEvent = EventType::BOOT_TIME_COLLECTION;
+            mBoottimeCollection.lastPollElapsedRealTimeNs = mHandlerLooper->now();
+            mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
+            mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
+                                        EventType::BOOT_TIME_COLLECTION);
+        }
+        if (int result = pthread_setname_np(pthread_self(), "WatchdogPerfSvc"); result != 0) {
+            ALOGE("Failed to set %s thread name: %d", kServiceName, result);
+        }
+        pollLooper();
+    });
+}
+
+void WatchdogPerfService::terminate() {
+    WatchdogPerfServiceBase::terminate();
+    if (mCollectionThread.joinable()) {
+        mCollectionThread.join();
+        if (DEBUG) {
+            ALOGD("%s collection thread terminated", kServiceName);
+        }
+    }
 }
 
 void WatchdogPerfService::onDataProcessorTerminateLocked() {

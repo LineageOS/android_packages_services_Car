@@ -35,9 +35,9 @@ using ::android::base::Error;
 using ::android::base::Result;
 using ::ndk::SharedRefBase;
 
-Result<void> IoServiceManager::startServices() {
+Result<void> IoServiceManager::startServices(const sp<LooperWrapper>& mainLooper) {
     if (mWatchdogBinderMediatorBase != nullptr || mWatchdogServiceHelperBase != nullptr ||
-        mIoOveruseMonitor != nullptr || mWatchdogPerfServiceBase != nullptr) {
+        mIoOveruseMonitorBase != nullptr || mWatchdogPerfServiceBase != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
     /*
@@ -56,11 +56,13 @@ Result<void> IoServiceManager::startServices() {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
 
-    mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mWatchdogServiceHelperBase, packageInfoResolver);
+    mIoOveruseMonitorBase =
+            sp<IoOveruseMonitorBase>::make(mWatchdogServiceHelperBase, packageInfoResolver);
     mWatchdogPerfServiceBase =
-            sp<WatchdogPerfServiceBase>::make(mWatchdogServiceHelperBase, packageInfoResolver);
+            sp<WatchdogPerfServiceBase>::make(mainLooper, mWatchdogServiceHelperBase,
+                                              packageInfoResolver);
     mWatchdogPerfServiceBase->init();
-    mWatchdogPerfServiceBase->registerIoOveruseMonitor(mIoOveruseMonitor);
+    mWatchdogPerfServiceBase->registerIoOveruseMonitorBase(mIoOveruseMonitorBase);
     if (auto result = mWatchdogPerfServiceBase->start(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to start watchdog performance service: " << result.error();
@@ -69,7 +71,7 @@ Result<void> IoServiceManager::startServices() {
     mWatchdogBinderMediatorBase =
             SharedRefBase::make<WatchdogBinderMediatorBase>(mWatchdogPerfServiceBase,
                                                             mWatchdogServiceHelperBase,
-                                                            mIoOveruseMonitor);
+                                                            mIoOveruseMonitorBase);
     if (auto result = mWatchdogBinderMediatorBase->init(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to initialize watchdog binder mediator: " << result.error();
@@ -77,8 +79,12 @@ Result<void> IoServiceManager::startServices() {
     return {};
 }
 
+void IoServiceManager::pollLooper() {
+    mWatchdogPerfServiceBase->pollLooper();
+}
+
 void IoServiceManager::terminateService() {
-    mIoOveruseMonitor.clear();
+    mIoOveruseMonitorBase.clear();
     if (mWatchdogBinderMediatorBase != nullptr) {
         mWatchdogBinderMediatorBase->terminate();
         mWatchdogBinderMediatorBase.reset();

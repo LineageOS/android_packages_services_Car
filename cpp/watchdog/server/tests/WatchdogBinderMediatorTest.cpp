@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "MockIoOveruseMonitorWrapper.h"
+#include "MockIoOveruseMonitor.h"
 #include "MockResourceOveruseListener.h"
 #include "MockWatchdogInternalHandler.h"
 #include "MockWatchdogPerfService.h"
@@ -94,12 +94,12 @@ protected:
     virtual void SetUp() {
         mMockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
         mMockWatchdogPerfService = sp<MockWatchdogPerfService>::make();
-        mMockIoOveruseMonitorWrapper = sp<MockIoOveruseMonitorWrapper>::make();
+        mMockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
         mWatchdogBinderMediator =
                 SharedRefBase::make<WatchdogBinderMediator>(mMockWatchdogProcessService,
                                                             mMockWatchdogPerfService,
                                                             sp<MockWatchdogServiceHelper>::make(),
-                                                            mMockIoOveruseMonitorWrapper,
+                                                            mMockIoOveruseMonitor,
                                                             kAddServiceFunctionStub);
         mMockWatchdogInternalHandler = SharedRefBase::make<MockWatchdogInternalHandler>();
         internal::WatchdogBinderMediatorPeer peer(mWatchdogBinderMediator.get());
@@ -109,13 +109,13 @@ protected:
     virtual void TearDown() {
         mMockWatchdogProcessService.clear();
         mMockWatchdogPerfService.clear();
-        mMockIoOveruseMonitorWrapper.clear();
+        mMockIoOveruseMonitor.clear();
         mWatchdogBinderMediator.reset();
     }
 
     sp<MockWatchdogProcessService> mMockWatchdogProcessService;
     sp<MockWatchdogPerfService> mMockWatchdogPerfService;
-    sp<MockIoOveruseMonitorWrapper> mMockIoOveruseMonitorWrapper;
+    sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
     std::shared_ptr<MockWatchdogInternalHandler> mMockWatchdogInternalHandler;
     std::shared_ptr<WatchdogBinderMediator> mWatchdogBinderMediator;
 };
@@ -125,7 +125,7 @@ TEST_F(WatchdogBinderMediatorTest, TestInit) {
             SharedRefBase::make<WatchdogBinderMediator>(sp<MockWatchdogProcessService>::make(),
                                                         sp<MockWatchdogPerfService>::make(),
                                                         sp<MockWatchdogServiceHelper>::make(),
-                                                        sp<MockIoOveruseMonitorWrapper>::make(),
+                                                        sp<MockIoOveruseMonitor>::make(),
                                                         kAddServiceFunctionStub);
 
     ASSERT_RESULT_OK(mediator->init());
@@ -138,11 +138,11 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
     auto mockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
     auto mockWatchdogPerfservice = sp<MockWatchdogPerfService>::make();
     auto mockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
-    auto mockIoOveruseMonitorWrapper = sp<MockIoOveruseMonitorWrapper>::make();
+    auto mockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
     std::shared_ptr<WatchdogBinderMediator> mediator =
             SharedRefBase::make<WatchdogBinderMediator>(nullptr, mockWatchdogPerfservice,
                                                         mockWatchdogServiceHelper,
-                                                        mockIoOveruseMonitorWrapper,
+                                                        mockIoOveruseMonitor,
                                                         kAddServiceFunctionStub);
 
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog process service";
@@ -150,7 +150,7 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
 
     mediator = SharedRefBase::make<WatchdogBinderMediator>(mockWatchdogProcessService,
                                                            mockWatchdogPerfservice, nullptr,
-                                                           mockIoOveruseMonitorWrapper,
+                                                           mockIoOveruseMonitor,
                                                            kAddServiceFunctionStub);
 
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on null watchdog "
@@ -163,8 +163,7 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
                                                            mockWatchdogServiceHelper, nullptr,
                                                            kAddServiceFunctionStub);
 
-    EXPECT_FALSE(mediator->init().ok())
-            << "No error returned on nullptr I/O overuse monitor wrapper";
+    EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr I/O overuse monitor";
     mediator.reset();
 
     mediator = SharedRefBase::make<WatchdogBinderMediator>(nullptr, nullptr, nullptr, nullptr,
@@ -219,7 +218,7 @@ TEST_F(WatchdogBinderMediatorTest, TestAddResourceOveruseListener) {
     std::shared_ptr<IResourceOveruseListener> listener =
             SharedRefBase::make<MockResourceOveruseListener>();
 
-    EXPECT_CALL(*mMockIoOveruseMonitorWrapper, addIoOveruseListener(listener))
+    EXPECT_CALL(*mMockIoOveruseMonitor, addIoOveruseListener(listener))
             .WillOnce(Return(Result<void>{}));
 
     auto status = mWatchdogBinderMediator->addResourceOveruseListener({ResourceType::IO}, listener);
@@ -230,7 +229,7 @@ TEST_F(WatchdogBinderMediatorTest, TestAddResourceOveruseListener) {
 TEST_F(WatchdogBinderMediatorTest, TestErrorsAddResourceOveruseListenerOnInvalidArgs) {
     std::shared_ptr<IResourceOveruseListener> listener =
             SharedRefBase::make<MockResourceOveruseListener>();
-    EXPECT_CALL(*mMockIoOveruseMonitorWrapper, addIoOveruseListener(listener)).Times(0);
+    EXPECT_CALL(*mMockIoOveruseMonitor, addIoOveruseListener(listener)).Times(0);
 
     ASSERT_FALSE(mWatchdogBinderMediator->addResourceOveruseListener({}, listener).isOk())
             << "Should fail on empty resource types";
@@ -244,7 +243,7 @@ TEST_F(WatchdogBinderMediatorTest, TestRemoveResourceOveruseListener) {
     std::shared_ptr<IResourceOveruseListener> listener =
             SharedRefBase::make<MockResourceOveruseListener>();
 
-    EXPECT_CALL(*mMockIoOveruseMonitorWrapper, removeIoOveruseListener(listener))
+    EXPECT_CALL(*mMockIoOveruseMonitor, removeIoOveruseListener(listener))
             .WillOnce(Return(Result<void>{}));
 
     auto status = mWatchdogBinderMediator->removeResourceOveruseListener(listener);
@@ -263,7 +262,7 @@ TEST_F(WatchdogBinderMediatorTest, TestGetResourceOveruseStats) {
     stats.set<ResourceOveruseStats::ioOveruseStats>(ioOveruseStats);
     expected.emplace_back(std::move(stats));
 
-    EXPECT_CALL(*mMockIoOveruseMonitorWrapper, getIoOveruseStats(_))
+    EXPECT_CALL(*mMockIoOveruseMonitor, getIoOveruseStats(_))
             .WillOnce(DoAll(SetArgPointee<0>(ioOveruseStats), Return(Result<void>{})));
 
     std::vector<ResourceOveruseStats> actual;
@@ -275,7 +274,7 @@ TEST_F(WatchdogBinderMediatorTest, TestGetResourceOveruseStats) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorsGetResourceOveruseStatsOnInvalidArgs) {
-    EXPECT_CALL(*mMockIoOveruseMonitorWrapper, getIoOveruseStats(_)).Times(0);
+    EXPECT_CALL(*mMockIoOveruseMonitor, getIoOveruseStats(_)).Times(0);
 
     std::vector<ResourceOveruseStats> actual;
     ASSERT_FALSE(mWatchdogBinderMediator->getResourceOveruseStats({}, &actual).isOk())

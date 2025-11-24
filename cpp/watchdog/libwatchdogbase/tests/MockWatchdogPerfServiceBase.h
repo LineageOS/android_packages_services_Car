@@ -30,8 +30,8 @@ class MockWatchdogPerfServiceBase : public WatchdogPerfServiceBaseInterface {
 public:
     MockWatchdogPerfServiceBase() {}
     ~MockWatchdogPerfServiceBase() {}
-    MOCK_METHOD(android::base::Result<void>, registerIoOveruseMonitor,
-                (android::sp<IoOveruseMonitorInterface>), (override));
+    MOCK_METHOD(android::base::Result<void>, registerIoOveruseMonitorBase,
+                (android::sp<IoOveruseMonitorBaseInterface>), (override));
     MOCK_METHOD(void, init, (), (override));
     MOCK_METHOD(android::base::Result<void>, start, (), (override));
     MOCK_METHOD(void, terminate, (), (override));
@@ -41,6 +41,7 @@ public:
                 (override));
     MOCK_METHOD(android::base::Result<void>, onDump, (int), (const, override));
     MOCK_METHOD(bool, dumpHelpText, (int fd), (const, override));
+    MOCK_METHOD(void, pollLooper, (), (override));
     MOCK_METHOD(void, handleMessage, (const Message&), (override));
 };
 

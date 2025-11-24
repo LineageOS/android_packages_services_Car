@@ -118,12 +118,12 @@ status_t WatchdogInternalHandler::dumpProto(int fd) {
 }
 
 void WatchdogInternalHandler::checkAndRegisterIoOveruseMonitor() {
-    if (mIoOveruseMonitorWrapper->isInitialized()) {
+    if (mIoOveruseMonitor->isInitialized()) {
         return;
     }
-    if (const auto result = mWatchdogPerfService->registerDataProcessor(mIoOveruseMonitorWrapper);
+    if (const auto result = mWatchdogPerfService->registerDataProcessor(mIoOveruseMonitor);
         !result.ok()) {
-        ALOGE("Failed to register I/O overuse monitor wrapper to watchdog performance service: %s",
+        ALOGE("Failed to register I/O overuse monitor to watchdog performance service: %s",
               result.error().message().c_str());
     }
     return;

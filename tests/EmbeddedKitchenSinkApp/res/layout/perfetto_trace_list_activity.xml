@@ -19,20 +19,85 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/title"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/perfetto_trace_list_activity_title"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:gravity="center"
-        android:padding="16dp"/>
+        android:gravity="center_vertical">
 
-    <Button
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/perfetto_trace_list_activity_title"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:gravity="center"
+            android:padding="16dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/warning_banner"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Back"/>
+        android:background="@android:color/holo_red_light"
+        android:textColor="@android:color/white"
+        android:padding="8dp"
+        android:gravity="center"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/disk_usage_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"/>
+
+    <TextView
+        android:id="@+id/retention_period_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/perfetto_trace_list_activity_column_name"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/perfetto_trace_list_activity_column_collected_date"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/perfetto_trace_list_activity_column_size"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/perfetto_trace_list_activity_column_expiry"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+    </LinearLayout>
 
     <ListView
         android:id="@+id/trace_list"

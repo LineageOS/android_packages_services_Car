@@ -147,7 +147,7 @@ cc_library {
     ],
     srcs: [
         "src/IoOveruseConfigs.cpp",
-        "src/IoOveruseMonitor.cpp",
+        "src/IoOveruseMonitorBase.cpp",
         "src/OveruseConfigurationXmlHelper.cpp",
         "src/ProcDiskStatsCollector.cpp",
         "src/WatchdogPerfServiceBase.cpp",
@@ -214,7 +214,7 @@ cc_test {
         "tests/PackageInfoResolverTest.cpp",
     ],
     tidy_timeout_srcs: [
-        "tests/IoOveruseMonitorTest.cpp",
+        "tests/IoOveruseMonitorBaseTest.cpp",
     ],
     test_suites: [
         "general-tests",
@@ -222,7 +222,7 @@ cc_test {
     ],
     srcs: [
         "tests/IoOveruseConfigsTest.cpp",
-        "tests/IoOveruseMonitorTest.cpp",
+        "tests/IoOveruseMonitorBaseTest.cpp",
         "tests/OveruseConfigurationTestUtils.cpp",
         "tests/OveruseConfigurationXmlHelperTest.cpp",
         "tests/PackageInfoResolverTest.cpp",

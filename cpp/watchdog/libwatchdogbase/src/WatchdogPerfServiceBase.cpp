@@ -30,8 +30,6 @@
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
 
-#include <pthread.h>
-
 #include <iterator>
 #include <vector>
 
@@ -143,18 +141,18 @@ std::string WatchdogPerfServiceBase::EventMetadata::toString() const {
     return buffer;
 }
 
-Result<void> WatchdogPerfServiceBase::registerIoOveruseMonitor(
-        sp<IoOveruseMonitorInterface> ioOveruseMonitor) {
-    if (ioOveruseMonitor == nullptr) {
-        return Error() << "Must provide a non-null IoOveruseMonitor";
+Result<void> WatchdogPerfServiceBase::registerIoOveruseMonitorBase(
+        sp<IoOveruseMonitorBaseInterface> ioOveruseMonitorBase) {
+    if (ioOveruseMonitorBase == nullptr) {
+        return Error() << "Must provide a non-null IoOveruseMonitorBase";
     }
-    if (const auto result = ioOveruseMonitor->init(); !result.ok()) {
-        return Error() << "Failed to initialize IoOveruseMonitor";
+    if (const auto result = ioOveruseMonitorBase->init(); !result.ok()) {
+        return Error() << "Failed to initialize IoOveruseMonitorBase";
     }
     Mutex::Autolock lock(mMutex);
-    mIoOveruseMonitor = ioOveruseMonitor;
+    mIoOveruseMonitorBase = ioOveruseMonitorBase;
     if (DEBUG) {
-        ALOGD("Successfully registered IoOveruseMonitor to %s", kServiceName);
+        ALOGD("Successfully registered IoOveruseMonitorBase to %s", kServiceName);
     }
     return {};
 }
@@ -187,7 +185,7 @@ void WatchdogPerfServiceBase::initInternalLocked() {
 
 Result<void> WatchdogPerfServiceBase::start() {
     Mutex::Autolock lock(mMutex);
-    if (mCurrCollectionEvent != EventType::INIT || mCollectionThread.joinable()) {
+    if (mCurrCollectionEvent != EventType::INIT) {
         return Error(INVALID_OPERATION) << "Cannot start " << kServiceName << " more than once";
     }
     if (mWatchdogServiceHelperBase == nullptr) {
@@ -198,45 +196,39 @@ Result<void> WatchdogPerfServiceBase::start() {
         mCurrCollectionEvent = EventType::TERMINATED;
         return Error() << "No data processor is registered";
     }
-    mCollectionThread = std::thread([&]() {
-        {
-            Mutex::Autolock lock(mMutex);
-            if (EventType expected = EventType::INIT; mCurrCollectionEvent != expected) {
-                ALOGE("Skipping performance data collection as the current collection event "
-                      "%s != %s",
-                      toString(mCurrCollectionEvent), toString(expected));
-                return;
-            }
-            startFirstCollectionEventLocked();
-        }
-        if (set_sched_policy(0, SP_BACKGROUND) != 0) {
-            ALOGW("Failed to set background scheduling priority to %s thread", kServiceName);
-        }
-        if (int result = pthread_setname_np(pthread_self(), "WatchdogPerfSvc"); result != 0) {
-            ALOGE("Failed to set %s thread name: %d", kServiceName, result);
-        }
-        ALOGI("Starting %s performance data collection", toString(mCurrCollectionEvent));
-        bool isCollectionActive = true;
-        /*
-         * Loop until the collection is not active -- performance collection runs on this thread in
-         * a handler.
-         */
-        while (isCollectionActive) {
-            mHandlerLooper->pollAll(/*timeoutMillis=*/-1);
-            Mutex::Autolock lock(mMutex);
-            isCollectionActive = mCurrCollectionEvent != EventType::TERMINATED;
-        }
-    });
+    startCollectionLocked();
     return {};
 }
 
 bool WatchdogPerfServiceBase::isDataProcessorRegisteredLocked() {
-    return mIoOveruseMonitor != nullptr;
+    return mIoOveruseMonitorBase != nullptr;
 }
 
-void WatchdogPerfServiceBase::startFirstCollectionEventLocked() {
-    mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
+void WatchdogPerfServiceBase::startCollectionLocked() {
+    if (EventType expected = EventType::INIT; mCurrCollectionEvent != expected) {
+        ALOGE("Skipping performance data collection as the current collection event "
+              "%s != %s",
+              toString(mCurrCollectionEvent), toString(expected));
+        return;
+    }
     switchToPeriodicLocked(/*startNow=*/true);
+}
+
+void WatchdogPerfServiceBase::pollLooper() {
+    if (set_sched_policy(0, SP_BACKGROUND) != 0) {
+        ALOGW("Failed to set background scheduling priority to %s thread", kServiceName);
+    }
+    ALOGI("Starting %s performance data collection", toString(mCurrCollectionEvent));
+    bool isCollectionActive = true;
+    /*
+     * Loop until the collection is not active -- performance collection runs on this thread in
+     * a handler.
+     */
+    while (isCollectionActive) {
+        mHandlerLooper->pollAll(/*timeoutMillis=*/-1);
+        Mutex::Autolock lock(mMutex);
+        isCollectionActive = mCurrCollectionEvent != EventType::TERMINATED;
+    }
 }
 
 void WatchdogPerfServiceBase::terminate() {
@@ -260,16 +252,12 @@ void WatchdogPerfServiceBase::terminate() {
         mCurrCollectionEvent = EventType::TERMINATED;
         mUnsentResourceStats.clear();
     }
-    if (mCollectionThread.joinable()) {
-        mCollectionThread.join();
-        if (DEBUG) {
-            ALOGD("%s collection thread terminated", kServiceName);
-        }
-    }
 }
 
 void WatchdogPerfServiceBase::onDataProcessorTerminateLocked() {
-    mIoOveruseMonitor->terminate();
+    if (mIoOveruseMonitorBase != nullptr) {
+        mIoOveruseMonitorBase->terminate();
+    }
 }
 
 void WatchdogPerfServiceBase::setSystemState(SystemState systemState) {
@@ -292,7 +280,7 @@ void WatchdogPerfServiceBase::onCarWatchdogServiceRegistered() {
 }
 
 void WatchdogPerfServiceBase::onDataProcessorCarWatchdogServiceRegisteredLocked() {
-    mIoOveruseMonitor->onCarWatchdogServiceRegistered();
+    mIoOveruseMonitorBase->onCarWatchdogServiceRegistered();
 }
 
 Result<void> WatchdogPerfServiceBase::onCustomCollection(int fd, const char** args,
@@ -550,8 +538,9 @@ void WatchdogPerfServiceBase::handleMessage(const Message& message) {
         Mutex::Autolock lock(mMutex);
         ALOGE("Terminating %s: %s", kServiceName, result.error().message().c_str());
         /*
-         * DO NOT CALL terminate() as it tries to join the collection thread but this code is
-         * executed on the collection thread. Thus it will result in a deadlock.
+         * DO NOT CALL terminate() as it tries to join the collection thread but in the
+         * derived implementation this code is executed on the collection thread. Thus
+         * it will result in a deadlock.
          */
         mCurrCollectionEvent = EventType::TERMINATED;
         mHandlerLooper->removeMessages(sp<WatchdogPerfServiceBase>::fromExisting(this));
@@ -620,17 +609,17 @@ Result<void> WatchdogPerfServiceBase::collectLocked(
     switch (mCurrCollectionEvent) {
         case EventType::PERIODIC_COLLECTION:
         case EventType::CUSTOM_COLLECTION:
-            result =
-                    mIoOveruseMonitor->onPeriodicCollection(now,
-                                                            mSystemState ==
-                                                                    SystemState::GARAGE_MODE,
-                                                            mUidStatsCollectorBase, &resourceStats);
+            result = mIoOveruseMonitorBase->onPeriodicCollection(now,
+                                                                 mSystemState ==
+                                                                         SystemState::GARAGE_MODE,
+                                                                 mUidStatsCollectorBase,
+                                                                 &resourceStats);
             break;
         default:
             result = Error() << "Invalid collection event " << toString(mCurrCollectionEvent);
     }
     if (!result.ok()) {
-        return Error() << "IoOveruseMonitor failed on " << toString(mCurrCollectionEvent)
+        return Error() << "IoOveruseMonitorBase failed on " << toString(mCurrCollectionEvent)
                        << " collection: " << result.error();
     }
 
@@ -727,10 +716,10 @@ Result<void> WatchdogPerfServiceBase::processMonitorEvent(
 
 Result<void> WatchdogPerfServiceBase::onDataProcessorPeriodicMonitorLocked(
         time_t now, const std::function<void()>& requestCollection, const char* eventTypeString) {
-    if (const auto result = mIoOveruseMonitor->onPeriodicMonitor(now, mProcDiskStatsCollector,
-                                                                 requestCollection);
+    if (const auto result = mIoOveruseMonitorBase->onPeriodicMonitor(now, mProcDiskStatsCollector,
+                                                                     requestCollection);
         !result.ok()) {
-        return Error() << "IoOveruseMonitor failed on " << eventTypeString << ": "
+        return Error() << "IoOveruseMonitorBase failed on " << eventTypeString << ": "
                        << result.error();
     }
     return {};

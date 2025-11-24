@@ -26,4 +26,7 @@ android_app {
     static_libs: [
         "car-portrait-ui-common",
     ],
+    dex_preopt: {
+        enabled: false,
+    },
 }

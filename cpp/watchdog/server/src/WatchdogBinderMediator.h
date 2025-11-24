@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "IoOveruseMonitorWrapper.h"
+#include "IoOveruseMonitor.h"
 #include "WatchdogBinderMediatorBase.h"
 #include "WatchdogInternalHandler.h"
 #include "WatchdogPerfService.h"
@@ -65,7 +65,7 @@ public:
             const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
             const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
             const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-            const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper,
+            const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
             const std::function<android::base::Result<void>(const char*, ndk::ICInterface*, bool,
                                                             int)>& addServiceHandler = nullptr);
     ~WatchdogBinderMediator() { terminate(); }

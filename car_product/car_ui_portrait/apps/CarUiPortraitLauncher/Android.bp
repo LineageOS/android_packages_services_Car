@@ -35,7 +35,6 @@ android_library {
         "WindowManager-Shell",
         "car-media-common-no-overlayable",
         "oem-token-lib",
-        "CarUiPortraitService",
     ],
 
     libs: [

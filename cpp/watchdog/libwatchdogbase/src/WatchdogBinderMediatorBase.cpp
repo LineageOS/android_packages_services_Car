@@ -85,9 +85,9 @@ Result<void> addToServiceManager(const char* name, ICInterface* service, bool al
 WatchdogBinderMediatorBase::WatchdogBinderMediatorBase(
         const android::sp<WatchdogPerfServiceBaseInterface>& watchdogPerfServiceBase,
         const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
-        const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
+        const android::sp<IoOveruseMonitorBaseInterface>& ioOveruseMonitorBase,
         const AddServiceFunction& addServiceHandler) :
-      mIoOveruseMonitor(ioOveruseMonitor), mAddServiceHandler(addServiceHandler) {
+      mIoOveruseMonitorBase(ioOveruseMonitorBase), mAddServiceHandler(addServiceHandler) {
     if (mAddServiceHandler == nullptr) {
         mAddServiceHandler = &addToServiceManager;
     }
@@ -95,14 +95,14 @@ WatchdogBinderMediatorBase::WatchdogBinderMediatorBase(
         mWatchdogInternalHandler =
                 SharedRefBase::make<WatchdogInternalHandlerBase>(watchdogServiceHelperBase,
                                                                  watchdogPerfServiceBase,
-                                                                 mIoOveruseMonitor);
+                                                                 mIoOveruseMonitorBase);
     }
 }
 
 Result<void> WatchdogBinderMediatorBase::init() {
-    if (mIoOveruseMonitor == nullptr || mWatchdogInternalHandler == nullptr) {
+    if (mIoOveruseMonitorBase == nullptr || mWatchdogInternalHandler == nullptr) {
         std::string serviceList;
-        if (mIoOveruseMonitor == nullptr) {
+        if (mIoOveruseMonitorBase == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "I/O overuse monitor service");
         }
@@ -174,7 +174,7 @@ ScopedAStatus WatchdogBinderMediatorBase::addResourceOveruseListener(
      * When more resource types are added, implement a new module to manage listeners for all
      * resources.
      */
-    if (const auto result = mIoOveruseMonitor->addIoOveruseListener(listener); !result.ok()) {
+    if (const auto result = mIoOveruseMonitorBase->addIoOveruseListener(listener); !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to register resource overuse "
                                             "listener: %s ",
@@ -189,7 +189,8 @@ ScopedAStatus WatchdogBinderMediatorBase::removeResourceOveruseListener(
         return toScopedAStatus(EX_ILLEGAL_ARGUMENT,
                                "Must provide a non-null resource overuse listener");
     }
-    if (const auto result = mIoOveruseMonitor->removeIoOveruseListener(listener); !result.ok()) {
+    if (const auto result = mIoOveruseMonitorBase->removeIoOveruseListener(listener);
+        !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to unregister resource overuse "
                                             "listener: %s",
@@ -210,7 +211,8 @@ ScopedAStatus WatchdogBinderMediatorBase::getResourceOveruseStats(
         return toScopedAStatus(EX_ILLEGAL_ARGUMENT, "Must provide exactly one I/O resource type");
     }
     IoOveruseStats ioOveruseStats;
-    if (const auto result = mIoOveruseMonitor->getIoOveruseStats(&ioOveruseStats); !result.ok()) {
+    if (const auto result = mIoOveruseMonitorBase->getIoOveruseStats(&ioOveruseStats);
+        !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to get resource overuse stats: %s",
                                             result.error().message().c_str()));

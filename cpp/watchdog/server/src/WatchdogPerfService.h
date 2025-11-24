@@ -183,7 +183,8 @@ public:
     WatchdogPerfService(const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
                         const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver,
                         const std::function<int64_t()>& getElapsedTimeSinceBootMsFunc) :
-          WatchdogPerfServiceBase(watchdogServiceHelper, packageInfoResolver),
+          WatchdogPerfServiceBase(android::sp<LooperWrapper>::make(), watchdogServiceHelper,
+                                  packageInfoResolver),
           kGetElapsedTimeSinceBootMillisFunc(std::move(getElapsedTimeSinceBootMsFunc)),
           mPostSystemEventDurationNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
                   std::chrono::seconds(sysprop::postSystemEventDuration().value_or(
@@ -203,8 +204,8 @@ public:
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
           mDataProcessors({}) {}
 
-    android::base::Result<void> registerIoOveruseMonitor(
-            [[maybe_unused]] android::sp<IoOveruseMonitorInterface> ioOveruseMonitor) override {
+    android::base::Result<void> registerIoOveruseMonitorBase(
+            [[maybe_unused]] android::sp<IoOveruseMonitorBaseInterface> ioOveruseMonitor) override {
         // Implemented in registerDataProcessor.
         return android::base::Error() << "This method should only be called from the base"
                                          " class' instance. Use registerDataProcessor in the"
@@ -216,9 +217,9 @@ public:
 
     void init() override { WatchdogPerfServiceBase::init(); }
 
-    android::base::Result<void> start() override { return WatchdogPerfServiceBase::start(); }
+    android::base::Result<void> start() override;
 
-    void terminate() override { WatchdogPerfServiceBase::terminate(); }
+    void terminate() override;
 
     void setSystemState(SystemState systemState) override {
         WatchdogPerfServiceBase::setSystemState(systemState);
@@ -248,6 +249,9 @@ public:
     };
     android::base::Result<void> onDumpProto(
             android::util::ProtoOutputStream& outProto) const override;
+
+    // Polls handler looper.
+    void pollLooper() override { WatchdogPerfServiceBase::pollLooper(); }
 
     bool dumpHelpText(int fd) const override;
 
@@ -293,8 +297,8 @@ private:
     // Check if the data processors were registered.
     bool isDataProcessorRegisteredLocked() override;
 
-    // Start the first collection event in mCollectionThread.
-    void startFirstCollectionEventLocked() override;
+    // Start the collection thread and the first collection event in mCollectionThread.
+    void startCollectionLocked() override;
 
     // Clear any custom collection caches.
     void clearCustomCollectionCacheLocked() override;
@@ -330,6 +334,9 @@ private:
 
     // Timeout duration for user switch collection in case final signal isn't received.
     std::chrono::nanoseconds mUserSwitchTimeoutNs;
+
+    // Thread on which the actual collection happens.
+    std::thread mCollectionThread;
 
     // Tracks the latest collection time since boot in millis.
     int64_t mLastCollectionTimeMillis GUARDED_BY(mMutex);

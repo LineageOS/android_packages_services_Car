@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "IoOveruseMonitor.h"
+#include "IoOveruseMonitorBase.h"
 #include "WatchdogBinderMediatorBase.h"
 #include "WatchdogPerfServiceBase.h"
 #include "WatchdogServiceHelperBase.h"
@@ -34,7 +34,7 @@ namespace watchdog {
 class IoServiceManager : virtual public android::RefBase {
 public:
     IoServiceManager() :
-          mIoOveruseMonitor(nullptr),
+          mIoOveruseMonitorBase(nullptr),
           mWatchdogBinderMediatorBase(nullptr),
           mWatchdogPerfServiceBase(nullptr),
           mWatchdogServiceHelperBase(nullptr) {}
@@ -57,11 +57,14 @@ public:
     }
 
     // Starts early-init services.
-    android::base::Result<void> startServices();
+    android::base::Result<void> startServices(const sp<LooperWrapper>& mainLooper);
 
-    // Returns the IoOveruseMonitor instance.
-    const android::sp<IoOveruseMonitorInterface>& getIoOveruseMonitor() {
-        return mIoOveruseMonitor;
+    // Calls WatchdogPerfServiceBase's pollLooper method.
+    void pollLooper();
+
+    // Returns the IoOveruseMonitorBase instance.
+    const android::sp<IoOveruseMonitorBaseInterface>& getIoOveruseMonitorBase() {
+        return mIoOveruseMonitorBase;
     }
 
     // Returns the WatchdogServiceHelperBase instance.
@@ -74,7 +77,7 @@ private:
 
     void terminateService();
 
-    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
+    android::sp<IoOveruseMonitorBaseInterface> mIoOveruseMonitorBase;
     std::shared_ptr<WatchdogBinderMediatorInterface> mWatchdogBinderMediatorBase;
     android::sp<WatchdogPerfServiceBaseInterface> mWatchdogPerfServiceBase;
     android::sp<WatchdogServiceHelperBaseInterface> mWatchdogServiceHelperBase;

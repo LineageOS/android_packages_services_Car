@@ -110,6 +110,12 @@
      main user is the system user which is always a permanent admin anyway. -->
     <bool name="config_isMainUserPermanentAdmin">false</bool>
 
+    <!-- Whether to automatically create a full Admin user on boot if none currently exists.
+         If false, the system will not automatically create an initial secondary user.
+         On Automotive, this is set to false because the initial user creation is managed by
+         CarService instead. -->
+    <bool name="config_createInitialAdminUserOnHsum">false</bool>
+
     <!-- Whether switch to headless system user is allowed. If allowed,
          headless system user can run in the foreground even though it is not a full user. -->
     <bool name="config_canSwitchToHeadlessSystemUser">true</bool>
