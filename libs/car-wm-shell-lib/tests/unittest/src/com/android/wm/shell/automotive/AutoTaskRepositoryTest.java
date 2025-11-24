@@ -219,7 +219,7 @@ public class AutoTaskRepositoryTest {
 
         mTaskRepository.onTaskAppeared(taskInfo1, surfaceControl1);
 
-        assertThat(mTaskRepository.getTaskStackWithoutRootTask()).hasSize(1);
+        assertThat(mTaskRepository.getAppTasksWithNoRootTaskParent()).hasSize(1);
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isEqualTo(surfaceControl1);
         verify(mCarActivityManager).onTaskAppeared(any(), any());
     }
@@ -232,7 +232,7 @@ public class AutoTaskRepositoryTest {
         mTaskRepository.onTaskAppeared(taskInfo1, surfaceControl1);
         mTaskRepository.onTaskChanged(taskInfo1);
 
-        assertThat(mTaskRepository.getTaskStackWithoutRootTask()).hasSize(1);
+        assertThat(mTaskRepository.getAppTasksWithNoRootTaskParent()).hasSize(1);
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isEqualTo(surfaceControl1);
         verify(mCarActivityManager).onTaskAppeared(any(), any());
         verify(mCarActivityManager).onTaskInfoChanged(any());
@@ -247,7 +247,7 @@ public class AutoTaskRepositoryTest {
         mTaskRepository.onTaskAppeared(mRootTaskStack1, taskInfo1, surfaceControl1);
         mTaskRepository.onTaskVanished(mRootTaskStack1, taskInfo1);
 
-        assertThat(mTaskRepository.getTaskStackWithoutRootTask()).isEmpty();
+        assertThat(mTaskRepository.getAppTasksWithNoRootTaskParent()).isEmpty();
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isNull();
         verify(mCarActivityManager).onTaskAppeared(any(), any());
         verify(mCarActivityManager).onTaskVanished(any());
