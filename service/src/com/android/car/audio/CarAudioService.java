@@ -774,7 +774,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // If the audio server is down prevent from unregistering the audio policy
         // otherwise car audio service may run into a lock contention with the audio server
         // until it fully recovers
-        releaseAudioPoliciesLocked(!isAudioServerDown);
+        if (!isAudioServerDown) {
+            releaseAudioRoutingPolicyLocked();
+            releaseVolumeControlAudioPolicyLocked();
+            releaseFocusControlAudioPolicyLocked();
+            releaseFadeManagerConfigAudioPolicyLocked();
+        }
         releaseAudioPlaybackCallbackLocked();
         // There is an inherent dependency from HAL audio focus (AFH)
         // to audio control HAL (ACH), since AFH holds a reference to ACH
@@ -860,16 +865,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
         mAudioManagerWrapper.unregisterAudioPlaybackCallback(mCarAudioPlaybackCallback);
         mCarAudioPlaybackCallback = null;
-    }
-
-    @GuardedBy("mImplLock")
-    private void releaseAudioPoliciesLocked(boolean unregisterRoutingPolicy) {
-        if (unregisterRoutingPolicy) {
-            releaseAudioRoutingPolicyLocked();
-        }
-        releaseVolumeControlAudioPolicyLocked();
-        releaseFocusControlAudioPolicyLocked();
-        releaseFadeManagerConfigAudioPolicyLocked();
     }
 
     @GuardedBy("mImplLock")
