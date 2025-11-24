@@ -98,6 +98,12 @@ public:
 
     MOCK_METHOD(camera_status_t, ACaptureRequest_setEntry_u8,
                 (ACaptureRequest * request, uint32_t tag, uint32_t count, const uint8_t* data));
+    MOCK_METHOD(camera_status_t, ACaptureRequest_setEntry_i32,
+                (ACaptureRequest * request, uint32_t tag, uint32_t count, const int32_t* data));
+    MOCK_METHOD(camera_status_t, ACaptureRequest_setEntry_i64,
+                (ACaptureRequest * request, uint32_t tag, uint32_t count, const int64_t* data));
+    MOCK_METHOD(camera_status_t, ACaptureRequest_setEntry_float,
+                (ACaptureRequest * request, uint32_t tag, uint32_t count, const float* data));
 
     static void setMockInstance(MockNdkCamera* mock) { sMockInstance = mock; }
 
