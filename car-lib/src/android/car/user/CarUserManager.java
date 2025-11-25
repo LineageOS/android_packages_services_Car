@@ -1099,9 +1099,11 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public void setUserSwitchUiCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull UserHandleSwitchUiCallback callback) {
+        Preconditions.checkArgument(executor != null, "Null executor");
         Preconditions.checkArgument(callback != null, "Null callback");
+
         UserSwitchUiCallbackReceiver userSwitchUiCallbackReceiver =
-                new UserSwitchUiCallbackReceiver(callback);
+                new UserSwitchUiCallbackReceiver(callback, executor);
         try {
             mService.setUserSwitchUiCallback(userSwitchUiCallbackReceiver);
         } catch (RemoteException e) {
@@ -1116,14 +1118,17 @@ public final class CarUserManager extends CarManagerBase {
     private final class UserSwitchUiCallbackReceiver extends ICarResultReceiver.Stub {
 
         private final UserHandleSwitchUiCallback mUserHandleSwitchUiCallback;
+        private final Executor mExecutor;
 
-        UserSwitchUiCallbackReceiver(UserHandleSwitchUiCallback callback) {
+        UserSwitchUiCallbackReceiver(UserHandleSwitchUiCallback callback, Executor executor) {
             mUserHandleSwitchUiCallback = callback;
+            mExecutor = executor;
         }
 
         @Override
         public void send(int userId, Bundle unused) throws RemoteException {
-            mUserHandleSwitchUiCallback.onUserSwitchStart(UserHandle.of(userId));
+            mExecutor.execute(() ->
+                    mUserHandleSwitchUiCallback.onUserSwitchStart(UserHandle.of(userId)));
         }
     }
 
