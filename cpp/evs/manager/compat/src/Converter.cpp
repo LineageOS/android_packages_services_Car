@@ -18,6 +18,7 @@
 
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 #include <aidl/android/hardware/automotive/evs/Stream.h>
+#include <aidl/android/hardware/graphics/common/PixelFormat.h>
 #include <aidlcommonsupport/NativeHandle.h>
 #include <android-base/logging.h>
 #include <android/hardware_buffer.h>
@@ -35,6 +36,7 @@ namespace android::hardware::automotive::evs::compat {
 using aidl::android::hardware::automotive::evs::BufferDesc;
 using aidl::android::hardware::automotive::evs::CameraDesc;
 using aidl::android::hardware::automotive::evs::Stream;
+using aidl::android::hardware::graphics::common::PixelFormat;
 
 namespace {
 std::vector<uint8_t> serializeNdkMetadata(const ACameraMetadata* ndkMetadata) {
@@ -53,6 +55,44 @@ std::vector<uint8_t> serializeNdkMetadata(const ACameraMetadata* ndkMetadata) {
     const uint8_t* data = reinterpret_cast<const uint8_t*>(rawMetadata);
     return std::vector<uint8_t>(data, data + size);
 }
+
+int32_t toAImageFormat(PixelFormat format) {
+    switch (format) {
+        case PixelFormat::RGBA_8888:
+            return AIMAGE_FORMAT_RGBA_8888;
+        case PixelFormat::RGBX_8888:
+            return AIMAGE_FORMAT_RGBX_8888;
+        case PixelFormat::RGB_888:
+            return AIMAGE_FORMAT_RGB_888;
+        case PixelFormat::RGB_565:
+            return AIMAGE_FORMAT_RGB_565;
+        case PixelFormat::RGBA_FP16:
+            return AIMAGE_FORMAT_RGBA_FP16;
+        case PixelFormat::YCBCR_420_888:
+        case PixelFormat::YCRCB_420_SP:
+            return AIMAGE_FORMAT_YUV_420_888;
+        case PixelFormat::RAW16:
+            return AIMAGE_FORMAT_RAW16;
+        case PixelFormat::BLOB:
+            return AIMAGE_FORMAT_JPEG;
+        case PixelFormat::IMPLEMENTATION_DEFINED:
+            return AIMAGE_FORMAT_PRIVATE;
+        case PixelFormat::RAW_OPAQUE:
+            return AIMAGE_FORMAT_RAW_PRIVATE;
+        case PixelFormat::RAW10:
+            return AIMAGE_FORMAT_RAW10;
+        case PixelFormat::RAW12:
+            return AIMAGE_FORMAT_RAW12;
+        case PixelFormat::DEPTH_16:
+            return AIMAGE_FORMAT_DEPTH16;
+        case PixelFormat::Y8:
+            return AIMAGE_FORMAT_Y8;
+        default:
+            LOG(WARNING) << "Unsupported PixelFormat: " << static_cast<int32_t>(format)
+                         << ", defaulting to AIMAGE_FORMAT_RGBA_8888";
+            return AIMAGE_FORMAT_RGBA_8888;
+    }
+}
 }  // namespace
 
 CameraDesc Converter::toCameraDesc(const char* cameraId, const ACameraMetadata* metadata,
@@ -70,8 +110,7 @@ media_status_t Converter::toAImageReader(const Stream& config, int32_t maxImages
         return AMEDIA_ERROR_INVALID_PARAMETER;
     }
 
-    // TODO(b/441577862): Add format conversion from Stream.format to AImageReader format.
-    int32_t format = AIMAGE_FORMAT_RGBA_8888;
+    int32_t format = toAImageFormat(config.format);
 
     media_status_t status =
             AImageReader_newWithUsage(config.width, config.height, format,
