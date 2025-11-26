@@ -38,13 +38,13 @@ import android.window.WindowContainerToken
 import android.window.WindowContainerTransaction
 import android.window.WindowContainerTransaction.HierarchyOp.HIERARCHY_OP_TYPE_SET_LAUNCH_ROOT
 import androidx.test.filters.SmallTest
+import com.android.testing.wm.util.TransitionInfoBuilder
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer
 import com.android.wm.shell.ShellTaskOrganizer
 import com.android.wm.shell.ShellTaskOrganizer.TaskListener
 import com.android.wm.shell.automotive.utility.TestRunningTaskInfoBuilder
 import com.android.wm.shell.automotive.utility.TestShellExecutor
 import com.android.wm.shell.common.ShellExecutor
-import com.android.wm.shell.transition.TransitionInfoBuilder
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
 import com.google.common.truth.Truth.assertThat
