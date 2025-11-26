@@ -50,7 +50,6 @@ java_defaults {
         "androidx.test.ext.junit",
         "androidx.test.rules",
         "android.frameworks.automotive.powerpolicy-V3-java",
-        "android.hardware.automotive.vehicle-V2.0-java",
         "car-service-test-static-lib",
         "car-service-builtin-test-static-lib",
         "com.android.car.test.lib",
