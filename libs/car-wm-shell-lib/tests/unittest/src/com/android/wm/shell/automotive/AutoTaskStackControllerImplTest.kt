@@ -172,6 +172,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         ).thenAnswer {
             listener = it.arguments[1] as ShellTaskOrganizer.TaskListener
             listener!!.onTaskAppeared(taskInfo, leash)
+            return@thenAnswer mock(WindowContainerToken::class.java)
         }
         controller.createRootTaskStack(displayId, name, rootTaskStackListener)
         return Pair(taskInfo, listener!!)
@@ -230,6 +231,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         ).thenAnswer {
             listener = it.arguments[1] as ShellTaskOrganizer.TaskListener
             listener!!.onTaskAppeared(taskInfo, mock(SurfaceControl::class.java))
+            return@thenAnswer mock(WindowContainerToken::class.java)
         }
         val name = ""
 
