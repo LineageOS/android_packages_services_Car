@@ -1092,4 +1092,154 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         // Verify that the result is null, as expected when the transition fails to start.
         assertThat(result).isNull()
     }
+
+    @Test
+    fun onBackPressedOnTaskRoot_nullTaskInfo_throwsException() {
+        // Arrange
+        val (_, taskListener) = setupRootTask(taskId = 1)
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException::class.java) {
+            taskListener.onBackPressedOnTaskRoot(null, false)
+        }
+    }
+
+    @Test
+    fun onBackPressedOnTaskRoot_moveTaskToBackFalse_closesTask() {
+        // Arrange
+        val (rootTask, taskListener) = setupRootTask(taskId = 1)
+        val childTask = TestRunningTaskInfoBuilder()
+            .setTaskId(10)
+            .setParentTaskId(rootTask.taskId)
+            .setToken(mock(WindowContainerToken::class.java))
+            .build()
+        taskListener.onTaskAppeared(childTask, mock(SurfaceControl::class.java))
+
+        // Act
+        taskListener.onBackPressedOnTaskRoot(childTask, false)
+
+        // Assert
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, false)
+        // The implementation calls ActivityManager.getService().removeTask(), which is a static
+        // call and hard to mock. We verify that the move-to-back logic is not triggered.
+        verify(taskOrganizer, never()).applyTransaction(any())
+        verify(rootTaskStackListener, never()).moveRootTaskToBack(anyOrNull())
+    }
+
+    @Test
+    fun onBackPressedOnTaskRoot_moveTaskToBack_noParent_doesNothing() {
+        // Arrange
+        val (_, taskListener) = setupRootTask(taskId = 1)
+        // This task has no parent, parentTaskId is INVALID_TASK_ID (-1) by default
+        val childTask = TestRunningTaskInfoBuilder().setTaskId(10).build()
+
+        // Act
+        taskListener.onBackPressedOnTaskRoot(childTask, true)
+
+        // Assert
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, true)
+        // verify that neither reorder nor moveRootTaskToBack is called
+        verify(taskOrganizer, never()).applyTransaction(any())
+        verify(rootTaskStackListener, never()).moveRootTaskToBack(anyOrNull())
+    }
+
+    @Test
+    fun onBackPressedOnTaskRoot_moveTaskToBack_parentNotFound_delegatesToListener() {
+        // Arrange
+        val (rootTask, taskListener) = setupRootTask(taskId = 1)
+        val childTask = TestRunningTaskInfoBuilder().setTaskId(10).setParentTaskId(999).build()
+        whenever(taskOrganizer.getRunningTasks(displayId))
+            .thenReturn(arrayListOf(rootTask, childTask))
+
+        // Act
+        taskListener.onBackPressedOnTaskRoot(childTask, true)
+
+        // Assert
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, true)
+        verify(taskOrganizer, never()).applyTransaction(any())
+        verify(rootTaskStackListener).moveRootTaskToBack(childTask)
+    }
+
+    @Test
+    fun onBackPressedOnTaskRoot_moveTaskToBack_withOpaqueSibling_reordersTask() {
+        // Arrange
+        val rootTask = TestRunningTaskInfoBuilder()
+            .setTaskId(1)
+            .setToken(mock(WindowContainerToken::class.java))
+            .build()
+        val (_, taskListener) = setupRootTask(taskId = 1, task = rootTask)
+
+        val childTaskToMove = TestRunningTaskInfoBuilder()
+            .setTaskId(10)
+            .setParentTaskId(1)
+            .setToken(mock(WindowContainerToken::class.java))
+            .build()
+        val opaqueSibling = TestRunningTaskInfoBuilder()
+            .setTaskId(11)
+            .setParentTaskId(1)
+            .setActivityStackTransparent(false)
+            .build()
+        whenever(taskOrganizer.getRunningTasks(displayId))
+            .thenReturn(arrayListOf(rootTask, childTaskToMove, opaqueSibling))
+
+        // Act
+        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true)
+
+        // Assert
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true)
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(taskOrganizer).applyTransaction(wctCaptor.capture())
+        val wct = wctCaptor.firstValue
+
+        val expectedWct = WindowContainerTransaction()
+        expectedWct.reorder(rootTask.token, false) // It should be parent's token
+        assertThat(wct.toString()).isEqualTo(expectedWct.toString())
+
+        verify(rootTaskStackListener, never()).moveRootTaskToBack(anyOrNull())
+    }
+
+    @Test
+    fun onBackPressedOnTaskRoot_moveTaskToBack_noOpaqueSibling_delegatesToRootTaskStackListener() {
+        // Arrange
+        val (rootTask, taskListener) = setupRootTask(taskId = 1)
+        val childTaskToMove = TestRunningTaskInfoBuilder()
+            .setTaskId(10)
+            .setParentTaskId(1)
+            .build()
+        whenever(taskOrganizer.getRunningTasks(displayId))
+            .thenReturn(arrayListOf(rootTask, childTaskToMove))
+
+        // Act
+        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true)
+
+        // Assert
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true)
+        verify(rootTaskStackListener).moveRootTaskToBack(childTaskToMove)
+        verify(taskOrganizer, never()).applyTransaction(any())
+    }
+
+    @Test
+    fun onBackPressedOnTaskRoot_moveTaskToBack_withTransparentSibling_movesRootTaskToBack() {
+        // Arrange
+        val (rootTask, taskListener) = setupRootTask(taskId = 1)
+        val childTaskToMove = TestRunningTaskInfoBuilder()
+            .setTaskId(10)
+            .setParentTaskId(1)
+            .build()
+        val transparentSibling = TestRunningTaskInfoBuilder()
+            .setTaskId(11)
+            .setParentTaskId(1)
+            .setActivityStackTransparent(true)
+            .build()
+        whenever(taskOrganizer.getRunningTasks(displayId))
+            .thenReturn(arrayListOf(rootTask, childTaskToMove, transparentSibling))
+
+        // Act
+        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true)
+
+        // Assert
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true)
+        verify(rootTaskStackListener).moveRootTaskToBack(childTaskToMove)
+        verify(taskOrganizer, never()).applyTransaction(any())
+    }
 }
