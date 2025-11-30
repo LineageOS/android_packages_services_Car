@@ -164,8 +164,8 @@
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"خواندن وضعیت چراغ‌های خارجی خودرو."</string>
     <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"کنترل کردن وضعیت محفظه داخل داشبورد خودرو"</string>
     <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"کنترل کردن وضعیت محفظه داخل داشبورد خودرو."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"خواندن زمان خودرو در قالب ساعت یونیکس"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"خواندن زمان خودرو در قالب ساعت یونیکس."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"خواندن زمان مبدأ خودرو"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"خواندن زمان مبدأ خودرو."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"کنترل کردن چراغ‌های خارجی خودرو"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"چراغ‌های خارجی خودرو را کنترل کنید."</string>
     <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"خواندن وضعیت چراغ‌های داخلی خودرو"</string>
