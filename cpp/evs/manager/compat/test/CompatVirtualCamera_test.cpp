@@ -3684,7 +3684,7 @@ TEST_F(CompatVirtualCameraTest, resumeVideoStream_StreamNotPaused) {
     ASSERT_TRUE(status.isOk());
     // Verify that the stream state remains STOPPED
     std::lock_guard lock(mVirtualCamera->mMutex);
-    EXPECT_EQ(mVirtualCamera->mStreamState, CompatVirtualCamera::RUNNING);
+    EXPECT_EQ(mVirtualCamera->mStreamState, CompatVirtualCamera::STOPPED);
 }
 
 TEST_F(CompatVirtualCameraTest, resumeVideoStream_Success) {
