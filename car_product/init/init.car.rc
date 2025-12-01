@@ -2,6 +2,7 @@
 on post-fs-data
     mkdir /data/system/car 0700 system system
     mkdir /data/system/car/watchdog 0700 system system
+    mkdir /data/system/io-watchdog 0700 system system
 
 # Swapon hibernation block device before suspend to disk
 on property:sys.hibernate=1 && property:ro.sys.hibernate_enabled=1 && property:ro.sys.swap_storage_device=*

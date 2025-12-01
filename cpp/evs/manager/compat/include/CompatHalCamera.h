@@ -43,6 +43,25 @@ namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
 #ifdef EVS_COMPAT_TEST
     // Grant access to private members for testing.
+    friend class CompatVirtualCameraTest_setIntParameter_brightness_success_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_gain_success_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoGain_success_on_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoGain_success_off_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoGain_success_on_alternativeMode_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoWhiteBalance_success_on_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoWhiteBalance_success_off_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_whiteBalanceTemperature_success_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_sharpness_success_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoExposure_success_on_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoExposure_success_off_Test;
+    friend class
+            CompatVirtualCameraTest_setIntParameter_autoExposure_success_on_alternativeMode_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_absoluteExposure_success_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoFocus_success_on_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoFocus_success_off_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_autoFocus_success_on_alternativeMode_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_absoluteFocus_success_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_absoluteZoom_success_Test;
     friend class CompatHalCameraTest_ownVirtualCamera_ValidCamera_Test;
     friend class CompatHalCameraTest_disownVirtualCamera_ValidCamera_Test;
     friend class CompatHalCameraTest_disownVirtualCamera_NotOwnedCamera_Test;
@@ -61,6 +80,10 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_clientStreamEnding_ClientStopsWithOthersRunning_Test;
     friend class CompatHalCameraTest_MetadataHandling_Test;
     friend class CompatHalCameraTest_updateRequest_Success_Test;
+    friend class CompatHalCameraTest_pauseStream_StreamNotRunning_Test;
+    friend class CompatHalCameraTest_pauseStream_Success_Test;
+    friend class CompatHalCameraTest_resumeStream_StreamNotPaused_Test;
+    friend class CompatHalCameraTest_resumeStream_Success_Test;
 #endif
 
 public:
@@ -80,6 +103,8 @@ public:
     void disownVirtualCamera(const CompatVirtualCamera* virtualCamera);
     ::ndk::ScopedAStatus clientStreamStarting();
     void clientStreamEnding(const CompatVirtualCamera* virtualCamera);
+    ::ndk::ScopedAStatus pauseStream();
+    ::ndk::ScopedAStatus resumeStream();
     bool tryIsStopped(bool& result) const;
     unsigned getOwnedVirtualCameraCount() const {
         std::lock_guard<std::mutex> lock(mMutex);

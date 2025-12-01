@@ -155,10 +155,12 @@ ScopedAStatus CompatEnumerator::initCameraDescs() {
     std::vector<std::string> cameraIds;
     camera_status_t status = mCameraManager->getCameraIdList(&cameraIds);
     if (status != ACAMERA_OK) {
-        // TODO (b/441577862): implement a conversion from camera_status_t to EvsResult.aidl and
-        // return it here.
-        LOG(ERROR) << "Failed to get camera ID list. Status: " << status;
-        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+        aidlevs::EvsResult evsResult = Converter::toEvsResult(status);
+        std::string errorMessage =
+                "Failed to get camera ID list with camera_status_t: " + std::to_string(status);
+        LOG(ERROR) << errorMessage;
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(static_cast<int32_t>(evsResult),
+                                                                  errorMessage.c_str());
     }
 
     for (const auto& cameraId : cameraIds) {
@@ -185,6 +187,7 @@ ScopedAStatus CompatEnumerator::getCameraList(std::vector<CameraDesc>* _aidl_ret
         return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
     }
 
+    std::unique_lock lock(mLock);
     ScopedAStatus status = initCameraDescs();
     if (!status.isOk()) {
         return status;
@@ -219,8 +222,13 @@ ScopedAStatus CompatEnumerator::getStreamList(const CameraDesc& desc,
     ACameraMetadata* metadata = nullptr;
     camera_status_t status = mCameraManager->getCameraCharacteristics(desc.id.c_str(), &metadata);
     if (status != ACAMERA_OK) {
-        LOG(ERROR) << "Failed to get camera characteristics for " << desc.id;
-        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+        std::string errorMessage = "Failed to get camera characteristics for " + desc.id +
+                " with camera_status_t: " + std::to_string(status);
+        LOG(ERROR) << errorMessage;
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(static_cast<int32_t>(
+                                                                          Converter::toEvsResult(
+                                                                                  status)),
+                                                                  errorMessage.c_str());
     }
 
     // Get available stream configurations
@@ -228,9 +236,14 @@ ScopedAStatus CompatEnumerator::getStreamList(const CameraDesc& desc,
     status = ACameraMetadata_getConstEntry(metadata, ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
                                            &streamConfigs);
     if (status != ACAMERA_OK) {
-        LOG(ERROR) << "Failed to get available stream configurations for " << desc.id;
         ACameraMetadata_free(metadata);
-        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+        std::string errorMessage = "Failed to get available stream configurations for " + desc.id +
+                " with camera_status_t: " + std::to_string(status);
+        LOG(ERROR) << errorMessage;
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(static_cast<int32_t>(
+                                                                          Converter::toEvsResult(
+                                                                                  status)),
+                                                                  errorMessage.c_str());
     }
 
     // Get available minimum frame durations, which is required.
@@ -238,9 +251,14 @@ ScopedAStatus CompatEnumerator::getStreamList(const CameraDesc& desc,
     status = ACameraMetadata_getConstEntry(metadata, ACAMERA_SCALER_AVAILABLE_MIN_FRAME_DURATIONS,
                                            &minFrameDurations);
     if (status != ACAMERA_OK) {
-        LOG(ERROR) << "Failed to get available min frame durations for " << desc.id;
         ACameraMetadata_free(metadata);
-        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+        std::string errorMessage = "Failed to get available min frame durations for " + desc.id +
+                " with camera_status_t: " + std::to_string(status);
+        LOG(ERROR) << errorMessage;
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(static_cast<int32_t>(
+                                                                          Converter::toEvsResult(
+                                                                                  status)),
+                                                                  errorMessage.c_str());
     }
 
     // Pre-process frame durations into a map for efficient lookup
@@ -261,7 +279,12 @@ ScopedAStatus CompatEnumerator::getStreamList(const CameraDesc& desc,
         orientation = orientationEntry.data.i32[0];
     } else {
         LOG(WARNING) << "Failed to get sensor orientation for " << desc.id;
-        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+        std::string errorMessage = "Failed to get sensor orientation for " + desc.id +
+                " with camera_status_t: " + std::to_string(status);
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(static_cast<int32_t>(
+                                                                          Converter::toEvsResult(
+                                                                                  status)),
+                                                                  errorMessage.c_str());
     }
 
     aidlevs::Rotation rotation;
@@ -428,7 +451,6 @@ void CompatEnumerator::removeActiveCamera(const char* cameraId) {
 }
 
 void CompatEnumerator::cleanupOpenedCameras(const std::vector<std::string>& cameraIds) {
-    std::lock_guard lock(mLock);
     for (const auto& idToClose : cameraIds) {
         removeActiveCamera(idToClose.c_str());
     }
@@ -463,11 +485,11 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const St
             if (it == mActiveCameras.end()) {
                 ACameraDevice* device = nullptr;
                 ACameraDevice_StateCallbacks callbacks = {
-                         .context = this,
-                         .onDisconnected = &CompatEnumerator::onDeviceDisconnected,
-                         .onError = &CompatEnumerator::onDeviceError,
-                         .onClientSharedAccessPriorityChanged =
-                                 &CompatEnumerator::onClientSharedAccessPriorityChanged
+                        .context = this,
+                        .onDisconnected = &CompatEnumerator::onDeviceDisconnected,
+                        .onError = &CompatEnumerator::onDeviceError,
+                        .onClientSharedAccessPriorityChanged =
+                                &CompatEnumerator::onClientSharedAccessPriorityChanged
                 };
                 camera_status_t openCameraStatus;
                 // Default to primary client. if camera sharing is not supported.
@@ -601,6 +623,7 @@ ScopedAStatus CompatEnumerator::setCameraGroupMap(const CameraGroupMap& cameraGr
         return ::ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
     }
 
+    std::unique_lock lock(mLock);
     if (mCameraDescs.empty()) {
         ScopedAStatus status = initCameraDescs();
         if (!status.isOk()) {
@@ -647,6 +670,7 @@ ScopedAStatus CompatEnumerator::setCameraGroupMap(const CameraGroupMap& cameraGr
 
 std::unordered_set<std::string> CompatEnumerator::getPhysicalCameraIds(
         const std::string& cameraId) {
+    std::shared_lock lock(mLock);
     if (mCameraGroupMap) {
         auto it = mCameraGroupMap->find(cameraId);
         if (it != mCameraGroupMap->end()) {

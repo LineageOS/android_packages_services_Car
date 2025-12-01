@@ -335,19 +335,7 @@ cc_binary {
     ],
     vintf_fragment_modules: ["carwatchdogd.xml"],
     required: [
-        "legacy_system_resource_overuse_configuration.xml",
-        "legacy_third_party_resource_overuse_configuration.xml",
+        "system_resource_overuse_configuration.xml",
+        "third_party_resource_overuse_configuration.xml",
     ],
-}
-
-prebuilt_etc {
-    name: "legacy_system_resource_overuse_configuration.xml",
-    src: "data/system_resource_overuse_configuration.xml",
-    sub_dir: "automotive/watchdog/",
-}
-
-prebuilt_etc {
-    name: "legacy_third_party_resource_overuse_configuration.xml",
-    src: "data/third_party_resource_overuse_configuration.xml",
-    sub_dir: "automotive/watchdog/",
 }

@@ -6,3 +6,6 @@ type sysfs_fs_lifetime_write, sysfs_type, fs_type;
 
 # /data/system/car
 type system_car_data_file, file_type, data_file_type, core_data_file_type;
+
+# /data/system/io-watchdog
+type system_io_watchdog_data_file, file_type, data_file_type, core_data_file_type;

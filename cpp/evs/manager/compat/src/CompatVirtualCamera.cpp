@@ -17,6 +17,7 @@
 #include "CompatVirtualCamera.h"
 
 #include "CompatHalCamera.h"
+#include "Converter.h"
 #include "Utils.h"
 
 #include <android-base/logging.h>
@@ -206,12 +207,18 @@ ScopedAStatus CompatVirtualCamera::getIntParameter(CameraParam id,
     int32_t value = 0;
     switch (id) {
         case CameraParam::BRIGHTNESS: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AE mode for BRIGHTNESS check.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get AE mode for BRIGHTNESS check with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t aeMode = entry.data.u8[0];
             if (aeMode == ACAMERA_CONTROL_AE_MODE_OFF) {
@@ -220,31 +227,49 @@ ScopedAStatus CompatVirtualCamera::getIntParameter(CameraParam id,
                 return ScopedAStatus::fromServiceSpecificError(
                         static_cast<int>(EvsResult::NOT_SUPPORTED));
             }
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION,
-                                              &entry) != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AE exposure compensation.";
+            status =
+                    ACameraMetadata_getConstEntry(metadata,
+                                                  ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get AE exposure compensation with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             value = entry.data.i32[0];
             break;
         }
         case CameraParam::GAIN: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get CONTROL_MODE for GAIN check.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get CONTROL_MODE for GAIN check with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t controlMode = entry.data.u8[0];
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AE mode for GAIN check.";
+            status = ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get AE mode for GAIN check with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t aeMode = entry.data.u8[0];
             bool manualControl = (controlMode == ACAMERA_CONTROL_MODE_OFF) ||
@@ -255,48 +280,72 @@ ScopedAStatus CompatVirtualCamera::getIntParameter(CameraParam id,
                 return ScopedAStatus::fromServiceSpecificError(
                         static_cast<int>(EvsResult::NOT_SUPPORTED));
             }
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_SENSOR_SENSITIVITY, &entry) !=
-                ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get sensor sensitivity.";
+            status = ACameraMetadata_getConstEntry(metadata, ACAMERA_SENSOR_SENSITIVITY, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get sensor sensitivity with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             value = entry.data.i32[0];
             break;
         }
         case CameraParam::AUTOGAIN:
         case CameraParam::AUTO_EXPOSURE: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AE_MODE for AUTOGAIN / AUTO_EXPOSURE check.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage = "Failed to get AE_MODE for AUTOGAIN / AUTO_EXPOSURE "
+                                           "check with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t aeMode = entry.data.u8[0];
             value = (aeMode == ACAMERA_CONTROL_AE_MODE_OFF) ? 0 : 1;
             break;
         }
         case CameraParam::AUTO_WHITE_BALANCE: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AWB_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AWB_MODE for AUTO_WHITE_BALANCE check.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AWB_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage = "Failed to get AWB_MODE for AUTO_WHITE_BALANCE check "
+                                           "with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t awbMode = entry.data.u8[0];
             value = (awbMode == ACAMERA_CONTROL_AWB_MODE_AUTO) ? 1 : 0;
             break;
         }
         case CameraParam::WHITE_BALANCE_TEMPERATURE: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AWB_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AWB_MODE for WHITE_BALANCE_TEMPERATURE check.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AWB_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get AWB_MODE for WHITE_BALANCE_TEMPERATURE check "
+                        "with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t awbMode = entry.data.u8[0];
             if (awbMode != ACAMERA_CONTROL_AWB_MODE_OFF) {
@@ -305,41 +354,65 @@ ScopedAStatus CompatVirtualCamera::getIntParameter(CameraParam id,
                 return ScopedAStatus::fromServiceSpecificError(
                         static_cast<int>(EvsResult::NOT_SUPPORTED));
             }
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE,
-                                              &entry) != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get color temperature.";
+            status = ACameraMetadata_getConstEntry(metadata,
+                                                   ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE,
+                                                   &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get color temperature with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             value = entry.data.i32[0];
             break;
         }
         case CameraParam::SHARPNESS: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_EDGE_MODE, &entry) != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get edge mode.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_EDGE_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get edge mode with camera_status_t: " + std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             value = static_cast<int32_t>(entry.data.u8[0]);
             break;
         }
         case CameraParam::ABSOLUTE_EXPOSURE: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get CONTROL_MODE for ABSOLUTE_EXPOSURE check.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage = "Failed to get CONTROL_MODE for ABSOLUTE_EXPOSURE check "
+                                           "with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t controlMode = entry.data.u8[0];
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AE mode for ABSOLUTE_EXPOSURE check.";
+            status = ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AE_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get AE mode for ABSOLUTE_EXPOSURE check with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t aeMode = entry.data.u8[0];
             bool manualControl = (controlMode == ACAMERA_CONTROL_MODE_OFF) ||
@@ -351,35 +424,53 @@ ScopedAStatus CompatVirtualCamera::getIntParameter(CameraParam id,
                 return ScopedAStatus::fromServiceSpecificError(
                         static_cast<int>(EvsResult::NOT_SUPPORTED));
             }
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_SENSOR_EXPOSURE_TIME, &entry) !=
-                ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get sensor exposure time.";
+            status = ACameraMetadata_getConstEntry(metadata, ACAMERA_SENSOR_EXPOSURE_TIME, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get sensor exposure time with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             value = static_cast<int32_t>(entry.data.i64[0] / 1000);
             break;
         }
         case CameraParam::AUTO_FOCUS: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AF_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AF_MODE for AUTO_FOCUS check.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AF_MODE, &entry);
+
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get AF_MODE for AUTO_FOCUS check with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t afMode = entry.data.u8[0];
             value = (afMode == ACAMERA_CONTROL_AF_MODE_OFF) ? 0 : 1;
             break;
         }
         case CameraParam::ABSOLUTE_FOCUS: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AF_MODE, &entry)
-                    != ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get AF_MODE for ABSOLUTE_FOCUS check.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_AF_MODE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get AF_MODE for ABSOLUTE_FOCUS check with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             uint8_t afMode = entry.data.u8[0];
             if (afMode != ACAMERA_CONTROL_AF_MODE_OFF) {
@@ -388,23 +479,33 @@ ScopedAStatus CompatVirtualCamera::getIntParameter(CameraParam id,
                 return ScopedAStatus::fromServiceSpecificError(
                         static_cast<int>(EvsResult::NOT_SUPPORTED));
             }
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_LENS_FOCUS_DISTANCE, &entry) !=
-                ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get lens focus distance.";
+            status = ACameraMetadata_getConstEntry(metadata, ACAMERA_LENS_FOCUS_DISTANCE, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get lens focus distance with camera_status_t: " +
+                        std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             value = static_cast<int32_t>(entry.data.f[0] * 100.0f);
             break;
         }
         case CameraParam::ABSOLUTE_ZOOM: {
-            if (ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_ZOOM_RATIO, &entry) !=
-                ACAMERA_OK) {
-                LOG(ERROR) << "Failed to get zoom ratio.";
+            camera_status_t status =
+                    ACameraMetadata_getConstEntry(metadata, ACAMERA_CONTROL_ZOOM_RATIO, &entry);
+            if (status != ACAMERA_OK) {
                 ACameraMetadata_free(metadata);
-                return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                std::string errorMessage =
+                        "Failed to get zoom ratio with camera_status_t: " + std::to_string(status);
+                LOG(ERROR) << errorMessage;
+                return ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(static_cast<int>(
+                                                                    Converter::toEvsResult(status)),
+                                                            errorMessage.c_str());
             }
             value = static_cast<int32_t>(entry.data.f[0] * 100.0f);
             break;
@@ -765,11 +866,43 @@ ScopedAStatus CompatVirtualCamera::importExternalBuffers(
 }
 
 ScopedAStatus CompatVirtualCamera::pauseVideoStream() {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    std::lock_guard lock(mMutex);
+    if (mStreamState != RUNNING) {
+        LOG(DEBUG) << "Stream is not running, ignoring pause request.";
+        return ScopedAStatus::ok();
+    }
+
+    for (auto&& [_, hal_camera_weak] : mHalCameras) {
+        if (auto hal_camera = hal_camera_weak.lock()) {
+            ScopedAStatus status = hal_camera->pauseStream();
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to pause stream for " << hal_camera->getId();
+                return status;
+            }
+        }
+    }
+
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::resumeVideoStream() {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    std::lock_guard lock(mMutex);
+    if (mStreamState != RUNNING) {
+        LOG(DEBUG) << "Stream is not paused, ignoring resume request.";
+        return ScopedAStatus::ok();
+    }
+
+    for (auto&& [_, hal_camera_weak] : mHalCameras) {
+        if (auto hal_camera = hal_camera_weak.lock()) {
+            ScopedAStatus status = hal_camera->resumeStream();
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to resume stream for " << hal_camera->getId();
+                return status;
+            }
+        }
+    }
+
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::setExtendedInfo(
@@ -778,10 +911,545 @@ ScopedAStatus CompatVirtualCamera::setExtendedInfo(
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatVirtualCamera::setIntParameter(
-        [[maybe_unused]] CameraParam id, [[maybe_unused]] int32_t value,
-        [[maybe_unused]] std::vector<int32_t>* _aidl_return) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatVirtualCamera::setIntParameter(CameraParam id, int32_t value,
+                                                   std::vector<int32_t>* _aidl_return) {
+    {
+        std::lock_guard lock(mMutex);
+        if (!mSupportedParamsPopulated) {
+            LOG(INFO) << "Supported parameter cache is not populated. Populating now.";
+            auto status = populateSupportedParametersLocked();
+            if (!status.isOk()) {
+                return status;
+            }
+        }
+    }
+
+    auto it = std::find(mSupportedParams.begin(), mSupportedParams.end(), id);
+    if (it == mSupportedParams.end()) {
+        LOG(WARNING) << "setIntParameter called with unsupported param " << static_cast<int>(id);
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::NOT_SUPPORTED));
+    }
+
+    auto halCamera = mHalCameras.begin()->second.lock();
+    if (!halCamera) {
+        LOG(ERROR) << "Underlying hardware camera is not available.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+    }
+
+    // Get parameter range and check the value.
+    ParameterRange range;
+    ScopedAStatus status = getIntParameterRange(id, &range);
+    if (!status.isOk()) {
+        LOG(ERROR) << "Failed to get range for param " << static_cast<int>(id);
+        return status;
+    }
+
+    if (value < range.min || value > range.max) {
+        LOG(ERROR) << "Value " << value << " is out of range [" << range.min << ", " << range.max
+                   << "] for param " << static_cast<int>(id);
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
+    }
+
+    // Get the latest metadata for prerequisite checks.
+    ACameraMetadata* latestMetadata = halCamera->getLatestMetadata();
+    if (!latestMetadata) {
+        LOG(ERROR) << "Failed to get latest metadata.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    CameraDesc desc;
+    status = getCameraInfo(&desc);
+    if (!status.isOk()) {
+        LOG(ERROR) << "Failed to get camera info for AUTOGAIN.";
+        ACameraMetadata_free(latestMetadata);
+        return status;
+    }
+    const camera_metadata_t* characteristics =
+            reinterpret_cast<const camera_metadata_t*>(desc.metadata.data());
+
+    ACameraMetadata_const_entry entryToUpdate;
+
+    switch (id) {
+        case CameraParam::BRIGHTNESS: {
+            ACameraMetadata_const_entry currentEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_AE_MODE,
+                                              &currentEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_AE_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            uint8_t aeMode = currentEntry.data.u8[0];
+
+            if (aeMode == ACAMERA_CONTROL_AE_MODE_OFF) {
+                LOG(WARNING)
+                        << "BRIGHTNESS (AE Compensation) is not available when AE_MODE is OFF.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            entryToUpdate.tag = ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION;
+            entryToUpdate.type = ACAMERA_TYPE_INT32;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.i32 = &value;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for BRIGHTNESS";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::GAIN: {
+            ACameraMetadata_const_entry controlModeEntry, aeModeEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_MODE,
+                                              &controlModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_AE_MODE,
+                                              &aeModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_AE_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+
+            uint8_t controlMode = controlModeEntry.data.u8[0];
+            uint8_t aeMode = aeModeEntry.data.u8[0];
+
+            if (controlMode != ACAMERA_CONTROL_MODE_OFF && aeMode != ACAMERA_CONTROL_AE_MODE_OFF) {
+                LOG(WARNING)
+                        << "GAIN control is only available when CONTROL_MODE or AE_MODE is OFF.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            // Value is already clamped by the range check above.
+            entryToUpdate.tag = ACAMERA_SENSOR_SENSITIVITY;
+            entryToUpdate.type = ACAMERA_TYPE_INT32;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.i32 = &value;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for GAIN";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::AUTOGAIN:
+        case CameraParam::AUTO_EXPOSURE: {
+            ACameraMetadata_const_entry controlModeEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_MODE,
+                                              &controlModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            if (controlModeEntry.data.u8[0] == ACAMERA_CONTROL_MODE_OFF) {
+                LOG(WARNING) << "AUTOGAIN control is not available when CONTROL_MODE is OFF.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            camera_metadata_ro_entry_t availableAeModes;
+            if (find_camera_metadata_ro_entry(characteristics, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
+                                              &availableAeModes) != 0) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_AE_AVAILABLE_MODES.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+
+            uint8_t targetAeMode = 255;  // Initialize with an invalid value
+            if (value == 0) {            // Turn AUTOGAIN OFF
+                for (size_t i = 0; i < availableAeModes.count; ++i) {
+                    if (availableAeModes.data.u8[i] == ACAMERA_CONTROL_AE_MODE_OFF) {
+                        targetAeMode = ACAMERA_CONTROL_AE_MODE_OFF;
+                        break;
+                    }
+                }
+            } else {  // Turn AUTOGAIN ON (value == 1)
+                for (size_t i = 0; i < availableAeModes.count; ++i) {
+                    uint8_t currentMode = availableAeModes.data.u8[i];
+                    if (currentMode == ACAMERA_CONTROL_AE_MODE_ON) {
+                        targetAeMode = ACAMERA_CONTROL_AE_MODE_ON;
+                        break;  // Found the ideal ON mode
+                    }
+                    if (currentMode != ACAMERA_CONTROL_AE_MODE_OFF && currentMode < targetAeMode) {
+                        targetAeMode = currentMode;
+                    }
+                }
+            }
+
+            if (targetAeMode == 255) {
+                LOG(ERROR) << "Requested AUTOGAIN state (" << value
+                           << ") is not supported by available AE modes.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            entryToUpdate.tag = ACAMERA_CONTROL_AE_MODE;
+            entryToUpdate.type = ACAMERA_TYPE_BYTE;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.u8 = &targetAeMode;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for AUTOGAIN";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::AUTO_WHITE_BALANCE: {
+            ACameraMetadata_const_entry controlModeEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_MODE,
+                                              &controlModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            if (controlModeEntry.data.u8[0] == ACAMERA_CONTROL_MODE_OFF) {
+                LOG(WARNING)
+                        << "AUTO_WHITE_BALANCE control is not available when CONTROL_MODE is OFF.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            camera_metadata_ro_entry_t availableAwbModes;
+            if (find_camera_metadata_ro_entry(characteristics, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
+                                              &availableAwbModes) != 0) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_AWB_AVAILABLE_MODES.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+
+            uint8_t targetAwbMode =
+                    (value == 0) ? ACAMERA_CONTROL_AWB_MODE_OFF : ACAMERA_CONTROL_AWB_MODE_AUTO;
+
+            bool modeSupported = false;
+            for (size_t i = 0; i < availableAwbModes.count; ++i) {
+                if (availableAwbModes.data.u8[i] == targetAwbMode) {
+                    modeSupported = true;
+                    break;
+                }
+            }
+
+            if (!modeSupported) {
+                LOG(ERROR) << "Requested AWB mode " << static_cast<int>(targetAwbMode)
+                           << " is not supported.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            entryToUpdate.tag = ACAMERA_CONTROL_AWB_MODE;
+            entryToUpdate.type = ACAMERA_TYPE_BYTE;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.u8 = &targetAwbMode;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for AUTO_WHITE_BALANCE";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::WHITE_BALANCE_TEMPERATURE: {
+            ACameraMetadata_const_entry controlModeEntry, awbModeEntry, colorCorrectionModeEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_MODE,
+                                              &controlModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_AWB_MODE,
+                                              &awbModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_AWB_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_COLOR_CORRECTION_MODE,
+                                              &colorCorrectionModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_COLOR_CORRECTION_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+
+            if (controlModeEntry.data.u8[0] != ACAMERA_CONTROL_MODE_AUTO) {
+                LOG(WARNING) << "WHITE_BALANCE_TEMPERATURE control is only available when "
+                                "CONTROL_MODE is AUTO.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+            if (awbModeEntry.data.u8[0] != ACAMERA_CONTROL_AWB_MODE_OFF) {
+                LOG(WARNING) << "WHITE_BALANCE_TEMPERATURE control is only available when AWB_MODE "
+                                "is OFF.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+            if (colorCorrectionModeEntry.data.u8[0] ==
+                    ACAMERA_COLOR_CORRECTION_MODE_TRANSFORM_MATRIX) {
+                LOG(WARNING) << "WHITE_BALANCE_TEMPERATURE control is not available when "
+                                "COLOR_CORRECTION_MODE is TRANSFORM_MATRIX.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            entryToUpdate.tag = ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE;
+            entryToUpdate.type = ACAMERA_TYPE_INT32;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.i32 = &value;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for WHITE_BALANCE_TEMPERATURE";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::SHARPNESS: {
+            camera_metadata_ro_entry_t availableEdgeModes;
+            if (find_camera_metadata_ro_entry(characteristics, ACAMERA_EDGE_AVAILABLE_EDGE_MODES,
+                                              &availableEdgeModes) != 0) {
+                LOG(ERROR) << "Failed to get ACAMERA_EDGE_AVAILABLE_EDGE_MODES.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+
+            bool modeSupported = false;
+            uint8_t targetMode = static_cast<uint8_t>(value);
+            for (size_t i = 0; i < availableEdgeModes.count; ++i) {
+                if (availableEdgeModes.data.u8[i] == targetMode) {
+                    modeSupported = true;
+                    break;
+                }
+            }
+
+            if (!modeSupported) {
+                LOG(ERROR) << "Requested SHARPNESS (Edge Mode) " << value << " is not supported.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            entryToUpdate.tag = ACAMERA_EDGE_MODE;
+            entryToUpdate.type = ACAMERA_TYPE_BYTE;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.u8 = &targetMode;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for SHARPNESS";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::ABSOLUTE_EXPOSURE: {
+            ACameraMetadata_const_entry controlModeEntry, aeModeEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_MODE,
+                                              &controlModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_AE_MODE,
+                                              &aeModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_AE_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+
+            if (controlModeEntry.data.u8[0] != ACAMERA_CONTROL_MODE_OFF &&
+                aeModeEntry.data.u8[0] != ACAMERA_CONTROL_AE_MODE_OFF) {
+                LOG(WARNING) << "ABSOLUTE_EXPOSURE control is only available when CONTROL_MODE or "
+                                "AE_MODE is OFF.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            int64_t exposureTimeNs = static_cast<int64_t>(value) * 1000;
+            entryToUpdate.tag = ACAMERA_SENSOR_EXPOSURE_TIME;
+            entryToUpdate.type = ACAMERA_TYPE_INT64;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.i64 = &exposureTimeNs;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for ABSOLUTE_EXPOSURE";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::AUTO_FOCUS: {
+            ACameraMetadata_const_entry controlModeEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_MODE,
+                                              &controlModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            if (controlModeEntry.data.u8[0] != ACAMERA_CONTROL_MODE_AUTO) {
+                LOG(WARNING) << "AUTO_FOCUS control is only available when CONTROL_MODE is AUTO.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            camera_metadata_ro_entry_t availableAfModes;
+            if (find_camera_metadata_ro_entry(characteristics, ACAMERA_CONTROL_AF_AVAILABLE_MODES,
+                                              &availableAfModes) != 0) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_AF_AVAILABLE_MODES.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+
+            uint8_t targetAfMode = 255;  // Initialize with an invalid value
+            if (value == 0) {            // Turn AUTO_FOCUS OFF
+                for (size_t i = 0; i < availableAfModes.count; ++i) {
+                    if (availableAfModes.data.u8[i] == ACAMERA_CONTROL_AF_MODE_OFF) {
+                        targetAfMode = ACAMERA_CONTROL_AF_MODE_OFF;
+                        break;
+                    }
+                }
+            } else {  // Turn AUTO_FOCUS ON (value == 1)
+                for (size_t i = 0; i < availableAfModes.count; ++i) {
+                    uint8_t currentMode = availableAfModes.data.u8[i];
+                    if (currentMode == ACAMERA_CONTROL_AF_MODE_AUTO) {
+                        targetAfMode = ACAMERA_CONTROL_AF_MODE_AUTO;
+                        break;  // Found the ideal ON mode
+                    }
+                    if (currentMode != ACAMERA_CONTROL_AF_MODE_OFF && currentMode < targetAfMode) {
+                        targetAfMode = currentMode;
+                    }
+                }
+            }
+
+            if (targetAfMode == 255) {
+                LOG(ERROR) << "Requested AUTO_FOCUS state (" << value
+                           << ") is not supported by available AF modes.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            entryToUpdate.tag = ACAMERA_CONTROL_AF_MODE;
+            entryToUpdate.type = ACAMERA_TYPE_BYTE;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.u8 = &targetAfMode;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for AUTO_FOCUS";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::ABSOLUTE_FOCUS: {
+            ACameraMetadata_const_entry afModeEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_AF_MODE,
+                                              &afModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_AF_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+
+            if (afModeEntry.data.u8[0] != ACAMERA_CONTROL_AF_MODE_OFF) {
+                LOG(WARNING) << "ABSOLUTE_FOCUS control is only available when AF_MODE is OFF.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            float focusDistance = static_cast<float>(value) / 100.0f;
+            entryToUpdate.tag = ACAMERA_LENS_FOCUS_DISTANCE;
+            entryToUpdate.type = ACAMERA_TYPE_FLOAT;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.f = &focusDistance;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for ABSOLUTE_FOCUS";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        case CameraParam::ABSOLUTE_ZOOM: {
+            ACameraMetadata_const_entry controlModeEntry;
+            if (ACameraMetadata_getConstEntry(latestMetadata, ACAMERA_CONTROL_MODE,
+                                              &controlModeEntry) != ACAMERA_OK) {
+                LOG(ERROR) << "Failed to get ACAMERA_CONTROL_MODE.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+            }
+            if (controlModeEntry.data.u8[0] != ACAMERA_CONTROL_MODE_AUTO) {
+                LOG(WARNING) << "ABSOLUTE_ZOOM control is only available when CONTROL_MODE is "
+                                "AUTO.";
+                ACameraMetadata_free(latestMetadata);
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int>(EvsResult::NOT_SUPPORTED));
+            }
+
+            float zoomRatio = static_cast<float>(value) / 100.0f;
+            entryToUpdate.tag = ACAMERA_CONTROL_ZOOM_RATIO;
+            entryToUpdate.type = ACAMERA_TYPE_FLOAT;
+            entryToUpdate.count = 1;
+            entryToUpdate.data.f = &zoomRatio;
+
+            status = halCamera->updateRequest(entryToUpdate);
+            if (!status.isOk()) {
+                LOG(ERROR) << "Failed to update camera request for ABSOLUTE_ZOOM";
+                ACameraMetadata_free(latestMetadata);
+                return status;
+            }
+            break;
+        }
+        default:
+            // This case should not be reached due to the check above.
+            ACameraMetadata_free(latestMetadata);
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int>(EvsResult::NOT_SUPPORTED));
+    }
+
+    ACameraMetadata_free(latestMetadata);
+    _aidl_return->push_back(value);
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::setPrimaryClient() {

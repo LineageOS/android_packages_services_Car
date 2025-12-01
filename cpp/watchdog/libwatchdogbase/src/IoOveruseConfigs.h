@@ -37,20 +37,26 @@
 namespace android {
 namespace automotive {
 namespace watchdog {
-// TODO(b/446241301): Get directory name from IoOveruseMonitor(Wrapper)
 constexpr const char kBuildSystemConfigXmlPath[] =
-        "/system/etc/automotive/watchdog/system_resource_overuse_configuration.xml";
+        "/system/etc/io-watchdog/system_resource_overuse_configuration.xml";
 constexpr const char kBuildThirdPartyConfigXmlPath[] =
-        "/system/etc/automotive/watchdog/third_party_resource_overuse_configuration.xml";
+        "/system/etc/io-watchdog/third_party_resource_overuse_configuration.xml";
 constexpr const char kBuildVendorConfigXmlPath[] =
-        "/vendor/etc/automotive/watchdog/resource_overuse_configuration.xml";
+        "/vendor/etc/io-watchdog/resource_overuse_configuration.xml";
 constexpr const char kLatestSystemConfigXmlPath[] =
-        "/data/system/car/watchdog/system_resource_overuse_configuration.xml";
+        "/data/system/io-watchdog/system_resource_overuse_configuration.xml";
 constexpr const char kLatestVendorConfigXmlPath[] =
-        "/data/system/car/watchdog/vendor_resource_overuse_configuration.xml";
+        "/data/system/io-watchdog/vendor_resource_overuse_configuration.xml";
 constexpr const char kLatestThirdPartyConfigXmlPath[] =
+        "/data/system/io-watchdog/third_party_resource_overuse_configuration.xml";
+constexpr const char kLegacyLatestSystemConfigXmlPath[] =
+        "/data/system/car/watchdog/system_resource_overuse_configuration.xml";
+constexpr const char kLegacyLatestVendorConfigXmlPath[] =
+        "/data/system/car/watchdog/vendor_resource_overuse_configuration.xml";
+constexpr const char kLegacyLatestThirdPartyConfigXmlPath[] =
         "/data/system/car/watchdog/third_party_resource_overuse_configuration.xml";
 constexpr const char kDefaultThresholdName[] = "default";
+constexpr const char kCarWatchdogXmlDirectory[] = "/data/system/car/watchdog";
 
 inline const aidl::android::automotive::watchdog::internal::PerStateIoOveruseThreshold
 defaultThreshold() {

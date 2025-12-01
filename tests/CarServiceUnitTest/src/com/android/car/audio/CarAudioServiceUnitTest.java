@@ -2882,9 +2882,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         callback.onAudioServerDown();
 
         verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
-        // Routing policy is not unregistered on audio server going down
-        verify(mAudioManager, times(AUDIO_SERVICE_POLICY_REGISTRATIONS - 1))
-                .unregisterAudioPolicy(any());
+        // Audio policy is not unregistered on audio server going down
+        verify(mAudioManager, never()).unregisterAudioPolicy(any());
         verify(mAudioManager).unregisterAudioPlaybackCallback(playbackCallback);
         verify(mAudioControlWrapperAidl).unregisterFocusListener();
         verify(mAudioManager, never()).unregisterVolumeGroupCallback(any());
@@ -2910,9 +2909,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         callback.onAudioServerDown();
 
         verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
-        // Routing policy is not unregistered on audio server going down
-        verify(mAudioManager, times(AUDIO_SERVICE_POLICY_REGISTRATIONS_WITH_FADE_MANAGER - 1))
-                .unregisterAudioPolicy(any());
+        // Audio policy is not unregistered on audio server going down
+        verify(mAudioManager, never()).unregisterAudioPolicy(any());
         verify(mAudioManager).unregisterAudioPlaybackCallback(playbackCallback);
         verify(mAudioControlWrapperAidl).unregisterFocusListener();
         verify(mAudioManager, never()).unregisterVolumeGroupCallback(any());
@@ -2938,9 +2936,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         callback.onAudioServerDown();
 
         verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
-        // Routing policy is not unregistered on audio server going down
-        verify(mAudioManager, times(AUDIO_SERVICE_POLICY_REGISTRATIONS - 1))
-                .unregisterAudioPolicy(any());
+        // Audio policy is not unregistered on audio server going down
+        verify(mAudioManager, never()).unregisterAudioPolicy(any());
         verify(mAudioManager).unregisterAudioPlaybackCallback(playbackCallback);
         verify(mAudioControlWrapperAidl).unregisterFocusListener();
         verify(mAudioManager).unregisterVolumeGroupCallback(any());

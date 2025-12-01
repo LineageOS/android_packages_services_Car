@@ -173,6 +173,24 @@ camera_status_t ACaptureRequest_setEntry_u8(ACaptureRequest* request, uint32_t t
     return MockNdkCamera::getMockInstance()->ACaptureRequest_setEntry_u8(request, tag, count, data);
 }
 
+camera_status_t ACaptureRequest_setEntry_i32(ACaptureRequest* request, uint32_t tag, uint32_t count,
+                                             const int32_t* data) {
+    return MockNdkCamera::getMockInstance()->ACaptureRequest_setEntry_i32(request, tag, count,
+                                                                          data);
+}
+
+camera_status_t ACaptureRequest_setEntry_i64(ACaptureRequest* request, uint32_t tag, uint32_t count,
+                                             const int64_t* data) {
+    return MockNdkCamera::getMockInstance()->ACaptureRequest_setEntry_i64(request, tag, count,
+                                                                          data);
+}
+
+camera_status_t ACaptureRequest_setEntry_float(ACaptureRequest* request, uint32_t tag,
+                                               uint32_t count, const float* data) {
+    return MockNdkCamera::getMockInstance()->ACaptureRequest_setEntry_float(request, tag, count,
+                                                                            data);
+}
+
 #ifdef __cplusplus
 }
 #endif

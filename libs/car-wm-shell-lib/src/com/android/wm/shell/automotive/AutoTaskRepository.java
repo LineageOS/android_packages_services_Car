@@ -70,7 +70,7 @@ public class AutoTaskRepository {
      * Map of task id to task info for tasks that are not part of any root task.
      */
     private final LinkedHashMap<Integer,
-            ActivityManager.RunningTaskInfo> mTaskStackWithoutRootTask = new LinkedHashMap<>();
+            ActivityManager.RunningTaskInfo> mAppTasksWithNoRootTaskParent = new LinkedHashMap<>();
     private final ArraySet<AutoAppTaskListener> mAutoTaskListeners = new ArraySet<>();
 
     private final Context mContext;
@@ -119,7 +119,7 @@ public class AutoTaskRepository {
             }
         }
         pw.println(prefix + "  Tasks without RootTask:");
-        for (ActivityManager.RunningTaskInfo task : getTaskStackWithoutRootTask()) {
+        for (ActivityManager.RunningTaskInfo task : getAppTasksWithNoRootTaskParent()) {
             pw.println(prefix + "     task Id: " + task.taskId + " visible: " + task.isVisible
                     + " user: " + task.userId + " name: "
                     + (task.topActivity != null ? task.topActivity.getClassName() : ""));
@@ -180,8 +180,8 @@ public class AutoTaskRepository {
 
     // TODO(b/401349206): Refactor it. Save a mapping of task id and taskInfo and use that.
     ActivityManager.RunningTaskInfo getTaskInfo(int taskId) {
-        if (mTaskStackWithoutRootTask.get(taskId) != null) {
-            return mTaskStackWithoutRootTask.get(taskId);
+        if (mAppTasksWithNoRootTaskParent.get(taskId) != null) {
+            return mAppTasksWithNoRootTaskParent.get(taskId);
         }
 
         for (int i = 0; i < mRootTaskStacks.size(); i++) {
@@ -205,8 +205,8 @@ public class AutoTaskRepository {
         return null;
     }
 
-    List<ActivityManager.RunningTaskInfo> getTaskStackWithoutRootTask() {
-        return new ArrayList<>(mTaskStackWithoutRootTask.values());
+    List<ActivityManager.RunningTaskInfo> getAppTasksWithNoRootTaskParent() {
+        return new ArrayList<>(mAppTasksWithNoRootTaskParent.values());
     }
 
     void addOrUpdateTask(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo taskInfo,
@@ -371,7 +371,7 @@ public class AutoTaskRepository {
         if (DBG) {
             Slogf.d(TAG, "onTaskAppeared. TaskId %d. user %d", task.getTaskId(), task.userId);
         }
-        mTaskStackWithoutRootTask.put(task.taskId, task);
+        mAppTasksWithNoRootTaskParent.put(task.taskId, task);
         mSurfaceControlMap.put(task.taskId, leash);
 
         if (mIsCarReady) {
@@ -396,8 +396,8 @@ public class AutoTaskRepository {
             Slogf.d(TAG, "onTaskChanged. TaskId %d. user %d", task.getTaskId(), task.userId);
         }
 
-        mTaskStackWithoutRootTask.remove(task.taskId);
-        mTaskStackWithoutRootTask.put(task.taskId, task);
+        mAppTasksWithNoRootTaskParent.remove(task.taskId);
+        mAppTasksWithNoRootTaskParent.put(task.taskId, task);
 
         if (mIsCarReady) {
             mCarActivityManager.onTaskInfoChanged(task);
@@ -422,7 +422,7 @@ public class AutoTaskRepository {
             Slogf.d(TAG, "onTaskDestroyed. TaskId %d.", task.getTaskId());
         }
 
-        mTaskStackWithoutRootTask.remove(task.taskId);
+        mAppTasksWithNoRootTaskParent.remove(task.taskId);
         mSurfaceControlMap.remove(task.taskId);
 
         if (mIsCarReady) {

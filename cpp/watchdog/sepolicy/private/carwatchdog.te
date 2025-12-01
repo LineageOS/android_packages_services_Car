@@ -38,9 +38,11 @@ allow carwatchdogd proc_pressure_mem:file rw_file_perms;
 # List HALs to get pid of vehicle HAL.
 allow carwatchdogd hwservicemanager:hwservice_manager list;
 
-# R/W /data/system/car for resource overuse configurations.
+# R/W /data/system/(car/io-watchdog) for resource overuse configurations.
 allow carwatchdogd system_car_data_file:dir create_dir_perms;
 allow carwatchdogd system_car_data_file:{ file lnk_file } create_file_perms;
+allow carwatchdogd system_io_watchdog_data_file:dir create_dir_perms;
+allow carwatchdogd system_io_watchdog_data_file:{ file lnk_file } create_file_perms;
 
 # Allow carwatchdogd to set thread scheduling policy and priority.
 allow carwatchdogd self:capability sys_nice;

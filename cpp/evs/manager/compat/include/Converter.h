@@ -18,7 +18,9 @@
 
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 #include <aidl/android/hardware/automotive/evs/CameraDesc.h>
+#include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <aidl/android/hardware/automotive/evs/Stream.h>
+#include <camera/NdkCameraError.h>
 #include <camera/NdkCameraMetadata.h>
 #include <media/NdkImageReader.h>
 
@@ -36,6 +38,9 @@ public:
     static media_status_t toBufferDesc(
             AImage* image, uint32_t bufferId, const std::string& deviceId,
             ::aidl::android::hardware::automotive::evs::BufferDesc& outBufferDesc);
+
+    static ::aidl::android::hardware::automotive::evs::EvsResult toEvsResult(
+            camera_status_t status);
 };
 
 }  // namespace android::hardware::automotive::evs::compat

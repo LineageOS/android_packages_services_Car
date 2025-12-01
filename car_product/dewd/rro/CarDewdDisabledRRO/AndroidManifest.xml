@@ -20,7 +20,7 @@
     <!-- priority need to be higher than all CarSystemUIRRO -->
     <overlay
         android:targetPackage="com.android.systemui"
-        android:isStatic="false"
+        android:isStatic="true"
         android:category="com.android.systemui.car.dewd"
         android:priority="200" />
 </manifest>

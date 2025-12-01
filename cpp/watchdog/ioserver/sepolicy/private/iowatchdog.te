@@ -21,10 +21,11 @@ allow iowatchdogd proc_uid_io_stats:file r_file_perms;
 # Read /proc/diskstats file.
 allow iowatchdogd proc_diskstats:file r_file_perms;
 
-# TODO(b/452740644): Find where iowatchdogd files should live on TV
-# R/W /data/system/car for resource overuse configurations.
+# R/W /data/system/(car|io-watchdog) for resource overuse configurations.
 allow iowatchdogd system_car_data_file:dir create_dir_perms;
 allow iowatchdogd system_car_data_file:{ file lnk_file } create_file_perms;
+allow iowatchdogd system_io_watchdog_data_file:dir create_dir_perms;
+allow iowatchdogd system_io_watchdog_data_file:{ file lnk_file } create_file_perms;
 
 # Allow iowatchdogd to set thread scheduling policy and priority.
 allow iowatchdogd self:capability sys_nice;

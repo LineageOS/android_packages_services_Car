@@ -45,9 +45,9 @@ public class DistantDisplayStatusIconPanelController extends CarSystemBarPanelBu
             @Assisted CarSystemBarPanelButtonView view,
             CarSystemBarElementStatusBarDisableController disableController,
             CarSystemBarElementStateController stateController,
-            Provider<StatusIconPanelViewController.Builder> statusIconPanelBuilder,
+            Provider<StatusIconPanelViewController.Factory> statusIconPanelFactoryProvider,
             DistantDisplayController distantDisplayController) {
-        super(view, disableController, stateController, statusIconPanelBuilder);
+        super(view, disableController, stateController, statusIconPanelFactoryProvider);
         mDistantDisplayController = distantDisplayController;
     }
 
