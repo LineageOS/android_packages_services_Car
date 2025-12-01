@@ -31,6 +31,7 @@ cc_defaults {
     static_libs: [
         "android.car.feature-aconfig-cpp",
         "libvhalclient",
+        "libwatchdog_properties",
     ],
     defaults: [
         "aconfig_lib_cc_shared_link.defaults",

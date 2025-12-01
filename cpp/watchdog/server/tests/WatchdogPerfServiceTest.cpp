@@ -24,6 +24,7 @@
 #include "UidStatsCollector.h"
 #include "WatchdogPerfService.h"
 
+#include <IoWatchdogProperties.sysprop.h>
 #include <WatchdogProperties.sysprop.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceOveruseStats.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceStats.h>

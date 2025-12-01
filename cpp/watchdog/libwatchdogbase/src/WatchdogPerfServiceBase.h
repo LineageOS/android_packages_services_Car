@@ -22,7 +22,6 @@
 #include "UidStatsCollectorBase.h"
 #include "WatchdogServiceHelperBase.h"
 
-#include <WatchdogProperties.sysprop.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceStats.h>
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>

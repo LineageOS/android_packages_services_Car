@@ -21,13 +21,13 @@ service iowatchdogd /system/bin/iowatchdogd
 
 on early-init
     # Below intervals are in seconds
-    setprop ro.iowatchdog.periodic_collection_interval 120
-    setprop ro.iowatchdog.periodic_monitor_interval 5
+    setprop ro.carwatchdog.periodic_collection_interval 120
+    setprop ro.carwatchdog.periodic_monitor_interval 5
 
 on property:sys.boot_completed=1
 
     # Cache size for the periodically monitored records
-    setprop ro.iowatchdog.periodic_monitor_buffer_size 360
+    setprop ro.carwatchdog.periodic_monitor_buffer_size 360
 
     # Start the service only after initializing the properties.
     start iowatchdogd

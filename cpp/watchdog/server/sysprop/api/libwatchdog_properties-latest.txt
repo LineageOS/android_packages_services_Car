@@ -31,12 +31,6 @@ props {
     prop_name: "ro.carwatchdog.periodic_collection_buffer_size"
   }
   prop {
-    api_name: "periodicCollectionInterval"
-    type: Integer
-    scope: Internal
-    prop_name: "ro.carwatchdog.periodic_collection_interval"
-  }
-  prop {
     api_name: "topNStatsPerCategory"
     type: Integer
     scope: Internal

@@ -26,7 +26,7 @@
 #include "IoServiceManager.h"
 #include "PackageInfoResolver.h"
 
-#include <WatchdogProperties.sysprop.h>
+#include <IoWatchdogProperties.sysprop.h>
 #include <aidl/android/automotive/watchdog/IResourceOveruseListener.h>
 #include <aidl/android/automotive/watchdog/ResourceOveruseStats.h>
 #include <aidl/android/automotive/watchdog/internal/PackageIdentifier.h>
