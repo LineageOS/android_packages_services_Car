@@ -179,6 +179,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    if (useCompat && useExternalMemory) {
+        LOG(ERROR) << "The --compat and --extmem flags are incompatible. The compatibility library "
+                      "does not support importing external buffers. Please use only one of these "
+                      "flags.";
+        return EXIT_FAILURE;
+    }
+
     // Load our configuration information
     ConfigManager config;
     if (!config.initialize(CONFIG_OVERRIDE_PATH)) {
