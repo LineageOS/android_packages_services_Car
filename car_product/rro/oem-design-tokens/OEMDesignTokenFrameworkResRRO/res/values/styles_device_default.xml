@@ -97,7 +97,7 @@
 
     <style name="Widget.DeviceDefault.Button.Borderless" parent="android:Widget.Material.Button.Borderless">
         <item name="android:background">@drawable/btn_borderless_car</item>
-        <item name="android:textColor">?oemColorOnBackground</item>
+        <item name="android:textColor">?oemColorOnSurface</item>
         <item name="android:textAppearance">?oemTextAppearanceLabelLarge</item>
     </style>
 
@@ -159,7 +159,7 @@
 
     <style name="Widget.DeviceDefault.ActionBar.Solid" parent="android:Widget.Material.ActionBar.Solid">
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
-        <item name="android:textColor">?oemColorOnBackground</item>
+        <item name="android:textColor">?oemColorOnSurface</item>
     </style>
 
     <!-- Preference Styles -->

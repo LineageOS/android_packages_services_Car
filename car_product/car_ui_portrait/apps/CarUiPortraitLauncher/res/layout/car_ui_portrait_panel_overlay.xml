@@ -17,7 +17,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/task_view_overlay"
-    android:background="?oemColorBackground">
+    android:background="?oemColorSurface">
 
     <ImageView
         android:id="@+id/task_view_overlay_icon_background"
