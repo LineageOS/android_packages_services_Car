@@ -50,7 +50,8 @@ using android::frameworks::automotive::vhal::IVhalClient;
 const char CONFIG_DEFAULT_PATH[] = "/system/etc/automotive/evs/config.json";
 const char CONFIG_OVERRIDE_PATH[] = "/vendor/etc/automotive/evs/config_override.json";
 
-std::shared_ptr<IEvsEnumerator> pEvsService;
+std::shared_ptr<IEvsEnumerator> pEvsDisplayService;
+std::shared_ptr<IEvsEnumerator> pEvsCameraService;
 std::shared_ptr<IEvsDisplay> pDisplay;
 EvsStateControl* pStateController;
 
@@ -217,12 +218,15 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    pEvsService = IEvsEnumerator::fromBinder(
+    pEvsDisplayService = IEvsEnumerator::fromBinder(
             ndk::SpAIBinder(AServiceManager_checkService(serviceName.c_str())));
-    if (!pEvsService) {
+    if (!pEvsDisplayService) {
         LOG(ERROR) << "Failed to get " << serviceName << ". Exiting.";
         return EXIT_FAILURE;
     }
+
+    // By default, we use the same service for camera and display
+    pEvsCameraService = pEvsDisplayService;
 
     if (useCompat) {
         // do nothing
@@ -238,7 +242,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (auto status = pEvsService->openDisplay(displayId, &pDisplay); !status.isOk()) {
+    if (auto status = pEvsDisplayService->openDisplay(displayId, &pDisplay); !status.isOk()) {
         LOG(ERROR) << "EVS Display unavailable.  Exiting.";
         return EXIT_FAILURE;
     }
@@ -275,7 +279,7 @@ int main(int argc, char** argv) {
 
     // Configure ourselves for the current vehicle state at startup
     LOG(INFO) << "Constructing state controller";
-    pStateController = new EvsStateControl(pVnet, pEvsService, pDisplay, config);
+    pStateController = new EvsStateControl(pVnet, pEvsCameraService, pDisplay, config);
     if (!pStateController->startUpdateLoop()) {
         LOG(ERROR) << "Initial configuration failed.  Exiting.";
         return EXIT_FAILURE;
