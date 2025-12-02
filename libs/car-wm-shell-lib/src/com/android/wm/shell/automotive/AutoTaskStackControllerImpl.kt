@@ -288,7 +288,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
          */
         override fun onBackPressedOnTaskRoot(
             taskInfo: ActivityManager.RunningTaskInfo?,
-            isFromMoveActivityTaskToBack: Boolean
+            isFromMoveActivityTaskToBack: Boolean,
+            isOptInOnBackInvoked: Boolean
         ) {
             if (taskInfo == null) {
                 throw IllegalArgumentException("taskInfo can't be null in onBackPressedOnTaskRoot")
@@ -299,8 +300,16 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 taskInfo.taskId,
                 isFromMoveActivityTaskToBack
             )
-            super.onBackPressedOnTaskRoot(taskInfo, isFromMoveActivityTaskToBack)
-            rootTaskStackListener.onBackPressedOnTaskRoot(taskInfo, isFromMoveActivityTaskToBack)
+            super.onBackPressedOnTaskRoot(
+                taskInfo,
+                isFromMoveActivityTaskToBack,
+                isOptInOnBackInvoked,
+            )
+            rootTaskStackListener.onBackPressedOnTaskRoot(
+                taskInfo,
+                isFromMoveActivityTaskToBack,
+                isOptInOnBackInvoked,
+            )
             if (isFromMoveActivityTaskToBack) {
                 handleMoveTaskToBack(taskInfo)
             } else {

@@ -1100,7 +1100,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         // Act & Assert
         assertThrows(IllegalArgumentException::class.java) {
-            taskListener.onBackPressedOnTaskRoot(null, false)
+            taskListener.onBackPressedOnTaskRoot(null, false, false)
         }
     }
 
@@ -1116,10 +1116,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         taskListener.onTaskAppeared(childTask, mock(SurfaceControl::class.java))
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTask, false)
+        taskListener.onBackPressedOnTaskRoot(childTask, false, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, false)
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, false, false)
         // The implementation calls ActivityManager.getService().removeTask(), which is a static
         // call and hard to mock. We verify that the move-to-back logic is not triggered.
         verify(taskOrganizer, never()).applyTransaction(any())
@@ -1134,10 +1134,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val childTask = TestRunningTaskInfoBuilder().setTaskId(10).build()
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTask, true)
+        taskListener.onBackPressedOnTaskRoot(childTask, true, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, true)
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, true, false)
         // verify that neither reorder nor moveRootTaskToBack is called
         verify(taskOrganizer, never()).applyTransaction(any())
         verify(rootTaskStackListener, never()).moveRootTaskToBack(anyOrNull())
@@ -1152,10 +1152,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .thenReturn(arrayListOf(rootTask, childTask))
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTask, true)
+        taskListener.onBackPressedOnTaskRoot(childTask, true, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, true)
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, true, false)
         verify(taskOrganizer, never()).applyTransaction(any())
         verify(rootTaskStackListener).moveRootTaskToBack(childTask)
     }
@@ -1183,10 +1183,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .thenReturn(arrayListOf(rootTask, childTaskToMove, opaqueSibling))
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true)
+        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true)
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true, false)
         val wctCaptor = argumentCaptor<WindowContainerTransaction>()
         verify(taskOrganizer).applyTransaction(wctCaptor.capture())
         val wct = wctCaptor.firstValue
@@ -1210,10 +1210,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .thenReturn(arrayListOf(rootTask, childTaskToMove))
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true)
+        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true)
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true, false)
         verify(rootTaskStackListener).moveRootTaskToBack(childTaskToMove)
         verify(taskOrganizer, never()).applyTransaction(any())
     }
@@ -1235,10 +1235,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .thenReturn(arrayListOf(rootTask, childTaskToMove, transparentSibling))
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true)
+        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true)
+        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true, false)
         verify(rootTaskStackListener).moveRootTaskToBack(childTaskToMove)
         verify(taskOrganizer, never()).applyTransaction(any())
     }
