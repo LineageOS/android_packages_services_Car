@@ -599,6 +599,7 @@
             android:name="com.android.settings.Settings$ManageAssistActivity"
             android:enabled="false"
             android:exported="false"
+            android:featureFlag="!android.permission.flags.assist_settings_privacy_improvements_enabled"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
