@@ -24,6 +24,9 @@ on early-init
     setprop ro.iowatchdog.periodic_collection_interval 120
     setprop ro.iowatchdog.periodic_monitor_interval 5
 
+on post-fs-data
+    mkdir /data/system/io-watchdog 0700 system system
+
 on property:sys.boot_completed=1
 
     # Cache size for the periodically monitored records
