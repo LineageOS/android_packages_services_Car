@@ -22,7 +22,7 @@
 #include "UidStatsCollector.h"
 #include "WatchdogServiceHelper.h"
 
-#include <WatchdogProperties.sysprop.h>
+#include <LegacyWatchdogProperties.sysprop.h>
 #include <aidl/android/automotive/watchdog/internal/PackageIoOveruseStats.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceStats.h>
 #include <aidl/android/automotive/watchdog/internal/UserState.h>

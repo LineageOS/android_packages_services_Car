@@ -53,7 +53,7 @@ cc_defaults {
         "android.automotive.watchdog-V3-ndk",
         "android.car.feature-aconfig-cpp",
         "libvhalclient",
-        "libwatchdog_properties",
+        "liblegacywatchdog_properties",
     ],
     header_libs: [
         "libgtest_prod_headers",
