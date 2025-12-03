@@ -333,8 +333,6 @@ void VideoCapture::collectFrames() {
 
         if (!mIsMultiplanar) {
             buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-            v4l2_buffer buf = {.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
-                               .memory = V4L2_MEMORY_MMAP};
         } else {
             buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
             buf.m.planes = mplanes;
