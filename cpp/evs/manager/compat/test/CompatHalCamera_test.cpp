@@ -41,6 +41,7 @@ public:
 
     MOCK_METHOD(bool, deliverFrame, (const aidlevs::BufferDesc&), (override));
     MOCK_METHOD(bool, isStreaming, (), (const, override));
+    MOCK_METHOD(bool, notify, (const aidlevs::EvsEventDesc&), (override));
 };
 
 class CompatHalCameraTest : public ::testing::Test {
@@ -120,7 +121,66 @@ TEST_F(CompatHalCameraTest, disownVirtualCamera_NotOwnedCamera) {
     EXPECT_EQ(mHalCamera->mVirtualCameras.size(), 1);
 }
 
+TEST_F(CompatHalCameraTest, Notify_Success) {
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera1 =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    std::shared_ptr<MockVirtualCamera> virtualCamera2 =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    mHalCamera->ownVirtualCamera(virtualCamera1);
+    mHalCamera->ownVirtualCamera(virtualCamera2);
+
+    aidlevs::EvsEventDesc event;
+    event.aType = aidlevs::EvsEventType::STREAM_STARTED;
+
+    EXPECT_CALL(*virtualCamera1, notify(event)).Times(1);
+    EXPECT_CALL(*virtualCamera2, notify(event)).Times(1);
+
+    mHalCamera->notify(event);
+}
+
+TEST_F(CompatHalCameraTest, CaptureError_NotifiesStreamError) {
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    mHalCamera->ownVirtualCamera(virtualCamera);
+
+    aidlevs::EvsEventDesc event;
+    event.aType = aidlevs::EvsEventType::STREAM_ERROR;
+    event.deviceId = mHalCamera->getId();
+
+    EXPECT_CALL(*virtualCamera, notify(event)).Times(1);
+
+    ACameraCaptureFailure failure;
+    CompatHalCamera::onCaptureFailed(mHalCamera.get(), dummySession, dummyCaptureRequest, &failure);
+}
+
+TEST_F(CompatHalCameraTest, BufferLost_NotifiesStreamError) {
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    mHalCamera->ownVirtualCamera(virtualCamera);
+
+    aidlevs::EvsEventDesc event;
+    event.aType = aidlevs::EvsEventType::FRAME_DROPPED;
+    event.deviceId = mHalCamera->getId();
+
+    EXPECT_CALL(*virtualCamera, notify(event)).Times(1);
+
+    CompatHalCamera::onCaptureBufferLost(mHalCamera.get(), dummySession, dummyCaptureRequest,
+                                         dummyWindow, 0);
+}
+
 TEST_F(CompatHalCameraTest, clientStreamStarting_Success) {
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    mHalCamera->ownVirtualCamera(virtualCamera);
+
     // Mock NDK calls for successful stream start
     EXPECT_CALL(mMockNdkCamera, AImageReader_newWithUsage(_, _, _, _, _, _))
             .WillOnce(Invoke([](int32_t, int32_t, int32_t, uint64_t, int32_t,

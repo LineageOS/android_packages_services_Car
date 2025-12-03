@@ -50,7 +50,8 @@ using android::frameworks::automotive::vhal::IVhalClient;
 const char CONFIG_DEFAULT_PATH[] = "/system/etc/automotive/evs/config.json";
 const char CONFIG_OVERRIDE_PATH[] = "/vendor/etc/automotive/evs/config_override.json";
 
-std::shared_ptr<IEvsEnumerator> pEvsService;
+std::shared_ptr<IEvsEnumerator> pEvsDisplayService;
+std::shared_ptr<IEvsEnumerator> pEvsCameraService;
 std::shared_ptr<IEvsDisplay> pDisplay;
 EvsStateControl* pStateController;
 
@@ -102,6 +103,7 @@ int main(int argc, char** argv) {
     // Set up default behavior, then check for command line options
     bool useVehicleHal = true;
     bool printHelp = false;
+    bool useCompat = false;
     const char* evsServiceName = "default";
     int displayId = -1;
     bool useExternalMemory = false;
@@ -110,6 +112,8 @@ int main(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
             useVehicleHal = false;
+        } else if (strcmp(argv[i], "--compat") == 0) {
+            useCompat = true;
         } else if (strcmp(argv[i], "--hw") == 0) {
             evsServiceName = "EvsEnumeratorHw";
         } else if (strcmp(argv[i], "--mock") == 0) {
@@ -157,6 +161,7 @@ int main(int argc, char** argv) {
         printf("  --gear\n\tMock gear signal for the test mode.");
         printf("  Available options are Reverse and Park (case insensitive)\n");
         printf("  --hw\n\tBypass EvsManager by connecting directly to EvsEnumeratorHw\n");
+        printf("  --compat\n\tUse the compatibility library to access camera2 directly\n");
         printf("  --mock\n\tConnect directly to EvsEnumeratorHw-Mock\n");
         printf("  --display\n\tSpecify the display to use.  If this is not set, the first"
                "display in config.json's list will be used.\n");
@@ -172,6 +177,13 @@ int main(int argc, char** argv) {
         printf("\t\tYUYV: Packed format with a half horizontal chrome resolution.  "
                "Known as YUV4:2:2.\n");
 
+        return EXIT_FAILURE;
+    }
+
+    if (useCompat && useExternalMemory) {
+        LOG(ERROR) << "The --compat and --extmem flags are incompatible. The compatibility library "
+                      "does not support importing external buffers. Please use only one of these "
+                      "flags.";
         return EXIT_FAILURE;
     }
 
@@ -206,11 +218,18 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    pEvsService = IEvsEnumerator::fromBinder(
+    pEvsDisplayService = IEvsEnumerator::fromBinder(
             ndk::SpAIBinder(AServiceManager_checkService(serviceName.c_str())));
-    if (!pEvsService) {
+    if (!pEvsDisplayService) {
         LOG(ERROR) << "Failed to get " << serviceName << ". Exiting.";
         return EXIT_FAILURE;
+    }
+
+    // By default, we use the same service for camera and display
+    pEvsCameraService = pEvsDisplayService;
+
+    if (useCompat) {
+        // do nothing
     }
 
     // Request exclusive access to the EVS display
@@ -223,7 +242,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (auto status = pEvsService->openDisplay(displayId, &pDisplay); !status.isOk()) {
+    if (auto status = pEvsDisplayService->openDisplay(displayId, &pDisplay); !status.isOk()) {
         LOG(ERROR) << "EVS Display unavailable.  Exiting.";
         return EXIT_FAILURE;
     }
@@ -260,7 +279,7 @@ int main(int argc, char** argv) {
 
     // Configure ourselves for the current vehicle state at startup
     LOG(INFO) << "Constructing state controller";
-    pStateController = new EvsStateControl(pVnet, pEvsService, pDisplay, config);
+    pStateController = new EvsStateControl(pVnet, pEvsCameraService, pDisplay, config);
     if (!pStateController->startUpdateLoop()) {
         LOG(ERROR) << "Initial configuration failed.  Exiting.";
         return EXIT_FAILURE;
