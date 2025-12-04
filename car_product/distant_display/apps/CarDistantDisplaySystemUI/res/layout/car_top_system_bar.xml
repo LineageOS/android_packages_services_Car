@@ -72,16 +72,16 @@
             systemui:icon="@drawable/car_ic_notification_dock"
             systemui:longIntent="intent:#Intent;action=com.android.car.bugreport.action.BUG_REPORT;end"/>
 
-        <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
+        <com.android.systemui.car.systembar.panel.CarSystemBarPanelButtonView
             android:id="@+id/distant_display_nav_container"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_toLeftOf="@id/camera_privacy_chip"
+            android:gravity="top|end"
             style="@style/TopBarButton"
             systemui:controller="com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconPanelController"
             systemui:panelLayoutRes="@layout/qc_distant_display_panel"
             systemui:panelWidthRes="@dimen/car_profile_quick_controls_panel_width"
-            systemui:gravity="top|end"
             systemui:disabledWhileUnprovisioned="true">
             <com.android.systemui.car.statusicon.StatusIconView
                 android:id="@+id/distant_display_nav"
@@ -92,7 +92,7 @@
                 android:tint="@color/car_status_icon_color"
                 android:duplicateParentState="true"
                 systemui:controller="com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconController"/>
-        </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
+        </com.android.systemui.car.systembar.panel.CarSystemBarPanelButtonView>
 
         <include layout="@layout/camera_privacy_chip"
             android:layout_width="wrap_content"

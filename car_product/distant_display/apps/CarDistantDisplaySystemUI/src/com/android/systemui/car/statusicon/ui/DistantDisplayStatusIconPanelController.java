@@ -24,9 +24,9 @@ import com.android.systemui.car.distantdisplay.common.DistantDisplayController;
 import com.android.systemui.car.flexibleui.CarSystemBarElementController;
 import com.android.systemui.car.flexibleui.CarSystemBarElementStateController;
 import com.android.systemui.car.flexibleui.CarSystemBarElementStatusBarDisableController;
-import com.android.systemui.car.statusicon.StatusIconPanelViewController;
-import com.android.systemui.car.systembar.CarSystemBarPanelButtonView;
-import com.android.systemui.car.systembar.CarSystemBarPanelButtonViewController;
+import com.android.systemui.car.systembar.panel.CarSystemBarPanelButtonView;
+import com.android.systemui.car.systembar.panel.CarSystemBarPanelButtonViewController;
+import com.android.systemui.car.systembar.panel.PanelViewController;
 
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -45,7 +45,7 @@ public class DistantDisplayStatusIconPanelController extends CarSystemBarPanelBu
             @Assisted CarSystemBarPanelButtonView view,
             CarSystemBarElementStatusBarDisableController disableController,
             CarSystemBarElementStateController stateController,
-            Provider<StatusIconPanelViewController.Factory> statusIconPanelFactoryProvider,
+            Provider<PanelViewController.Factory> statusIconPanelFactoryProvider,
             DistantDisplayController distantDisplayController) {
         super(view, disableController, stateController, statusIconPanelFactoryProvider);
         mDistantDisplayController = distantDisplayController;
