@@ -64,4 +64,9 @@ public class DriverDistractionWarningUnitTest {
                 .that(mJavaConstantValue)
                 .isEqualTo(mHalConstantValue);
     }
+
+    @Test
+    public void testValuesAreNotErrorStates() throws IllegalAccessException {
+        CarLibPropertyUnitTestUtils.verifyValueIsNotErrorState(mJavaConstantValue);
+    }
 }
