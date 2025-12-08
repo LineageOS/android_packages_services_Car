@@ -52,7 +52,7 @@ class EvsCallbackThread final {
 
 public:
     explicit EvsCallbackThread(JavaVM* vm);
-    virtual ~EvsCallbackThread();
+    ~EvsCallbackThread();
 
     // Adds a new task to the queue
     void enqueue(const Task& task) EXCLUDES(mLock);

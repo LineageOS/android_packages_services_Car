@@ -31,6 +31,9 @@
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
             android:excludeFromRecents="true">
             <meta-data android:name="distractionOptimized" android:value="true"/>
+            <property
+                android:name="android.window.ALLOW_HOME_ACTIVITY_ALWAYS_PRESENT"
+                android:value="true" />
             <!-- Set home priority to be above typical home (0) and GcarSetup (3) but below SUW priority (5) -->
             <intent-filter android:priority="4">
                 <action android:name="android.intent.action.MAIN"/>
@@ -54,6 +57,9 @@
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
             android:excludeFromRecents="true">
             <meta-data android:name="distractionOptimized" android:value="true"/>
+            <property
+                android:name="android.window.ALLOW_HOME_ACTIVITY_ALWAYS_PRESENT"
+                android:value="true" />
             <!-- Set home priority to be above typical home and SUW -->
             <intent-filter android:priority="20">
                 <action android:name="android.intent.action.MAIN"/>

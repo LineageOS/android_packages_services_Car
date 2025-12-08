@@ -36,8 +36,8 @@ import static android.media.AudioManager.FLAG_SHOW_UI;
 
 import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaIdString;
-import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyId;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
 import static com.android.car.power.PolicyReader.POWER_STATE_ON;
 import static com.android.car.power.PolicyReader.POWER_STATE_WAIT_FOR_VHAL;
 
@@ -653,11 +653,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Inject a vehicle property for testing.");
         pw.println("\t  delay_time_seconds: the event timestamp is increased by certain second.");
         pw.println("\t  If not specified, it will be 0.");
-        pw.println("\tinject-error-event <PROPERTY_ID in Hex or Decimal> zone <errorCode>");
+        pw.println(
+                "\tinject-error-event <property name in SCREAMING_SNAKE_CASE or ID in Hex or"
+                    + " Decimal> zone <errorCode>");
         pw.println("\t  Inject an error event from VHAL for testing.");
-        pw.println("\tinject-continuous-events <PROPERTY_ID in Hex or Decimal> "
-                + "data(can be comma separated list) "
-                + "[-z zone]  [-s SampleRate in Hz] [-d time duration in seconds]");
+        pw.println(
+                "\tinject-continuous-events <property name in SCREAMING_SNAKE_CASE or ID in Hex or"
+                    + " Decimal> data(can be comma separated list) [-z zone] [-s SampleRate in Hz]"
+                    + " [-d time duration in seconds]");
         pw.println("\t  Inject continuous vehicle events for testing.");
         pw.printf("\t  If not specified, CarService will inject fake events with areaId:%s "
                         + "at sample rate %s for %s seconds.",
@@ -3503,7 +3506,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         String areaId = PARAM_VEHICLE_PROPERTY_GLOBAL_AREA_ID;
         String sampleRate = PARAM_INJECT_EVENT_DEFAULT_RATE;
         String durationTime = PARAM_INJECT_EVENT_DEFAULT_DURATION;
-        String propId = args[1];
+        int propertyId = decodePropertyId(args[1]);
         String data = args[2];
         // scan input
         for (int i = 3; i < args.length - 1; i++) {
@@ -3531,9 +3534,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 showHelp(writer);
                 return;
             }
-            mHal.injectContinuousVhalEvent(Integer.decode(propId),
-                    Integer.decode(areaId), data,
-                    sampleRateFloat, Long.parseLong(durationTime));
+            mHal.injectContinuousVhalEvent(
+                    propertyId,
+                    Integer.decode(areaId),
+                    data,
+                    sampleRateFloat,
+                    Long.parseLong(durationTime));
         } catch (NumberFormatException e) {
             writer.printf("Invalid arguments: %s\n", e);
             showHelp(writer);

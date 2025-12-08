@@ -155,7 +155,6 @@ void fillRGBAFromARGB(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VID
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
 
-    const auto dstStrideInBytes = pDesc->stride * 4;  // 4-byte per pixel
     auto result = libyuv::ARGBToABGR((const uint8_t*)imgData[0], imgStride, tgt, imgStride,
                                      pDesc->width, pDesc->height);
     if (result) {

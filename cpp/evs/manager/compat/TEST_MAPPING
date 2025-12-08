@@ -1,0 +1,7 @@
+{
+  "auto-postsubmit": [
+    {
+      "name": "evs_compat_unit_tests"
+    }
+  ]
+}

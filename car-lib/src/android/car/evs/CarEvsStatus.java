@@ -16,8 +16,11 @@
 
 package android.car.evs;
 
+import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.Car;
@@ -33,9 +36,17 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
  * Describes current status of CarEvsService with its current state and service type.
  *
  * @hide
+ * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+ *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+ *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2 NDK
+ *     APIs (<a
+ *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+ *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
  */
 @SystemApi
 @RequiredFeature(Car.CAR_EVS_SERVICE)
+@FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+@Deprecated
 public final class CarEvsStatus implements Parcelable {
     public static final @NonNull Parcelable.Creator<CarEvsStatus> CREATOR =
             new Parcelable.Creator<CarEvsStatus>() {

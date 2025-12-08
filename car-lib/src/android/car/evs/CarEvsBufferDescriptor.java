@@ -16,7 +16,8 @@
 
 package android.car.evs;
 
-import static android.car.feature.Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT;
+import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -42,9 +43,17 @@ import java.util.Objects;
  * from the Extended View System service.
  *
  * @hide
+ * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+ *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+ *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2 NDK
+ *     APIs (<a
+ *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+ *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
  */
 @SystemApi
 @RequiredFeature(Car.CAR_EVS_SERVICE)
+@FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+@Deprecated
 public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
     public static final @NonNull Parcelable.Creator<CarEvsBufferDescriptor> CREATOR =
             new Parcelable.Creator<CarEvsBufferDescriptor>() {
@@ -62,7 +71,6 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
             };
 
     private final int mId;
-    // This field shouldn't be accessed if CAR_EVS_STREAM_MANAGEMENT flag is not true.
     private final @CarEvsServiceType int mType;
 
     @NonNull
@@ -87,7 +95,6 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
      * @param id A 32-bit integer to uniquely identify associated hardware buffer.
      * @param buffer Hardware buffer that contains the imagery data from EVS service.
      */
-    @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
     public CarEvsBufferDescriptor(int id, @CarEvsServiceType int type,
             @NonNull HardwareBuffer buffer) {
         Objects.requireNonNull(buffer, "HardwardBuffer cannot be null.");
@@ -166,7 +173,6 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
      *
      * @return {@link CarEvsServiceType}.
      */
-    @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
     public @CarEvsServiceType int getType() {
         return mType;
     }

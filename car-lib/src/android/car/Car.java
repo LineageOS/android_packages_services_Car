@@ -18,6 +18,7 @@ package android.car;
 
 import static android.car.CarLibLog.TAG_CAR;
 import static android.car.feature.Flags.FLAG_ANDROID_B_VEHICLE_PROPERTIES;
+import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
 import static android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING;
 import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS;
 import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS;
@@ -495,9 +496,17 @@ public final class Car implements ICarBase {
      * Service name for {@link android.car.evs.CarEvsManager}
      *
      * @hide
+     * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+     *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+     *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2
+     *     NDK APIs (<a
+     *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+     *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
      */
     @OptionalFeature
     @SystemApi
+    @FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+    @Deprecated
     public static final String CAR_EVS_SERVICE = "car_evs_service";
 
     /**
@@ -1144,8 +1153,16 @@ public final class Car implements ICarBase {
      * activity to show the camera preview.
      *
      * @hide
+     * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+     *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+     *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2
+     *     NDK APIs (<a
+     *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+     *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
      */
     @SystemApi
+    @FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+    @Deprecated
     public static final String PERMISSION_REQUEST_CAR_EVS_ACTIVITY =
             "android.car.permission.REQUEST_CAR_EVS_ACTIVITY";
 
@@ -1154,8 +1171,16 @@ public final class Car implements ICarBase {
      * preview.
      *
      * @hide
+     * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+     *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+     *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2
+     *     NDK APIs (<a
+     *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+     *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
      */
     @SystemApi
+    @FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+    @Deprecated
     public static final String PERMISSION_CONTROL_CAR_EVS_ACTIVITY =
             "android.car.permission.CONTROL_CAR_EVS_ACTIVITY";
 
@@ -1163,8 +1188,16 @@ public final class Car implements ICarBase {
      * Signature|Privileged permission necessary to use the camera streams via CarEvsService.
      *
      * @hide
+     * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+     *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+     *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2
+     *     NDK APIs (<a
+     *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+     *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
      */
     @SystemApi
+    @FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+    @Deprecated
     public static final String PERMISSION_USE_CAR_EVS_CAMERA =
             "android.car.permission.USE_CAR_EVS_CAMERA";
 
@@ -1172,8 +1205,16 @@ public final class Car implements ICarBase {
      * Signature|Privileged permission necessary to monitor the status of CarEvsService.
      *
      * @hide
+     * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+     *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+     *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2
+     *     NDK APIs (<a
+     *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+     *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
      */
     @SystemApi
+    @FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+    @Deprecated
     public static final String PERMISSION_MONITOR_CAR_EVS_STATUS =
             "android.car.permission.MONITOR_CAR_EVS_STATUS";
 

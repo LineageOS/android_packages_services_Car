@@ -20,6 +20,7 @@
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 #include <aidl/android/hardware/automotive/evs/CameraDesc.h>
 #include <aidl/android/hardware/automotive/evs/CameraParam.h>
+#include <aidl/android/hardware/automotive/evs/EvsEventDesc.h>
 #include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <aidl/android/hardware/automotive/evs/IEvsCameraStream.h>
 #include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
@@ -54,6 +55,8 @@ class CompatVirtualCamera : public aidlevs::BnEvsCamera {
     friend class CompatVirtualCameraTest_pauseVideoStream_Success_Test;
     friend class CompatVirtualCameraTest_resumeVideoStream_StreamNotPaused_Test;
     friend class CompatVirtualCameraTest_resumeVideoStream_Success_Test;
+    friend class CompatVirtualCameraTest_Notify_Success_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_sendsNotification_Test;
 #endif
 
 public:
@@ -97,6 +100,7 @@ public:
     ::ndk::ScopedAStatus unsetPrimaryClient() override;
 
     virtual bool deliverFrame(const aidlevs::BufferDesc& bufferDesc);
+    virtual bool notify(const aidlevs::EvsEventDesc& event);
     std::vector<std::shared_ptr<CompatHalCamera>> getHalCameras() const;
 
     virtual bool isStreaming() const {

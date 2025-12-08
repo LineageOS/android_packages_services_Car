@@ -16,6 +16,8 @@
 
 package com.android.car.evs;
 
+import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
+
 import static android.car.evs.CarEvsManager.ERROR_BUSY;
 import static android.car.evs.CarEvsManager.ERROR_NONE;
 import static android.car.evs.CarEvsManager.ERROR_UNAVAILABLE;
@@ -28,6 +30,7 @@ import static com.android.car.CarLog.TAG_EVS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 
+import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -71,7 +74,18 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-/** CarEvsService state machine implementation to handle all state transitions. */
+/**
+ * CarEvsService state machine implementation to handle all state transitions.
+ *
+ * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+ *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+ *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2 NDK
+ *     APIs (<a
+ *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+ *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
+ */
+@FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+@Deprecated
 final class StateMachine {
     // Service request priorities
     static final int REQUEST_PRIORITY_LOW = 0;

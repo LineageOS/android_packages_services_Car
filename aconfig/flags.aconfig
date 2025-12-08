@@ -383,6 +383,13 @@ flag {
   bug: "441577862"
 }
 
+flag {
+  name: "car_evs_deprecation"
+  namespace: "car_perception"
+  description: "Marks EVS functionality and APIs as being deprecated."
+  bug: "461601548"
+}
+
 # CarPropertyErrorCodes
 flag {
   name: "car_property_detailed_error_codes"
