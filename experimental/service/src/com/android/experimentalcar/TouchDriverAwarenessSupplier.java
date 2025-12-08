@@ -163,7 +163,6 @@ public class TouchDriverAwarenessSupplier extends IDriverAwarenessSupplier.Stub 
      * Starts monitoring touches.
      */
     @VisibleForTesting
-    // TODO(b/146802952) handle touch monitoring on multiple displays
     void startTouchMonitoring() {
         InputManager inputManager = (InputManager) mContext.getSystemService(Context.INPUT_SERVICE);
         mInputMonitor = inputManager.monitorGestureInput(
