@@ -128,8 +128,6 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
 
     @Override
     public CarNavigationInstrumentCluster getInstrumentClusterInfo() {
-        // Failure in this call leads into an issue in the client, so throw exception
-        // when it cannot be recovered / retried.
         for (int i = 0; i < RENDERER_WAIT_MAX_RETRY; i++) {
             IInstrumentClusterNavigation navigationBinder = getNavigationBinder();
             if (navigationBinder == null) {
@@ -141,7 +139,10 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
                 Slogf.e(TAG, "getInstrumentClusterInfo failed", e);
             }
         }
-        throw new IllegalStateException("cannot access renderer service");
+        // This might be because cluster_service is not enabled, thus init() is not called. This is
+        // a valid case, so just return null.
+        Slogf.i(TAG, "cannot access renderer service");
+        return null;
     }
 
     @Override

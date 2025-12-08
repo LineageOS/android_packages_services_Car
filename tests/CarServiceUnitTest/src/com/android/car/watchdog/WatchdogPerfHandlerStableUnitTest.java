@@ -43,10 +43,10 @@ import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTIO
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+import static com.android.car.watchdog.IoOveruseHandler.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
+import static com.android.car.watchdog.IoOveruseHandler.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
+import static com.android.car.watchdog.IoOveruseHandler.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -3766,7 +3766,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     }
 
     @Test
-    public void testProcessPackageChangedIntentForEnabledPackage() throws Exception {
+    public void testProcessActionPackageChangedForEnabledPackage() throws Exception {
         String packageName = "system_package";
         int userId = 100;
 
@@ -3778,11 +3778,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .getApplicationEnabledSetting(or(eq("system_package"),
                         eq("irrelevant_random_package")), eq(100));
 
-        mWatchdogPerfHandlerStable.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandlerStable.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
-        mWatchdogPerfHandlerStable.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandlerStable.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:irrelevant_random_package")));
 
@@ -3793,7 +3793,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     }
 
     @Test
-    public void testProcessPackageChangedIntentForDisabledPackage() throws Exception {
+    public void testProcessActionPackageChangedForDisabledPackage() throws Exception {
         String packageName = "system_package";
         int userId = 100;
 
@@ -3803,7 +3803,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         doReturn(COMPONENT_ENABLED_STATE_DISABLED).when(mSpiedPackageManager)
                 .getApplicationEnabledSetting("system_package", 100);
 
-        mWatchdogPerfHandlerStable.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandlerStable.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
@@ -4785,11 +4785,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         /* gmBytes= */ componentType * 60L));
         config.categorySpecificThresholds = Arrays.asList(
                 constructPerStateIoOveruseThreshold(
-                        WatchdogPerfHandlerStable.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
+                        IoOveruseHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
                         /* fgBytes= */ componentType * 100L, /* bgBytes= */ componentType * 200L,
                         /* gmBytes= */ componentType * 300L),
                 constructPerStateIoOveruseThreshold(
-                        WatchdogPerfHandlerStable.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
+                        IoOveruseHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
                         /* fgBytes= */ componentType * 1100L, /* bgBytes= */ componentType * 2200L,
                         /* gmBytes= */ componentType * 3300L));
         config.systemWideThresholds = Collections.singletonList(

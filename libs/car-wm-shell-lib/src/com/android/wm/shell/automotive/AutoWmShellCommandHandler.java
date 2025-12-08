@@ -17,6 +17,7 @@
 package com.android.wm.shell.automotive;
 
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.ArraySet;
 import android.view.InsetsFrameProvider;
 
@@ -39,11 +40,20 @@ import javax.inject.Inject;
 public final class AutoWmShellCommandHandler implements
         ShellCommandHandler.ShellCommandActionHandler {
 
+    private static final String COMMAND_HELP = "help";
+    private static final String COMMAND_DUMP = "dump";
+    private static final String COMMAND_GET_ROOT_TASKS = "get-root-tasks";
+    private static final String COMMAND_SET_FOCUS_ROOT_TASK = "set-focus-root-task";
+    private static final String COMMAND_GET_INSETS = "get-insets";
+    private static final String COMMAND_UPDATE_INSET = "update-inset";
+    private static final String COMMAND_REMOVE_INSET = "remove-inset";
+
     private final AutoLayoutManager mAutoLayoutManager;
     private final AutoCaptionController mAutoCaptionController;
     private final Lazy<AutoTaskStackController> mAutoTaskStackController;
     private final AutoDecorManager mAutoDecorManager;
     private final AutoTaskRepository mTaskRepository;
+
     @Inject
     AutoWmShellCommandHandler(ShellCommandHandler shellCommandHandler,
             Lazy<AutoTaskStackController> autoTaskStackController,
@@ -91,24 +101,34 @@ public final class AutoWmShellCommandHandler implements
 
     @Override
     public boolean onShellCommand(String[] args, PrintWriter pw) {
+        if (Build.IS_USER) {
+            // User builds are not supported.
+            pw.println("User builds are not supported.");
+            return false;
+        }
         // More commands can be added here.
         switch (args[0]) {
-            case "dump":
+            case COMMAND_HELP:
+                pw.println("USAGE: adb shell wm shell car-wm-shell <supported-commands>");
+                pw.println("supported-commands:");
+                printShellCommandHelp(pw, "\t");
+                return true;
+            case COMMAND_DUMP:
                 dump(args, pw, "");
                 return true;
-            case "get-root-tasks":
+            case COMMAND_GET_ROOT_TASKS:
                 printRootTasks(args, pw);
                 return true;
-            case "set-focus-root-task":
+            case COMMAND_SET_FOCUS_ROOT_TASK:
                 setFocusedRootTask(args, pw);
                 return true;
-            case "get-insets":
+            case COMMAND_GET_INSETS:
                 getInsets(args, pw);
                 return true;
-            case "update-inset":
+            case COMMAND_UPDATE_INSET:
                 updateInset(args, pw);
                 return true;
-            case "remove-inset":
+            case COMMAND_REMOVE_INSET:
                 removeInset(args, pw);
                 return true;
             default:
@@ -198,21 +218,30 @@ public final class AutoWmShellCommandHandler implements
 
     @Override
     public void printShellCommandHelp(PrintWriter pw, String prefix) {
-        pw.println(prefix + "dump");
-        pw.println(prefix + "  Dumps the Car window manager shell");
-        pw.println(prefix + "get-root-tasks");
-        pw.println(prefix + "  Provides the existing root tasks");
-        pw.println(prefix + "set-focus-root-task <Root-task-id>");
-        pw.println(prefix + "  Sets the provided root task as focused");
-        pw.println(prefix + "get-insets <root-task-id>");
-        pw.println(prefix + "  Provides the existing inset of a root task");
-        pw.println(prefix + "update-inset <Root-task-id> <index-id> <inset-type> <inset-frame>");
-        pw.println(prefix
-                + "  update inset to the given root task. inset-id and inset-type should be "
-                + "integers. inset-frame should be 4 integer values defining the rectangle");
-        pw.println(prefix + "remove-inset <Root-task-id> <index-id> <inset-type> ");
-        pw.println(prefix
-                + "  remove inset to the given root task. inset-id and inset-type should be "
-                + "integers. Inset matching with the inset-type and index will be removed");
+        pw.printf(prefix + "%s\n", COMMAND_HELP);
+        pw.println(prefix + "\tPrints car-wm-shell help");
+        pw.printf(prefix + "%s [className]\n", COMMAND_DUMP);
+        pw.println(prefix + "\tDumps the Car window manager shell. Supported className: ");
+        pw.println(prefix + "\t\tAutoTaskRepository");
+        pw.println(prefix + "\t\tAutoDecorManager");
+        pw.println(prefix + "\t\tAutoTaskStackController ");
+        pw.println(prefix + "\t\tAutoLayoutManager");
+        pw.println(prefix + "\t\tAutoCaptionController ");
+        pw.println(prefix + "\tif no className is provided, then it dumps everything.");
+        pw.printf(prefix + "%s\n", COMMAND_GET_ROOT_TASKS);
+        pw.println(prefix + "\tProvides the existing root tasks");
+        pw.printf(prefix + "%s <root-task-id>\n", COMMAND_SET_FOCUS_ROOT_TASK);
+        pw.println(prefix + "\tSets the provided root task as focused");
+        pw.printf(prefix + "%s <root-task-id>\n", COMMAND_GET_INSETS);
+        pw.println(prefix + "\tProvides the existing inset of a root task");
+        pw.printf(prefix + "%s <Root-task-id> <index-id> <inset-type> <inset-frame>\n",
+                COMMAND_UPDATE_INSET);
+        pw.println(prefix + "\tupdate inset to the given root task. inset-id and inset-type");
+        pw.println(prefix + "\tshould be integers. inset-frame should be 4 integer values");
+        pw.println(prefix + "\tdefining the rectangle");
+        pw.printf(prefix + "%s <Root-task-id> <index-id> <inset-type>\n", COMMAND_REMOVE_INSET);
+        pw.println(prefix + "\tremove inset to the given root task. inset-id and inset-type");
+        pw.println(prefix + "\tshould be integers. Inset matching with the inset-type and index");
+        pw.println(prefix + "\twill be removed");
     }
 }

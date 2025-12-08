@@ -87,7 +87,6 @@
     </style>
 
     <style name="HeadsUpNotificationCard" parent="NotificationCard">
-        <item name="android:layout_gravity">center_horizontal|bottom</item>
         <item name="android:layout_marginEnd">0dp</item>
         <item name="android:layout_marginStart">0dp</item>
     </style>

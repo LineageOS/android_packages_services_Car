@@ -19,6 +19,7 @@ package com.android.wm.shell.automotive;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,8 +29,10 @@ import android.os.Binder;
 import android.util.ArraySet;
 import android.view.InsetsFrameProvider;
 import android.view.WindowInsets;
+import android.window.DisplayAreaInfo;
 import android.window.WindowContainerToken;
 
+import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.ShellTaskOrganizer;
 
 import org.junit.Before;
@@ -44,11 +47,14 @@ public class AutoLayoutManagerTest {
     private static final int TEST_INSET_TYPE = WindowInsets.Type.statusBars();
     private static final Rect TEST_INSET_FRAME = new Rect(0, 0, 100, 50);
     private static final Rect TEST_SAFE_REGION = new Rect(10, 20, 900, 500);
+    private static final int TEST_DISPLAY_ID = 34;
 
     @Mock
     private ShellTaskOrganizer mShellTaskOrganizer;
     @Mock
     private AutoTaskRepository mAutoTaskRepository;
+    @Mock
+    private RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
     @Mock
     private WindowContainerToken mWindowContainerToken;
     @Mock
@@ -67,12 +73,16 @@ public class AutoLayoutManagerTest {
         mRunningTaskInfo.taskId = TEST_TASK_ID;
         mRunningTaskInfo.token = mWindowContainerToken;
         when(mAutoTaskRepository.getTaskInfo(TEST_TASK_ID)).thenReturn(mRunningTaskInfo);
-        mAutoLayoutManager = new AutoLayoutManager(mShellTaskOrganizer, mAutoTaskRepository);
+        mAutoLayoutManager = new AutoLayoutManager(mShellTaskOrganizer, mAutoTaskRepository,
+                mRootTaskDisplayAreaOrganizer);
     }
 
     @Test
     public void testSetOrUpdateSafeRegion_setsSafeRegion() {
-        mAutoLayoutManager.setOrUpdateSafeRegion(mWindowContainerToken, TEST_SAFE_REGION);
+        when(mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(TEST_DISPLAY_ID)).thenReturn(
+                new DisplayAreaInfo(mock(WindowContainerToken.class), TEST_DISPLAY_ID, 0));
+
+        mAutoLayoutManager.setOrUpdateSafeRegion(TEST_DISPLAY_ID, TEST_SAFE_REGION);
 
         verify(mShellTaskOrganizer).applyTransaction(any());
     }

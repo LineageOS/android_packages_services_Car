@@ -89,7 +89,7 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 ###
 
 # Enable headless system user mode
-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
     ro.fw.mu.headless_system_user?=true
 
 # Enable User HAL integration

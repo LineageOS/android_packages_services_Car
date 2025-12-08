@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
@@ -49,6 +51,18 @@ import java.util.Set;
  * groups, and focus interactions for similar usages.
  */
 public final class CarAudioContext {
+
+    /** Score for matching audio attribute usage. */
+    public static final int ATTR_MATCH_SCORE_USAGE = 100;
+    /** Score for matching audio attribute content type. */
+    public static final int ATTR_MATCH_SCORE_CONTENT_TYPE = 10;
+    /** Score for matching audio attribute flags. */
+    public static final int ATTR_MATCH_SCORE_FLAGS = 1;
+    /** Score for matching audio attribute tags. */
+    public static final int ATTR_MATCH_SCORE_TAGS = 50;
+    /** Score for an exact match of all audio attributes. */
+    public static final int ATTR_MATCH_SCORE_EXACT = ATTR_MATCH_SCORE_USAGE
+            + ATTR_MATCH_SCORE_CONTENT_TYPE + ATTR_MATCH_SCORE_FLAGS + ATTR_MATCH_SCORE_TAGS;
 
     private static final String TAG = CarLog.tagFor(CarAudioContext.class);
 
@@ -554,13 +568,25 @@ public final class CarAudioContext {
         return getContextForAudioAttribute(attributes);
     }
 
+    @AudioContext int getContextForAttributes(AudioAttributes attributes, int zoneId) {
+        return getContextForAudioAttribute(attributes, zoneId);
+    }
+
     /**
-     * @return Context number for a given audio usage, {@code INVALID} if the given usage is
-     * unrecognized.
+     * @return Context number for a given audio attribute, {@code INVALID} if the given audio
+     * attribute is unrecognized.
      */
     public @AudioContext int getContextForAudioAttribute(AudioAttributes attributes) {
+        return getContextForAudioAttribute(attributes, PRIMARY_AUDIO_ZONE);
+    }
+
+    /**
+     * @return Context number for a given audio attribute and zone, {@code INVALID} if the given
+     * audio attribute is unrecognized.
+     */
+    public @AudioContext int getContextForAudioAttribute(AudioAttributes attributes, int zoneId) {
         if (mUseCoreAudioRouting) {
-            int strategyId = CoreAudioHelper.getStrategyForAudioAttributes(attributes);
+            int strategyId = CoreAudioHelper.getStrategyForAudioAttributes(attributes, zoneId);
             if ((strategyId != CoreAudioHelper.INVALID_STRATEGY)
                     && (mContextToNames.indexOfKey(strategyId) >= 0)) {
                 return strategyId;
@@ -734,6 +760,19 @@ public final class CarAudioContext {
         return contextIds;
     }
 
+    List<Integer> getAllContextsIdsForZoneId(int zoneId) {
+        List<Integer> contextIds = new ArrayList<>(mContextToAttributes.size());
+        for (int index = 0; index < mContextToAttributes.size(); index++) {
+            int contextId = mContextToAttributes.keyAt(index);
+            if (isInvalidContextId(contextId)
+                    || CoreAudioHelper.getZoneIdForOemContextId(contextId) != zoneId) {
+                continue;
+            }
+            contextIds.add(contextId);
+        }
+        return contextIds;
+    }
+
     static List<Integer> getNonCarSystemContextIds() {
         return NON_CAR_SYSTEM_CONTEXTS;
     }
@@ -814,6 +853,36 @@ public final class CarAudioContext {
             usages[index] = audioAttributes[index].getSystemUsage();
         }
         return usages;
+    }
+
+    /**
+     * Returns a score for the match of the {@link AudioAttributes} passed as argument.
+     * The score is the sum of:
+     * - {@link #ATTR_MATCH_SCORE_USAGE} if the usage matches
+     * - {@link #ATTR_MATCH_SCORE_CONTENT_TYPE} if the content type matches
+     * - {@link #ATTR_MATCH_SCORE_FLAGS} if the flags match
+     * - {@link #ATTR_MATCH_SCORE_TAGS} if the tags match
+     * - 0 otherwise
+     *
+     * @param aa1 The first {@link AudioAttributes} object to compare.
+     * @param aa2 The second {@link AudioAttributes} object to compare.
+     * @return the score of the match.
+     */
+    public static int getAudioAttributesMatchScore(AudioAttributes aa1, AudioAttributes aa2) {
+        int score = 0;
+        if (aa1.getSystemUsage() == aa2.getSystemUsage()) {
+            score += ATTR_MATCH_SCORE_USAGE;
+        }
+        if (aa1.getContentType() == aa2.getContentType()) {
+            score += ATTR_MATCH_SCORE_CONTENT_TYPE;
+        }
+        if (aa1.getFlags() == aa2.getFlags()) {
+            score += ATTR_MATCH_SCORE_FLAGS;
+        }
+        if (AudioManagerHelper.getTags(aa1).equals(AudioManagerHelper.getTags(aa2))) {
+            score += ATTR_MATCH_SCORE_TAGS;
+        }
+        return score;
     }
 
     /**

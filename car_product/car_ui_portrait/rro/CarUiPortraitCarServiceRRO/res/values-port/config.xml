@@ -65,4 +65,11 @@
         <item>car_evs_service</item>
         <item>car_telemetry_service</item>
     </string-array>
+
+    <!-- Configures the mode in which ClusterHomeService operates. -->
+    <integer name="config_clusterHomeServiceMode">1</integer>
+
+    <!--  The name of Activity who is in charge of ClusterHome. -->
+    <string name="config_clusterHomeActivity" translatable="false">com.android.car.cluster.home/.ClusterHomeActivityLightMode</string>
+
 </resources>

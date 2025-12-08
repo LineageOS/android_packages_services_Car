@@ -133,6 +133,62 @@
          and other sounds can be still played. -->
     <bool name="displayOffMuteLockAllAudio">true</bool>
 
+    <!-- Configuration to enable audio focus enforcement.
+         If set to true, the car audio service enforces audio focus on audio playback for the
+         primary audio zone.
+         If set to false, the car audio service does not enforce audio focus.
+         Notes:
+            - Audio focus enforcement is enabled by default.
+            - When enabled, audio playback will be silenced if the client (app/service)
+                does not request or loses audio focus.
+            - Enforcement only applies to audio playback whose audio attribute usage
+                is included in 'audioFocusEnforcementUsages'.
+    -->
+    <bool name="audioEnableAudioFocusEnforcement">true</bool>
+
+    <!-- Configuration to relax audio focus enforcement when the car is in parked mode for the
+         primary audio zone.
+         If set to true, audio focus enforcement is relaxed when the car is in parked mode.
+         If set to false, audio focus enforcement is not relaxed when the car is in parked mode.
+         Notes:
+            - This configuration is only effective if audio focus enforcement is enabled.
+            - When relaxed, audio playback will not be silenced if the client (app/service)
+                does not request or loses audio focus.
+    -->
+    <bool name="audioFocusEnforcementRelaxedWhileParked">true</bool>
+
+    <!-- Array of AudioUsages (strings) that should be silenced when audio playback
+         fails to respect audio focus for the primary audio zone.
+         Notes:
+            - Strings must correspond to the public AudioUsage enum values
+                (e.g., "USAGE_MEDIA", "USAGE_ASSISTANT").
+            - "USAGE_EMERGENCY", "USAGE_SAFETY", "USAGE_VOICE_COMMUNICATION",
+                "USAGE_CALL_ASSISTANT", and "USAGE_VOICE_COMMUNICATION_SIGNALLING"
+                are not supported and will not be silenced.
+            - This list defines which audio types are subject to focus enforcement.
+    -->
+    <string-array translatable="false" name="audioFocusEnforcementUsages">
+        <item>USAGE_MEDIA</item>
+        <item>USAGE_GAME</item>
+        <item>USAGE_ANNOUNCEMENT</item>
+    </string-array>
+
+    <!-- Array of AudioAttributes (strings) that should not be silenced when audio playback
+         fails to respect audio focus.
+         This can be used to overwrite 'audioFocusEnforcementUsages' more specifically,
+         as the check is performed on the entire audio attribute, not just the usage.
+         Using tags or flags to overwrite silence for certain apps can be a useful tool.
+         Notes:
+            - Each item is a string concatenation of the audio attribute fields:
+              "usage={usage},content_type={content_type},flags={flags},tags={tags}".
+            - The values for usage and content type should be the string representation
+              of the constants in AudioAttributes (e.g., "USAGE_MEDIA").
+            - The tags are separated by a colon.
+            - Example: "usage=USAGE_MEDIA,content_type=CONTENT_TYPE_MUSIC,flags=FLAG_AUDIBILITY_ENFORCED,tags=tag1:tag2"
+    -->
+    <string-array translatable="false" name="audioFocusEnforcementDoNotSilenceAttributes">
+    </string-array>
+
     <!--  Configuration to enable or disable the default Bluetooth Device Connection Policy. This
           policy determines when to initiate device connections, but does not control the actual
           connection process. Disable this default to implement your own policy. -->

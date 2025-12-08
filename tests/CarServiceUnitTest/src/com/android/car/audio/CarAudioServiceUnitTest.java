@@ -86,7 +86,9 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
+import static com.android.car.R.bool.audioEnableAudioFocusEnforcement;
 import static com.android.car.R.bool.audioEnableVolumeKeyEventsToDynamicDevices;
+import static com.android.car.R.bool.audioFocusEnforcementRelaxedWhileParked;
 import static com.android.car.R.bool.audioPersistFadeBalanceLevels;
 import static com.android.car.R.bool.audioPersistMasterMuteState;
 import static com.android.car.R.bool.audioUseCarVolumeGroupEvent;
@@ -119,10 +121,12 @@ import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_VOLUME_GROU
 import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_VOLUME_GROUP_ID;
 import static com.android.car.audio.CarAudioTestUtils.TERTIARY_OCCUPANT_ID;
 import static com.android.car.audio.CarAudioTestUtils.TERTIARY_ZONE_ID;
+import static com.android.car.audio.CarAudioTestUtils.TEST_MEDIA_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_SECONDARY_ZONE_GROUP_0;
 import static com.android.car.audio.CarAudioTestUtils.TEST_SECONDARY_ZONE_GROUP_1;
 import static com.android.car.audio.CarAudioTestUtils.createAudioServiceAudioZones;
 import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
+import static com.android.car.audio.CoreAudioRoutingUtils.setUpProductStrategies;
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.car.audio.GainBuilder.MAX_GAIN;
 import static com.android.car.audio.GainBuilder.MIN_GAIN;
@@ -151,17 +155,25 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.ICarOccupantZoneCallback;
 import android.car.VehicleAreaSeat;
+import android.car.VehicleGear;
+import android.car.VehiclePropertyIds;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.feature.Flags;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.EnforcedAudioFocusInfo;
 import android.car.media.IAudioZoneConfigurationsChangeCallback;
 import android.car.media.IAudioZonesMirrorStatusCallback;
+import android.car.media.IEnforceableAudioFocusCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
@@ -181,6 +193,7 @@ import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceCallback;
@@ -191,6 +204,7 @@ import android.media.AudioManager.AudioPlaybackCallback;
 import android.media.AudioManager.AudioServerStateCallback;
 import android.media.AudioPlaybackConfiguration;
 import android.media.IAudioService;
+import android.media.PlayerProxy;
 import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioDeviceAddress;
 import android.media.audio.common.AudioDeviceDescription;
@@ -198,6 +212,7 @@ import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
 import android.media.audio.common.AudioPortExt;
 import android.media.audiopolicy.AudioPolicy;
+import android.media.audiopolicy.AudioProductStrategy;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -226,6 +241,7 @@ import com.android.car.CarInputService;
 import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
+import com.android.car.CarPropertyService;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.audio.AudioControlWrapper.AudioControlDeathRecipient;
@@ -254,7 +270,7 @@ import java.util.concurrent.TimeUnit;
 public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarAudioServiceUnitTest.class.getSimpleName();
     private static final long TEST_CALLBACK_TIMEOUT_MS = 100;
-    private static final long TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS = 500;
+    private static final long TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS = 1000;
     private static final int VOLUME_KEY_EVENT_TIMEOUT_MS = 3000;
     private static final int INIT_TIMEOUT_MS = 10_000;
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE = 1;
@@ -474,7 +490,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     private IAudioService mMockAudioService;
     @Mock
-    private IBinder mMockBinder;
+    private IBinder mIBinder;
     @Mock
     private Uri mNavSettingUri;
     @Mock
@@ -483,6 +499,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private CarVolumeCallbackHandler mCarVolumeCallbackHandler;
     @Mock
     private CarInputService mMockCarInputService;
+    @Mock
+    private CarPropertyService mMockPropertyService;
     @Mock
     private CarPowerManagementService mMockPowerService;
 
@@ -545,6 +563,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .spyStatic(AudioManagerHelper.class)
                 .spyStatic(AudioControlWrapper.class)
                 .spyStatic(CoreAudioHelper.class)
+                .spyStatic(AudioProductStrategy.class)
                 .spyStatic(ServiceManager.class)
                 .spyStatic(Car.class)
                 .spyStatic(Binder.class);
@@ -567,7 +586,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         setUpService();
     }
 
-    private void setUpStaticCalls() {
+    private void setUpStaticCalls() throws Exception {
         doReturn(MIN_SUBSCRIPTION_ID_VALUE).when(SubscriptionManager::getDefaultDataSubscriptionId);
         doReturn(mAudioControlWrapperAidl).when(AudioControlWrapper::newAudioControl);
         when(Settings.Secure.getUriFor(
@@ -578,33 +597,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));
 
         // Needed by audio policy when setting UID device affinity
-        when(mMockBinder.queryLocalInterface(any())).thenReturn(mMockAudioService);
-        doReturn(mMockBinder).when(() -> ServiceManager.getService(Context.AUDIO_SERVICE));
-        doReturn(CoreAudioRoutingUtils.getProductStrategies())
-                .when(AudioManagerWrapper::getAudioProductStrategies);
-        doReturn(CoreAudioRoutingUtils.getVolumeGroups())
-                .when(AudioManagerWrapper::getAudioVolumeGroups);
 
-        doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                CoreAudioRoutingUtils.MUSIC_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                CoreAudioRoutingUtils.MUSIC_GROUP_NAME));
-
-        doReturn(CoreAudioRoutingUtils.NAV_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                CoreAudioRoutingUtils.NAV_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.NAV_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                CoreAudioRoutingUtils.NAV_GROUP_NAME));
-
-        doReturn(CoreAudioRoutingUtils.OEM_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                CoreAudioRoutingUtils.OEM_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.OEM_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                CoreAudioRoutingUtils.OEM_GROUP_NAME));
+        setUpProductStrategies(mMockAudioService, mIBinder);
     }
 
     @After
@@ -616,8 +610,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             mTempCarAudioFadeConfigFile.close();
         }
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
-        CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.removeServiceForTest(CarPropertyService.class);
         for (int i = 0; i < mCarAudioServices.size(); i++) {
             mCarAudioServices.get(i).destroy();
         }
@@ -701,12 +695,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         when(mMockOccupantZoneService.getOccupantsConfig()).thenReturn(configs);
 
-        CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
-        CarLocalServices.addService(CarOccupantZoneService.class, mMockOccupantZoneService);
         CarLocalServices.removeServiceForTest(CarInputService.class);
         CarLocalServices.addService(CarInputService.class, mMockCarInputService);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mMockPowerService);
+        CarLocalServices.removeServiceForTest(CarPropertyService.class);
+        CarLocalServices.addService(CarPropertyService.class, mMockPropertyService);
 
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
@@ -834,6 +828,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
                 .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE);
         when(mMockResources.getBoolean(audioPersistMasterMuteState)).thenReturn(mPersistMasterMute);
+        when(mMockResources.getBoolean(audioEnableAudioFocusEnforcement)).thenReturn(true);
+        when(mMockResources.getBoolean(audioFocusEnforcementRelaxedWhileParked)).thenReturn(true);
+        when(mMockResources.getStringArray(R.array.audioFocusEnforcementUsages))
+                .thenReturn(new String[]{"USAGE_MEDIA", "USAGE_GAME", "USAGE_ANNOUNCEMENT"});
+        when(mMockResources.getStringArray(R.array.audioFocusEnforcementDoNotSilenceAttributes))
+                .thenReturn(new String[]{"usage=USAGE_MEDIA,tags=oem_orange_play"});
         enableVolumeKeyEventsToDynamicDevices(mEnableVolumeKeyEventsToDynamicDevices);
         when(mMockResources.getBoolean(audioPersistFadeBalanceLevels))
                 .thenReturn(mPersistFadeBalanceValues);
@@ -845,7 +845,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private CarAudioService createCarAudioService(Context context) {
-        var service = new CarAudioService(context);
+        return createCarAudioService(context, mMockOccupantZoneService);
+    }
+
+    private CarAudioService createCarAudioService(Context context,
+            CarOccupantZoneService occupantZoneService) {
+        var service = new CarAudioService(context, occupantZoneService);
         mCarAudioServices.add(service);
         return service;
     }
@@ -855,8 +860,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             String audioConfigurationPath,
             CarVolumeCallbackHandler carVolumeCallbackHandler,
             String audioFadeConfigurationPath) {
-        var service = new CarAudioService(context, audioManagerWrapper, mSystemProperties,
-                audioConfigurationPath, carVolumeCallbackHandler, audioFadeConfigurationPath);
+        var service = new CarAudioService(context, mMockOccupantZoneService, audioManagerWrapper,
+                mSystemProperties, audioConfigurationPath, carVolumeCallbackHandler,
+                audioFadeConfigurationPath);
         mCarAudioServices.add(service);
         return service;
     }
@@ -877,8 +883,17 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         NullPointerException thrown =
                 assertThrows(NullPointerException.class, () -> createCarAudioService(null));
 
-        expectWithMessage("Car Audio Service Construction Exception")
+        expectWithMessage("Car audio service construction exception for null context")
                 .that(thrown).hasMessageThat().contains("Context");
+    }
+
+    @Test
+    public void constructor_withNullCarOccupantZoneService_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> createCarAudioService(mContext, null));
+
+        expectWithMessage("Car audio service construction exception for null occupant service")
+                .that(thrown).hasMessageThat().contains("Car occupant zone service");
     }
 
     @Test
@@ -908,6 +923,46 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Car audio service construction").that(thrown).hasMessageThat()
                 .containsMatch("Fade manager configuration feature can not");
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void init_withNullFocusEnforceableUsages() throws Exception {
+        when(mMockResources.getStringArray(R.array.audioFocusEnforcementUsages))
+                .thenReturn(null);
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        service.init();
+
+        expectWithMessage("Audio focus enforceable usages with null info")
+                .that(service.getEnforceableAudioAttributeUsages()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void init_withEmptyFocusEnforceableUsages() throws Exception {
+        when(mMockResources.getStringArray(R.array.audioFocusEnforcementUsages))
+                .thenReturn(new String[0]);
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        service.init();
+
+        expectWithMessage("Audio focus enforceable usages with empty info")
+                .that(service.getEnforceableAudioAttributeUsages()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void init_withMediaAndGameFocusEnforceableUsages() throws Exception {
+        when(mMockResources.getStringArray(R.array.audioFocusEnforcementUsages))
+                .thenReturn(new String[]{"USAGE_MEDIA", "USAGE_GAME"});
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        service.init();
+
+        expectWithMessage("Audio focus enforceable usages with media and game")
+                .that(service.getEnforceableAudioAttributeUsages()).asList()
+                .containsExactly(USAGE_MEDIA, USAGE_GAME);
     }
 
     @Test
@@ -5898,7 +5953,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
                 .thenReturn(false);
 
-        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(
                 CoreAudioRoutingUtils.MUSIC_GROUP_NAME, FLAG_SHOW_UI);
 
         verify(mCarVolumeCallbackHandler)
@@ -5916,7 +5971,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 /* flags= */ 0);
         reset(mCarVolumeCallbackHandler);
 
-        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(
                 CoreAudioRoutingUtils.MUSIC_GROUP_NAME, /* flags= */ 0);
 
         verify(mCarVolumeCallbackHandler, never())
@@ -5934,7 +5989,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
                 .thenReturn(true);
 
-        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(
                 CoreAudioRoutingUtils.MUSIC_GROUP_NAME, expectedFlags);
 
         verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
@@ -5946,7 +6001,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService useCoreAudioCarAudioService =
                 setUpCarAudioServiceUsingCoreAudioRoutingAndVolume();
 
-        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(
                 CoreAudioRoutingUtils.INVALID_GROUP_NAME, /* flags= */ 0);
 
         verify(mCarVolumeCallbackHandler, never()).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
@@ -5970,7 +6025,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(false);
 
         // Report a volume change
-        service.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+        service.onAudioVolumeGroupChanged(
                 CoreAudioRoutingUtils.MUSIC_GROUP_NAME, FLAG_SHOW_UI);
 
         expectWithMessage("Volume event callback for volume change from AudioManager callback")
@@ -6794,6 +6849,334 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mAudioControlWrapperAidl, never()).onDevicesToDuckChange(any());
     }
 
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onPlaybackConfigChanged_whileParkedWithOutFocus_doesNotSilencesAudio()
+            throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(0);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        setUpCurrentDriveMode(getParkedEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+
+        callback.onPlaybackConfigChanged(List.of(getPlaybackConfig(playerProxy)));
+
+        verify(playerProxy, never()).setVolume(anyInt());
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced info in park mode")
+                .that(enforcedCallback.getEnforcedInfos()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onPlaybackConfigChanged_whileNotParkedWithOutFocus_silencesAudio()
+            throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(1);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        setUpCurrentDriveMode(getDrivingEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(playerProxy).setVolume(0.0f);
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced info").that(enforcedCallback.getEnforcedInfos())
+                        .hasSize(1);
+        var info = enforcedCallback.getEnforcedInfos().get(0);
+        assertWithMessage("Silenced UID").that(info.getUid()).isEqualTo(MEDIA_APP_UID);
+        assertWithMessage("Silenced status").that(info.isSilenced()).isEqualTo(true);
+        assertWithMessage("Silenced attributes").that(info.getAudioAttributes())
+                .isEqualTo(TEST_MEDIA_ATTRIBUTE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withFocusEnforcementDisable_doesNotSilences()
+            throws Exception {
+        when(mMockResources.getBoolean(audioEnableAudioFocusEnforcement)).thenReturn(false);
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(0);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(mMockPropertyService, never())
+                .registerListener(eq(VehiclePropertyIds.GEAR_SELECTION),
+                        eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any());
+        verify(playerProxy, never()).setVolume(anyFloat());
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced info with disable enforcement")
+                .that(enforcedCallback.getEnforcedInfos()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onEvent_afterSwitchToParkWithOutFocus_unSilencesAudio() throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(2);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        ICarPropertyEventListener carPropertyEventListener =
+                setUpCurrentDriveMode(getDrivingEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        carPropertyEventListener.onEvent(List.of(getParkedEvent()));
+
+        ArgumentCaptor<Float> volumeCaptor = ArgumentCaptor.forClass(Float.class);
+        verify(playerProxy, times(2)).setVolume(volumeCaptor.capture());
+        expectWithMessage("Audio player volumes while switching from drive to park")
+                .that(volumeCaptor.getAllValues()).containsExactly(0.0f, 1.0f).inOrder();
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced and unsilenced info")
+                .that(enforcedCallback.getEnforcedInfos()).hasSize(2);
+        var info = enforcedCallback.getEnforcedInfos().get(1);
+        assertWithMessage("Unsilenced UID").that(info.getUid()).isEqualTo(MEDIA_APP_UID);
+        assertWithMessage("Unsilenced status").that(info.isSilenced()).isEqualTo(false);
+        assertWithMessage("Unsilenced attributes").that(info.getAudioAttributes())
+                .isEqualTo(TEST_MEDIA_ATTRIBUTE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withRelaxedModeDisableAndParked_silences()
+            throws Exception {
+        when(mMockResources.getBoolean(audioFocusEnforcementRelaxedWhileParked)).thenReturn(false);
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(1);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        setUpCurrentDriveMode(getParkedEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(playerProxy).setVolume(0.0f);
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced info without relaxed parked mode")
+                .that(enforcedCallback.getEnforcedInfos()).hasSize(1);
+        var info = enforcedCallback.getEnforcedInfos().get(0);
+        assertWithMessage("Silenced UID without relaxed parked mode")
+                .that(info.getUid()).isEqualTo(MEDIA_APP_UID);
+        assertWithMessage("Silenced status without relaxed parked mode")
+                .that(info.isSilenced()).isEqualTo(true);
+        assertWithMessage("Silenced attributes without relaxed parked mode")
+                .that(info.getAudioAttributes())
+                .isEqualTo(TEST_MEDIA_ATTRIBUTE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onPlaybackConfigChanged_withFocusAndInDriveMode_doesNotSilenceAudio()
+            throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(0);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        setUpCurrentDriveMode(getDrivingEvent());
+        AudioFocusInfo audioFocusInfo = createAudioFocusInfoForMedia();
+        service.requestAudioFocusForTest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(playerProxy, never()).setVolume(anyFloat());
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced info with focus")
+                .that(enforcedCallback.getEnforcedInfos()).hasSize(0);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void abandonAudioFocusForTest_whileUnsilencedAndInDriveMode_silencesAudio()
+            throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(1);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        setUpCurrentDriveMode(getDrivingEvent());
+        AudioFocusInfo audioFocusInfo = createAudioFocusInfoForMedia();
+        service.requestAudioFocusForTest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        service.abandonAudioFocusForTest(audioFocusInfo);
+
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced info without focus and in drive mode")
+                .that(enforcedCallback.getEnforcedInfos()).hasSize(1);
+        var info = enforcedCallback.getEnforcedInfos().get(0);
+        assertWithMessage("Silenced UID without focus and in drive mode")
+                .that(info.getUid()).isEqualTo(MEDIA_APP_UID);
+        assertWithMessage("Silenced status without focus and in drive mode")
+                .that(info.isSilenced()).isEqualTo(true);
+        assertWithMessage("Silenced attributes without focus and in drive mode")
+                .that(info.getAudioAttributes())
+                .isEqualTo(TEST_MEDIA_ATTRIBUTE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withCriticalAudioInRelaxedMode_doesNotSilence()
+            throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(0);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        PlayerProxy emergencyProxy = mock(PlayerProxy.class);
+        var emergencyConfig = getPlaybackConfig(emergencyProxy, ATTRIBUTES_EMERGENCY,
+                TEST_PLAYBACK_UID);
+        setUpCurrentDriveMode(getDrivingEvent());
+        var playbackCallback = getCarAudioPlaybackCallback();
+
+        playbackCallback.onPlaybackConfigChanged(List.of(emergencyConfig));
+
+        verify(emergencyProxy, never()).setVolume(anyFloat());
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced info with critical audio in relaxed mode")
+                .that(enforcedCallback.getEnforcedInfos()).hasSize(0);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withCriticalAudioAndOtherCriticalFocus_silencesRespectively()
+            throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(1);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        PlayerProxy emergencyProxy = mock(PlayerProxy.class);
+        PlayerProxy mediaProxy = mock(PlayerProxy.class);
+        var emergencyConfig = getPlaybackConfig(emergencyProxy, ATTRIBUTES_EMERGENCY, 10000);
+        var mediaConfig = getPlaybackConfig(mediaProxy);
+        setUpCurrentDriveMode(getDrivingEvent());
+        var playbackCallback = getCarAudioPlaybackCallback();
+
+        playbackCallback.onPlaybackConfigChanged(List.of(emergencyConfig, mediaConfig));
+
+        verify(mediaProxy).setVolume(eq(0.0f));
+        verify(emergencyProxy, never()).setVolume(anyFloat());
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced info with critical audio and media without focus")
+                .that(enforcedCallback.getEnforcedInfos()).hasSize(1);
+        var info = enforcedCallback.getEnforcedInfos().get(0);
+        assertWithMessage("Silenced UID with critical audio and media without focus")
+                .that(info.getUid()).isEqualTo(MEDIA_APP_UID);
+        assertWithMessage("Silenced status with critical audio and media without focus")
+                .that(info.isSilenced()).isEqualTo(true);
+        assertWithMessage("Silenced attributes with critical audio and media without focus")
+                .that(info.getAudioAttributes())
+                .isEqualTo(TEST_MEDIA_ATTRIBUTE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withCriticalAudioPlaybacks_doesNotSilence()
+            throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(0);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        PlayerProxy emergencyProxy = mock(PlayerProxy.class);
+        PlayerProxy safetyProxy = mock(PlayerProxy.class);
+        var emergencyConfig = getPlaybackConfig(emergencyProxy, ATTRIBUTES_EMERGENCY, 10000);
+        var safetyConfig = getPlaybackConfig(safetyProxy, ATTRIBUTES_SAFETY, 100001);
+        setUpCurrentDriveMode(getDrivingEvent());
+        var playbackCallback = getCarAudioPlaybackCallback();
+
+        playbackCallback.onPlaybackConfigChanged(List.of(emergencyConfig, safetyConfig));
+
+        verify(emergencyProxy, never()).setVolume(anyFloat());
+        verify(safetyProxy, never()).setVolume(anyFloat());
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced info with multiple critical audio playbacks")
+                .that(enforcedCallback.getEnforcedInfos()).hasSize(0);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withSilencedAppStopping_unSilences() throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(1);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        setUpCurrentDriveMode(getDrivingEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+        enforcedCallback.waitForCallback();
+        enforcedCallback.reset(1);
+        var inactivePlaybackConfig = getPlaybackConfig(playerProxy, TEST_MEDIA_ATTRIBUTE,
+                MEDIA_APP_UID);
+        when(inactivePlaybackConfig.isActive()).thenReturn(false);
+
+        callback.onPlaybackConfigChanged(List.of(inactivePlaybackConfig));
+
+
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced silenced and unsilenced info")
+                .that(enforcedCallback.getEnforcedInfos()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void unregisterEnforceableAudioFocusCallback_doesNotReceiveUpdates() throws Exception {
+        var enforcedCallback = new TestEnforceableAudioFocusCallback(0);
+        var service = setUpAudioService();
+        service.registerEnforceableAudioFocusCallback(enforcedCallback);
+        service.unregisterEnforceableAudioFocusCallback(enforcedCallback);
+        setUpCurrentDriveMode(getDrivingEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(playerProxy).setVolume(0.0f);
+        enforcedCallback.waitForCallback();
+        expectWithMessage("Enforced info after unregistering")
+                .that(enforcedCallback.getEnforcedInfos()).isEmpty();
+    }
+
+    private ICarPropertyEventListener setUpCurrentDriveMode(CarPropertyEvent currentDriveModeEvent)
+            throws RemoteException {
+        ICarPropertyEventListener carPropertyEventListener = captureCarPropertyListener();
+        carPropertyEventListener.onEvent(List.of(currentDriveModeEvent));
+        return carPropertyEventListener;
+    }
+
+    private CarPropertyEvent getDrivingEvent() {
+        CarPropertyValue<Integer> gearSelectionParked =
+                new CarPropertyValue<>(VehicleProperty.GEAR_SELECTION, /* areaId= */ 0,
+                        VehicleGear.GEAR_DRIVE);
+        return new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                gearSelectionParked);
+    }
+
+    private CarPropertyEvent getParkedEvent() {
+        CarPropertyValue<Integer> gearSelectionParked =
+                new CarPropertyValue<>(VehicleProperty.GEAR_SELECTION, /* areaId= */ 0,
+                        VehicleGear.GEAR_PARK);
+        return new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                        gearSelectionParked);
+    }
+
+    private ICarPropertyEventListener captureCarPropertyListener() {
+        ArgumentCaptor<ICarPropertyEventListener> captor =
+                ArgumentCaptor.forClass(ICarPropertyEventListener.class);
+        verify(mMockPropertyService).registerListener(eq(VehiclePropertyIds.GEAR_SELECTION),
+                eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), captor.capture());
+        return captor.getValue();
+    }
+
     private void waitForInternalCallback() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         mHandler.post(latch::countDown);
@@ -7076,12 +7459,36 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         callback.onPlaybackConfigChanged(List.of(getPlaybackConfig()));
     }
 
+    private AudioPlaybackConfiguration getPlaybackConfig(PlayerProxy playerProxy,
+            AudioAttributes audioAttributes, int uid) {
+        AudioPlaybackConfiguration config = mock(AudioPlaybackConfiguration.class);
+        when(config.getAudioAttributes()).thenReturn(audioAttributes);
+        when(config.getAudioDeviceInfo())
+                .thenReturn(mCarAudioDeviceUtils.mMediaOutputDevice);
+        when(config.getAudioDeviceInfos())
+                .thenReturn(List.of(mCarAudioDeviceUtils.mMediaOutputDevice));
+        when(config.getClientUid()).thenReturn(uid);
+        when(config.isActive()).thenReturn(true);
+        when(config.getPlayerProxy()).thenReturn(playerProxy);
+        when(config.getPlayerInterfaceId()).thenReturn(uid);
+        return config;
+    }
+
+    private AudioPlaybackConfiguration getPlaybackConfig(PlayerProxy playerProxy) {
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA).build();
+        return getPlaybackConfig(playerProxy, audioAttributes, MEDIA_APP_UID);
+    }
+
     private AudioPlaybackConfiguration getPlaybackConfig() {
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
                 .setUsage(USAGE_MEDIA).build();
         AudioPlaybackConfiguration config = mock(AudioPlaybackConfiguration.class);
         when(config.getAudioAttributes()).thenReturn(audioAttributes);
-        when(config.getAudioDeviceInfo()).thenReturn(mCarAudioDeviceUtils.mMediaOutputDevice);
+        when(config.getAudioDeviceInfo())
+                .thenReturn(mCarAudioDeviceUtils.mMediaOutputDevice);
+        when(config.getAudioDeviceInfos())
+                .thenReturn(List.of(mCarAudioDeviceUtils.mMediaOutputDevice));
         when(config.isActive()).thenReturn(true);
 
         return config;
@@ -7230,29 +7637,33 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private void mockCoreAudioRoutingAndVolume() {
-        when(mAudioManager.getMinVolumeIndexForAttributes(
-                eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID);
+        when(mAudioManager.getVolumeGroupMinVolumeIndex(eq(CoreAudioRoutingUtils.MUSIC_GROUP_ID)))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_MIN_INDEX);
-        when(mAudioManager.getMaxVolumeIndexForAttributes(
-                eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+        when(mAudioManager.getVolumeGroupMaxVolumeIndex(eq(CoreAudioRoutingUtils.MUSIC_GROUP_ID)))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_MAX_INDEX);
-        when(mAudioManager.getVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+        when(mAudioManager.getVolumeGroupVolumeIndex(eq(CoreAudioRoutingUtils.MUSIC_GROUP_ID)))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX);
         when(mAudioManager.getLastAudibleVolumeForVolumeGroup(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX);
         when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
                 .thenReturn(false);
 
-        when(mAudioManager.getMinVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.NAV_ATTRIBUTES)))
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.NAV_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.NAV_GROUP_ID);
+        when(mAudioManager.getVolumeGroupMinVolumeIndex(eq(CoreAudioRoutingUtils.NAV_GROUP_ID)))
                 .thenReturn(CoreAudioRoutingUtils.NAV_MIN_INDEX);
-        when(mAudioManager.getMaxVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.NAV_ATTRIBUTES)))
+        when(mAudioManager.getVolumeGroupMaxVolumeIndex(eq(CoreAudioRoutingUtils.NAV_GROUP_ID)))
                 .thenReturn(CoreAudioRoutingUtils.NAV_MAX_INDEX);
         when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.NAV_GROUP_ID))
                 .thenReturn(false);
 
-        when(mAudioManager.getMinVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.OEM_ATTRIBUTES)))
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.OEM_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.OEM_GROUP_ID);
+        when(mAudioManager.getVolumeGroupMinVolumeIndex(eq(CoreAudioRoutingUtils.OEM_GROUP_ID)))
                 .thenReturn(CoreAudioRoutingUtils.OEM_MIN_INDEX);
-        when(mAudioManager.getMaxVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.OEM_ATTRIBUTES)))
+        when(mAudioManager.getVolumeGroupMaxVolumeIndex(eq(CoreAudioRoutingUtils.OEM_GROUP_ID)))
                 .thenReturn(CoreAudioRoutingUtils.OEM_MAX_INDEX);
         when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.OEM_GROUP_ID))
                 .thenReturn(false);
@@ -7497,6 +7908,35 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             mZoneConfig = null;
             mIsSuccessful = false;
             mStatusLatch = new CountDownLatch(1);
+        }
+    }
+
+    private static final class TestEnforceableAudioFocusCallback
+            extends IEnforceableAudioFocusCallback.Stub {
+        private final List<EnforcedAudioFocusInfo> mEnforcedAudioFocusInfos = new ArrayList<>();
+        private CountDownLatch mLatch;
+
+        TestEnforceableAudioFocusCallback(int count) {
+            mLatch = new CountDownLatch(count);
+        }
+
+        @Override
+        public void onEnforcedAudioFocusChanged(List<EnforcedAudioFocusInfo> infos) {
+            mEnforcedAudioFocusInfos.addAll(infos);
+            mLatch.countDown();
+        }
+
+        List<EnforcedAudioFocusInfo> getEnforcedInfos() {
+            return new ArrayList<>(mEnforcedAudioFocusInfos);
+        }
+
+        void waitForCallback() throws InterruptedException {
+            mLatch.await(TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        }
+
+        void reset(int count) {
+            mEnforcedAudioFocusInfos.clear();
+            mLatch = new CountDownLatch(count);
         }
     }
 }

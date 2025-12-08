@@ -42,6 +42,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
@@ -381,6 +382,10 @@ import java.util.Set;
 
     String getName() {
         return mName;
+    }
+
+    int getZoneId() {
+        return mZoneId;
     }
 
     /**
@@ -963,12 +968,22 @@ import java.util.Set;
         boolean isHalMuted;
         boolean isBlocked;
         boolean isAttenuated;
+        boolean isLimited = false;
+        int attenuatedGainIndex = UNINITIALIZED;
+        int blockedGainIndex = UNINITIALIZED;
+        int limitedGainIndex = UNINITIALIZED;
         synchronized (mLock) {
             gainIndex = getRestrictedGainForIndexLocked(mCurrentGainIndex);
             isMuted = isMutedLocked();
             isHalMuted = isHalMutedLocked();
             isBlocked = isBlockedLocked();
-            isAttenuated = isAttenuatedLocked() || isLimitedLocked();
+            isAttenuated = isAttenuatedLocked();
+            if (Flags.audioSendRestrictionsToOemVolumeService()) {
+                isLimited = isLimitedLocked();
+                attenuatedGainIndex = mAttenuatedGainIndex;
+                blockedGainIndex = mBlockedGainIndex;
+                limitedGainIndex = mLimitedGainIndex;
+            }
         }
 
         String name = mName.isEmpty() ? "group id " + mId : mName;
@@ -984,6 +999,19 @@ import java.util.Set;
 
         builder.setMutedBySystem(isHalMuted);
 
+        if (Flags.audioSendRestrictionsToOemVolumeService()) {
+            builder.setLimited(isLimited);
+            if (isLimited) {
+                builder.setLimitedGainIndex(limitedGainIndex);
+            }
+            if (isBlocked) {
+                builder.setBlockedGainIndex(blockedGainIndex);
+            }
+            if (isAttenuated) {
+                builder.setAttenuatedGainIndex(attenuatedGainIndex);
+            }
+            builder.setActiveExtraInfos(CarAudioGainMonitor.convertReasonsToExtraInfo(mReasons));
+        }
         return builder.build();
     }
 

@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
@@ -34,16 +35,21 @@ import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
 import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 
+import static com.android.car.audio.CarAudioContext.ATTR_MATCH_SCORE_CONTENT_TYPE;
+import static com.android.car.audio.CarAudioContext.ATTR_MATCH_SCORE_FLAGS;
+import static com.android.car.audio.CarAudioContext.ATTR_MATCH_SCORE_TAGS;
+import static com.android.car.audio.CarAudioContext.ATTR_MATCH_SCORE_USAGE;
+import static com.android.car.audio.CarAudioContext.getAudioAttributesMatchScore;
 import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribute;
 import static com.android.car.audio.CarAudioContext.isNotificationAudioAttribute;
 import static com.android.car.audio.CarAudioContext.isRingerOrCallAudioAttribute;
-import static com.android.car.audio.CarAudioTestUtils.TEST_GAME_USAGE_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_ALARM_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_ANNOUNCEMENT_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_ASSISTANT_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_CALL_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_CAR_AUDIO_CONTEXT;
 import static com.android.car.audio.CarAudioTestUtils.TEST_EMERGENCY_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_GAME_USAGE_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_INVALID_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_MEDIA_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_NAVIGATION_ATTRIBUTE;
@@ -52,16 +58,21 @@ import static com.android.car.audio.CarAudioTestUtils.TEST_NOTIFICATION_EVENT_AT
 import static com.android.car.audio.CarAudioTestUtils.TEST_RINGER_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_SAFETY_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_SYSTEM_ATTRIBUTE;
-import static com.android.car.audio.CarAudioTestUtils.TEST_VEHICLE_ATTRIBUTE;
 import static com.android.car.audio.CarAudioTestUtils.TEST_UNKNOWN_USAGE_ATTRIBUTE;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.car.audio.CarAudioTestUtils.TEST_VEHICLE_ATTRIBUTE;
+import static com.android.car.audio.CoreAudioRoutingUtils.setUpProductStrategies;
+
+import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
 
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.media.AudioAttributes;
+import android.media.IAudioService;
+import android.media.audiopolicy.AudioProductStrategy;
+import android.os.IBinder;
+import android.os.ServiceManager;
 import android.util.ArraySet;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -72,6 +83,7 @@ import com.android.car.internal.util.DebugUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,36 +125,22 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public static final @CarAudioContext.AudioContext int TEST_ASSISTANT_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE);
 
+    @Mock
+    private IAudioService mAudioService;
+    @Mock
+    private IBinder mIBinder;
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session
-                .spyStatic(CoreAudioHelper.class)
-                .spyStatic(AudioManagerWrapper.class);
-    }
-
-    void setupMock() {
-        doReturn(CoreAudioRoutingUtils.getProductStrategies())
-                .when(AudioManagerWrapper::getAudioProductStrategies);
-        doReturn(CoreAudioRoutingUtils.getVolumeGroups())
-                .when(AudioManagerWrapper::getAudioVolumeGroups);
-
-        doReturn(CoreAudioRoutingUtils.MUSIC_STRATEGY_ID)
-                .when(() -> CoreAudioHelper.getStrategyForAudioAttributes(
-                        eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)));
-        doReturn(CoreAudioRoutingUtils.NAV_STRATEGY_ID)
-                .when(() -> CoreAudioHelper.getStrategyForAudioAttributes(
-                        eq(CoreAudioRoutingUtils.NAV_ATTRIBUTES)));
-        doReturn(CoreAudioRoutingUtils.OEM_STRATEGY_ID)
-                .when(() -> CoreAudioHelper.getStrategyForAudioAttributes(
-                        eq(CoreAudioRoutingUtils.OEM_ATTRIBUTES)));
-        doReturn(CoreAudioHelper.INVALID_STRATEGY)
-                .when(() -> CoreAudioHelper.getStrategyForAudioAttributes(
-                        eq(CoreAudioRoutingUtils.UNSUPPORTED_ATTRIBUTES)));
+        session.spyStatic(AudioManagerHelper.class)
+                .spyStatic(AudioManagerWrapper.class)
+                .spyStatic(AudioProductStrategy.class)
+                .spyStatic(ServiceManager.class);
     }
 
     @Before
-    public void setUp() {
-        setupMock();
+    public void setUp() throws Exception {
+        setUpProductStrategies(mAudioService, mIBinder);
     }
 
     public CarAudioContextTest() {
@@ -960,12 +958,136 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void getCarAudioContextId_forAudioAttributesWrapper() {
+    public void getCarAudioContextId_for_AudioAttributesWrapper() {
         int contextId = 1;
         CarAudioContext.AudioAttributesWrapper wrapper =
                 new CarAudioContext.AudioAttributesWrapper(TEST_MEDIA_ATTRIBUTE, contextId);
 
         expectWithMessage("Car audio context Id").that(wrapper.getCarAudioContextId())
                 .isEqualTo(contextId);
+    }
+
+    @Test
+    public void getAudioAttributesMatchScore_withDifferentUsage_returnsScoreWithoutUsage() {
+        AudioAttributes.Builder builder1 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder1, "tag1");
+        AudioAttributes aa1 = builder1.build();
+        AudioAttributes.Builder builder2 = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder2, "tag1");
+        AudioAttributes aa2 = builder2.build();
+
+        int score = getAudioAttributesMatchScore(aa1, aa2);
+
+        assertThat(score).isEqualTo(ATTR_MATCH_SCORE_CONTENT_TYPE + ATTR_MATCH_SCORE_FLAGS
+                + ATTR_MATCH_SCORE_TAGS);
+    }
+
+    @Test
+    public void getAudioAttributesMatchScore_withDiffContentType_returnsScoreWithoutContentType() {
+        AudioAttributes.Builder builder1 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder1, "tag1");
+        AudioAttributes aa1 = builder1.build();
+        AudioAttributes.Builder builder2 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder2, "tag1");
+        AudioAttributes aa2 = builder2.build();
+
+        int score = getAudioAttributesMatchScore(aa1, aa2);
+
+        assertThat(score).isEqualTo(ATTR_MATCH_SCORE_USAGE + ATTR_MATCH_SCORE_FLAGS
+                + ATTR_MATCH_SCORE_TAGS);
+    }
+
+    @Test
+    public void getAudioAttributesMatchScore_withDifferentFlags_returnsScoreWithoutFlags() {
+        AudioAttributes.Builder builder1 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder1, "tag1");
+        AudioAttributes aa1 = builder1.build();
+        AudioAttributes.Builder builder2 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(0);
+        AudioManagerHelper.addTagToAudioAttributes(builder2, "tag1");
+        AudioAttributes aa2 = builder2.build();
+
+        int score = getAudioAttributesMatchScore(aa1, aa2);
+
+        assertThat(score).isEqualTo(ATTR_MATCH_SCORE_USAGE + ATTR_MATCH_SCORE_CONTENT_TYPE
+                + ATTR_MATCH_SCORE_TAGS);
+    }
+
+    @Test
+    public void getAudioAttributesMatchScore_withDifferentTags_returnsScoreWithoutTags() {
+        AudioAttributes.Builder builder1 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder1, "tag1");
+        AudioAttributes aa1 = builder1.build();
+        AudioAttributes.Builder builder2 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder2, "tag2");
+        AudioAttributes aa2 = builder2.build();
+
+        int score = getAudioAttributesMatchScore(aa1, aa2);
+
+        assertThat(score).isEqualTo(ATTR_MATCH_SCORE_USAGE + ATTR_MATCH_SCORE_CONTENT_TYPE
+                + ATTR_MATCH_SCORE_FLAGS);
+    }
+
+    @Test
+    public void getAudioAttributesMatchScore_withExactMatch_returnsExactScore() {
+        AudioAttributes.Builder builder1 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder1, "tag1");
+        AudioAttributes aa1 = builder1.build();
+        AudioAttributes.Builder builder2 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder2, "tag1");
+        AudioAttributes aa2 = builder2.build();
+
+        int score = getAudioAttributesMatchScore(aa1, aa2);
+
+        assertThat(score).isEqualTo(CarAudioContext.ATTR_MATCH_SCORE_EXACT);
+    }
+
+    @Test
+    public void getAudioAttributesMatchScore_withNoMatch_returnsZero() {
+        AudioAttributes.Builder builder1 = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
+        AudioManagerHelper.addTagToAudioAttributes(builder1, "tag1");
+        AudioAttributes aa1 = builder1.build();
+        AudioAttributes.Builder builder2 = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .setFlags(0);
+        AudioManagerHelper.addTagToAudioAttributes(builder2, "tag2");
+        AudioAttributes aa2 = builder2.build();
+
+        int score = getAudioAttributesMatchScore(aa1, aa2);
+
+        assertThat(score).isEqualTo(0);
     }
 }

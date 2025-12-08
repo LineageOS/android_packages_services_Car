@@ -70,7 +70,7 @@ public final class CarHalAudioUtils {
             AudioAttributes audioAttributes, CarAudioZone zone) {
         Objects.requireNonNull(zone, "Car audio zone can not be null");
         int carAudioContextId = zone.getCarAudioContext()
-                .getContextForAudioAttribute(audioAttributes);
+                .getContextForAudioAttribute(audioAttributes, zone.getId());
         String address = zone.getAddressForContext(carAudioContextId);
         return audioAttributeToMetadata(audioAttributes, address);
     }

@@ -16,6 +16,7 @@
 
 package com.android.car.am;
 
+import static android.car.feature.Flags.FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS;
 import static android.view.Display.DEFAULT_DISPLAY;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -23,7 +24,10 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +43,9 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.platform.test.annotations.DisableFlags;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceHelperWrapper;
@@ -74,6 +81,7 @@ public class CarActivityServiceUnitTest {
             new NoActiveHandlerThreadCheckerRule();
     @Rule
     public TestName mTestName = new TestName();
+    @Rule public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Mock
     private Context mContext;
@@ -172,5 +180,45 @@ public class CarActivityServiceUnitTest {
         int ret = mCarActivityService.setPersistentActivity(
                 mTestActivity, DEFAULT_DISPLAY, FEATURE_DEFAULT_TASK_CONTAINER);
         assertThat(ret).isEqualTo(CarActivityManager.RESULT_INVALID_USER);
+    }
+
+    @Test
+    @EnableFlags({FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS})
+    public void setLaunchBehaviorForRootTask_withoutPermission_throwsException() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        IBinder token = new Binder();
+
+        assertThrows(SecurityException.class,
+                () -> mCarActivityService.setLaunchBehaviorForRootTask(token,
+                        CarActivityManager.LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK));
+    }
+
+    @Test
+    @EnableFlags({FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS})
+    public void setLaunchBehaviorForRootTask_invokesCarServiceHelper() throws RemoteException {
+        IBinder token = new Binder();
+        int behavior = CarActivityManager.LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK;
+
+        mCarActivityService.setLaunchBehaviorForRootTask(token, behavior);
+
+        ArgumentCaptor<IBinder> tokenCaptor = ArgumentCaptor.forClass(IBinder.class);
+        ArgumentCaptor<Integer> behaviorCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mICarServiceHelper).setLaunchBehaviorForRootTask(
+                tokenCaptor.capture(), behaviorCaptor.capture());
+
+        assertThat(tokenCaptor.getValue()).isEqualTo(token);
+        assertThat(behaviorCaptor.getValue()).isEqualTo(behavior);
+    }
+
+    @Test
+    @DisableFlags({FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS})
+    public void setLaunchBehaviorForRootTask_flagDisabled_doesNothing() throws RemoteException {
+        IBinder token = new Binder();
+        int behavior = CarActivityManager.LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK;
+
+        mCarActivityService.setLaunchBehaviorForRootTask(token, behavior);
+
+        verify(mICarServiceHelper, never()).setLaunchBehaviorForRootTask(any(), anyInt());
     }
 }

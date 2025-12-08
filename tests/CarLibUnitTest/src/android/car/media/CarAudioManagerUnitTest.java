@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.feature.Flags;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -49,12 +50,15 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import com.android.car.audio.AudioDeviceInfoBuilder;
 import com.android.car.internal.ICarBase;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -104,6 +108,9 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     private Handler mHandler;
     private final RemoteException mRemoteException = new RemoteException();
 
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+
     @Mock
     private ICarBase mCar;
     @Mock
@@ -144,6 +151,8 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     private MediaAudioRequestStatusCallback mMediaAudioRequestStatusCallbackMock;
     @Mock
     private AudioZonesMirrorStatusCallback mAudioZonesMirrorStatusCallback;
+    @Mock
+    private EnforceableAudioFocusCallback mEnforceableAudioFocusCallbackMock;
 
     private CarAudioManager mCarAudioManager;
     private TestAudioZoneConfigurationsChangeCallback mTestConfigCallback;
@@ -1804,6 +1813,156 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Input devices for primary zone when service throws remote exception")
                 .that(mCarAudioManager.getInputDevicesForZoneId(PRIMARY_AUDIO_ZONE)).isEmpty();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void getEnforceableAudioAttributeUsages() throws Exception {
+        int[] expectedUsages = new int[]{USAGE_MEDIA, USAGE_GAME};
+        when(mServiceMock.getEnforceableAudioAttributeUsages()).thenReturn(expectedUsages);
+
+        expectWithMessage("Enforceable audio attribute usages")
+                .that(mCarAudioManager.getEnforceableAudioAttributeUsages())
+                .isEqualTo(expectedUsages);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void getEnforceableAudioAttributeUsages_whenServiceThrowsRemoteException_returnsEmpty()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getEnforceableAudioAttributeUsages();
+
+        expectWithMessage("Enforceable audio attribute usages when service throws remote exception")
+                .that(mCarAudioManager.getEnforceableAudioAttributeUsages()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void setEnforceableAudioFocus_Enabled_withStatusEnabled()
+            throws Exception {
+        mCarAudioManager.setEnforceableAudioFocusEnabled(/* enabled= */ true);
+
+        verify(mServiceMock).setEnforceableAudioFocusEnabled(eq(true));
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void setEnforceableAudioFocus_Enabled_withStatusDisabled()
+            throws Exception {
+        mCarAudioManager.setEnforceableAudioFocusEnabled(/* enabled= */ false);
+
+        verify(mServiceMock).setEnforceableAudioFocusEnabled(eq(false));
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void setEnforceableAudioFocusCallback() throws Exception {
+        mCarAudioManager.setEnforceableAudioFocusCallback(DIRECT_EXECUTOR,
+                mEnforceableAudioFocusCallbackMock);
+
+        verify(mServiceMock).registerEnforceableAudioFocusCallback(any());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void setEnforceableAudioFocusCallback_withNullExecutor_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.setEnforceableAudioFocusCallback(/* executor= */ null,
+                        mEnforceableAudioFocusCallbackMock));
+
+        expectWithMessage("Exception for setting enforceable audio focus callback with null "
+                + "executor").that(thrown).hasMessageThat().contains("Executor can not be null");
+    }
+
+    @Test
+    public void setEnforceableAudioFocusCallback_withNullCallback_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.setEnforceableAudioFocusCallback(DIRECT_EXECUTOR,
+                        /* callback= */ null));
+
+        expectWithMessage("Exception for setting null enforceable audio focus callback")
+                .that(thrown).hasMessageThat()
+                .contains("Enforceable audio focus callback can not be null");
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void setEnforceableAudioFocusCallback_forMultipleTimes_fails() {
+        mCarAudioManager.setEnforceableAudioFocusCallback(DIRECT_EXECUTOR,
+                mEnforceableAudioFocusCallbackMock);
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mCarAudioManager.setEnforceableAudioFocusCallback(DIRECT_EXECUTOR,
+                        mock(EnforceableAudioFocusCallback.class)));
+
+        expectWithMessage("Exception for setting enforceable audio focus callback for multiple "
+                + "times").that(thrown).hasMessageThat().contains("Callback is already set");
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void setEnforceableAudioFocusCallback_whenServiceThrowsRemoteException()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).registerEnforceableAudioFocusCallback(any());
+
+        mCarAudioManager.setEnforceableAudioFocusCallback(DIRECT_EXECUTOR,
+                mEnforceableAudioFocusCallbackMock);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void clearEnforceableAudioFocusCallback() throws Exception {
+        ArgumentCaptor<IEnforceableAudioFocusCallback> captor = ArgumentCaptor.forClass(
+                IEnforceableAudioFocusCallback.class);
+        mCarAudioManager.setEnforceableAudioFocusCallback(DIRECT_EXECUTOR,
+                mEnforceableAudioFocusCallbackMock);
+        verify(mServiceMock).registerEnforceableAudioFocusCallback(captor.capture());
+
+        mCarAudioManager.clearEnforceableAudioFocusCallback();
+
+        verify(mServiceMock).unregisterEnforceableAudioFocusCallback(captor.getValue());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void clearEnforceableAudioFocusCallback_withoutCallbackSet() throws Exception {
+        mCarAudioManager.clearEnforceableAudioFocusCallback();
+
+        verify(mServiceMock, never()).unregisterEnforceableAudioFocusCallback(any());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void clearEnforceableAudioFocusCallback_whenServiceThrowsRemoteException()
+            throws Exception {
+        ArgumentCaptor<IEnforceableAudioFocusCallback> captor = ArgumentCaptor.forClass(
+                IEnforceableAudioFocusCallback.class);
+        mCarAudioManager.setEnforceableAudioFocusCallback(DIRECT_EXECUTOR,
+                mEnforceableAudioFocusCallbackMock);
+        verify(mServiceMock).registerEnforceableAudioFocusCallback(captor.capture());
+        doThrow(mRemoteException).when(mServiceMock).unregisterEnforceableAudioFocusCallback(
+                captor.getValue());
+
+        mCarAudioManager.clearEnforceableAudioFocusCallback();
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onEnforcedAudioFocusChanged() throws Exception {
+        ArgumentCaptor<IEnforceableAudioFocusCallback> captor = ArgumentCaptor.forClass(
+                IEnforceableAudioFocusCallback.class);
+        mCarAudioManager.setEnforceableAudioFocusCallback(DIRECT_EXECUTOR,
+                mEnforceableAudioFocusCallbackMock);
+        verify(mServiceMock).registerEnforceableAudioFocusCallback(captor.capture());
+        List<EnforcedAudioFocusInfo> infos = List.of(mock(EnforcedAudioFocusInfo.class));
+
+        captor.getValue().onEnforcedAudioFocusChanged(infos);
+
+        verify(mEnforceableAudioFocusCallbackMock).onEnforcedAudioFocusChanged(infos);
     }
 
     private ICarVolumeCallback getCarVolumeCallbackImpl(CarAudioManager.CarVolumeCallback

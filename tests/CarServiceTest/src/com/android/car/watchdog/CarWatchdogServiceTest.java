@@ -221,7 +221,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testRegisterUnregisterClient() throws Exception {
         TestClient client = new TestClient(new SelfCheckGoodClient());
-        client.registerClient();
+        client.registerClientAndWait();
         assertThat(mCarWatchdogService.getClientCount(TIMEOUT_CRITICAL)).isEqualTo(1);
         client.unregisterClient();
         assertThat(mCarWatchdogService.getClientCount(TIMEOUT_CRITICAL)).isEqualTo(0);
@@ -248,7 +248,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     public void testClientUnderStoppedUser() throws Exception {
         expectStoppedUser();
         TestClient client = new TestClient(new BadTestClient());
-        client.registerClient();
+        client.registerClientAndWait();
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
                 .tellCarWatchdogServiceAlive(eq(mWatchdogServiceForSystemImpl),
@@ -271,7 +271,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
                 new TestClient(new BadTestClient())
         ));
         for (int i = 0; i < clients.size(); i++) {
-            clients.get(i).registerClient();
+            clients.get(i).registerClientAndWait();
         }
 
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
@@ -306,7 +306,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         expectRunningUser();
         TestClient client = new TestClient(androidClient);
-        client.registerClient();
+        client.registerClientAndWait();
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
                 .tellCarWatchdogServiceAlive(eq(mWatchdogServiceForSystemImpl),
@@ -359,8 +359,10 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
             actualClient.setManager(mCarWatchdogManager);
         }
 
-        public void registerClient() {
+        public void registerClientAndWait() {
             mCarWatchdogManager.registerClient(mExecutor, mAndroidClient, TIMEOUT_CRITICAL);
+            // Wait for asynchronous package manager call to complete.
+            CarServiceUtils.runEmptyRunnableOnLooperSync(TAG);
         }
 
         public void unregisterClient() {

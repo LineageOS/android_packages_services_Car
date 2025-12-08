@@ -28,6 +28,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
 PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarSystemUI \
+    Settings \
     StatementService \
     CarHotwordDetectionServiceOne \
 
@@ -41,6 +42,10 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
     dalvik.vm.dex2oat-threads=2 \
     pm.dexopt.disable_bg_dexopt=false \
     pm.dexopt.downgrade_after_inactive_days=10 \
+
+# Enable headless system user mode
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    ro.fw.mu.headless_system_user?=true
 
 # Disable Prime Shader Cache in SurfaceFlinger to make it available faster
 PRODUCT_SYSTEM_EXT_PROPERTIES += \

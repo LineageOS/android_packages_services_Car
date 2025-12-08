@@ -218,6 +218,16 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$ColorModeActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_display_and_touch_25q4"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$ConfigureWifiSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -469,6 +479,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$LanguageAndRegionSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$NavigationModeSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -589,7 +608,6 @@
             android:name="com.android.settings.Settings$PhysicalKeyboardLayoutPickerActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.keyboard.keyboard_and_touchpad_a11y_new_page_enabled"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -662,6 +680,36 @@
             android:name="com.android.settings.Settings$ModeSettingsActivity"
             android:enabled="false"
             android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$DndDisplaySettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_modes_25q4"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$DndPeopleSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_modes_25q4"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$DndCallsSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_modes_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -1278,6 +1326,15 @@
         </activity>
 
         <activity android:name="com.android.settings.supervision.DisableSupervisionActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="android.app.supervision.flags.supervision_manager_apis"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity android:name="com.android.settings.supervision.SupervisionRestrictionBypassActivity"
             android:enabled="false"
             android:exported="false"
             android:featureFlag="android.app.supervision.flags.supervision_manager_apis"
@@ -2232,6 +2289,16 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$BubbleNotificationSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_notifications_25q4"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$AppBubbleNotificationSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2250,10 +2317,20 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$VibrationSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_sound_and_vibration_25q4"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$VibrationIntensitySettingsActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.device_state"
+            android:featureFlag="com.android.settings.flags.deeplink_sound_and_vibration_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -2440,6 +2517,16 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$ChangeWifiStateActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_apps_25q4"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$AlarmsAndRemindersActivity"
             android:enabled="false"
             android:exported="false"
@@ -2565,9 +2652,29 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$EmergencyDashboardActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_others_25q4"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$SystemDashboardActivity"
             android:enabled="false"
             android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$ResetDashboardActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_system_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -3215,6 +3322,48 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+
+        <activity
+            android:name="com.android.settings.Settings$NotificationSummarizationActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+
+        <activity
+            android:name="com.android.settings.Settings$AdaptiveConnectivitySettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.catalyst_adaptive_connectivity"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+
+        <activity
+            android:name="com.android.settings.Settings$SpecialAccessSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_apps_25q4"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$SoftwareUpdateActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_system_25q4"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity-alias
             android:name="com.android.settings.ConfirmDeviceCredentialActivity"
             android:enabled="false"
@@ -3761,5 +3910,26 @@
           tools:replace="android:exported,android:enabled,android:featureFlag">
           <intent-filter tools:node="removeAll" />
         </service>
+
+        <activity android:name="com.android.settings.biometrics.IdentityCheckPromoCardActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled"/>
+
+        <receiver
+            android:name="com.android.settings.safetycenter.IdentityCheckSafetySource"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <activity android:name="com.android.settings.biometrics.IdentityCheckNotificationPromoCardActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled"/>
     </application>
 </manifest>

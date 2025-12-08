@@ -16,7 +16,7 @@
 
 package com.android.wm.shell.automotive;
 
-import static com.android.window.flags.Flags.safeRegionLetterboxing;
+import static com.android.window.flags.Flags.safeRegionLetterboxingV1;
 
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
@@ -30,7 +30,6 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
-import android.window.WindowContainerTransaction;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.utils.Slogf;
@@ -63,12 +62,14 @@ public class AutoCaptionController {
     private final RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
     private final AutoSurfaceTransactionFactory mAutoSurfaceTransactionFactory;
     private final AutoDecorManager mAutoDecorManager;
-    // To save the safe area info for each root task. Each root task can have its own safe area.
+    // To save the caption region info for each root task. Each root task can have its own
+    // caption region.
     @VisibleForTesting
-    final SparseArray<SafeRegionInfo> mSafeAreaInfoPerRootTask = new SparseArray<>();
-    // To save the safe area for each display. This safe area is for default task display area.
+    final SparseArray<CaptionRegionInfo> mCaptionRegionInfoPerRootTask = new SparseArray<>();
+    // To save the caption region for each display. This caption region is for default task
+    // display area.
     @VisibleForTesting
-    final SparseArray<SafeRegionInfo> mSafeAreaInfoPerDisplay = new SparseArray<>();
+    final SparseArray<CaptionRegionInfo> mCaptionRegionInfoPerDisplay = new SparseArray<>();
     // To keep the AutoDecor added to the task as caption bar.
     private final SparseArray<AutoDecor> mTaskIdToCaptionBar = new SparseArray<>();
     private final AutoTaskRepository mAutoTaskRepository;
@@ -129,112 +130,92 @@ public class AutoCaptionController {
     }
 
     /**
-     * Sets a safe region and caption region for the root task stack.
+     * Sets a caption region for the root task stack.
      *
-     * <p>Calling this API for same rootTaskStack would update the safe region. If activities using
-     * the safe region are present, they will receive a config change. In this case, caption region
-     * would be updated and caption bar would be shown in the updated caption region. If root task
+     * <p>Calling this API for same rootTaskStack would update the caption region. If root task
      * stack bounds are changed, this API should be called again.
      *
      * @param rootTaskStack             The root task stack.
-     * @param absoluteSafeRegion        The safe region for activity. The region is absolute to
-     *                                  the display bounds.
      * @param relativeCaptionRegion     The region for caption bar. The region is relative to
      *                                  the root task bounds.
      * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
-    public void setSafeRegionAndCaptionRegion(@NonNull RootTaskStack rootTaskStack,
-            @NonNull Rect absoluteSafeRegion, @NonNull Rect relativeCaptionRegion,
+    public void setCaptionRegion(@NonNull RootTaskStack rootTaskStack,
+            @NonNull Rect relativeCaptionRegion,
             @NonNull AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
         Objects.requireNonNull(rootTaskStack);
-        Objects.requireNonNull(absoluteSafeRegion);
         Objects.requireNonNull(relativeCaptionRegion);
         Objects.requireNonNull(autoCaptionBarViewFactory);
 
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
-        if (mSafeAreaInfoPerRootTask.contains(rootTaskStack.getId())) {
+        // TODO (b/430955826): Ensure caption bar updates happen when changes occur.
+        if (mCaptionRegionInfoPerRootTask.contains(rootTaskStack.getId())) {
             Slogf.i(TAG,
-                    "Root task already has a safe region. Updating it to new values. safe "
-                            + "region [%s], caption region [%s], root task stack [%d]",
-                    absoluteSafeRegion, relativeCaptionRegion, rootTaskStack.getId());
+                    "Root task already has a caption region. Updating it to new values. caption "
+                            + "region [%s], root task stack [%d]",
+                    relativeCaptionRegion, rootTaskStack.getId());
         } else {
-            Slogf.i(TAG, "Defining safe region [%s] and caption region [%s] for root task"
-                            + " stack %d", absoluteSafeRegion, relativeCaptionRegion,
-                    rootTaskStack.getId());
+            Slogf.i(TAG, "Defining caption region [%s] for root task" + " stack %d",
+                    relativeCaptionRegion, rootTaskStack.getId());
         }
 
-        mSafeAreaInfoPerRootTask.append(rootTaskStack.getId(),
-                new SafeRegionInfo(absoluteSafeRegion, relativeCaptionRegion,
+        mCaptionRegionInfoPerRootTask.append(rootTaskStack.getId(),
+                new CaptionRegionInfo(relativeCaptionRegion,
                         autoCaptionBarViewFactory));
-
-        // Define safe region for the container
-        WindowContainerTransaction wct = new WindowContainerTransaction();
-        wct.setSafeRegionBounds(rootTaskStack.getRootTaskInfo().token, absoluteSafeRegion);
-        mShellTaskOrganizer.applyTransaction(wct);
     }
 
     /**
-     * Removes a safe region and caption region for the root task stack.
+     * Removes a caption region for the root task stack.
      *
      * @param rootTaskStack The root task stack.
      */
-    public void removeSafeRegionAndCaptionRegion(@NonNull RootTaskStack rootTaskStack) {
+    public void removeCaptionRegion(@NonNull RootTaskStack rootTaskStack) {
         Objects.requireNonNull(rootTaskStack);
 
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
-        Slogf.i(TAG, "Removing safe region and caption region for root task stack %d",
+        Slogf.i(TAG, "Removing caption region for root task stack %d",
                 rootTaskStack.getId());
 
-        mSafeAreaInfoPerRootTask.remove(rootTaskStack.getId());
-
-        // Remove safe region for the container
-        WindowContainerTransaction wct = new WindowContainerTransaction();
-        wct.setSafeRegionBounds(rootTaskStack.getRootTaskInfo().token, null);
-        mShellTaskOrganizer.applyTransaction(wct);
+        mCaptionRegionInfoPerRootTask.remove(rootTaskStack.getId());
     }
 
-
     /**
-     * Sets a safe region and caption region for the default task display area.
+     * Sets a caption region for the default task display area.
      *
-     * <p>Calling this API for same displayId would update the safe region. If activities using
-     * the safe region are present, they will receive a config change. In this case, caption region
-     * would be updated and caption bar would be shown in the updated caption region.
+     * <p>Calling this API for same displayId would update the caption region. If root task
+     * stack bounds are changed, this API should be called again. To set the safe region, use
+     * {@link AutoLayoutManager#setOrUpdateSafeRegion}.
      *
      * @param displayId                 The display Id.
-     * @param safeRegion                The safe region for activity.
      * @param captionRegion             The region for caption bar.
      * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
-    public void setSafeRegionAndCaptionRegion(int displayId, @NonNull Rect safeRegion,
+    public void setCaptionRegion(int displayId,
             @NonNull Rect captionRegion,
             @NonNull AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
-        Objects.requireNonNull(safeRegion);
         Objects.requireNonNull(captionRegion);
         Objects.requireNonNull(autoCaptionBarViewFactory);
 
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
-        if (mSafeAreaInfoPerDisplay.contains(displayId)) {
-            Slogf.i(TAG, "Display already has a safe region. Updating it to new values. "
-                            + "safe region [%s] and caption region [%s] for display %d", safeRegion,
-                    captionRegion, displayId);
+        if (mCaptionRegionInfoPerDisplay.contains(displayId)) {
+            Slogf.i(TAG, "Display already has a caption region. Updating it to new values. "
+                    + "caption region [%s] for display %d", captionRegion, displayId);
         } else {
-            Slogf.i(TAG, "Defining safe region [%s] and caption region [%s] for display %d",
-                    safeRegion, captionRegion, displayId);
+            Slogf.i(TAG, "Defining caption region [%s] for display %d", captionRegion, displayId);
         }
 
         if (mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId) == null) {
@@ -242,44 +223,24 @@ public class AutoCaptionController {
             return;
         }
 
-        mSafeAreaInfoPerDisplay.append(displayId,
-                new SafeRegionInfo(safeRegion, captionRegion, autoCaptionBarViewFactory));
-
-        // Define safe region for the container
-        WindowContainerTransaction wct = new WindowContainerTransaction();
-        wct.setSafeRegionBounds(
-                mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId).token,
-                safeRegion);
-        mShellTaskOrganizer.applyTransaction(wct);
+        mCaptionRegionInfoPerDisplay.append(displayId,
+                new CaptionRegionInfo(captionRegion, autoCaptionBarViewFactory));
     }
 
     /**
-     * Removes a safe region and caption region for the default task display area.
+     * Removes a caption region for the default task display area. To remove the safe region, use
+     * {@link AutoLayoutManager#setOrUpdateSafeRegion}.
      *
      * @param displayId The display Id.
      */
-    public void removeSafeRegionAndCaptionRegion(int displayId) {
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+    public void removeCaptionRegion(int displayId) {
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
-        Slogf.i(TAG, "Removing safe region and caption region for display %d",
-                displayId);
-
-        mSafeAreaInfoPerDisplay.remove(displayId);
-
-        if (mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId) == null) {
-            Slogf.e(TAG, "DisplayAreaInfo for Display [%d] is not available.", displayId);
-            return;
-        }
-
-        // Remove safe region for the container
-        WindowContainerTransaction wct = new WindowContainerTransaction();
-        wct.setSafeRegionBounds(
-                mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId).token,
-                null);
-        mShellTaskOrganizer.applyTransaction(wct);
+        Slogf.i(TAG, "Removing caption region for display %d", displayId);
+        mCaptionRegionInfoPerDisplay.remove(displayId);
     }
 
     /**
@@ -289,8 +250,9 @@ public class AutoCaptionController {
      * @param taskInfo      The running task information.
      */
     void addCaptionBar(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo taskInfo) {
-        SafeRegionInfo safeRegionInfo = mSafeAreaInfoPerRootTask.get(rootTaskStack.getId());
-        attachCaptionBar(taskInfo, safeRegionInfo);
+        CaptionRegionInfo captionRegionInfo = mCaptionRegionInfoPerRootTask.get(
+                rootTaskStack.getId());
+        attachCaptionBar(taskInfo, captionRegionInfo);
     }
 
     /**
@@ -300,21 +262,21 @@ public class AutoCaptionController {
      * @param taskInfo  The running task information.
      */
     void addCaptionBar(int displayId, ActivityManager.RunningTaskInfo taskInfo) {
-        SafeRegionInfo safeRegionInfo = mSafeAreaInfoPerDisplay.get(displayId);
-        attachCaptionBar(taskInfo, safeRegionInfo);
+        CaptionRegionInfo captionRegionInfo = mCaptionRegionInfoPerDisplay.get(displayId);
+        attachCaptionBar(taskInfo, captionRegionInfo);
     }
 
     /**
-     * Attaches a caption bar to a task using the provided safe area information.
+     * Attaches a caption bar to a task using the provided caption region information.
      *
      * @param taskInfo       The running task information.
-     * @param safeRegionInfo The safe area information containing caption bar details.
+     * @param captionRegionInfo The caption region information containing caption bar details.
      */
     private void attachCaptionBar(ActivityManager.RunningTaskInfo taskInfo,
-            SafeRegionInfo safeRegionInfo) {
-        if (safeRegionInfo == null) {
+            CaptionRegionInfo captionRegionInfo) {
+        if (captionRegionInfo == null) {
             if (DBG) {
-                Slogf.d(TAG, "Safe area is not provided for task %d", taskInfo.taskId);
+                Slogf.d(TAG, "Caption region is not provided for task %d", taskInfo.taskId);
             }
             return;
         }
@@ -324,8 +286,8 @@ public class AutoCaptionController {
         }
 
         AutoCaptionBarViewFactory autoCaptionBarViewFactory =
-                safeRegionInfo.getAutoCaptionBarViewFactory();
-        Rect captionBarBounds = safeRegionInfo.getCaptionRegionBounds();
+                captionRegionInfo.getAutoCaptionBarViewFactory();
+        Rect captionBarBounds = captionRegionInfo.getCaptionRegionBounds();
         View captionView = autoCaptionBarViewFactory.createView(taskInfo);
 
         if (captionView == null) {
@@ -426,15 +388,13 @@ public class AutoCaptionController {
     }
 
     private void handleCaptionBarOnTaskVanished(ActivityManager.RunningTaskInfo task) {
-        if (requiresCaptionBar(task)) {
-            removeCaptionBar(task);
-        }
+        removeCaptionBar(task);
     }
 
     @SuppressLint("MissingPermission")
     private boolean requiresCaptionBar(ActivityManager.RunningTaskInfo task) {
-        if (!safeRegionLetterboxing()) {
-            Slogf.i(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.i(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return false;
         }
 
@@ -480,26 +440,26 @@ public class AutoCaptionController {
     void dump(PrintWriter pw, String prefix) {
         pw.println(prefix + "AutoCaptionController");
 
-        if (mSafeAreaInfoPerRootTask.size() > 0) {
-            pw.println(prefix + "SafeAreaInfoPerRootTask");
+        if (mCaptionRegionInfoPerRootTask.size() > 0) {
+            pw.println(prefix + "CaptionRegionInfoPerRootTask");
         }
 
-        for (int i = 0; i < mSafeAreaInfoPerRootTask.size(); i++) {
-            int rootTaskId = mSafeAreaInfoPerRootTask.keyAt(i);
-            SafeRegionInfo safeRegionInfo = mSafeAreaInfoPerRootTask.valueAt(i);
+        for (int i = 0; i < mCaptionRegionInfoPerRootTask.size(); i++) {
+            int rootTaskId = mCaptionRegionInfoPerRootTask.keyAt(i);
+            CaptionRegionInfo captionRegionInfo = mCaptionRegionInfoPerRootTask.valueAt(i);
             pw.println(prefix + "Root task id:" + rootTaskId);
-            pw.println(prefix + "SafeRegionInfo:" + safeRegionInfo);
+            pw.println(prefix + "CaptionRegionInfo:" + captionRegionInfo);
         }
 
-        if (mSafeAreaInfoPerDisplay.size() > 0) {
-            pw.println(prefix + "SafeAreaInfoPerDisplay");
+        if (mCaptionRegionInfoPerDisplay.size() > 0) {
+            pw.println(prefix + "CaptionRegionInfoPerDisplay");
         }
 
-        for (int i = 0; i < mSafeAreaInfoPerDisplay.size(); i++) {
-            int displayId = mSafeAreaInfoPerDisplay.keyAt(i);
-            SafeRegionInfo safeRegionInfo = mSafeAreaInfoPerDisplay.valueAt(i);
+        for (int i = 0; i < mCaptionRegionInfoPerDisplay.size(); i++) {
+            int displayId = mCaptionRegionInfoPerDisplay.keyAt(i);
+            CaptionRegionInfo captionRegionInfo = mCaptionRegionInfoPerDisplay.valueAt(i);
             pw.println(prefix + "Display id:" + displayId);
-            pw.println(prefix + "SafeRegionInfo:" + safeRegionInfo);
+            pw.println(prefix + "CaptionRegionInfo:" + captionRegionInfo);
         }
 
         if (mTaskIdToCaptionBar.size() > 0) {
@@ -515,23 +475,20 @@ public class AutoCaptionController {
     }
 
     /**
-     * Contains all relevant information for safe area.
+     * Contains all relevant information for caption region.
      */
-    static class SafeRegionInfo {
-        private final Rect mSafeRegionBounds;
+    static class CaptionRegionInfo {
         private final Rect mCaptionRegionBounds;
         private final AutoCaptionBarViewFactory mAutoCaptionBarViewFactory;
 
         /**
-         * Constructor for SafeAreaInfo.
+         * Constructor for CaptionRegionInfo.
          *
-         * @param safeRegionBounds          The safe region.
          * @param captionRegionBounds       The caption region.
          * @param autoCaptionBarViewFactory The factory for creating caption bar views.
          */
-        SafeRegionInfo(Rect safeRegionBounds, Rect captionRegionBounds,
+        CaptionRegionInfo(Rect captionRegionBounds,
                 AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
-            mSafeRegionBounds = safeRegionBounds;
             mCaptionRegionBounds = captionRegionBounds;
             mAutoCaptionBarViewFactory = autoCaptionBarViewFactory;
         }
@@ -546,15 +503,6 @@ public class AutoCaptionController {
         }
 
         /**
-         * Gets the safe region.
-         *
-         * @return The safe region.
-         */
-        public Rect getSafeRegionBounds() {
-            return mSafeRegionBounds;
-        }
-
-        /**
          * Gets the auto caption bar view factory.
          *
          * @return The auto caption bar view factory.
@@ -565,11 +513,9 @@ public class AutoCaptionController {
 
         @Override
         public String toString() {
-            return "SafeAreaInfo{" + "mSafeRegion=" + (
-                    mSafeRegionBounds != null ? mSafeRegionBounds.toString()
-                            : "null") + ", mCaptionRegion=" + (mCaptionRegionBounds != null
-                    ? mCaptionRegionBounds.toString()
-                    : "null") + ", mAutoCaptionBarViewFactory=" + mAutoCaptionBarViewFactory + '}';
+            return "CaptionRegionInfo{" + " mCaptionRegion=" + (mCaptionRegionBounds != null
+                    ? mCaptionRegionBounds.toString() : "null") + ", mAutoCaptionBarViewFactory="
+                    + mAutoCaptionBarViewFactory + '}';
         }
     }
 }

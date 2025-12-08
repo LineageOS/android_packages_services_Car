@@ -16,11 +16,13 @@
 
 #pragma once
 
+#include "IoOveruseMonitor.h"
 #include "IoOveruseMonitorWrapper.h"
 #include "ThreadPriorityController.h"
+#include "WatchdogInternalHandlerBase.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
-#include "WatchdogServiceHelper.h"
+#include "WatchdogServiceHelperBase.h"
 
 #include <aidl/android/automotive/watchdog/internal/BnCarWatchdog.h>
 #include <aidl/android/automotive/watchdog/internal/ComponentType.h>
@@ -50,37 +52,37 @@ class WatchdogInternalHandlerPeer;
 
 }  // namespace internal
 
-class WatchdogInternalHandlerInterface :
-      public aidl::android::automotive::watchdog::internal::BnCarWatchdog {
-public:
-    virtual android::base::Result<void> init() = 0;
-    virtual void terminate() = 0;
-};
-
-class WatchdogInternalHandler final : public WatchdogInternalHandlerInterface {
+class WatchdogInternalHandler final : public WatchdogInternalHandlerBase {
 public:
     WatchdogInternalHandler(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
             const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
             const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
             const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper) :
-          mWatchdogServiceHelper(watchdogServiceHelper),
+          WatchdogInternalHandlerBase(watchdogServiceHelperBase, watchdogPerfService,
+                                      ioOveruseMonitorWrapper),
+          mIoOveruseMonitorWrapper(ioOveruseMonitorWrapper),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
-          mIoOveruseMonitorWrapper(ioOveruseMonitorWrapper),
           mThreadPriorityController(std::make_unique<ThreadPriorityController>()) {}
     ~WatchdogInternalHandler() { terminate(); }
 
     android::base::Result<void> init() override;
-    binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
+    binder_status_t dump(int fd, const char** args, uint32_t numArgs) override {
+        return WatchdogInternalHandlerBase::dump(fd, args, numArgs);
+    };
     ndk::ScopedAStatus registerCarWatchdogService(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
-                    service) override;
+                    service) override {
+        return WatchdogInternalHandlerBase::registerCarWatchdogService(service);
+    };
     ndk::ScopedAStatus unregisterCarWatchdogService(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
-                    service) override;
+                    service) override {
+        return WatchdogInternalHandlerBase::unregisterCarWatchdogService(service);
+    };
     ndk::ScopedAStatus registerMonitor(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor)
@@ -107,11 +109,15 @@ public:
     ndk::ScopedAStatus updateResourceOveruseConfigurations(
             const std::vector<
                     aidl::android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
-                    configs) override;
+                    configs) override {
+        return WatchdogInternalHandlerBase::updateResourceOveruseConfigurations(configs);
+    };
     ndk::ScopedAStatus getResourceOveruseConfigurations(
             std::vector<
                     aidl::android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
-                    configs) override;
+                    configs) override {
+        return WatchdogInternalHandlerBase::getResourceOveruseConfigurations(configs);
+    };
     ndk::ScopedAStatus controlProcessHealthCheck(bool enable) override;
     ndk::ScopedAStatus setThreadPriority(int pid, int tid, int uid, int policy,
                                          int priority) override;
@@ -123,31 +129,37 @@ public:
     ndk::ScopedAStatus onTodayIoUsageStatsFetched(
             const std::vector<
                     aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>&
-                    userPackageIoUsageStats) override;
+                    userPackageIoUsageStats) override {
+        return WatchdogInternalHandlerBase::onTodayIoUsageStatsFetched(userPackageIoUsageStats);
+    };
 
     void terminate() override {
-        mWatchdogServiceHelper.clear();
+        WatchdogInternalHandlerBase::terminate();
         mWatchdogProcessService.clear();
         mWatchdogPerfService.clear();
         mIoOveruseMonitorWrapper.clear();
     }
 
 private:
-    status_t dumpServices(int fd);
-    status_t dumpProto(int fd);
-    status_t dumpHelpText(const int fd, const std::string& errorMsg);
-    void checkAndRegisterIoOveruseMonitor();
+    status_t dumpServices(int fd) override {
+        mWatchdogProcessService->onDump(fd);
+        return WatchdogInternalHandlerBase::dumpServices(fd);
+    };
+    status_t dumpProto(int fd) override;
+    status_t dumpHelpText(const int fd, const std::string& errorMsg) override {
+        return WatchdogInternalHandlerBase::dumpHelpText(fd, errorMsg);
+    };
+    void checkAndRegisterIoOveruseMonitor() override;
     ndk::ScopedAStatus handlePowerCycleChange(
             aidl::android::automotive::watchdog::internal::PowerCycle powerCycle);
     ndk::ScopedAStatus handleUserStateChange(
             userid_t userId,
-            const aidl::android::automotive::watchdog::internal::UserState& userState);
+            const aidl::android::automotive::watchdog::internal::UserState& userState) override;
     void setThreadPriorityController(std::unique_ptr<ThreadPriorityControllerInterface> controller);
 
-    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
+    android::sp<IoOveruseMonitorWrapperInterface> mIoOveruseMonitorWrapper;
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
-    android::sp<IoOveruseMonitorWrapperInterface> mIoOveruseMonitorWrapper;
     std::unique_ptr<ThreadPriorityControllerInterface> mThreadPriorityController;
 
     // For unit tests.

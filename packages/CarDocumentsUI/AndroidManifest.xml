@@ -22,27 +22,8 @@
     <application
         tools:node="merge">
     <!-- Remove launcher icons -->
-        <activity
-            android:name="com.android.documentsui.files.FilesActivity"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity>
-
-        <activity
-            android:name="com.android.documentsui.files.LauncherActivity"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity>
-
         <activity-alias
             android:name="com.android.documentsui.LauncherActivity"
-            android:targetActivity="com.android.documentsui.files.LauncherActivity"
             tools:node="remove">
         </activity-alias>
 

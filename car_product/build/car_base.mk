@@ -140,3 +140,6 @@ PRODUCT_NO_DYNAMIC_SYSTEM_UPDATE := true
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.log.tag.ContCarPropertyEventTracker=D \
     persist.log.tag.SubscriptionManager=D
+
+# Displaycompat
+$(call inherit-product, packages/services/Car/car_product/displaycompat/product.mk)

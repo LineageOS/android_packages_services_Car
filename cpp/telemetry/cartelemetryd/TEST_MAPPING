@@ -1,0 +1,7 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "cartelemetryd_impl_test"
+    }
+  ]
+}

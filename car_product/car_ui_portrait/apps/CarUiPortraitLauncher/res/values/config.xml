@@ -123,6 +123,8 @@
     <!-- Boolean value to indicate if the recents activity should open the most recent task on dismiss. -->
     <bool name="config_launch_most_recent_task_on_recents_dismiss">false</bool>
 
+    <bool name="config_useDewdLauncher">true</bool>
+
     <!-- An intent to start tos map activity when user has not accepted terms of service
          URI, for example:
          "intent:#Intent;component=com.android.car.carlauncher/com.android.car.carlauncher.homescreen.MapActivityTos;action=android.intent.action.MAIN;end"

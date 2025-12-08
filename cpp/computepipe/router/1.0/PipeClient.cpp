@@ -35,7 +35,7 @@ PipeClient::PipeClient(const std::shared_ptr<IClientInfo>& info)
 
 std::string PipeClient::getClientName() {
     if (mClientInfo == nullptr) {
-        return 0;
+        return "";
     }
     std::string name;
     auto status = mClientInfo->getClientName(&name);

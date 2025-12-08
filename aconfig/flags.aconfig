@@ -124,6 +124,13 @@ flag {
 
 # CarAudioManager
 flag {
+  name: "audio_focus_enforcement"
+  namespace: "car_framework"
+  description: "Controls whether to enforce audio focus in car audio service"
+  bug: "409332426"
+}
+
+flag {
   name: "car_audio_dynamic_devices"
   is_exported: true
   namespace: "car_framework"
@@ -355,6 +362,13 @@ flag {
   bug: "320766863"
 }
 
+flag {
+  name: "car_evs_compat_lib"
+  namespace: "car_perception"
+  description: "Add an EVS compatible library to simplify the migration from EVS to Camera2."
+  bug: "441577862"
+}
+
 # CarPropertyErrorCodes
 flag {
   name: "car_property_detailed_error_codes"
@@ -462,6 +476,14 @@ flag {
     bug: "401584551"
 }
 
+# Root task sticky routing behaviors
+flag {
+    name: "root_task_sticky_routing_behaviors"
+    namespace: "car_framework"
+    description: "Enables the CarActivityService support for changing the launch behaviors for root tasks."
+    bug: "441759232"
+}
+
 # LargeParcelable
 flag {
     name: "largeparcelable_use_native_parcel"
@@ -469,3 +491,12 @@ flag {
     description: "Use JNI native code for Parcel.marshall and Parcel.unmarshall to avoid memory copy"
     bug: "188781089"
 }
+
+# car-wm-shell visibility barrier
+flag {
+    name: "auto_visibility_barrier"
+    namespace: "car_framework"
+    description: "Enables a dedicated visibility barrier in car-wm-shell-lib"
+    bug: "432217693"
+}
+

@@ -593,6 +593,10 @@ public final class WatchdogProcessHandler {
             this.startTimeMillis = SystemClock.elapsedRealtime();
             this.timeout = timeout;
             this.uid = uid;
+            // The package name is resolved asynchronously on the service handler thread.
+            // Initialize to an empty string to prevent a NullPointerException if another
+            // method (e.g., dumpProto) accesses it before it's resolved.
+            this.packageName = "";
         }
 
         @Override

@@ -16,10 +16,11 @@
 PRODUCT_PACKAGES += \
     CarUiPortraitLauncher \
     car-ui-lib-portrait-proxyplugin \
-    PaintBooth
+    PaintBooth \
+    StubCarLauncher // TODO(b/432217693) remove once dedicated visibility barrier is present
 
 PRODUCT_COPY_FILES += \
-    packages/services/Car/car_product/dewd/car_dewd_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/car_dewd_hardware.xml
+    packages/services/Car/car_product/dewd/car_dewd_hardware.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/car_dewd_hardware.xml
 
 $(call inherit-product, packages/services/Car/car_product/dewd/rro/rro.mk)
 $(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/car_ui_portrait_rro.mk)

@@ -18,6 +18,7 @@ package android.car.builtin.keyguard;
 
 import static android.os.PowerManager.GO_TO_SLEEP_REASON_POWER_BUTTON;
 import static android.os.PowerManager.WAKE_REASON_POWER_BUTTON;
+import static com.android.internal.policy.IKeyguardService.SCREEN_TURNING_ON_REASON_UNKNOWN;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
@@ -93,7 +94,8 @@ public final class KeyguardServiceDelegate {
                 mKeyguardService.onBootCompleted();
                 mKeyguardService.onStartedWakingUp(PowerManager.WAKE_REASON_UNKNOWN, false);
                 mKeyguardService.onFinishedWakingUp();
-                mKeyguardService.onScreenTurningOn(mKeyguardShowDelegate);
+                mKeyguardService.onScreenTurningOn(SCREEN_TURNING_ON_REASON_UNKNOWN,
+                        mKeyguardShowDelegate);
                 mKeyguardService.onScreenTurnedOn();
             } catch (Exception e) {
                 Slogf.e(TAG, e, "Can not start the keyguard");
@@ -227,7 +229,8 @@ public final class KeyguardServiceDelegate {
             }
             mKeyguardService.onStartedWakingUp(
                     WAKE_REASON_POWER_BUTTON, /* cameraGestureTriggered= */ false);
-            mKeyguardService.onScreenTurningOn(mKeyguardShowDelegate);
+            mKeyguardService.onScreenTurningOn(SCREEN_TURNING_ON_REASON_UNKNOWN,
+                    mKeyguardShowDelegate);
             mKeyguardService.onScreenTurnedOn();
             mKeyguardService.onFinishedWakingUp();
         } catch (RemoteException e) {

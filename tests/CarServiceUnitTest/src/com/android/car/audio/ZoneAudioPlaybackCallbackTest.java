@@ -619,6 +619,55 @@ public final class ZoneAudioPlaybackCallbackTest {
                 new Pair<>(TEST_NAVIGATION_AUDIO_ATTRIBUTE, PLAYBACK_UID_2)));
     }
 
+    @Test
+    public void getZoneConfigurations_returnsCurrentConfigurations() {
+        AudioPlaybackConfiguration primaryConfig = new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA)
+                .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                .setClientUid(PLAYBACK_UID_1)
+                .build();
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(primaryConfig);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
+        callback.onPlaybackConfigChanged(configurations);
+
+        List<AudioPlaybackConfiguration> zoneConfigs = callback.getZoneConfigurations();
+
+        assertWithMessage("Zone configurations").that(zoneConfigs).containsExactly(primaryConfig);
+    }
+
+    @Test
+    public void getZoneConfigurations_withEmptyConfigurations_returnsEmptyList() {
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of();
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
+        callback.onPlaybackConfigChanged(configurations);
+
+        List<AudioPlaybackConfiguration> zoneConfigs = callback.getZoneConfigurations();
+
+        assertWithMessage("Zone configurations for empty configurations").that(zoneConfigs)
+                .isEmpty();
+    }
+
+    @Test
+    public void getZoneConfigurations_withInactiveConfigurations_returnsInactiveConfigurations() {
+        AudioPlaybackConfiguration primaryConfig = new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA)
+                .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                .setInactive()
+                .setClientUid(PLAYBACK_UID_1)
+                .build();
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(primaryConfig);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
+        callback.onPlaybackConfigChanged(configurations);
+
+        List<AudioPlaybackConfiguration> zoneConfigs = callback.getZoneConfigurations();
+
+        assertWithMessage("Zone configurations for inactive configurations")
+                .that(zoneConfigs).containsExactly(primaryConfig);
+    }
+
     private CarAudioZone generatePrimaryZone() {
         CarAudioZoneConfig carAudioZoneConfig =
                 new CarAudioZoneConfig.Builder("Primary zone config 0", PRIMARY_ZONE_ID,

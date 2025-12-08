@@ -16,9 +16,11 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS;
+
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -29,10 +31,8 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Applications can use {@link android.car.hardware.property.CarPropertyManager#getProperty(int,
  * int)} with {@link android.car.VehiclePropertyIds#TURN_SIGNAL_STATE} to query the
  * vehicle's turn signal state.
- *
- * @hide
  */
-@SystemApi
+@FlaggedApi(FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS)
 public final class VehicleTurnSignal {
 
     /**

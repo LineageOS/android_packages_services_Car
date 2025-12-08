@@ -197,13 +197,21 @@ droidstubs {
         "--hide UnavailableSymbol",
         "--stub-packages android.car*",
         "--show-annotation android.annotation.TestApi",
-        "--show-annotation android.annotation.SystemApi",
+        "--show-for-stub-purposes-annotation android.annotation.SystemApi",
     ],
     installable: false,
     check_api: {
         current: {
             api_file: "api/test-current.txt",
             removed_api_file: "api/test-removed.txt",
+        },
+
+        // Use the compatibility check properties to supply the previously released API to which
+        // flagged APIs can be reverted but disable the compatibility check as it is not required.
+        last_released: {
+            enabled: false,
+            api_file: ":android.car.api.combined.test.latest",
+            removed_api_file: ":android.car-removed.api.combined.test.latest",
         },
     },
 }
@@ -223,6 +231,16 @@ droidstubs {
         "--stub-packages android.car*",
     ],
     installable: false,
+
+    // Use the compatibility check properties to supply the previously released API to which
+    // flagged APIs can be reverted but disable the compatibility check as it is not required.
+    check_api: {
+        last_released: {
+            enabled: false,
+            api_file: ":android.car.api.combined.public.latest",
+            removed_api_file: ":android.car-removed.api.combined.public.latest",
+        },
+    },
 }
 
 // Generates stubs for API documentation.
@@ -255,6 +273,16 @@ droidstubs {
         "--hide Todo ",
     ],
     write_sdk_values: true,
+
+    // Use the compatibility check properties to supply the previously released API to which
+    // flagged APIs can be reverted but disable the compatibility check as it is not required.
+    check_api: {
+        last_released: {
+            enabled: false,
+            api_file: ":android.car.api.combined.public.latest",
+            removed_api_file: ":android.car-removed.api.combined.public.latest",
+        },
+    },
 }
 
 // Generates API docs for go/devsite.

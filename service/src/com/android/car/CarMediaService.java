@@ -205,6 +205,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                                     // source.
                                     for (ComponentName component
                                             : getLastMediaSourcesInternal(j, userId)) {
+                                        if (component == null) {
+                                            Slogf.w(CarLog.TAG_MEDIA, "component is null, "
+                                                    + "skip comparison");
+                                            continue;
+                                        }
                                         if (!primaryComponents[j].getPackageName()
                                                 .equals(component.getPackageName())) {
                                             userMediaContext.mRemovedMediaSourceComponents[j] =
@@ -341,7 +346,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                                         + "startMediaConnectorService. Source:%s user:%d",
                                         source, userId);
                             }
-                            // Should still pause the media when shouldBePlaying is false.
+                            // Should still pause/stop the media when shouldBePlaying is false.
                             if (!shouldBePlaying) {
                                 mediaController = userMediaContext.mActiveMediaController;
                                 if (mediaController == null) {
@@ -353,7 +358,15 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                                     }
                                     return;
                                 }
-                                mediaController.getTransportControls().pause();
+                                TransportControls controls = mediaController.getTransportControls();
+                                // Some media sources, such as radio or live streams, may not
+                                // support pause. In such cases, we call stop() instead of pause()
+                                // to properly terminate playback.
+                                if (isPauseSupported(mediaController)) {
+                                    controls.pause();
+                                } else {
+                                    controls.stop();
+                                }
                             }
                         }
                     }
@@ -1038,7 +1051,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     /**
-     * Attempts to stop the current source using MediaController.TransportControls.stop()
+     * Attempts to stop the current source.
      * This method also unregisters callbacks to the active media controller before calling stop(),
      * to preserve the PlaybackState before stopping.
      */
@@ -1066,9 +1079,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             // In order to prevent some apps from taking back the audio focus after being stopped,
             // first call pause, if the app supports pause. This does not affect the saved source
             // or the playback state, because the callback has already been unregistered.
-            PlaybackState playbackState = mediaController.getPlaybackState();
-            if (playbackState != null
-                    && (playbackState.getActions() & PlaybackState.ACTION_PAUSE) != 0) {
+            if (isPauseSupported(mediaController)) {
                 if (DEBUG) {
                     Slogf.d(TAG, "Call pause before stop");
                 }
@@ -1744,6 +1755,23 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
     private static String mediaModeToString(@CarMediaManager.MediaSourceMode int mode) {
         return DebugUtils.constantToString(CarMediaManager.class, "MEDIA_SOURCE_", mode);
+    }
+
+    /**
+     * Checks whether the media controller supports the pause action.
+     *
+     * <p>This method inspects the current {@link PlaybackState} of the given
+     * {@link MediaController} and determines whether the {@link PlaybackState#ACTION_PAUSE}
+     * action is available. Some media sources, such as live radio streams, may not support pausing,
+     * and in such cases this method will return {@code false}.
+     *
+     * @param mediaController The media controller to check.
+     * @return {@code true} if pause is supported; {@code false} otherwise.
+     */
+    private static boolean isPauseSupported(@NonNull MediaController mediaController) {
+        PlaybackState playbackState = mediaController.getPlaybackState();
+        return playbackState != null
+                && (playbackState.getActions() & PlaybackState.ACTION_PAUSE) != 0;
     }
 
     private final class MediaKeyEventListener implements KeyEventListener {

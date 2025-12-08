@@ -4,3 +4,7 @@ boot.car_device_start_time        u:object_r:car_boot_prop:s0 exact string
 sys.hibernate                     u:object_r:hibernation_prop:s0
 ro.sys.hibernate_enabled          u:object_r:hibernation_config_prop:s0
 ro.sys.swap_storage_device        u:object_r:hibernation_config_prop:s0
+
+# Globally-readable init service props
+init.svc.cardumpstatez u:object_r:init_service_status_prop:s0 exact string
+init.svc.carbugreportd u:object_r:init_service_status_prop:s0 exact string

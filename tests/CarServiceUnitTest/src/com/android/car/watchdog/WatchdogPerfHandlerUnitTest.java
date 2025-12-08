@@ -43,13 +43,13 @@ import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTIO
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+import static com.android.car.watchdog.IoOveruseHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
+import static com.android.car.watchdog.IoOveruseHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
+import static com.android.car.watchdog.IoOveruseHandler.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
+import static com.android.car.watchdog.IoOveruseHandler.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
+import static com.android.car.watchdog.IoOveruseHandler.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTENT_EXTRA_NOTIFICATION_ID;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -2989,19 +2989,19 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
                 new ArrayList<>();
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysPkgUid,
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartyPkgUid,
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
 
         List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
                 Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartyPkgUid,
                         CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
-                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
-                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                        IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        IoOveruseHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
     }
@@ -3085,19 +3085,19 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
                 new ArrayList<>();
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysSharedUid,
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartySharedUid,
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
 
         List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
                 Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartySharedUid,
                         CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
-                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
-                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                        IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        IoOveruseHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
     }
@@ -3731,7 +3731,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
-    public void testProcessPackageChangedIntentForEnabledPackage() throws Exception {
+    public void testProcessActionPackageChangedForEnabledPackage() throws Exception {
         String packageName = "system_package";
         int userId = 100;
 
@@ -3743,11 +3743,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 .getApplicationEnabledSetting(or(eq("system_package"),
                         eq("irrelevant_random_package")), eq(100));
 
-        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
-        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:irrelevant_random_package")));
 
@@ -3758,7 +3758,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
-    public void testProcessPackageChangedIntentForDisabledPackage() throws Exception {
+    public void testProcessActionPackageChangedForDisabledPackage() throws Exception {
         String packageName = "system_package";
         int userId = 100;
 
@@ -3768,7 +3768,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         doReturn(COMPONENT_ENABLED_STATE_DISABLED).when(mSpiedPackageManager)
                 .getApplicationEnabledSetting("system_package", 100);
 
-        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
@@ -4216,13 +4216,13 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
         // UID/stat are from {@link sampleIoOveruseStats}.
         AtomsProto.CarWatchdogPerStateBytes systemThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(10, 20, 30);
         AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
         AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
         AtomsProto.CarWatchdogPerStateBytes writtenBytes =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> reportedOveruseStats = new ArrayList<>();
         reportedOveruseStats.add(constructIoOveruseStatsReported(
                 10010001, systemThreshold, writtenBytes));
@@ -4244,11 +4244,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
         // UID/stat are from {@link sampleIoOveruseStats}.
         AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
         AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
         AtomsProto.CarWatchdogPerStateBytes writtenBytes =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
         List<AtomsProto.CarWatchdogKillStatsReported> reportedKillStats = new ArrayList<>();
         for (int uid : killedUids) {
             AtomsProto.CarWatchdogPerStateBytes threshold =
@@ -4263,7 +4263,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
             constructIoOveruseStatsReported(int uid, AtomsProto.CarWatchdogPerStateBytes threshold,
             AtomsProto.CarWatchdogPerStateBytes writtenBytes) {
         return constructCarWatchdogIoOveruseStatsReported(
-                uid, WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
+                uid, IoOveruseHandler.constructCarWatchdogIoOveruseStats(
                         AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
         );
     }
@@ -4329,7 +4329,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         return constructCarWatchdogKillStatsReported(uid,
                 CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE, systemState,
                 CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE,
-                WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
+                IoOveruseHandler.constructCarWatchdogIoOveruseStats(
                         AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
         );
     }
@@ -4688,7 +4688,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private static android.automotive.watchdog.internal.ResourceOveruseConfiguration
             sampleInternalResourceOveruseConfiguration(@ComponentType int componentType,
             android.automotive.watchdog.internal.IoOveruseConfiguration ioOveruseConfig) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+        String prefix = IoOveruseHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         android.automotive.watchdog.internal.ResourceOveruseConfiguration config =
                 new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
@@ -4736,12 +4736,12 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static android.automotive.watchdog.internal.IoOveruseConfiguration
             sampleInternalIoOveruseConfiguration(@ComponentType int componentType) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+        String prefix = IoOveruseHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         android.automotive.watchdog.internal.IoOveruseConfiguration config =
                 new android.automotive.watchdog.internal.IoOveruseConfiguration();
         config.componentLevelThresholds = constructPerStateIoOveruseThreshold(
-                WatchdogPerfHandler.toComponentTypeStr(componentType),
+                IoOveruseHandler.toComponentTypeStr(componentType),
                 /* fgBytes= */ componentType * 10L, /* bgBytes= */ componentType *  20L,
                 /*gmBytes= */ componentType * 30L);
         config.packageSpecificThresholds = Collections.singletonList(
@@ -4804,7 +4804,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static IoOveruseConfiguration.Builder sampleIoOveruseConfigurationBuilder(
             @ComponentType int componentType) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+        String prefix = IoOveruseHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         PerStateBytes componentLevelThresholds = new PerStateBytes(
                 /* foregroundModeBytes= */ componentType * 10L,
@@ -4838,7 +4838,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static ResourceOveruseConfiguration.Builder sampleResourceOveruseConfigurationBuilder(
             @ComponentType int componentType, IoOveruseConfiguration ioOveruseConfig) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+        String prefix = IoOveruseHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         List<String> safeToKill = Arrays.asList(prefix + "_package.non_critical.A",
                 prefix + "_pkg.non_critical.B",

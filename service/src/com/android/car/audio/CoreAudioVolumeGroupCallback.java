@@ -16,7 +16,6 @@
 
 package com.android.car.audio;
 
-import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.util.Log.DEBUG;
 
 import static com.android.car.CarLog.TAG_AUDIO;
@@ -67,7 +66,6 @@ final class CoreAudioVolumeGroupCallback extends AudioManager.VolumeGroupCallbac
      */
     @Override
     public void onAudioVolumeGroupChanged(int groupId, int flags) {
-        int zoneId = PRIMARY_AUDIO_ZONE;
         if (Slogf.isLoggable(TAG_AUDIO, DEBUG)) {
             Slogf.d(TAG, "onAudioVolumeGroupChanged: volume group: %d", groupId);
         }
@@ -77,7 +75,7 @@ final class CoreAudioVolumeGroupCallback extends AudioManager.VolumeGroupCallbac
             return;
         }
         // Note: FLAG_SHOW_UI is added as not managed by AudioPolicyManager.
-        mCarVolumeInfoWrapper.onAudioVolumeGroupChanged(zoneId, groupName,
+        mCarVolumeInfoWrapper.onAudioVolumeGroupChanged(groupName,
                 flags | AudioManager.FLAG_SHOW_UI);
     }
 }

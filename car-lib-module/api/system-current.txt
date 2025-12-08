@@ -1155,45 +1155,6 @@ package android.car.hardware.property {
     method public int getVendorErrorCode();
   }
 
-  public final class TrailerState {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_ERROR = 3; // 0x3
-    field public static final int STATE_NOT_PRESENT = 1; // 0x1
-    field public static final int STATE_PRESENT = 2; // 0x2
-    field public static final int STATE_UNKNOWN = 0; // 0x0
-  }
-
-  public final class VehicleLightState {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
-    field public static final int STATE_OFF = 0; // 0x0
-    field public static final int STATE_ON = 1; // 0x1
-  }
-
-  public final class VehicleLightSwitch {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_AUTOMATIC = 256; // 0x100
-    field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
-    field public static final int STATE_OFF = 0; // 0x0
-    field public static final int STATE_ON = 1; // 0x1
-  }
-
-  public final class VehicleOilLevel {
-    method @NonNull public static String toString(int);
-    field public static final int LEVEL_CRITICALLY_LOW = 0; // 0x0
-    field public static final int LEVEL_ERROR = 4; // 0x4
-    field public static final int LEVEL_HIGH = 3; // 0x3
-    field public static final int LEVEL_LOW = 1; // 0x1
-    field public static final int LEVEL_NORMAL = 2; // 0x2
-  }
-
-  public final class VehicleTurnSignal {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_LEFT = 2; // 0x2
-    field public static final int STATE_NONE = 0; // 0x0
-    field public static final int STATE_RIGHT = 1; // 0x1
-  }
-
   public final class VehicleVendorPermission {
     field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_1 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_1";
     field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_10 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_10";
@@ -1460,9 +1421,13 @@ package android.car.media {
 
   public final class CarVolumeGroupInfo implements android.os.Parcelable {
     method public int describeContents();
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public java.util.List<java.lang.Integer> getActiveExtraInfos();
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") public int getAttenuatedGainIndex();
     method @NonNull public java.util.List<android.media.AudioAttributes> getAudioAttributes();
     method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public java.util.List<android.media.AudioDeviceAttributes> getAudioDeviceAttributes();
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") public int getBlockedGainIndex();
     method public int getId();
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") public int getLimitedGainIndex();
     method @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") public int getMaxActivationVolumeGainIndex();
     method public int getMaxVolumeGainIndex();
     method @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") public int getMinActivationVolumeGainIndex();
@@ -1472,21 +1437,28 @@ package android.car.media {
     method public int getZoneId();
     method public boolean isAttenuated();
     method public boolean isBlocked();
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") public boolean isLimited();
     method public boolean isMuted();
     method @FlaggedApi("android.car.feature.car_audio_mute_ambiguity") public boolean isMutedBySystem();
     method public boolean isSameVolumeGroup(@Nullable android.car.media.CarVolumeGroupInfo);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroupInfo> CREATOR;
+    field @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") public static final int INDEX_UNINITIALIZED = -1; // 0xffffffff
   }
 
   public static final class CarVolumeGroupInfo.Builder {
     ctor public CarVolumeGroupInfo.Builder(@NonNull String, int, int);
     ctor public CarVolumeGroupInfo.Builder(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull public android.car.media.CarVolumeGroupInfo build();
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setActiveExtraInfos(@NonNull java.util.List<java.lang.Integer>);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuatedGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioAttributes(@NonNull java.util.List<android.media.AudioAttributes>);
     method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioDeviceAttributes(@NonNull java.util.List<android.media.AudioDeviceAttributes>);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlocked(boolean);
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlockedGainIndex(int);
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setLimited(boolean);
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setLimitedGainIndex(int);
     method @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMaxActivationVolumeGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMaxVolumeGainIndex(int);
     method @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMinActivationVolumeGainIndex(int);
