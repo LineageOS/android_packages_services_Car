@@ -180,7 +180,6 @@ struct UserPackageSummaryStats {
     std::string toString() const;
 };
 
-// TODO(b/268402964): Calculate the total CPU cycles using the per-UID BPF tool.
 // System performance stats collected from the `/proc/stat` file.
 struct SystemSummaryStats {
     int64_t cpuIoWaitTimeMillis = 0;
