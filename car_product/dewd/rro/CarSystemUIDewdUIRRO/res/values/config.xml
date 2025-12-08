@@ -30,7 +30,8 @@
     </array>
 
     <!-- TODO(b/446949579): Re-enable flagged resource when R/W flags can be used in RROs -->
-    <array name="window_states_enable_ext_panel_updates">
+    <!--
+    <array name="window_states" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">
         <item>@xml/app_panel</item>
         <item>@xml/app_grid_panel</item>
         <item>@xml/map_panel</item>
@@ -39,6 +40,7 @@
         <item>@xml/status_bar</item>
         <item>@xml/nav_bar</item>
     </array>
+    -->
 
     <string-array name="config_untrimmable_activities" translatable="false">
         <item>@string/widget_component</item>
@@ -54,6 +56,21 @@
     <!-- Setup and add safe area and toolbar per display on for Display Compat apps . -->
     <bool name="config_enableSafeAreaAndToolbarPerDisplay">false</bool>
 
+    <!-- Configure which system bars should be displayed. -->
+    <bool name="config_enableTopSystemBar">true</bool>
     <!-- TODO(b/446949579): Re-enable flagged resource when R/W flags can be used in RROs -->
-    <string name="config_privacyIndicatorLocation_enable_ext_panel_updates">status</string>
+    <!--
+    <bool name="config_enableTopSystemBar" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">false</bool>
+    -->
+    <bool name="config_enableBottomSystemBar">true</bool>
+    <!-- TODO(b/446949579): Re-enable flagged resource when R/W flags can be used in RROs -->
+    <!--
+    <bool name="config_enableBottomSystemBar" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">false</bool>
+    -->
+
+    <string name="config_privacyIndicatorLocation">TopCarSystemBar</string>
+    <!-- TODO(b/446949579): Re-enable flagged resource when R/W flags can be used in RROs -->
+    <!--
+    <string name="config_privacyIndicatorLocation" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">status</string>
+    -->
 </resources>
