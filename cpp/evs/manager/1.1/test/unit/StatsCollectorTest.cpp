@@ -24,5 +24,3 @@ using android::automotive::evs::V1_1::implementation::StatsCollector;
 TEST(StatsCollector, Constructs) {
     StatsCollector statsCollector{};
 }
-
-// TODO(b/206829268): Implement remaining unit tests.
