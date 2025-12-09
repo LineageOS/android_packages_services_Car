@@ -300,7 +300,6 @@ size_t ConfigManager::readCameraMetadata(const XMLElement* const aParamElem, Cam
                     break;
                 }
 
-                /* TODO(b/140416878): add vendor-defined/custom tag support */
                 default:
                     LOG(WARNING) << "Parameter " << curElem->FindAttribute("name")->Value()
                                  << " is not supported";
