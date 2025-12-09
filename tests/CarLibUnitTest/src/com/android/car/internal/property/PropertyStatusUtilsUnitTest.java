@@ -18,7 +18,10 @@ package com.android.car.internal.property;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.VehicleHalStatusCode;
 
 import org.junit.Test;
 
@@ -75,4 +78,64 @@ public class PropertyStatusUtilsUnitTest {
                 CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL)).isFalse();
     }
 
+    @Test
+    public void testGetNotAvailablePropertyStatusFromStatusCode_validStatus() {
+        assertThat(
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE))
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL);
+        assertThat(
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED))
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED);
+        assertThat(
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW))
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW);
+        assertThat(
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH))
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH);
+        assertThat(
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY))
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY);
+        assertThat(
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY))
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY);
+        assertThat(
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+    }
+
+    @Test
+    public void testGetNotAvailablePropertyStatusFromStatusCode_invalidStatus_throwsException() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_OK));
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_TRY_AGAIN));
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_INVALID_ARG));
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_ACCESS_DENIED));
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                VehicleHalStatusCode.STATUS_INTERNAL_ERROR));
+    }
 }
