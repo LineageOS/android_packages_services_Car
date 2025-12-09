@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CompatEnumerator.h"
 #include "ConfigManager.h"
 #include "EvsStateControl.h"
 #include "EvsVehicleListener.h"
@@ -46,6 +47,7 @@ using aidl::android::hardware::automotive::vehicle::VehicleProperty;
 using android::base::EqualsIgnoreCase;
 using android::frameworks::automotive::vhal::ISubscriptionClient;
 using android::frameworks::automotive::vhal::IVhalClient;
+using android::hardware::automotive::evs::compat::CompatEnumerator;
 
 const char CONFIG_DEFAULT_PATH[] = "/system/etc/automotive/evs/config.json";
 const char CONFIG_OVERRIDE_PATH[] = "/vendor/etc/automotive/evs/config_override.json";
@@ -229,7 +231,8 @@ int main(int argc, char** argv) {
     pEvsCameraService = pEvsDisplayService;
 
     if (useCompat) {
-        // do nothing
+        LOG(INFO) << "Using CompatEnumerator for camera service";
+        pEvsCameraService = ndk::SharedRefBase::make<CompatEnumerator>();
     }
 
     // Request exclusive access to the EVS display
