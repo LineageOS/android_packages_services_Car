@@ -164,6 +164,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.SettingsLaunchpadActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.search.SearchResultTrampoline"
             android:enabled="false"
             android:exported="false"
@@ -480,15 +489,6 @@
 
         <activity
             android:name="com.android.settings.Settings$ManageAdaptiveNotificationsActivity"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity>
-
-        <activity
-            android:name="com.android.settings.Settings$LanguageSettingsActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -912,6 +912,15 @@
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.SettingsLaunchpadActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+          <intent-filter tools:node="removeAll"/>
         </activity>
 
         <activity
@@ -3151,15 +3160,6 @@
 
         <activity-alias
             android:name="com.android.settings.TetherSettings"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity-alias>
-
-        <activity-alias
-            android:name="com.android.settings.LanguageSettings"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
