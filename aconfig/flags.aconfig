@@ -506,14 +506,6 @@ flag {
     bug: "188781089"
 }
 
-# car-wm-shell visibility barrier
-flag {
-    name: "auto_visibility_barrier"
-    namespace: "car_framework"
-    description: "Enables a dedicated visibility barrier in car-wm-shell-lib"
-    bug: "432217693"
-}
-
 # cluster in ScalableUI
 flag {
     name: "root_task_cluster"
