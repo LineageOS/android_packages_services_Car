@@ -10,8 +10,8 @@ per-file src/com/android/car/cluster/* = bkchoi@google.com
 per-file src/com/android/car/input/* = kanant@google.com
 
 # PackageManager
-per-file src/com/android/car/CarPackageManagerTest.java = gauravbhola@google.com, gargmayank@google.com
-per-file src/com/android/car/pm/* = gargmayank@google.com, gauravbhola@google.com
+per-file src/com/android/car/CarPackageManagerTest.java = gauravbhola@google.com
+per-file src/com/android/car/pm/* = gauravbhola@google.com
 
 # Power
 per-file src/com/android/car/garagemode/* = hubertmis@google.com
@@ -21,10 +21,10 @@ per-file src/com/android/car/power/* = hubertmis@google.com
 per-file src/com/android/car/CarProperty* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # StorageMonitoring
-per-file src/com/android/car/CarStorageMonitoringTest.java = lakshmana@google.com
+per-file src/com/android/car/CarStorageMonitoringTest.java = jahdiel@google.com
 
 # Watchdog
-per-file src/com/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
+per-file src/com/android/car/watchdog/* = jahdiel@google.com
 
 # VHAL
 per-file src/com/android/car/hal/test/*MockedVehiclHal.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
