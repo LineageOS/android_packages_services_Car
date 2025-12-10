@@ -55,25 +55,58 @@ TEST_F(ConverterTest, toCameraDesc_WithValidMetadata) {
     const char* cameraId = "test_camera";
     const int vendorFlags = 123;
 
-    // Create a dummy ACameraMetadata
-    camera_metadata_t* raw_metadata = allocate_camera_metadata(1, 1);
-    ASSERT_NE(raw_metadata, nullptr);
-    int32_t lens_facing = ACAMERA_LENS_FACING_FRONT;
-    add_camera_metadata_entry(raw_metadata, ACAMERA_LENS_FACING, &lens_facing, 1);
-    ASSERT_EQ(validate_camera_metadata_structure(raw_metadata, nullptr), 0);
-    const ACameraMetadata* metadata = reinterpret_cast<const ACameraMetadata*>(raw_metadata);
+    // Dummy NDK metadata object (opaque pointer)
+    const ACameraMetadata* dummyMetadata = reinterpret_cast<const ACameraMetadata*>(0x12345678);
 
-    CameraDesc desc = Converter::toCameraDesc(cameraId, metadata, vendorFlags);
+    // Prepare mock data
+    uint32_t tag = ACAMERA_LENS_FACING;
+    int32_t lensFacing = ACAMERA_LENS_FACING_FRONT;
+    std::vector<uint32_t> tags = {tag};
+
+    // Expect getAllTags call
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_getAllTags(dummyMetadata, _, _))
+            .WillOnce(Invoke(
+                    [&tags](const ACameraMetadata*, int32_t* numTags, const uint32_t** outTags) {
+                        *numTags = tags.size();
+                        *outTags = tags.data();
+                        return ACAMERA_OK;
+                    }));
+
+    // Expect getConstEntry calls (one for sizing, one for population)
+    ACameraMetadata_const_entry entry;
+    entry.tag = tag;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = reinterpret_cast<const uint8_t*>(&lensFacing);
+
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_getConstEntry(dummyMetadata, tag, _))
+            .Times(2)
+            .WillRepeatedly(Invoke([entry](const ACameraMetadata*, uint32_t,
+                                           ACameraMetadata_const_entry* outEntry) {
+                *outEntry = entry;
+                return ACAMERA_OK;
+            }));
+
+    CameraDesc desc = Converter::toCameraDesc(cameraId, dummyMetadata, vendorFlags);
 
     EXPECT_EQ(desc.id, cameraId);
     EXPECT_EQ(desc.vendorFlags, vendorFlags);
 
     // Verify metadata serialization
-    size_t expected_size = get_camera_metadata_size(raw_metadata);
-    EXPECT_EQ(desc.metadata.size(), expected_size);
-    EXPECT_EQ(memcmp(desc.metadata.data(), raw_metadata, expected_size), 0);
+    // We expect a valid camera_metadata_t containing the single entry.
+    // We can validate this by deserializing it (or just checking it's not empty and has the right
+    // size/tag).
+    ASSERT_FALSE(desc.metadata.empty());
 
-    free_camera_metadata(raw_metadata);
+    // Check if the serialized blob is a valid camera_metadata_t
+    const camera_metadata_t* resultMeta =
+            reinterpret_cast<const camera_metadata_t*>(desc.metadata.data());
+    EXPECT_EQ(validate_camera_metadata_structure(resultMeta, nullptr), 0);
+    EXPECT_EQ(get_camera_metadata_entry_count(resultMeta), 1u);
+
+    camera_metadata_ro_entry_t resultEntry;
+    EXPECT_EQ(find_camera_metadata_ro_entry(resultMeta, tag, &resultEntry), 0);
+    EXPECT_EQ(resultEntry.data.u8[0], lensFacing);
 }
 
 TEST_F(ConverterTest, toCameraDesc_WithNullMetadata) {
