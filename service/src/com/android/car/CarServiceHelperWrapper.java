@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.content.pm.CarPackageManager.DENSITY_SCALE_FACTOR_DEFAULT_SCALE;
+
 import static com.android.car.internal.common.CommonConstants.INVALID_PID;
 
 import android.annotation.NonNull;
@@ -358,6 +360,33 @@ public final class CarServiceHelperWrapper {
             Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
         }
         return false;
+    }
+
+    /**
+     * Gets the density scale factor corresponding to the given {@code packageName}.
+     */
+    public float getDensityScaleFactor(@NonNull String packageName, @UserIdInt int userId,
+            int displayId) {
+        try {
+            return waitForCarServiceHelper().getDensityScaleFactor(packageName, userId,
+                    displayId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
+        return DENSITY_SCALE_FACTOR_DEFAULT_SCALE;
+    }
+
+    /**
+     * Sets the density scale factor corresponding to the given {@code packageName}.
+     */
+    public void setDensityScaleFactor(@NonNull String packageName, @UserIdInt int userId,
+            int displayId, float densityScaleFactor) {
+        try {
+            waitForCarServiceHelper().setDensityScaleFactor(packageName, userId, displayId,
+                    densityScaleFactor);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
     }
 
     private CarServiceHelperWrapper(long carServiceHelperWaitTimeoutMs) {

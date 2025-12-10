@@ -25,6 +25,7 @@ import static android.os.Process.INVALID_UID;
 import static android.view.Display.DEFAULT_DISPLAY;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -40,17 +41,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.PendingIntent;
+import android.car.Car;
 import android.car.CarVersion;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.content.pm.ICarBlockingUiCommandListener;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -58,11 +64,14 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.UserHandle;
+import android.os.UserManager;
+import android.view.Display;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarOccupantZoneService;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.am.CarActivityService;
 
@@ -75,6 +84,7 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,12 +93,14 @@ import java.util.Set;
  */
 @RunWith(AndroidJUnit4.class)
 public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTestCase {
-    CarPackageManagerService mService;
+    private static final String TEST_PKG_NAME = "com.test.pkg";
+    private static final int DISPLAY_ID_20 = 20;
+    private static final int USER_ID_99 = 99;
+    private static final UserHandle USER_HANDLE_99 = UserHandle.of(USER_ID_99);
 
+    private CarPackageManagerService mService;
     private Context mSpiedContext;
     private PackageManager mSpiedPackageManager;
-
-    private final UserHandle mUserHandle = UserHandle.of(666);
 
     @Rule
     public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
@@ -96,15 +108,24 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Mock
     private Context mUserContext;
-
-    @Mock
-    private CarUxRestrictionsManagerService mMockUxrService;
-    @Mock
-    private CarActivityService mMockActivityService;
-    @Mock
-    private CarOccupantZoneService mMockCarOccupantZoneService;
     @Mock
     private PendingIntent mMockPendingIntent;
+    @Mock
+    private CarUxRestrictionsManagerService mCarUxRestrictionsManagerService;
+    @Mock
+    private CarActivityService mCarActivityService;
+    @Mock
+    private CarOccupantZoneService mCarOccupantZoneService;
+    @Mock
+    private CarServiceHelperWrapper mCarServiceHelperWrapper;
+    @Mock
+    private ActivityManager mActivityManager;
+    @Mock
+    private UserManager mUserManager;
+    @Mock
+    private DisplayManager mDisplayManager;
+    @Mock
+    private Display mDisplay20;
 
     public CarPackageManagerServiceUnitTest() {
         super(CarPackageManagerService.TAG);
@@ -113,29 +134,47 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder
-            .spyStatic(ActivityManagerHelper.class)
-            .spyStatic(Binder.class)
-            // Need to mock service itself because of getTargetCarVersion() - it doesn't make
-            // sense to test all variations of the methods that call it
-            .spyStatic(CarPackageManagerService.class);
+                .spyStatic(ActivityManagerHelper.class)
+                .spyStatic(UserManagerHelper.class)
+                .spyStatic(Binder.class)
+                // Need to mock service itself because of getTargetCarVersion() - it doesn't make
+                // sense to test all variations of the methods that call it
+                .spyStatic(CarPackageManagerService.class);
     }
 
+    @SuppressLint({"VisibleForTests", "MissingPermission"})
     @Before
-    public void setUp() {
+    public void setUp() throws NameNotFoundException {
         mSpiedContext = spy(InstrumentationRegistry.getInstrumentation().getContext());
-
-        doReturn(mUserContext).when(mSpiedContext).createContextAsUser(mUserHandle, /* flags= */ 0);
-
         mSpiedPackageManager = spy(mSpiedContext.getPackageManager());
         doReturn(mSpiedPackageManager).when(mSpiedContext).getPackageManager();
+        doReturn(PackageManager.PERMISSION_GRANTED).when(
+                () -> ActivityManagerHelper.checkComponentPermission(
+                        eq(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY), anyInt(), anyInt(),
+                        anyBoolean()));
+        doReturn(PackageManager.PERMISSION_GRANTED).when(
+                () -> ActivityManagerHelper.checkComponentPermission(
+                        eq(QUERY_ALL_PACKAGES), anyInt(), anyInt(), anyBoolean()));
+        doReturn(new PackageInfo()).when(mSpiedPackageManager)
+                .getPackageInfoAsUser(eq(TEST_PKG_NAME), anyInt(), eq(USER_ID_99));
+        doReturn(mUserContext).when(mSpiedContext)
+                .createContextAsUser(USER_HANDLE_99, /* flags= */ 0);
+        doReturn(List.of(USER_HANDLE_99)).when(
+                () -> UserManagerHelper.getUserHandles(any(UserManager.class), anyBoolean()));
+        when(mDisplayManager.getDisplay(eq(DISPLAY_ID_20))).thenReturn(mDisplay20);
 
         mService = new CarPackageManagerService(mSpiedContext,
-                mMockUxrService, mMockActivityService, mMockCarOccupantZoneService);
+                mCarUxRestrictionsManagerService, mCarActivityService, mCarOccupantZoneService,
+                mCarServiceHelperWrapper, mSpiedPackageManager, mActivityManager, mUserManager,
+                mDisplayManager);
+
     }
 
     @After
     public void tearDown() {
-        mService.destroy();
+        if (mService != null) {
+            mService.destroy();
+        }
     }
 
     @Test
@@ -218,66 +257,67 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetTargetCarVersion_ok() {
-        String pkgName = "dr.evil";
         CarVersion Version = CarVersion.forMajorAndMinorVersions(66, 6);
 
         doReturn(Version)
-                .when(() -> CarPackageManagerService.getTargetCarVersion(mUserContext, pkgName));
+                .when(() -> CarPackageManagerService.getTargetCarVersion(
+                        mUserContext, TEST_PKG_NAME));
 
         mockCallingUser();
 
-        assertWithMessage("getTargetCarVersion(%s)", pkgName)
-                .that(mService.getTargetCarVersion(pkgName)).isSameInstanceAs(Version);
+        assertWithMessage("getTargetCarVersion(%s)", TEST_PKG_NAME)
+                .that(mService.getTargetCarVersion(TEST_PKG_NAME)).isSameInstanceAs(Version);
     }
 
     @Test
     public void testGetTargetCarVersion_byUser() {
-        String pkgName = "dr.evil";
         CarVersion Version = CarVersion.forMajorAndMinorVersions(66, 6);
 
         doReturn(Version)
-                .when(() -> CarPackageManagerService.getTargetCarVersion(mUserContext, pkgName));
+                .when(() -> CarPackageManagerService.getTargetCarVersion(
+                        mUserContext, TEST_PKG_NAME));
 
         mockCallingUser();
 
-        assertWithMessage("getTargetCarVersion(%s)", pkgName)
-                .that(mService.getTargetCarVersion(mUserHandle, pkgName))
+        assertWithMessage("getTargetCarVersion(%s)", TEST_PKG_NAME)
+                .that(mService.getTargetCarVersion(USER_HANDLE_99, TEST_PKG_NAME))
                 .isSameInstanceAs(Version);
     }
 
     @Test
     public void testGetTargetCarVersion_self_ok() throws Exception {
-        String pkgName = "dr.evil";
         int myUid = Process.myUid();
-        doReturn(myUid).when(mSpiedPackageManager).getPackageUidAsUser(eq(pkgName), anyInt());
+        doReturn(myUid).when(mSpiedPackageManager).getPackageUidAsUser(eq(TEST_PKG_NAME), anyInt());
         CarVersion Version = CarVersion.forMajorAndMinorVersions(66, 6);
 
         doReturn(Version)
-                .when(() -> CarPackageManagerService.getTargetCarVersion(mUserContext, pkgName));
+                .when(() -> CarPackageManagerService.getTargetCarVersion(
+                        mUserContext, TEST_PKG_NAME));
 
         mockCallingUser();
 
-        assertWithMessage("getTargetCarVersion(%s)", pkgName)
-                .that(mService.getSelfTargetCarVersion(pkgName)).isSameInstanceAs(Version);
+        assertWithMessage("getTargetCarVersion(%s)", TEST_PKG_NAME)
+                .that(mService.getSelfTargetCarVersion(TEST_PKG_NAME)).isSameInstanceAs(Version);
     }
 
     @Test
     public void testGetTargetCarVersion_self_wrongUid() throws Exception {
         int myUid = Process.myUid();
-        String pkgName = "dr.evil";
-        doReturn(INVALID_UID).when(mSpiedPackageManager).getPackageUidAsUser(eq(pkgName), anyInt());
+        doReturn(INVALID_UID).when(mSpiedPackageManager).getPackageUidAsUser(
+                eq(TEST_PKG_NAME), anyInt());
         CarVersion Version = CarVersion.forMajorAndMinorVersions(66, 6);
 
         doReturn(Version)
-                .when(() -> CarPackageManagerService.getTargetCarVersion(mUserContext, pkgName));
+                .when(() -> CarPackageManagerService.getTargetCarVersion(
+                        mUserContext, TEST_PKG_NAME));
 
         mockCallingUser();
 
         SecurityException e = assertThrows(SecurityException.class,
-                () -> mService.getSelfTargetCarVersion(pkgName));
+                () -> mService.getSelfTargetCarVersion(TEST_PKG_NAME));
 
         String msg = e.getMessage();
-        assertWithMessage("exception message (pkg)").that(msg).contains(pkgName);
+        assertWithMessage("exception message (pkg)").that(msg).contains(TEST_PKG_NAME);
         assertWithMessage("exception message (uid)").that(msg).contains(String.valueOf(myUid));
     }
 
@@ -336,7 +376,7 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private void mockCallingUser() {
-        doReturn(mUserHandle).when(() -> Binder.getCallingUserHandle());
+        doReturn(USER_HANDLE_99).when(() -> Binder.getCallingUserHandle());
     }
 
     private static String mockGetApplicationInfoThrowsNotFound(Context context, String packageName)
@@ -486,6 +526,162 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         verify(carBlockingUiCommandListener1).finishBlockingUi();
         verify(carBlockingUiCommandListener2).finishBlockingUi();
         verify(carBlockingUiCommandListener3, times(0)).finishBlockingUi();
+    }
+
+    @Test
+    public void setDensityScaleFactor_withPermission_validInput_doesNotThrowSecurityException() {
+        float densityScaleFactor = 0.7f;
+
+        mService.setDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20,
+                densityScaleFactor);
+
+        // No exception expected
+    }
+
+    @Test
+    public void setDensityScaleFactor_noDisplayCompatibilityPermission_throwsSecurityException() {
+        float densityScaleFactor = 0.7f;
+        doReturn(PackageManager.PERMISSION_DENIED).when(
+                () -> ActivityManagerHelper.checkComponentPermission(
+                        eq(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY), anyInt(), anyInt(),
+                        anyBoolean()));
+
+        assertThrows(SecurityException.class, () -> {
+            mService.setDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20,
+                    densityScaleFactor);
+        });
+    }
+
+    @Test
+    public void setDensityScaleFactor_cannotQueryPackage_throwsSecurityException() {
+        float densityScaleFactor = 0.7f;
+        doReturn(PackageManager.PERMISSION_DENIED).when(
+                () -> ActivityManagerHelper.checkComponentPermission(
+                        eq(QUERY_ALL_PACKAGES), anyInt(), anyInt(), anyBoolean()));
+
+        assertThrows(SecurityException.class, () -> {
+            mService.setDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20,
+                    densityScaleFactor);
+        });
+    }
+
+    @Test
+    public void setDensityScaleFactor_negativeDensityScaleFactor_throwsIllegalArgumentException() {
+        float densityScaleFactor = -1.0f;
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.setDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20,
+                    densityScaleFactor);
+        });
+    }
+
+    @Test
+    public void setDensityScaleFactor_zeroDensityScaleFactor_throwsIllegalArgumentException() {
+        float densityScaleFactor = 0f;
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.setDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20,
+                    densityScaleFactor);
+        });
+    }
+
+    @SuppressLint("MissingPermission")
+    @Test
+    public void setDensityScaleFactor_notValidPackageName_throwsIllegalArgumentException()
+            throws PackageManager.NameNotFoundException {
+        float densityScaleFactor = 0.7f;
+        doThrow(new PackageManager.NameNotFoundException()).when(mSpiedPackageManager)
+                .getPackageInfoAsUser(eq(TEST_PKG_NAME), anyInt(), eq(USER_ID_99));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.setDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20,
+                    densityScaleFactor);
+        });
+    }
+
+    @Test
+    public void setDensityScaleFactor_invalidUserId_throwsIllegalArgumentException() {
+        float densityScaleFactor = 0.7f;
+        doReturn(List.of()).when(
+                () -> UserManagerHelper.getUserHandles(any(UserManager.class), anyBoolean()));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.setDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20,
+                    densityScaleFactor);
+        });
+    }
+
+    @Test
+    public void setDensityScaleFactor_invalidDisplayId_throwsIllegalArgumentException() {
+        float densityScaleFactor = 0.7f;
+        when(mDisplayManager.getDisplay(eq(DISPLAY_ID_20))).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.setDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20,
+                    densityScaleFactor);
+        });
+    }
+
+    @Test
+    public void getDensityScaleFactor_withPermission_validInput_doesNotThrowSecurityException() {
+
+        mService.getDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20);
+
+        // No exception expected
+    }
+
+    @Test
+    public void getDensityScaleFactor_noDisplayCompatibilityPermission_throwsSecurityException() {
+        doReturn(PackageManager.PERMISSION_DENIED).when(
+                () -> ActivityManagerHelper.checkComponentPermission(
+                        eq(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY), anyInt(), anyInt(),
+                        anyBoolean()));
+
+        assertThrows(SecurityException.class, () -> {
+            mService.getDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20);
+        });
+    }
+
+    @Test
+    public void getDensityScaleFactor_cannotQueryPackage_throwsSecurityException() {
+        doReturn(PackageManager.PERMISSION_DENIED).when(
+                () -> ActivityManagerHelper.checkComponentPermission(
+                        eq(QUERY_ALL_PACKAGES), anyInt(), anyInt(), anyBoolean()));
+
+        assertThrows(SecurityException.class, () -> {
+            mService.getDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20);
+        });
+    }
+
+    @SuppressLint("MissingPermission")
+    @Test
+    public void getDensityScaleFactor_notValidPackageName_throwsIllegalArgumentException()
+            throws PackageManager.NameNotFoundException {
+        doThrow(new PackageManager.NameNotFoundException()).when(mSpiedPackageManager)
+                .getPackageInfoAsUser(eq(TEST_PKG_NAME), anyInt(), eq(USER_ID_99));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.getDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20);
+        });
+    }
+
+    @Test
+    public void getDensityScaleFactor_invalidUserId_throwsIllegalArgumentException() {
+        doReturn(List.of()).when(
+                () -> UserManagerHelper.getUserHandles(any(UserManager.class), anyBoolean()));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.getDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20);
+        });
+    }
+
+    @Test
+    public void getDensityScaleFactor_invalidDisplayId_throwsIllegalArgumentException() {
+        when(mDisplayManager.getDisplay(eq(DISPLAY_ID_20))).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.getDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20);
+        });
     }
 
     private ActivityManager.RunningTaskInfo createTask() {

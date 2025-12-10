@@ -60,5 +60,7 @@
         <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
         <permission name="android.permission.CONTROL_DISPLAY_COLOR_TRANSFORMS" />
         <permission name="android.permission.INTERACT_ACROSS_USERS" />
+        <permission name="android.car.permission.MANAGE_DISPLAY_COMPATIBILITY" />
+        <permission name="android.permission.QUERY_ALL_PACKAGES" />
     </privapp-permissions>
 </permissions>
