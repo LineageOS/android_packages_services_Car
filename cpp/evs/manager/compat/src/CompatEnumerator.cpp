@@ -59,15 +59,36 @@ CompatEnumerator::CompatEnumerator() {
         return;
     }
 
-    if (mCameraManager->getIsCameraDeviceSharingSupportedFn() &&
-        mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get())) {
-        if (!mCameraManager->getOpenSharedCameraFn() ||
-            !mCameraManager->getCaptureSessionSharedStartStreamingFn() ||
-            !mCameraManager->getCaptureSessionSharedStopStreamingFn()) {
-            LOG(ERROR) << "Camera device sharing is supported but one or more required functions "
-                          "are not available.";
+    if (mCameraManager->getIsCameraDeviceSharingSupportedFn()) {
+        std::vector<std::string> cameraIds;
+        camera_status_t status = mCameraManager->getCameraIdList(&cameraIds);
+        if (status != ACAMERA_OK) {
+            LOG(ERROR) << "Failed to get camera ID list on init with camera_status_t: " << status;
             mIsReady = false;
             return;
+        }
+
+        for (const auto& cameraId : cameraIds) {
+            bool isSharingSupported = false;
+            status = mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get(),
+                                                                           cameraId.c_str(),
+                                                                           &isSharingSupported);
+            if (status != ACAMERA_OK) {
+                LOG(WARNING) << "Failed to check camera sharing support for " << cameraId
+                             << " on init. Status: " << status;
+                continue;
+            }
+            if (isSharingSupported) {
+                if (!mCameraManager->getOpenSharedCameraFn() ||
+                    !mCameraManager->getCaptureSessionSharedStartStreamingFn() ||
+                    !mCameraManager->getCaptureSessionSharedStopStreamingFn()) {
+                    LOG(ERROR) << "Camera device sharing is supported but one or more required "
+                                  "functions are not available.";
+                    mIsReady = false;
+                    return;
+                }
+                break;
+            }
         }
     }
     initializeAvailabilityCallbacks();
@@ -476,8 +497,19 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const St
     bool success = true;
     std::vector<std::string> openedInThisCall;
 
-    bool isSharingSupported =
-            mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get());
+    bool isSharingSupported = false;
+    if (mCameraManager->getIsCameraDeviceSharingSupportedFn()) {
+        camera_status_t status =
+                mCameraManager->getIsCameraDeviceSharingSupportedFn()(mCameraManager->get(),
+                                                                      cameraId.c_str(),
+                                                                      &isSharingSupported);
+        if (status != ACAMERA_OK) {
+            LOG(WARNING) << "Failed to check camera sharing support for " << cameraId
+                         << ". Status: " << status;
+            isSharingSupported = false;
+        }
+    }
+
     {
         std::lock_guard lock(mLock);
         for (const auto& id : physicalCameraIds) {
