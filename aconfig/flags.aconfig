@@ -36,6 +36,13 @@ flag {
   bug: "441579704"
 }
 
+flag {
+  name: "rros_per_occupant_zone"
+    namespace: "car_framework"
+    description: "Selectively enable RROs for different occupant zones"
+    bug: "467141039"
+}
+
 # CarPackageManager
 flag {
   name: "display_compatibility"
