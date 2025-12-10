@@ -7,7 +7,7 @@ per-file src/com/android/car/am/* = gauravbhola@google.com
 per-file src/com/android/car/AppFocusServiceTest.java = bkchoi@google.com
 
 # Bluetooth
-per-file src/com/android/car/bluetooth/* = salsavage@google.com, chengandrew@google.com
+per-file src/com/android/car/bluetooth/* = salsavage@google.com
 
 # Cluster
 per-file src/android/car/cluster/* = bkchoi@google.com
@@ -22,7 +22,7 @@ per-file src/com/android/car/hal/InputHalServiceTest.java = kanant@google.com
 per-file src/com/android/car/CarOccupantZoneServiceTest.java = xiangw@google.com
 
 # PackageManager
-per-file src/com/android/car/pm/* = gargmayank@google.com, gauravbhola@google.com
+per-file src/com/android/car/pm/* = gauravbhola@google.com
 
 # Power
 per-file src/com/android/car/garagemode/* = hubertmis@google.com
@@ -31,7 +31,7 @@ per-file src/com/android/car/hal/PowerHalServiceTest.java = hubertmis@google.com
 per-file src/com/android/car/power/* = hubertmis@google.com
 
 # ProcInspector
-per-file src/com/android/car/procinspector/* = lakshmana@google.com
+per-file src/com/android/car/procinspector/* = jahdiel@google.com
 
 # Property
 per-file src/com/android/car/CarProperty* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
@@ -40,17 +40,17 @@ per-file src/com/android/car/hal/property/*.java = file:platform/hardware/interf
 per-file src/com/android/car/property/*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # StorageMonitoring
-per-file src/com/android/car/storagemonitoring/* = lakshmana@google.com
+per-file src/com/android/car/storagemonitoring/* = jahdiel@google.com
 
 # SystemInterface
 per-file src/com/android/car/systeminterface/* = hubertmis@google.com
 
 # Watchdog
-per-file assets/os/* = lakshmana@google.com, jahdiel@google.com
-per-file src/android/car/os/* = lakshmana@google.com, jahdiel@google.com
-per-file src/android/car/watchdoglib/* = lakshmana@google.com, jahdiel@google.com
-per-file src/com/android/car/os/* = lakshmana@google.com, jahdiel@google.com
-per-file src/com/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
+per-file assets/os/* = jahdiel@google.com
+per-file src/android/car/os/* = jahdiel@google.com
+per-file src/android/car/watchdoglib/* = jahdiel@google.com
+per-file src/com/android/car/os/* = jahdiel@google.com
+per-file src/com/android/car/watchdog/* = jahdiel@google.com
 
 # View
 per-file src/android/car/builtin/view/* = gauravbhola@google.com
@@ -62,4 +62,4 @@ per-file src/com/android/car/hal/VehicleHal*.java = file:platform/hardware/inter
 per-file src/com/android/car/*VehicleStubUnitTest.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # res folder
-per-file res/** = salsavage@google.com, chengandrew@google.com, kanant@google.com, evaschen@google.com, aaqibismail@google.com, lakshmana@google.com, jahdiel@google.com
+per-file res/** = salsavage@google.com, kanant@google.com, evaschen@google.com, aaqibismail@google.com, jahdiel@google.com
