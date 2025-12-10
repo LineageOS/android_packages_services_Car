@@ -32,7 +32,6 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
-import android.car.hardware.property.PropertyNotAvailableException;
 import android.car.test.CarTestManager;
 import android.car.test.PermissionsCheckerRule;
 import android.car.test.PermissionsCheckerRule.EnsureHasPermission;
@@ -158,27 +157,14 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
                 "VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING is not supported",
                 !carPropertyConfigs.isEmpty());
 
-        Integer value = 0;
-        ArrayList<Integer> possibleInitialStatuses = new ArrayList<>();
-        try {
-            CarPropertyValue<Integer> carPropertyValue =
-                    mCarPropertyManager.getProperty(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING, 0);
-            possibleInitialStatuses.add(CarPropertyValue.STATUS_AVAILABLE);
-            value = carPropertyValue.getValue();
-        } catch (PropertyNotAvailableException e) {
-            // The system status codes are not mapped to getDetailedErrorCode so it can be any one
-            // of these.
-            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL);
-            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED);
-            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW);
-            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH);
-            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY);
-            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY);
-        } catch (CarInternalErrorException e) {
-            possibleInitialStatuses.add(CarPropertyValue.STATUS_ERROR);
-        }
-
         int areaId = 0;
+        int value = 0;
+        injectEventFromVehicleSide(
+                VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING,
+                areaId,
+                value,
+                VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                SystemClock.elapsedRealtimeNanos());
         int numEvents = 3;
         TestCallback callback =
                 new TestCallback(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING, areaId, numEvents);
@@ -193,12 +179,9 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         expectThat(initialValue.getPropertyId())
                 .isEqualTo(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING);
         expectThat(initialValue.getAreaId()).isEqualTo(areaId);
-        expectThat(initialValue.getValue()).isEqualTo(value);
-        // The initial event is created via getProperty call in CarPropertyService.
-        // The system error codes are not mapped to the system status codes.
-        expectThat(initialValue.getPropertyStatus()).isIn(possibleInitialStatuses);
+        expectThat(initialValue.getPropertyStatus())
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
 
-        value = 0;
         injectEventFromVehicleSide(
                 VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING,
                 areaId,
@@ -219,7 +202,6 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             expectThat(carPropertyValue.getPropertyId())
                     .isEqualTo(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING);
             expectThat(carPropertyValue.getAreaId()).isEqualTo(areaId);
-            expectThat(carPropertyValue.getValue()).isEqualTo(value);
         }
         expectThat(carPropertyValues.get(0).getPropertyStatus())
                 .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY);

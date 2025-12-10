@@ -75,6 +75,7 @@ import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.PropertyStatusUtils;
 import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.ArrayUtils;
@@ -671,12 +672,24 @@ public class CarPropertyService extends ICarProperty.Stub
                 CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
                 Object defaultValue = CarPropertyHelper.getDefaultValue(
                         carPropertyConfig.getPropertyType());
-                // TODO(b/417326671): convert e.errorCode into detailed not available system status.
                 // TODO(b/417325727): convert vendor status code from e.errorCode into a property
                 // vendor status.
                 if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
-                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
-                            CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
+                    int propertyStatus;
+                    if (mFeatureFlags.carPropertyStatusDetailedNotAvailable()) {
+                        propertyStatus =
+                                PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
+                                        errorCode);
+                    } else {
+                        propertyStatus = CarPropertyValue.STATUS_UNAVAILABLE;
+                    }
+                    carPropertyValue =
+                            new CarPropertyValue<>(
+                                    propertyId,
+                                    areaId,
+                                    propertyStatus,
+                                    timestampNanos,
+                                    defaultValue);
                 } else {
                     carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
                             CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
