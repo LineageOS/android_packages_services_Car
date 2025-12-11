@@ -497,6 +497,18 @@ public class CarPropertyService extends ICarProperty.Stub
                 == PERMISSION_GRANTED;
     }
 
+    /**
+     * Gets whether the current context can read the vendor error code.
+     *
+     * <p>This must be called within a binder call context.
+     */
+    private boolean canReadVendorErrorCode() {
+        return !mFeatureFlags.carPropertyVendorErrorCodePermission()
+                || mContext.checkCallingOrSelfPermission(
+                                Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE)
+                        == PERMISSION_GRANTED;
+    }
+
     @Override
     public void registerListener(List<CarSubscription> carSubscriptions,
             ICarPropertyEventListener carPropertyEventListener)
@@ -661,39 +673,40 @@ public class CarPropertyService extends ICarProperty.Stub
             int areaId = propIdAreaId.areaId;
             CarPropertyValue carPropertyValue = null;
             try {
-                carPropertyValue = getProperty(propertyId, areaId);
+                carPropertyValue = getProperty(propertyId, areaId, canReadVendorStatus());
             } catch (ServiceSpecificException e) {
                 Slogf.w(TAG, "Get initial carPropertyValue for registerCallback failed -"
                                 + " property ID: %s, area ID %s, exception: %s",
                         VehiclePropertyIds.toString(propertyId), toAreaIdString(propertyId, areaId),
                         e);
-                int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
-                long timestampNanos = SystemClock.elapsedRealtimeNanos();
+                int systemErrorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
                 CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
                 Object defaultValue = CarPropertyHelper.getDefaultValue(
                         carPropertyConfig.getPropertyType());
-                // TODO(b/417325727): convert vendor status code from e.errorCode into a property
-                // vendor status.
-                if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
-                    int propertyStatus;
+                CarPropertyValue.Builder<?> builder =
+                        new CarPropertyValue.Builder(propertyId, areaId)
+                                .setTimestampNanos(SystemClock.elapsedRealtimeNanos())
+                                .setValue(defaultValue);
+                if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(systemErrorCode)) {
                     if (mFeatureFlags.carPropertyStatusDetailedNotAvailable()) {
-                        propertyStatus =
+                        builder.setSystemStatus(
                                 PropertyStatusUtils.getNotAvailablePropertyStatusFromStatusCode(
-                                        errorCode);
+                                        systemErrorCode));
                     } else {
-                        propertyStatus = CarPropertyValue.STATUS_UNAVAILABLE;
+                        builder.setSystemStatus(CarPropertyValue.STATUS_UNAVAILABLE);
                     }
-                    carPropertyValue =
-                            new CarPropertyValue<>(
-                                    propertyId,
-                                    areaId,
-                                    propertyStatus,
-                                    timestampNanos,
-                                    defaultValue);
                 } else {
-                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
-                            CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
+                    builder.setSystemStatus(CarPropertyValue.STATUS_ERROR);
                 }
+                if (mFeatureFlags.carPropertyStatusDetailedNotAvailable()) {
+                    // Vendor StatusCode and VehiclePropertyStatus values map one-to-one as defined
+                    // in VHAL interface.
+                    // CarPropertyServiceClient has logic to filter out the vendor status if the
+                    // client does not have permission to read the vendor status.
+                    builder.setVendorStatus(
+                            CarPropertyErrorCodes.getVhalVendorErrorCode(e.errorCode));
+                }
+                carPropertyValue = builder.build();
             } catch (Exception e) {
                 // Do nothing.
                 Slogf.e(TAG, "Get initial carPropertyValue for registerCallback failed -"
@@ -899,6 +912,11 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public CarPropertyValue getProperty(int propertyId, int areaId)
             throws IllegalArgumentException, ServiceSpecificException {
+        return getProperty(propertyId, areaId, canReadVendorErrorCode());
+    }
+
+    private CarPropertyValue getProperty(int propertyId, int areaId, boolean canReadVendorErrorCode)
+            throws IllegalArgumentException, ServiceSpecificException {
         validateGetParameters(propertyId, areaId);
         Trace.traceBegin(TRACE_TAG, "CarPropertyValue#getProperty");
         long currentTimeMs = System.currentTimeMillis();
@@ -906,6 +924,11 @@ public class CarPropertyService extends ICarProperty.Stub
             return runSyncOperationCheckLimit(() -> {
                 return mPropertyHalService.getProperty(propertyId, areaId);
             });
+        } catch (ServiceSpecificException e) {
+            if (!canReadVendorErrorCode) {
+                throwWithFilteredVendorErrorCode(e);
+            }
+            throw e;
         } finally {
             if (DBG) {
                 Slogf.d(TAG, "Latency of getPropertySync is: %f", (float) (System
@@ -969,10 +992,18 @@ public class CarPropertyService extends ICarProperty.Stub
         validateSetParameters(carPropertyValue);
         long currentTimeMs = System.currentTimeMillis();
 
-        runSyncOperationCheckLimit(() -> {
-            mPropertyHalService.setProperty(carPropertyValue);
-            return null;
-        });
+        try {
+            runSyncOperationCheckLimit(
+                    () -> {
+                        mPropertyHalService.setProperty(carPropertyValue);
+                        return null;
+                    });
+        } catch (ServiceSpecificException e) {
+            if (!canReadVendorErrorCode()) {
+                throwWithFilteredVendorErrorCode(e);
+            }
+            throw e;
+        }
 
         IBinder listenerBinder = iCarPropertyEventListener.asBinder();
         synchronized (mLock) {
@@ -1145,8 +1176,12 @@ public class CarPropertyService extends ICarProperty.Stub
             validateGetParameters(getPropertyServiceRequests.get(i).getPropertyId(),
                     getPropertyServiceRequests.get(i).getAreaId());
         }
-        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                asyncPropertyResultCallback, timeoutInMs, currentTime);
+        mPropertyHalService.getCarPropertyValuesAsync(
+                getPropertyServiceRequests,
+                asyncPropertyResultCallback,
+                timeoutInMs,
+                currentTime,
+                canReadVendorErrorCode());
         if (DBG) {
             Slogf.d(TAG, "Latency of getPropertyAsync is: %f", (float) (System
                     .currentTimeMillis() - currentTime));
@@ -1195,8 +1230,12 @@ public class CarPropertyService extends ICarProperty.Stub
                 validateGetParameters(propertyId, areaId);
             }
         }
-        mPropertyHalService.setCarPropertyValuesAsync(setPropertyServiceRequestList,
-                asyncPropertyResultCallback, timeoutInMs, currentTime);
+        mPropertyHalService.setCarPropertyValuesAsync(
+                setPropertyServiceRequestList,
+                asyncPropertyResultCallback,
+                timeoutInMs,
+                currentTime,
+                canReadVendorErrorCode());
         if (DBG) {
             Slogf.d(TAG, "Latency of setPropertyAsync is: %f", (float) (System
                     .currentTimeMillis() - currentTime));
@@ -1662,5 +1701,14 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         // We don't check for other type of properties.
         return true;
+    }
+
+    private static void throwWithFilteredVendorErrorCode(ServiceSpecificException e)
+            throws ServiceSpecificException {
+        int vhalErrorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
+        ServiceSpecificException filteredException =
+                new ServiceSpecificException(vhalErrorCode, e.getMessage());
+        filteredException.setStackTrace(e.getStackTrace());
+        throw filteredException;
     }
 }

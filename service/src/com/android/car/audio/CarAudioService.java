@@ -911,6 +911,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
+        CarZonesAudioFocus zoneAudioFocus = null;
         synchronized (mImplLock) {
             writer.println("*CarAudioService*");
             writer.increaseIndent();
@@ -992,9 +993,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                             mUidToZoneMap.get(callingId));
                 }
                 writer.decreaseIndent();
-
-                writer.println();
-                mFocusHandler.dump(writer);
+                zoneAudioFocus = mFocusHandler;
 
                 if (mPersistFadeBalanceLevels && mCarAudioEffects != null) {
                     writer.println();
@@ -1054,6 +1053,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             writer.decreaseIndent();
 
             writer.decreaseIndent();
+        }
+
+        if (zoneAudioFocus != null) {
+            writer.println();
+            zoneAudioFocus.dump(writer);
         }
     }
 

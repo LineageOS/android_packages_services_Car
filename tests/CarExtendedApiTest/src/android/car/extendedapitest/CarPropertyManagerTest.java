@@ -74,6 +74,9 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
     private static final int END_TEST_CODES = 0x3000 + NUMBER_OF_TEST_CODES
             | VehiclePropertyGroup.VENDOR | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
+    private static final int TEST_VENDOR_STATUS_1 = 0xdead;
+    private static final int TEST_VENDOR_STATUS_2 = 0xbeef;
+    private static final int TEST_VENDOR_STATUS_3 = 0xabcd;
     private static final String TAG = CarPropertyManagerTest.class.getSimpleName();
     private static final long VHAL_DUMP_TIMEOUT_MS = 1000;
     // Number of bits to shift left to set the property vendor status in VHAL VehiclePropValue
@@ -227,6 +230,14 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
                 !carPropertyConfigs.isEmpty());
 
         int areaId = 0;
+        int value = 0;
+        injectEventFromVehicleSide(
+                VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING,
+                areaId,
+                value,
+                combineSystemAndVendorStatus(VehiclePropertyStatus.ERROR, TEST_VENDOR_STATUS_1),
+                SystemClock.elapsedRealtimeNanos());
+
         int numEvents = 3;
         TestCallback callback =
                 new TestCallback(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING, areaId, numEvents);
@@ -241,25 +252,21 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         expectThat(initialValue.getPropertyId())
                 .isEqualTo(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING);
         expectThat(initialValue.getAreaId()).isEqualTo(areaId);
-        expectThat(initialValue.getValue()).isEqualTo(0);
-        // The initial event is created via getProperty call in CarPropertyService.
-        // The vendor error codes are not mapped to the vendor status codes.
-        expectThat(initialValue.getPropertyVendorStatus()).isEqualTo(0);
+        expectThat(initialValue.getPropertyVendorStatus()).isEqualTo(TEST_VENDOR_STATUS_1);
 
-        int value = 0;
-        int vendorStatus = 0xdead;
-        int status = vendorStatus << VENDOR_STATUS_SHIFT | VehiclePropertyStatus.ERROR;
         injectEventFromVehicleSide(
                 VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING,
                 areaId,
                 value,
-                status,
+                combineSystemAndVendorStatus(
+                        VehiclePropertyStatus.UNAVAILABLE, TEST_VENDOR_STATUS_2),
                 SystemClock.elapsedRealtimeNanos());
         injectEventFromVehicleSide(
                 VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING,
                 areaId,
                 value,
-                initialValue.getPropertyVendorStatus(),
+                combineSystemAndVendorStatus(
+                        VehiclePropertyStatus.NOT_AVAILABLE_SAFETY, TEST_VENDOR_STATUS_3),
                 SystemClock.elapsedRealtimeNanos());
 
         List<CarPropertyValue> carPropertyValues = callback.waitAndGetChangeEvents();
@@ -270,11 +277,11 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             expectThat(carPropertyValue.getPropertyId())
                     .isEqualTo(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING);
             expectThat(carPropertyValue.getAreaId()).isEqualTo(areaId);
-            expectThat(carPropertyValue.getValue()).isEqualTo(value);
         }
-        expectThat(carPropertyValues.get(0).getPropertyVendorStatus()).isEqualTo(vendorStatus);
+        expectThat(carPropertyValues.get(0).getPropertyVendorStatus())
+                .isEqualTo(TEST_VENDOR_STATUS_2);
         expectThat(carPropertyValues.get(1).getPropertyVendorStatus())
-                .isEqualTo(initialValue.getPropertyVendorStatus());
+                .isEqualTo(TEST_VENDOR_STATUS_3);
     }
 
     @ApiTest(apis = {"android.car.hardware.property.CarPropertyManager#getPropertyList()"})
@@ -450,6 +457,10 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             throw new IllegalArgumentException(
                     "Failed to set the property via VHAL dump, output: " + output);
         }
+    }
+
+    private static int combineSystemAndVendorStatus(int systemStatus, int vendorStatus) {
+        return vendorStatus << VENDOR_STATUS_SHIFT | systemStatus;
     }
 
     private static final class TestCallback implements CarPropertyEventCallback {

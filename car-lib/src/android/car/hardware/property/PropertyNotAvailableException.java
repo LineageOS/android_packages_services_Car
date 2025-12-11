@@ -91,8 +91,6 @@ public class PropertyNotAvailableException extends IllegalStateException {
         // SecurityException but this is not a security enforcement. Even if the client bypass
         // this check here, the vendor error code still would be 0 if the client does not
         // have the permission.
-        // TODO(b/455051947): Validate car service filtering in CTS.
-        // TODO(b/415128639): Filter vendor error code in CarService.
         if (!mCanReadVendorErrorCode) {
             throw new SecurityException(
                     "Client does not have the required permission: "

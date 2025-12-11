@@ -311,4 +311,15 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
                                 VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
                 .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
     }
+
+    @Test
+    public void testCloneWithVendorErrorCodeFiltered() {
+        int vhalStatusCode = VehicleHalStatusCode.STATUS_NOT_AVAILABLE | (VENDOR_ERROR_CODE << 16);
+        CarPropertyErrorCodes carPropertyErrorCodes = createFromVhalStatusCode(vhalStatusCode);
+
+        assertThat(carPropertyErrorCodes.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+
+        carPropertyErrorCodes = carPropertyErrorCodes.cloneWithVendorErrorCodeFiltered();
+        assertThat(carPropertyErrorCodes.getVendorErrorCode()).isEqualTo(NO_ERROR);
+    }
 }
