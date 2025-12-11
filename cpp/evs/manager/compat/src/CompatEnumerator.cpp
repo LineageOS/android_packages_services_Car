@@ -640,7 +640,7 @@ ScopedAStatus CompatEnumerator::openUltrasonicsArray(
 
 ScopedAStatus CompatEnumerator::registerStatusCallback(
         const std::shared_ptr<IEvsEnumeratorStatusCallback>& callback) {
-    std::lock_guard lock(mLock);
+    std::lock_guard lock(mCallbackLock);
     mDeviceStatusCallbacks.insert(callback);
     return ScopedAStatus::ok();
 }
@@ -724,7 +724,7 @@ std::unordered_set<std::string> CompatEnumerator::getPhysicalCameraIds(
 }
 
 void CompatEnumerator::broadcastDeviceStatusChange(const std::vector<aidlevs::DeviceStatus>& list) {
-    std::lock_guard lock(mLock);
+    std::lock_guard lock(mCallbackLock);
     auto it = mDeviceStatusCallbacks.begin();
     while (it != mDeviceStatusCallbacks.end()) {
         ScopedAStatus status = (*it)->deviceStatusChanged(list);
