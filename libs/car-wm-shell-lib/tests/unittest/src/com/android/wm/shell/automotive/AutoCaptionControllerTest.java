@@ -16,33 +16,47 @@
 
 package com.android.wm.shell.automotive;
 
+import static android.car.feature.Flags.FLAG_DISPLAY_COMPATIBILITY_V2;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.UserHandle;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.testing.AndroidTestingRunner;
+import android.view.View;
 import android.window.DisplayAreaInfo;
 import android.window.WindowContainerToken;
 
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.ShellTaskOrganizer;
+import com.android.wm.shell.automotive.utility.TestRunningTaskInfoBuilder;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.MockitoSession;
@@ -50,8 +64,15 @@ import org.mockito.quality.Strictness;
 
 @RunWith(AndroidTestingRunner.class)
 public class AutoCaptionControllerTest {
+    private static final String TEST_PKG_NAME = "test.package";
+    private static final String TEST_CLASS_NAME = "test.class";
+    private static final int TEST_USER_ID = 99;
+    private static final int TEST_DISPLAY_ID = 101;
+    private static final int TEST_TASK_ID = 67;
+    private static final int TEST_ROOT_TASK_ID = 121;
 
-    private AutoCaptionController mController;
+    @Rule
+    public SetFlagsRule  mSetFlagsRule = new SetFlagsRule();
     @Mock
     private ShellTaskOrganizer mShellTaskOrganizer;
     @Mock
@@ -69,9 +90,20 @@ public class AutoCaptionControllerTest {
     @Mock
     private Car mCar;
     @Mock
-    AutoCaptionBarViewFactory mAutoCaptionBarViewFactory;
+    private AutoCaptionBarViewController mAutoCaptionBarViewController;
+    @Mock
+    private AutoDecor mAutoDecor;
+    @Mock
+    private RootTaskStack mRootTaskStack;
+    @Mock
+    private AutoSurfaceTransaction mAutoSurfaceTransaction;
+    @Mock
+    private View mView;
+
+    private AutoCaptionController mController;
     private MockitoSession mSession;
     private Car.CarServiceLifecycleListener mCarServiceLifecycleListener;
+    private AutoTaskRepository.AutoAppTaskListener mAutoAppTaskListener;
 
     @Before
     public void setUp() {
@@ -83,6 +115,8 @@ public class AutoCaptionControllerTest {
                 .strictness(Strictness.LENIENT)
                 .startMocking();
         when(mCar.getCarManager(Car.PACKAGE_SERVICE)).thenReturn(mCarPackageManager);
+        when(mAutoSurfaceTransactionFactory.createTransaction(anyString())).thenReturn(
+                mAutoSurfaceTransaction);
 
         ExtendedMockito.doAnswer(invocation -> {
             mCarServiceLifecycleListener = invocation.getArgument(3);
@@ -92,6 +126,12 @@ public class AutoCaptionControllerTest {
 
         mController = new AutoCaptionController(mContext, mShellTaskOrganizer, mAutoTaskRepository,
                 mRootTaskDisplayAreaOrganizer, mAutoDecorManager, mAutoSurfaceTransactionFactory);
+
+        ArgumentCaptor<AutoTaskRepository.AutoAppTaskListener> autoAppTaskListenerCaptor =
+                ArgumentCaptor.forClass(AutoTaskRepository.AutoAppTaskListener.class);
+        verify(mAutoTaskRepository).addAppTaskListener(autoAppTaskListenerCaptor.capture());
+        mAutoAppTaskListener = autoAppTaskListenerCaptor.getValue();
+        assertThat(mAutoAppTaskListener).isNotNull();
     }
 
     @After
@@ -101,6 +141,7 @@ public class AutoCaptionControllerTest {
         }
     }
 
+    @EnableFlags(FLAG_DISPLAY_COMPATIBILITY_V2)
     @Test
     public void testSetAndRemoveSafeRegionForRootTask() {
         int rootTaskId = 1;
@@ -113,17 +154,18 @@ public class AutoCaptionControllerTest {
         Rect captionRegion = new Rect(0, 0, 100, 20);
 
         mController.setCaptionRegion(rootTaskStack, captionRegion,
-                mAutoCaptionBarViewFactory);
+                mAutoCaptionBarViewController);
 
-        assertThat(mController.mCaptionRegionInfoPerRootTask.size()).isEqualTo(1);
-        assertThat(mController.mCaptionRegionInfoPerRootTask.get(
+        assertThat(mController.getCaptionRegionInfoPerRootTask().size()).isEqualTo(1);
+        assertThat(mController.getCaptionRegionInfoPerRootTask().get(
                 rootTaskId).getCaptionRegionBounds()).isEqualTo(captionRegion);
 
         mController.removeCaptionRegion(rootTaskStack);
 
-        assertThat(mController.mCaptionRegionInfoPerRootTask.size()).isEqualTo(0);
+        assertThat(mController.getCaptionRegionInfoPerRootTask().size()).isEqualTo(0);
     }
 
+    @EnableFlags(FLAG_DISPLAY_COMPATIBILITY_V2)
     @Test
     public void testSetAndRemoveSafeRegionForDisplay() {
         int displayId = 1;
@@ -132,15 +174,104 @@ public class AutoCaptionControllerTest {
                 new DisplayAreaInfo(mock(WindowContainerToken.class), displayId, 0));
 
         mController.setCaptionRegion(displayId, captionRegion,
-                mAutoCaptionBarViewFactory);
+                mAutoCaptionBarViewController);
 
-        assertThat(mController.mCaptionRegionInfoPerDisplay.size()).isEqualTo(1);
-        assertThat(mController.mCaptionRegionInfoPerDisplay.get(
+        assertThat(mController.getCaptionRegionInfoPerDisplay().size()).isEqualTo(1);
+        assertThat(mController.getCaptionRegionInfoPerDisplay().get(
                 displayId).getCaptionRegionBounds()).isEqualTo(captionRegion);
 
         mController.removeCaptionRegion(displayId);
 
-        assertThat(mController.mCaptionRegionInfoPerRootTask.size()).isEqualTo(0);
+        assertThat(mController.getCaptionRegionInfoPerRootTask().size()).isEqualTo(0);
+    }
+
+    @EnableFlags(FLAG_DISPLAY_COMPATIBILITY_V2)
+    @Test
+    public void onTaskChanged_doesRequireCaptionBar_controllerForRootTaskNotified()
+            throws PackageManager.NameNotFoundException {
+        boolean requireCaptionBar = true;
+        ActivityManager.RunningTaskInfo taskInfo = new TestRunningTaskInfoBuilder()
+                .setDisplayId(TEST_DISPLAY_ID)
+                .setTaskId(TEST_TASK_ID)
+                .setParentTaskId(TEST_ROOT_TASK_ID)
+                .setTopActivity(new ComponentName(TEST_PKG_NAME, TEST_CLASS_NAME))
+                .setUserId(TEST_USER_ID)
+                .setIsTopActivitySafeRegionLetterboxed(requireCaptionBar)
+                .build();
+        AutoCaptionController.CaptionRegionInfo captionRegionInfo =
+                new AutoCaptionController.CaptionRegionInfo(
+                        new Rect(), mAutoCaptionBarViewController);
+        when(mRootTaskStack.getId()).thenReturn(TEST_ROOT_TASK_ID);
+        when(mAutoTaskRepository.getRootTaskStack(TEST_ROOT_TASK_ID)).thenReturn(mRootTaskStack);
+        when(mCarPackageManager.requiresDisplayCompatForUser(eq(TEST_PKG_NAME),
+                eq(TEST_USER_ID))).thenReturn(requireCaptionBar);
+        when(mAutoDecor.getView()).thenReturn(mView);
+
+        // Simulate a caption bar already being attached to the task
+        mController.getTaskIdToCaptionBar().append(TEST_TASK_ID, mAutoDecor);
+        mController.getCaptionRegionInfoPerRootTask().append(TEST_ROOT_TASK_ID, captionRegionInfo);
+        mAutoAppTaskListener.onTaskChanged(taskInfo);
+
+        verify(mAutoCaptionBarViewController).updateView(eq(mView), eq(taskInfo));
+    }
+
+    @EnableFlags(FLAG_DISPLAY_COMPATIBILITY_V2)
+    @Test
+    public void onTaskChanged_doesRequireCaptionBar_controllerForDisplayNotified()
+            throws PackageManager.NameNotFoundException {
+        boolean requireCaptionBar = true;
+        ActivityManager.RunningTaskInfo taskInfo = new TestRunningTaskInfoBuilder()
+                .setDisplayId(TEST_DISPLAY_ID)
+                .setTaskId(TEST_TASK_ID)
+                .setParentTaskId(-1)
+                .setTopActivity(new ComponentName(TEST_PKG_NAME, TEST_CLASS_NAME))
+                .setUserId(TEST_USER_ID)
+                .setIsTopActivitySafeRegionLetterboxed(requireCaptionBar)
+                .build();
+        AutoCaptionController.CaptionRegionInfo captionRegionInfo =
+                new AutoCaptionController.CaptionRegionInfo(
+                        new Rect(), mAutoCaptionBarViewController);
+        when(mCarPackageManager.requiresDisplayCompatForUser(eq(TEST_PKG_NAME),
+                eq(TEST_USER_ID))).thenReturn(requireCaptionBar);
+        when(mAutoDecor.getView()).thenReturn(mView);
+
+        // Simulate a caption bar already being attached to the task
+        mController.getTaskIdToCaptionBar().append(TEST_TASK_ID, mAutoDecor);
+        mController.getCaptionRegionInfoPerDisplay().append(TEST_DISPLAY_ID, captionRegionInfo);
+        mAutoAppTaskListener.onTaskChanged(taskInfo);
+
+        verify(mAutoCaptionBarViewController).updateView(eq(mView), eq(taskInfo));
+    }
+
+    @EnableFlags(FLAG_DISPLAY_COMPATIBILITY_V2)
+    @Test
+    public void onTaskChanged_doesNotRequireCaptionBar_controllerNotNotified()
+            throws PackageManager.NameNotFoundException {
+        boolean requireCaptionBar = false;
+        ActivityManager.RunningTaskInfo taskInfo = new TestRunningTaskInfoBuilder()
+                .setDisplayId(TEST_DISPLAY_ID)
+                .setTaskId(TEST_TASK_ID)
+                .setParentTaskId(TEST_ROOT_TASK_ID)
+                .setTopActivity(new ComponentName(TEST_PKG_NAME, TEST_CLASS_NAME))
+                .setUserId(TEST_USER_ID)
+                .setIsTopActivitySafeRegionLetterboxed(requireCaptionBar)
+                .build();
+        AutoCaptionController.CaptionRegionInfo captionRegionInfo =
+                new AutoCaptionController.CaptionRegionInfo(
+                        new Rect(), mAutoCaptionBarViewController);
+        when(mRootTaskStack.getId()).thenReturn(TEST_ROOT_TASK_ID);
+        when(mAutoTaskRepository.getRootTaskStack(TEST_ROOT_TASK_ID)).thenReturn(mRootTaskStack);
+        when(mCarPackageManager.requiresDisplayCompatForUser(eq(TEST_PKG_NAME),
+                eq(TEST_USER_ID))).thenReturn(requireCaptionBar);
+        when(mAutoDecor.getView()).thenReturn(mView);
+
+        // Simulate a caption bar already being attached to the task
+        mController.getTaskIdToCaptionBar().append(TEST_TASK_ID, mAutoDecor);
+        mController.getCaptionRegionInfoPerRootTask().append(TEST_ROOT_TASK_ID, captionRegionInfo);
+        mAutoAppTaskListener.onTaskChanged(taskInfo);
+
+        verify(mAutoCaptionBarViewController, never()).updateView(any(View.class),
+                any(ActivityManager.RunningTaskInfo.class));
     }
 }
 

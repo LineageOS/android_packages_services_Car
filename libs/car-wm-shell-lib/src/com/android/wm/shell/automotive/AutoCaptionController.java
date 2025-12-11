@@ -24,6 +24,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
+import android.car.feature.Flags;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -52,7 +53,6 @@ import javax.inject.Inject;
  */
 @WMSingleton
 public class AutoCaptionController {
-
     private static final int DEFAULT_Z_INDEX_CAPTION_BAR = 100001;
     private static final String CAPTION_BAR_NAME_FORMAT = "AutoCaptionControllerBar:%d";
     private static final String TRANSACTION_NAME_FORMAT = "AutoCaptionControllerTransaction:%d";
@@ -62,12 +62,11 @@ public class AutoCaptionController {
     private final AutoDecorManager mAutoDecorManager;
     // To save the caption region info for each root task. Each root task can have its own
     // caption region.
-    @VisibleForTesting
-    final SparseArray<CaptionRegionInfo> mCaptionRegionInfoPerRootTask = new SparseArray<>();
+    private final SparseArray<CaptionRegionInfo> mCaptionRegionInfoPerRootTask =
+            new SparseArray<>();
     // To save the caption region for each display. This caption region is for default task
     // display area.
-    @VisibleForTesting
-    final SparseArray<CaptionRegionInfo> mCaptionRegionInfoPerDisplay = new SparseArray<>();
+    private final SparseArray<CaptionRegionInfo> mCaptionRegionInfoPerDisplay = new SparseArray<>();
     // To keep the AutoDecor added to the task as caption bar.
     private final SparseArray<AutoDecor> mTaskIdToCaptionBar = new SparseArray<>();
     private final AutoTaskRepository mAutoTaskRepository;
@@ -136,15 +135,15 @@ public class AutoCaptionController {
      * @param rootTaskStack             The root task stack.
      * @param relativeCaptionRegion     The region for caption bar. The region is relative to
      *                                  the root task bounds.
-     * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
+     * @param autoCaptionBarViewController The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
     public void setCaptionRegion(@NonNull RootTaskStack rootTaskStack,
             @NonNull Rect relativeCaptionRegion,
-            @NonNull AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
+            @NonNull AutoCaptionBarViewController autoCaptionBarViewController) {
         Objects.requireNonNull(rootTaskStack);
         Objects.requireNonNull(relativeCaptionRegion);
-        Objects.requireNonNull(autoCaptionBarViewFactory);
+        Objects.requireNonNull(autoCaptionBarViewController);
 
         if (!safeRegionLetterboxingV1()) {
             ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER,
@@ -166,7 +165,7 @@ public class AutoCaptionController {
 
         mCaptionRegionInfoPerRootTask.append(rootTaskStack.getId(),
                 new CaptionRegionInfo(relativeCaptionRegion,
-                        autoCaptionBarViewFactory));
+                        autoCaptionBarViewController));
     }
 
     /**
@@ -199,14 +198,14 @@ public class AutoCaptionController {
      *
      * @param displayId                 The display Id.
      * @param captionRegion             The region for caption bar.
-     * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
+     * @param autoCaptionBarViewController The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
     public void setCaptionRegion(int displayId,
             @NonNull Rect captionRegion,
-            @NonNull AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
+            @NonNull AutoCaptionBarViewController autoCaptionBarViewController) {
         Objects.requireNonNull(captionRegion);
-        Objects.requireNonNull(autoCaptionBarViewFactory);
+        Objects.requireNonNull(autoCaptionBarViewController);
 
         if (!safeRegionLetterboxingV1()) {
             ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER,
@@ -232,7 +231,7 @@ public class AutoCaptionController {
         }
 
         mCaptionRegionInfoPerDisplay.append(displayId,
-                new CaptionRegionInfo(captionRegion, autoCaptionBarViewFactory));
+                new CaptionRegionInfo(captionRegion, autoCaptionBarViewController));
     }
 
     /**
@@ -294,10 +293,10 @@ public class AutoCaptionController {
         ProtoLog.d(CAR_WM_SHELL_CAPTION_CONTROLLER, "Adding caption to task. TaskId: %d",
                 taskInfo.taskId);
 
-        AutoCaptionBarViewFactory autoCaptionBarViewFactory =
-                captionRegionInfo.getAutoCaptionBarViewFactory();
+        AutoCaptionBarViewController autoCaptionBarViewController =
+                captionRegionInfo.getAutoCaptionBarViewController();
         Rect captionBarBounds = captionRegionInfo.getCaptionRegionBounds();
-        View captionView = autoCaptionBarViewFactory.createView(taskInfo);
+        View captionView = autoCaptionBarViewController.createView(taskInfo);
 
         if (captionView == null) {
             ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER, "Caption view is not provided for task %d",
@@ -391,8 +390,27 @@ public class AutoCaptionController {
     private void handleCaptionBarOnTaskChanged(ActivityManager.RunningTaskInfo task) {
         if (requiresCaptionBar(task)) {
             updateCaptionBarVisibility(task, /* visibility= */ true);
+            if (Flags.displayCompatibilityV2()) {
+                notifyUpdateToViewController(task);
+            }
         } else {
             updateCaptionBarVisibility(task, /* visibility= */ false);
+        }
+    }
+
+    private void notifyUpdateToViewController(ActivityManager.RunningTaskInfo task) {
+        CaptionRegionInfo captionRegionInfo;
+        if (task.parentTaskId != -1) {
+            captionRegionInfo = mCaptionRegionInfoPerRootTask.get(
+                    mAutoTaskRepository.getRootTaskStack(task.parentTaskId).getId());
+        } else {
+            captionRegionInfo = mCaptionRegionInfoPerDisplay.get(task.displayId);
+        }
+        AutoDecor captionDecor = mTaskIdToCaptionBar.get(task.taskId);
+
+        if (captionRegionInfo != null && captionDecor != null) {
+            captionRegionInfo.mAutoCaptionBarViewController.updateView(captionDecor.getView(),
+                    task);
         }
     }
 
@@ -487,18 +505,18 @@ public class AutoCaptionController {
      */
     static class CaptionRegionInfo {
         private final Rect mCaptionRegionBounds;
-        private final AutoCaptionBarViewFactory mAutoCaptionBarViewFactory;
+        private final AutoCaptionBarViewController mAutoCaptionBarViewController;
 
         /**
          * Constructor for CaptionRegionInfo.
          *
          * @param captionRegionBounds       The caption region.
-         * @param autoCaptionBarViewFactory The factory for creating caption bar views.
+         * @param autoCaptionBarViewController The factory for creating caption bar views.
          */
         CaptionRegionInfo(Rect captionRegionBounds,
-                AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
+                AutoCaptionBarViewController autoCaptionBarViewController) {
             mCaptionRegionBounds = captionRegionBounds;
-            mAutoCaptionBarViewFactory = autoCaptionBarViewFactory;
+            mAutoCaptionBarViewController = autoCaptionBarViewController;
         }
 
         /**
@@ -515,15 +533,33 @@ public class AutoCaptionController {
          *
          * @return The auto caption bar view factory.
          */
-        public AutoCaptionBarViewFactory getAutoCaptionBarViewFactory() {
-            return mAutoCaptionBarViewFactory;
+        public AutoCaptionBarViewController getAutoCaptionBarViewController() {
+            return mAutoCaptionBarViewController;
         }
 
         @Override
         public String toString() {
             return "CaptionRegionInfo{" + " mCaptionRegion=" + (mCaptionRegionBounds != null
-                    ? mCaptionRegionBounds.toString() : "null") + ", mAutoCaptionBarViewFactory="
-                    + mAutoCaptionBarViewFactory + '}';
+                    ? mCaptionRegionBounds.toString() : "null") + ", mAutoCaptionBarViewController="
+                    + mAutoCaptionBarViewController + '}';
         }
+    }
+
+    /** TODO(b/467720864): update tests to remove dependency on member variables. */
+    @VisibleForTesting
+    SparseArray<CaptionRegionInfo> getCaptionRegionInfoPerRootTask() {
+        return mCaptionRegionInfoPerRootTask;
+    }
+
+    /** TODO(b/467720864): update tests to remove dependency on member variables. */
+    @VisibleForTesting
+    SparseArray<CaptionRegionInfo> getCaptionRegionInfoPerDisplay() {
+        return mCaptionRegionInfoPerDisplay;
+    }
+
+    /** TODO(b/467720864): update tests to remove dependency on member variables. */
+    @VisibleForTesting
+    SparseArray<AutoDecor> getTaskIdToCaptionBar() {
+        return mTaskIdToCaptionBar;
     }
 }

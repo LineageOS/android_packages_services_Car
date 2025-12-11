@@ -74,5 +74,11 @@
           android:layout_height="wrap_content"
           android:text="Launch letterbox activity"/>
 
+      <Button
+          android:id="@+id/resizable"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Launch resizable activity" />
+
   </LinearLayout>
 </ScrollView>

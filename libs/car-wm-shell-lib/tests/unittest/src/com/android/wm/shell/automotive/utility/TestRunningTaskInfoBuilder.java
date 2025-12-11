@@ -46,6 +46,7 @@ public final class TestRunningTaskInfoBuilder {
     private int mUserId = -1;
     private Intent mBaseIntent = new Intent();
     private ComponentName mBaseActivity = null;
+    private ComponentName mTopActivity = null;
     private @WindowConfiguration.ActivityType int mActivityType = ACTIVITY_TYPE_STANDARD;
     private @WindowConfiguration.WindowingMode int mWindowingMode = WINDOWING_MODE_UNDEFINED;
     private @WindowConfiguration.ActivityType int mTopActivityType = ACTIVITY_TYPE_STANDARD;
@@ -55,6 +56,7 @@ public final class TestRunningTaskInfoBuilder {
     private boolean mIsVisible = false;
     private boolean mIsTopActivityTransparent = false;
     private boolean mIsActivityStackTransparent = false;
+    private boolean mIsTopActivitySafeRegionLetterboxed = false;
     private int mNumActivities = 1;
     private long mLastActiveTime;
 
@@ -115,6 +117,14 @@ public final class TestRunningTaskInfoBuilder {
         return this;
     }
 
+    /**
+     * Set {@link ActivityManager.RunningTaskInfo#topActivity} for the task info.
+     */
+    public TestRunningTaskInfoBuilder setTopActivity(@NonNull ComponentName activity) {
+        mTopActivity = activity;
+        return this;
+    }
+
     public TestRunningTaskInfoBuilder setActivityType(
             @WindowConfiguration.ActivityType int activityType) {
         mActivityType = activityType;
@@ -165,6 +175,17 @@ public final class TestRunningTaskInfoBuilder {
         return this;
     }
 
+    /**
+     * Similar to setting {@link ActivityManager.RunningTaskInfo#appCompatTaskInfo}'s
+     * {@link android.app.AppCompatTaskInfo#setTopActivitySafeRegionLetterboxed(boolean)} for the
+     * task info.
+     */
+    public TestRunningTaskInfoBuilder setIsTopActivitySafeRegionLetterboxed(
+            boolean isTopActivitySafeRegionLetterboxed) {
+        mIsTopActivitySafeRegionLetterboxed = isTopActivitySafeRegionLetterboxed;
+        return this;
+    }
+
     public TestRunningTaskInfoBuilder setNumActivities(int numActivities) {
         mNumActivities = numActivities;
         return this;
@@ -199,6 +220,9 @@ public final class TestRunningTaskInfoBuilder {
         info.lastActiveTime = mLastActiveTime;
         info.userId = mUserId;
         info.baseActivity = mBaseActivity;
+        info.topActivity = mTopActivity;
+        info.appCompatTaskInfo.setTopActivitySafeRegionLetterboxed(
+                mIsTopActivitySafeRegionLetterboxed);
         return info;
     }
 }

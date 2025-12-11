@@ -18,7 +18,8 @@
     package="com.android.car.displaycompat.app">
 
     <application
-        android:label="DisplayCompatTestApp">
+        android:label="DisplayCompatTestApp"
+        android:resizeableActivity="false">
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -34,6 +35,9 @@
             android:resizeableActivity="false"
             android:minAspectRatio="0.3"
             android:maxAspectRatio="0.3"/>
+        <activity
+            android:name=".ResizableActivity"
+            android:resizeableActivity="true" />
 
         <meta-data
             android:name="android.software.car.display_compatibility"
