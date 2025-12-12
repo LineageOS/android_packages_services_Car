@@ -3,5 +3,10 @@
     {
       "name": "CarExtendedApiTest"
     }
+  ],
+  "auto-presubmit-all-ui-targets": [
+    {
+      "name": "CarExtendedApiTest"
+    }
   ]
 }
