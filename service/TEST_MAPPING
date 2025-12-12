@@ -7,6 +7,9 @@
       "name": "CtsCarHostTestCases"
     },
     {
+      "name": "CarSecurityPermissionTest"
+    },
+    {
       "name": "CarExtendedApiTest"
     },
     {

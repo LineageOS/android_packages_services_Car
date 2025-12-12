@@ -2,10 +2,10 @@
 dnek@google.com
 
 # Bluetooth
-per-file src/com/google/android/car/kitchensink/bluetooth/* = salsavage@google.com, chengandrew@google.com
+per-file src/com/google/android/car/kitchensink/bluetooth/* = salsavage@google.com
 
 # Connectivity
-per-file src/com/google/android/car/kitchensink/connectivity/* = salsavage@google.com, twasilczyk@google.com
+per-file src/com/google/android/car/kitchensink/connectivity/* = salsavage@google.com
 
 # Cluster
 per-file src/com/google/android/car/kitchensink/cluster/* = bkchoi@google.com
@@ -14,7 +14,7 @@ per-file src/com/google/android/car/kitchensink/cluster/* = bkchoi@google.com
 per-file src/com/google/android/car/kitchensink/OccupantZoneStartActivity.java = xiangw@google.com
 
 # PackageManager
-per-file src/com/google/android/car/kitchensink/packageinfo/* = gargmayank@google.com, gauravbhola@google.com
+per-file src/com/google/android/car/kitchensink/packageinfo/* = gauravbhola@google.com
 
 # Power
 per-file src/com/google/android/car/kitchensink/power/* = hubertmis@google.com
@@ -23,8 +23,8 @@ per-file src/com/google/android/car/kitchensink/power/* = hubertmis@google.com
 per-file src/com/google/android/car/kitchensink/radio/* = hubertmis@google.com
 
 # Watchdog
-per-file src/com/google/android/car/kitchensink/CarWatchdogClient.java = lakshmana@google.com
-per-file src/com/google/android/car/kitchensink/watchdog/* = lakshmana@google.com
+per-file src/com/google/android/car/kitchensink/CarWatchdogClient.java = jahdiel@google.com
+per-file src/com/google/android/car/kitchensink/watchdog/* = jahdiel@google.com
 
 # Property
 per-file src/com/google/android/car/kitchensink/property/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
@@ -33,4 +33,4 @@ per-file src/com/google/android/car/kitchensink/property/* = file:platform/hardw
 per-file src/com/google/android/car/kitchensink/sensor/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # res folder
-per-file res/** = salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, lakshmana@google.com, aaqibismail@google.com, evaschen@google.com
+per-file res/** = salsavage@google.com, jahdiel@google.com, aaqibismail@google.com, evaschen@google.com

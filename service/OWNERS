@@ -25,11 +25,14 @@ per-file src/com/android/car/hal/ClusterHalService.java = bkchoi@google.com
 per-file src/com/android/car/CarInputService.java = kanant@google.com
 per-file src/com/android/car/hal/InputHalService.java = kanant@google.com
 
+# Oem services
+per-file src/com/android/car/oem/* = hubertmis@google.com
+
 # PackageManager
 per-file src/com/android/car/pm/AppBlockingPolicyProxy.java = gauravbhola@google.com
-per-file src/com/android/car/pm/Car*.java = gauravbhola@google.com, gargmayank@google.com
+per-file src/com/android/car/pm/Car*.java = gauravbhola@google.com
 per-file src/com/android/car/pm/TEST_MAPPING = gauravbhola@google.com
-per-file src/com/android/car/pm/Vendor*.java = gargmayank@google.com
+per-file src/com/android/car/pm/Vendor*.java = gauravbhola@google.com
 per-file src/com/android/car/pm/WindowDumpParser.java = gauravbhola@google.com
 
 # Power
@@ -50,8 +53,8 @@ per-file src/com/android/car/property/*.java = file:platform/hardware/interfaces
 per-file src/com/android/car/remoteaccess/* = hubertmis@google.com
 
 # StorageMonitor
-per-file src/com/android/car/CarStorageMonitoringService.java = lakshmana@google.com
-per-file src/com/android/car/systeminterface/StorageMonitoringInterface.java = lakshmana@google.com
+per-file src/com/android/car/CarStorageMonitoringService.java = jahdiel@google.com
+per-file src/com/android/car/systeminterface/StorageMonitoringInterface.java = jahdiel@google.com
 
 # System interface
 per-file src/com/android/systeminterface/DisplayHelperInterface.java = hubertmis@google.com
@@ -71,6 +74,6 @@ per-file src/com/android/car/hal/VehicleHal.java = file:platform/hardware/interf
 per-file src/com/android/car/hal/fakevhal/*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # Watchdog
-per-file proto/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
-per-file src/com/android/car/os/* = lakshmana@google.com, jahdiel@google.com
-per-file src/com/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
+per-file proto/android/car/watchdog/* = jahdiel@google.com
+per-file src/com/android/car/os/* = jahdiel@google.com
+per-file src/com/android/car/watchdog/* = jahdiel@google.com

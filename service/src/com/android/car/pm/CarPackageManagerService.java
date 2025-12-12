@@ -33,6 +33,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.PendingIntent;
@@ -46,6 +47,7 @@ import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
@@ -75,6 +77,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.content.res.Resources;
+import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -88,6 +91,7 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.Log;
@@ -159,6 +163,9 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final CarActivityService mActivityService;
     private final PackageManager mPackageManager;
     private final ActivityManager mActivityManager;
+    private final UserManager mUserManager;
+    private final DisplayManager mDisplayManager;
+    private final CarServiceHelperWrapper mCarServiceHelperWrapper;
     private final IBinder mWindowManagerBinder;
 
     private final HandlerThread mHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
@@ -276,29 +283,48 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
             CarActivityService activityService, CarOccupantZoneService carOccupantZoneService) {
+        this(context, uxRestrictionsService, activityService, carOccupantZoneService,
+                CarServiceHelperWrapper.getInstance(),
+                context.getPackageManager(),
+                context.getSystemService(ActivityManager.class),
+                context.getSystemService(UserManager.class),
+                context.getSystemService(DisplayManager.class));
+    }
+
+    @VisibleForTesting
+    CarPackageManagerService(Context context,
+            CarUxRestrictionsManagerService uxRestrictionsService,
+            CarActivityService activityService, CarOccupantZoneService carOccupantZoneService,
+            CarServiceHelperWrapper carServiceHelperWrapper, PackageManager packageManager,
+            ActivityManager activityManager, UserManager userManager,
+            DisplayManager displayManager) {
         mContext = context;
         mCarUxRestrictionsService = uxRestrictionsService;
         mActivityService = activityService;
         mCarOccupantZoneService = carOccupantZoneService;
-        mPackageManager = mContext.getPackageManager();
-        mActivityManager = mContext.getSystemService(ActivityManager.class);
+        mPackageManager = packageManager;
+        mActivityManager = activityManager;
+        mUserManager = userManager;
+        mDisplayManager = displayManager;
+        mCarServiceHelperWrapper = carServiceHelperWrapper;
         mWindowManagerBinder = ServiceManagerHelper.getService(Context.WINDOW_SERVICE);
-        Resources res = context.getResources();
-        mEnableActivityBlocking = res.getBoolean(R.bool.enableActivityBlockingForSafety);
-        String blockingActivity = res.getString(R.string.activityBlockingActivity);
+        Resources resources = context.getResources();
+        mEnableActivityBlocking = resources.getBoolean(R.bool.enableActivityBlockingForSafety);
+        String blockingActivity = resources.getString(R.string.activityBlockingActivity);
         mActivityBlockingActivity = ComponentName.unflattenFromString(blockingActivity);
         if (mEnableActivityBlocking && mActivityBlockingActivity == null) {
             Slogf.wtf(TAG, "mActivityBlockingActivity can't be null when enabled");
         }
         mAllowedAppInstallSources = Arrays.asList(
-                res.getStringArray(R.array.allowedAppInstallSources));
+                resources.getStringArray(R.array.allowedAppInstallSources));
         mVendorServiceController = new VendorServiceController(
                 mContext, mHandler.getLooper());
         mPreventTemplatedAppsFromShowingDialog =
-                res.getBoolean(R.bool.config_preventTemplatedAppsFromShowingDialog);
-        mTemplateActivityClassName = res.getString(R.string.config_template_activity_class_name);
+                resources.getBoolean(R.bool.config_preventTemplatedAppsFromShowingDialog);
+        mTemplateActivityClassName = resources.getString(
+                R.string.config_template_activity_class_name);
         mBlockingUiCommandListenerMediator = new BlockingUiCommandListenerMediator();
-        mIsUsingAutoTaskStackWindowing = context.getResources().getBoolean(
+        mIsUsingAutoTaskStackWindowing = resources.getBoolean(
                 R.bool.config_isUsingAutoTaskStackWindowing);
     }
 
@@ -1818,6 +1844,39 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     @Override
     public boolean requiresDisplayCompatForUser(String packageName, int userId) {
+        checkDisplayCompatPermissions(packageName);
+        return CarServiceHelperWrapper.getInstance().requiresDisplayCompatForUser(
+                Objects.requireNonNull(packageName, "packageName cannot be Null"), userId);
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public float getDensityScaleFactor(String packageName, @UserIdInt int userId, int displayId) {
+        checkDisplayCompatPermissions(packageName);
+        validateParamUserId(userId);
+        validateParamDisplayId(displayId);
+        validateParamPackageNameForUser(packageName, userId);
+        return mCarServiceHelperWrapper.getDensityScaleFactor(
+                Objects.requireNonNull(packageName, "packageName cannot be Null"), userId,
+                displayId);
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void setDensityScaleFactor(String packageName, @UserIdInt int userId, int displayId,
+            float densityScaleFactor) {
+        checkDisplayCompatPermissions(packageName);
+        validateParamUserId(userId);
+        validateParamDisplayId(displayId);
+        validateParamPackageNameForUser(packageName, userId);
+        validateParamDensityScaleFactor(densityScaleFactor);
+        mCarServiceHelperWrapper.setDensityScaleFactor(
+                Objects.requireNonNull(packageName, "packageName cannot be Null"), userId,
+                displayId,
+                densityScaleFactor);
+    }
+
+    private void checkDisplayCompatPermissions(String packageName) {
         if (!callerCanQueryPackage(packageName)) {
             throw new SecurityException("requires permission " + QUERY_ALL_PACKAGES);
         }
@@ -1826,8 +1885,47 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             throw new SecurityException("requires permission "
                     + PERMISSION_MANAGE_DISPLAY_COMPATIBILITY);
         }
-        return CarServiceHelperWrapper.getInstance().requiresDisplayCompatForUser(
-                Objects.requireNonNull(packageName, "packageName cannot be Null"), userId);
+
+    }
+
+    private void validateParamUserId(@UserIdInt int userId) {
+        boolean isValidUser = false;
+        List<UserHandle> userHandles = UserManagerHelper.getUserHandles(mUserManager,
+                /* excludeDying= */ false);
+        for (UserHandle userHandle : userHandles) {
+            if (userHandle.getIdentifier() == userId) {
+                isValidUser = true;
+                break;
+            }
+        }
+
+        if (!isValidUser) {
+            throw new IllegalArgumentException("User with id " + userId + " is not enabled");
+        }
+    }
+
+    private void validateParamDisplayId(int displayId) {
+        if (mDisplayManager.getDisplay(displayId) == null) {
+            throw new IllegalArgumentException("Display with id " + displayId + " does not exist");
+        }
+    }
+
+    private void validateParamPackageNameForUser(String packageName, @UserIdInt int userId) {
+        try {
+            PackageManagerHelper.getPackageInfoAsUser(mPackageManager, packageName,
+                    /* packageInfoFlags= */ 0, userId);
+        } catch (NameNotFoundException e) {
+            throw new IllegalArgumentException(
+                    "Package with name " + packageName + " does not exist");
+        }
+    }
+
+    private void validateParamDensityScaleFactor(float densityScaleFactor) {
+        if (densityScaleFactor <= 0) {
+            throw new IllegalArgumentException(
+                    "Denisty scale factor cannot be 0 or less than 0. Value received: "
+                            + densityScaleFactor);
+        }
     }
 
     private String[] findDistractionOptimizedActivitiesAsUser(String pkgName, int userId)

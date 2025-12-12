@@ -33,6 +33,7 @@ import android.app.PendingIntent;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarVersion;
+import android.car.builtin.util.Slogf;
 import android.car.feature.Flags;
 import android.content.ComponentName;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -195,6 +196,12 @@ public final class CarPackageManager extends CarManagerBase {
     public static final String MANIFEST_METADATA_TARGET_CAR_VERSION =
             "android.car.targetCarVersion";
 
+    /**
+     * Default density scale factor for display compatibility, which is 1.0f.
+     *
+     * @hide
+     */
+    public static final float DENSITY_SCALE_FACTOR_DEFAULT_SCALE = 1f;
 
     /** @hide */
     @IntDef(flag = true,
@@ -601,6 +608,73 @@ public final class CarPackageManager extends CarManagerBase {
             e.rethrowFromSystemServer();
         }
         return false;
+    }
+
+    /**
+     * Returns the density scale factor corresponding to the given {@code packageName}.
+     *
+     * @param packageName The package name to get the density scale factor for.
+     * @param userId The user ID.
+     * @param displayId The display ID.
+     * @return The density scale factor, or {@code DENSITY_SCALE_FACTOR_DEFAULT_SCALE} if unset.
+     * @throws IllegalArgumentException for invalid userId, displayId or packageName
+     *
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY_V2)
+    @RequiresPermission(allOf = {PERMISSION_MANAGE_DISPLAY_COMPATIBILITY,
+            android.Manifest.permission.QUERY_ALL_PACKAGES})
+    public float getDensityScaleFactor(
+            @NonNull String packageName,
+            @UserIdInt int userId,
+            int displayId) {
+        if (!Flags.displayCompatibilityV2()) {
+            return DENSITY_SCALE_FACTOR_DEFAULT_SCALE;
+        }
+        try {
+            return mService.getDensityScaleFactor(packageName, userId, displayId);
+        } catch (RemoteException e) {
+            Slogf.w(TAG_CAR, e, "Car service threw exception calling getDensityScaleFactor(%s)",
+                    packageName);
+            e.rethrowFromSystemServer();
+        }
+        return DENSITY_SCALE_FACTOR_DEFAULT_SCALE;
+    }
+
+    /**
+     * Sets the density scale factor corresponding to the given {@code packageName}.
+     *
+     * <p>The value would be set after the app restarts. The caller is responsible to stop and
+     * restart the app.
+     *
+     * @param packageName The package name to set the density scale factor for.
+     * @param userId The user ID.
+     * @param displayId The display ID.
+     * @param densityScaleFactor The density scale factor. Must be a non-zero positive float.
+     * @throws IllegalArgumentException for invalid userId, displayId, packageName or
+     * densityScaleFactor
+     *
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY_V2)
+    @RequiresPermission(allOf = {PERMISSION_MANAGE_DISPLAY_COMPATIBILITY,
+            android.Manifest.permission.QUERY_ALL_PACKAGES})
+    public void setDensityScaleFactor(
+            @NonNull String packageName,
+            @UserIdInt int userId,
+            int displayId,
+            float densityScaleFactor) {
+        if (!Flags.displayCompatibilityV2()) {
+            return;
+        }
+        try {
+            mService.setDensityScaleFactor(packageName, userId,
+                    displayId, densityScaleFactor);
+        } catch (RemoteException e) {
+            Slogf.w(TAG_CAR, e, "Car service threw exception calling setDensityScaleFactor(%s)",
+                    packageName);
+            e.rethrowFromSystemServer();
+        }
     }
 
     private void handleServiceSpecificFromCarService(ServiceSpecificException e,

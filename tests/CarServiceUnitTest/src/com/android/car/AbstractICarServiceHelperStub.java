@@ -162,6 +162,18 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     }
 
     @Override
+    public float getDensityScaleFactor(@NonNull String packageName, @UserIdInt int userId,
+            int displayId) {
+        return 1f;
+    }
+
+    @Override
+    public void setDensityScaleFactor(@NonNull String packageName, @UserIdInt int userId,
+            int displayId, float densityScaleFactor) {
+        // no-op
+    }
+
+    @Override
     public void onRootTaskAppeared(String name, IBinder rootTaskToken) {
         Log.d(TAG, "onRootTaskAppeared for root task " + name);
     }
