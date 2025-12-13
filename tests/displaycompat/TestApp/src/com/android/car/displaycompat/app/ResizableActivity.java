@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.wm.shell.automotive;
+package com.android.car.displaycompat.app;
 
-import android.app.ActivityManager;
-import android.view.View;
+import android.app.Activity;
+import android.os.Bundle;
 
-/**
- * A factory for creating caption bar views.
- */
-public abstract class AutoCaptionBarViewFactory {
-    /**
-     * Gets the view for the caption bar.
-     *
-     * @param taskInfo The running task information.
-     * @return The view for the caption bar.
-     */
-    public View createView(ActivityManager.RunningTaskInfo taskInfo) {
-        return null;
+public class ResizableActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.resizable_activity);
     }
 }
