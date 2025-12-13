@@ -66,5 +66,10 @@
     {
       "name": "CarServiceWatchdogTest"
     }
+  ],
+  "auto-presubmit-all-ui-targets": [
+    {
+      "name": "CarExtendedApiTest"
+    }
   ]
 }
