@@ -341,8 +341,14 @@ public final class CarOemProxyService implements CarServiceBase {
             writer.printf("waitForOemServiceReady completed in : %d ms\n",
                     mWaitForOemServiceReadyDuration);
             // Dump other service components.
-            getCarOemAudioFocusService().dump(writer);
-            getCarOemAudioVolumeService().dump(writer);
+            CarOemAudioFocusProxyService audioFocusProxyService = getCarOemAudioFocusService();
+            if (audioFocusProxyService != null) {
+                audioFocusProxyService.dump(writer);
+            }
+            CarOemAudioVolumeProxyService audioVolumeProxyService = getCarOemAudioVolumeService();
+            if (audioVolumeProxyService != null) {
+                audioVolumeProxyService.dump(writer);
+            }
             // Dump OEM service stack
             if (mIsOemServiceReady) {
                 writer.printf("OEM callstack\n");
