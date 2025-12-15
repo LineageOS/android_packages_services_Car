@@ -50,6 +50,8 @@ java_genrule {
 android_app {
     name: "EmbeddedKitchenSinkApp",
 
+    enable_ksp: true,
+
     proto: {
         type: "lite",
         include_dirs: [
@@ -85,6 +87,8 @@ android_app {
     static_libs: [
         "SettingsLib",
         "androidx.appcompat_appcompat",
+        "androidx.appfunctions_appfunctions",
+        "androidx.appfunctions_appfunctions-service",
         "car-admin-ui-lib",
         "car-data-subscription-lib",
         "car-ui-lib",
@@ -100,6 +104,16 @@ android_app {
         "perfetto_config_java_protos",
         "gen_perfetto_trace_config_pb",
     ],
+
+    plugins: [
+        "androidx.appfunctions_appfunctions-compiler-plugin",
+    ],
+
+    annotation_processor_flags: [
+        "appfunctions\\\\:aggregateAppFunctions=true",
+    ],
+
+    optional_uses_libs: ["com.android.extensions.appfunctions"],
 
     libs: [
         "android.car",
