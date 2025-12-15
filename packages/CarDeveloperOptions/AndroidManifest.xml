@@ -4027,6 +4027,7 @@
             android:name="com.android.settings.network.telephony.satellite.quicksettings.SatelliteTileStateReceiver"
             android:enabled="false"
             android:exported="false"
+            android:featureFlag="com.android.settings.flags.enable_satellite_tile"
             tools:node="merge"
             tools:replace="android:exported,android:enabled">
             <intent-filter tools:node="removeAll"/>
@@ -4036,6 +4037,7 @@
             android:name="com.android.settings.network.telephony.satellite.quicksettings.SatelliteTileService"
             android:enabled="false"
             android:exported="false"
+            android:featureFlag="com.android.settings.flags.enable_satellite_tile"
             tools:node="merge"
             tools:replace="android:exported,android:enabled">
             <intent-filter tools:node="removeAll"/>
@@ -4045,7 +4047,27 @@
             android:name="com.android.settings.network.telephony.satellite.quicksettings.SatelliteLandingPageActivity"
             android:enabled="false"
             android:exported="false"
+            android:featureFlag="com.android.settings.flags.enable_satellite_tile"
             tools:node="merge"
             tools:replace="android:exported,android:enabled" />
+
+        <activity
+            android:name="com.android.settings.network.telephony.satellite.quicksettings.AddSatelliteTileActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.enable_satellite_tile"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled"/>
+
+        <service
+            android:name="com.android.settings.network.telephony.satellite.quicksettings.SatelliteEligibilityJobService"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.enable_satellite_tile"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </service>
+
     </application>
 </manifest>
