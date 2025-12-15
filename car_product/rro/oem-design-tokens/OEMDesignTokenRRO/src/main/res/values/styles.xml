@@ -32,8 +32,6 @@
         <item name="com.android.oem.tokens:colorErrorContainer">@color/color_error_container</item>
         <item name="com.android.oem.tokens:colorOnErrorContainer">@color/color_on_error_container</item>
         <item name="com.android.oem.tokens:colorOutline">@color/color_outline</item>
-        <item name="com.android.oem.tokens:colorBackground">@color/color_background</item>
-        <item name="com.android.oem.tokens:colorOnBackground">@color/color_on_background</item>
         <item name="com.android.oem.tokens:colorSurface">@color/color_surface</item>
         <item name="com.android.oem.tokens:colorOnSurface">@color/color_on_surface</item>
         <item name="com.android.oem.tokens:colorSurfaceVariant">@color/color_surface_variant</item>
