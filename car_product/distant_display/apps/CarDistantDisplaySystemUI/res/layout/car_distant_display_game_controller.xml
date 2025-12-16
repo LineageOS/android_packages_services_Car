@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:background="?oemColorBackground">
+    android:background="?oemColorSurface">
     <TextView
         android:id="@+id/game_companion_message"
         android:layout_width="wrap_content"

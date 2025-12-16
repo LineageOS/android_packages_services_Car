@@ -37,7 +37,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
         android:scaleType="fitCenter"
-        android:tint="?com.android.oem.tokens:colorOnBackground"
+        android:tint="?android:attr/colorForeground"
         tools:ignore="UseAppTint" />
 
     <LinearLayout

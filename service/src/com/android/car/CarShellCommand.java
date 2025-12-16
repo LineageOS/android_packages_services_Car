@@ -145,6 +145,7 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
@@ -475,7 +476,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final int RESULT_OK = 0;
     private static final int RESULT_ERROR = -1; // Arbitrary value, any non-0 is fine
 
-    private static final int DEFAULT_HAL_TIMEOUT_MS = 1_000;
+    private static final int DEFAULT_HAL_TIMEOUT_MS =
+            CarSystemProperties.getUserHalTimeout().orElse(5_000);
 
     private static final int DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS = 60_000;
 
