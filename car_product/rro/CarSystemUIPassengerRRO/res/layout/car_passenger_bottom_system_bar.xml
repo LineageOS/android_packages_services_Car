@@ -95,7 +95,7 @@
         </LinearLayout>
         <!--TODO() b/260663404 Need to implement Privacy chip indicator -->
 
-        <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
+        <com.android.systemui.car.systembar.panel.CarSystemBarPanelButtonView
             android:id="@+id/passenger_qc_entry_point_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -118,7 +118,7 @@
                 android:src="@drawable/car_user_icon_circle_background"
                 android:scaleType="fitCenter"
                 android:layout_marginEnd="@dimen/car_quick_controls_entry_points_icon_space"
-                systemui:controller="com.android.systemui.car.systembar.UserNameImageViewController"/>
+                systemui:controller="com.android.systemui.car.systembar.usernamepanel.UserNameImageViewController"/>
             <com.android.systemui.car.statusicon.StatusIconView
                 android:id="@+id/media_volume_status_icon"
                 android:layout_width="wrap_content"
@@ -145,6 +145,6 @@
                 android:singleLine="true"
                 style="@style/SystemBarClockWithSelectionText"
                 systemui:amPmStyle="gone"/>
-        </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
+        </com.android.systemui.car.systembar.panel.CarSystemBarPanelButtonView>
     </RelativeLayout>
 </com.android.systemui.car.systembar.CarSystemBarView>
