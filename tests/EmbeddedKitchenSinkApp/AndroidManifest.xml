@@ -279,6 +279,7 @@
 
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
     <application
+        android:name=".KitchenSinkApplication"
         android:label="@string/app_title"
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher">
