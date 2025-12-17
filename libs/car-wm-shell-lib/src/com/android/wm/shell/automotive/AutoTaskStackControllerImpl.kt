@@ -207,8 +207,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 taskStackMap[rootTask.id] = rootTask
 
                 rootTaskStack = rootTask
-                autoTaskRepository.onRootTaskStackCreated(rootTask)
-                rootTaskStackListener.onRootTaskStackCreated(rootTask)
+                autoTaskRepository.onRootTaskStackAppeared(rootTask)
+                rootTaskStackListener.onRootTaskStackAppeared(rootTask)
                 taskOrganizer.setInterceptBackPressedOnTaskRoot(
                     rootTaskStack!!.rootTaskInfo.token,
                     true
