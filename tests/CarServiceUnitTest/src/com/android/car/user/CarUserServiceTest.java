@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static android.car.feature.Flags.FLAG_RROS_PER_OCCUPANT_ZONE;
 import static android.car.feature.Flags.FLAG_SUPPORTS_SECURE_PASSENGER_USERS;
 import static android.car.feature.Flags.FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
@@ -98,6 +99,7 @@ import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.om.OverlayManager;
 import android.hardware.automotive.vehicle.CreateUserRequest;
 import android.hardware.automotive.vehicle.CreateUserResponse;
 import android.hardware.automotive.vehicle.CreateUserStatus;
@@ -137,12 +139,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Unit tests for the {@link CarUserService}.
  */
 public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
-
     private static final String TAG = CarUserServiceTest.class.getSimpleName();
 
     private static final int TEST_USER_ID = 101;
     private static final int TEST_DISPLAY_ID = 201;
+    private static final int TEST_DRIVER_OCCUPANT_ZONE_ID = 1;
     private static final int TEST_OCCUPANT_ZONE_ID = 2;
+    private static final String TEST_DRIVER_RRO_PKG = "com.android.car.test.driverrro";
+    private static final String TEST_PASSENGER_RRO_PKG = "com.android.car.test.passengerrro";
+    private static final String[] TEST_OCCUPANT_RRO_MAP = new String[]{
+            TEST_DRIVER_OCCUPANT_ZONE_ID + ";" + TEST_DRIVER_RRO_PKG,
+            TEST_OCCUPANT_ZONE_ID + ";" + TEST_PASSENGER_RRO_PKG
+    };
 
     @Mock
     private Binder mMockBinder;
@@ -539,6 +547,110 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         // Verify.
         verify(mMockContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
+    }
+
+    @Test
+    @EnableFlags({FLAG_RROS_PER_OCCUPANT_ZONE})
+    public void testOnOccupantZoneAssignment_enablesRROs() throws Exception {
+        // Arrange.
+        doReturn(mMockedOverlayManager).when(mMockContext).getSystemService(OverlayManager.class);
+        mockUmGetVisibleUsers(mMockedUserManager);
+        when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(true);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+        List<CarOccupantZoneManager.OccupantZoneInfo> infos = new ArrayList<>();
+        CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
+                new CarOccupantZoneManager.OccupantZoneInfo(
+                        TEST_OCCUPANT_ZONE_ID, CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER,
+                        VehicleAreaSeat.SEAT_ROW_1_RIGHT);
+        infos.add(zoneInfo);
+        when(mCarOccupantZoneService.getAllOccupantZones()).thenReturn(infos);
+        int[] displayIds = new int[] { TEST_DISPLAY_ID };
+        when(mCarOccupantZoneService.getAllDisplaysForOccupantZone(TEST_OCCUPANT_ZONE_ID))
+                .thenReturn(displayIds);
+        when(mCarOccupantZoneService.assignVisibleUserToOccupantZone(
+                TEST_OCCUPANT_ZONE_ID, UserHandle.of(TEST_USER_ID)))
+                .thenReturn(CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
+        when(mCarOccupantZoneService.getOccupantZoneForUser(UserHandle.of(TEST_USER_ID)))
+                .thenReturn(zoneInfo);
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+        CarUserService service = new TestCarUserServiceBuilder()
+                .setOccupantRROMap(TEST_OCCUPANT_RRO_MAP)
+                .build();
+
+        // Act.
+        service.onUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING,
+                /* fromUserId= */ 0, TEST_USER_ID);
+        service.onUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
+                /* fromUserId= */ 0, TEST_USER_ID);
+
+        // Verify.
+        verify(mMockedOverlayManager).setEnabled(TEST_PASSENGER_RRO_PKG, true,
+                UserHandle.of(TEST_USER_ID));
+
+        // Cleanup.
+        service.destroy();
+    }
+
+    @Test
+    @EnableFlags({FLAG_RROS_PER_OCCUPANT_ZONE})
+    public void testOnOccupantZoneUnassignment_disablesRROs() throws Exception {
+        // Arrange.
+        doReturn(mMockedOverlayManager).when(mMockContext).getSystemService(OverlayManager.class);
+        doReturn(mMockedActivityManager).when(mMockContext).getSystemService(ActivityManager.class);
+        doNothing().when(mMockedActivityManager).forceStopPackageAsUser(anyString(), anyInt());
+        CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
+                new CarOccupantZoneManager.OccupantZoneInfo(
+                        TEST_OCCUPANT_ZONE_ID, CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER,
+                        VehicleAreaSeat.SEAT_ROW_1_RIGHT);
+        when(mCarOccupantZoneService.getOccupantZoneForUser(UserHandle.of(TEST_USER_ID)))
+                .thenReturn(zoneInfo);
+        when(mCarOccupantZoneService.unassignOccupantZone(TEST_OCCUPANT_ZONE_ID))
+                .thenReturn(CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+        CarUserService service = new TestCarUserServiceBuilder()
+                .setOccupantRROMap(TEST_OCCUPANT_RRO_MAP)
+                .build();
+
+        // Act.
+        service.onUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
+                /* fromUserId= */ 0, TEST_USER_ID);
+
+        // Verify.
+        verify(mMockedOverlayManager).setEnabled(TEST_PASSENGER_RRO_PKG, false,
+                UserHandle.of(TEST_USER_ID));
+
+        // Cleanup.
+        service.destroy();
+    }
+
+    @Test
+    @EnableFlags({FLAG_RROS_PER_OCCUPANT_ZONE})
+    public void testOnUserSwitch_togglesRROsForDriver() throws Exception {
+        // Arrange.
+        doReturn(true).when(mCarOccupantZoneService).hasDriverZone();
+        doReturn(mMockedOverlayManager).when(mMockContext).getSystemService(OverlayManager.class);
+        CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
+                new CarOccupantZoneManager.OccupantZoneInfo(
+                        TEST_DRIVER_OCCUPANT_ZONE_ID, CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
+                        VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        when(mCarOccupantZoneService.getOccupantZone(
+                eq(CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER), anyInt())).thenReturn(zoneInfo);
+        CarUserService service = new TestCarUserServiceBuilder()
+                .setOccupantRROMap(TEST_OCCUPANT_RRO_MAP)
+                .build();
+
+        // Act
+        service.onUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                mAdminUserId, mRegularUserId);
+
+        // Verify.
+        verify(mMockedOverlayManager).setEnabled(TEST_DRIVER_RRO_PKG, false,
+                UserHandle.of(mAdminUserId));
+        verify(mMockedOverlayManager).setEnabled(TEST_DRIVER_RRO_PKG, true,
+                UserHandle.of(mRegularUserId));
+
+        // Cleanup.
+        service.destroy();
     }
 
     @Test
