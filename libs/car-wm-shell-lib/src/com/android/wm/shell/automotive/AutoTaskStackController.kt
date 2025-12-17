@@ -128,12 +128,13 @@ interface AutoTaskStackController {
      * @param displayId The ID of the display to create the root task stack on.
      * @param name The name of the root task stack.
      * @param listener The listener for root task stack events.
+     * @return The newly created [RootTaskStack] instance.
      */
     fun createRootTaskStack(
         displayId: Int,
         name: String,
         listener: RootTaskStackListener
-    )
+    ): RootTaskStack?
 
     /**
      * Destroys the already created task stack. It will be a no-op if no task stack exists with

@@ -118,6 +118,11 @@ interface ICarServiceHelper {
     /**
      * Reports that a Root Task is created.
      */
+    void onRootTaskCreated(String name, in RunningTaskInfo taskInfo, in IBinder token) = 24;
+
+    /**
+     * Reports that a Root Task is appeared.
+     */
     void onRootTaskAppeared(String name, in IBinder rootTaskToken) = 19;
 
     /**

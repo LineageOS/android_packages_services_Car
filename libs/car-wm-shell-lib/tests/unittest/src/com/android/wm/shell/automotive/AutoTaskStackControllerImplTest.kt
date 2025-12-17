@@ -31,6 +31,7 @@ import android.testing.AndroidTestingRunner
 import android.view.SurfaceControl
 import android.view.WindowManager.TRANSIT_OPEN
 import android.view.WindowManager.TRANSIT_TO_BACK
+import android.window.TaskAppearedInfo
 import android.window.TaskCreationParams
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
@@ -169,7 +170,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         ).thenAnswer {
             listener = it.arguments[1] as ShellTaskOrganizer.TaskListener
             listener!!.onTaskAppeared(taskInfo, leash)
-            return@thenAnswer mock(WindowContainerToken::class.java)
+            return@thenAnswer TaskAppearedInfo(taskInfo, leash)
         }
         controller.createRootTaskStack(displayId, name, rootTaskStackListener)
         return Pair(taskInfo, listener!!)
@@ -211,7 +212,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     }
 
     @Test
-    fun createRootTask_rootTaskAppeared_callsOnTaskStackCreated() {
+    fun createRootTask_rootTaskAppearedBefore_callsOnTaskStackAppeared() {
         // Arrange
         val taskInfo =
             TestRunningTaskInfoBuilder()
@@ -224,8 +225,9 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             )
         ).thenAnswer {
             listener = it.arguments[1] as ShellTaskOrganizer.TaskListener
-            listener!!.onTaskAppeared(taskInfo, mock(SurfaceControl::class.java))
-            return@thenAnswer mock(WindowContainerToken::class.java)
+            val mockLeash = mock(SurfaceControl::class.java)
+            listener!!.onTaskAppeared(taskInfo, mockLeash)
+            return@thenAnswer TaskAppearedInfo(taskInfo, mockLeash)
         }
         val name = ""
 
@@ -235,6 +237,42 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         // Assert
         val captor = argumentCaptor<RootTaskStack>()
         verify(rootTaskStackListener).onRootTaskStackAppeared(captor.capture())
+        verify(mAutoTaskRepository).onRootTaskStackAppeared(captor.capture())
+        verify(mAutoTaskRepository).onRootTaskStackCreated(captor.capture())
+        val taskStack = captor.firstValue
+        assertThat(taskStack.id).isEqualTo(32)
+    }
+
+    @Test
+    fun createRootTask_rootTaskAppearedAfter_callsOnTaskStackAppeared() {
+        // Arrange
+        val taskInfo =
+            TestRunningTaskInfoBuilder()
+                .setTaskId(32).setDisplayId(displayId).build()
+        var listener: TaskListener?
+        whenever(
+            taskOrganizer.createTask(
+                any(TaskCreationParams::class.java),
+                any(TaskListener::class.java)
+            )
+        ).thenAnswer {
+            listener = it.arguments[1] as ShellTaskOrganizer.TaskListener
+            val mockLeash = mock(SurfaceControl::class.java)
+            mMainThreadHandler!!.post {
+                listener.onTaskAppeared(taskInfo, mockLeash)
+            }
+            return@thenAnswer TaskAppearedInfo(taskInfo, mockLeash)
+        }
+        val name = ""
+
+        // Act
+        controller.createRootTaskStack(displayId, name, rootTaskStackListener)
+
+        // Assert
+        val captor = argumentCaptor<RootTaskStack>()
+        verify(rootTaskStackListener).onRootTaskStackAppeared(captor.capture())
+        verify(mAutoTaskRepository).onRootTaskStackAppeared(captor.capture())
+        verify(mAutoTaskRepository).onRootTaskStackCreated(captor.capture())
         val taskStack = captor.firstValue
         assertThat(taskStack.id).isEqualTo(32)
     }

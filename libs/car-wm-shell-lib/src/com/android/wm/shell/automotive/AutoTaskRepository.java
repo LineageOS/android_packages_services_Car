@@ -155,6 +155,9 @@ public class AutoTaskRepository {
         }
 
         for (int i = 0; i < mPendingRootTasks.size(); i++) {
+            mCarActivityManager.onRootTaskCreated(mPendingRootTasks.valueAt(i).getName(),
+                    mPendingRootTasks.valueAt(i).getRootTaskInfo(),
+                    mPendingRootTasks.valueAt(i).getRootTaskInfo().token.asBinder());
             mCarActivityManager.onRootTaskAppeared(mPendingRootTasks.valueAt(i).getName(),
                     mPendingRootTasks.valueAt(i).getRootTaskInfo(),
                     mPendingRootTasks.valueAt(i).getRootTaskInfo().token.asBinder());
@@ -242,6 +245,28 @@ public class AutoTaskRepository {
     }
 
     /**
+     * Updates task repository when new root task is created
+     *
+     * @param rootTaskStack new root task stack
+     */
+    void onRootTaskStackCreated(RootTaskStack rootTaskStack) {
+        if (DBG) {
+            Slogf.d(TAG, "onRootTaskStackCreated. RootTask Id %d. RootTask Name %s",
+                    rootTaskStack.getId(), rootTaskStack.getName());
+        }
+        mRootTaskStacks.put(rootTaskStack.getId(), new RootTaskStackInfo(rootTaskStack));
+        if (mIsCarReady) {
+            mCarActivityManager.onRootTaskCreated(rootTaskStack.getName(),
+                    rootTaskStack.getRootTaskInfo(),
+                    rootTaskStack.getRootTaskInfo().token.asBinder());
+        } else {
+            // TODO(b/XXXXXX): Add a new mPendingCreatedRootTasks list to be sent on connection
+            mPendingRootTasks.put(rootTaskStack.getRootTaskInfo().taskId, rootTaskStack);
+        }
+        mSurfaceControlMap.append(rootTaskStack.getRootTaskInfo().taskId, rootTaskStack.getLeash());
+    }
+
+    /**
      * Updates task repository when new root task is appeared
      *
      * @param rootTaskStack new root task stack
@@ -259,8 +284,6 @@ public class AutoTaskRepository {
         } else {
             mPendingRootTasks.put(rootTaskStack.getRootTaskInfo().taskId, rootTaskStack);
         }
-        mSurfaceControlMap.append(rootTaskStack.getRootTaskInfo().taskId,
-                rootTaskStack.getLeash());
     }
 
     /**

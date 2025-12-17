@@ -182,7 +182,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
         val rootTaskStackListener: RootTaskStackListener,
         val name: String
     ) : ShellTaskOrganizer.TaskListener {
-        private var rootTaskStack: RootTaskStack? = null
+        // The root task stack that this adapter belongs to
+        var rootTaskStack: RootTaskStack? = null
 
         // TODO(b/384948029): Notify car service for all the children tasks' events
         override fun onTaskAppeared(
@@ -201,23 +202,35 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 taskInfo.taskId
             )
 
-            if (rootTaskStack == null) {
-                val rootTask =
-                    RootTaskStack(taskInfo.taskId, taskInfo.displayId, leash, name, taskInfo)
-                taskStackMap[rootTask.id] = rootTask
-
-                rootTaskStack = rootTask
-                autoTaskRepository.onRootTaskStackAppeared(rootTask)
-                rootTaskStackListener.onRootTaskStackAppeared(rootTask)
-                taskOrganizer.setInterceptBackPressedOnTaskRoot(
-                    rootTaskStack!!.rootTaskInfo.token,
-                    true
-                )
-                return
+            val currentRootTaskStack = rootTaskStack ?: run {
+                // Got task appeared for the first time, check if it was received before
+                // createRootTask finished
+                val stack = (taskStackMap[taskInfo.taskId] as? RootTaskStack)?.let { existing ->
+                    val updated = existing.copy(rootTaskInfo = taskInfo)
+                    taskStackMap[taskInfo.taskId] = updated
+                    updated
+                } ?: run {
+                    ProtoLog.w(
+                        CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                        "Root task appeared received before createRootTask finished = %d",
+                        taskInfo.taskId
+                    )
+                    createAndDispatchRootTaskStack(taskInfo, leash, name)
+                }
+                rootTaskStack = stack
+                stack
             }
-            appTasksMap[taskInfo.taskId] = taskInfo
-            autoTaskRepository.onTaskAppeared(rootTaskStack, taskInfo, leash)
-            rootTaskStackListener.onTaskAppeared(taskInfo, leash)
+            if (currentRootTaskStack.id == taskInfo.taskId) {
+                // root task appeared
+                autoTaskRepository.onRootTaskStackAppeared(currentRootTaskStack)
+                rootTaskStackListener.onRootTaskStackAppeared(currentRootTaskStack)
+            } else {
+                // child task appeared
+                val parentRootTask = taskStackMap[taskInfo.parentTaskId] as? RootTaskStack
+                appTasksMap[taskInfo.taskId] = taskInfo
+                autoTaskRepository.onTaskAppeared(parentRootTask, taskInfo, leash)
+                rootTaskStackListener.onTaskAppeared(taskInfo, leash)
+            }
         }
 
         override fun onTaskInfoChanged(taskInfo: ActivityManager.RunningTaskInfo?) {
@@ -229,25 +242,34 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 "onTaskInfoChanged = %d",
                 taskInfo.taskId
             )
-            var previousRootTaskStackInfo = rootTaskStack ?: run {
-                ProtoLog.e(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "Received onTaskInfoChanged, when root task stack is null")
-                return@onTaskInfoChanged
+            val currentRootTaskStack = rootTaskStack ?: run {
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Received onTaskInfoChanged, when root task stack is null"
+                )
+                return
             }
-            rootTaskStack?.let {
-                if (taskInfo.taskId == previousRootTaskStackInfo.id) {
-                    previousRootTaskStackInfo =
-                        previousRootTaskStackInfo.copy(rootTaskInfo = taskInfo)
-                    taskStackMap[previousRootTaskStackInfo.id] = previousRootTaskStackInfo
-                    rootTaskStack = previousRootTaskStackInfo
-                    rootTaskStackListener.onRootTaskStackInfoChanged(rootTaskStack!!)
-                    return
+            if (currentRootTaskStack.id == taskInfo.taskId) {
+                // Root task change
+                val updatedStack = currentRootTaskStack.copy(rootTaskInfo = taskInfo)
+                rootTaskStack = updatedStack
+                taskStackMap[updatedStack.id] = updatedStack
+                rootTaskStackListener.onRootTaskStackInfoChanged(updatedStack)
+            } else {
+                // child task change
+                if (taskStackMap[taskInfo.parentTaskId] == null) {
+                    // This should ideally never happen
+                    ProtoLog.w(
+                        CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                        "taskInfoChanged for child task %d, but parent root task %d not found.",
+                        taskInfo.taskId,
+                        taskInfo.parentTaskId
+                    )
                 }
+                appTasksMap[taskInfo.taskId] = taskInfo
+                autoTaskRepository.onTaskChanged(rootTaskStack, taskInfo)
+                rootTaskStackListener.onTaskInfoChanged(taskInfo)
             }
-
-            appTasksMap[taskInfo.taskId] = taskInfo
-            autoTaskRepository.onTaskChanged(rootTaskStack, taskInfo)
-            rootTaskStackListener.onTaskInfoChanged(taskInfo)
         }
 
         override fun onTaskVanished(taskInfo: ActivityManager.RunningTaskInfo?) {
@@ -259,24 +281,36 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 "onTaskVanished  = %d",
                 taskInfo.taskId
             )
-            var rootTask = rootTaskStack ?: run {
-                ProtoLog.e(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "Received onTaskVanished, when root task stack is null")
-                return@onTaskVanished
-            }
-            if (taskInfo.taskId == rootTask.id) {
-                rootTask = rootTask.copy(rootTaskInfo = taskInfo)
-                rootTaskStack = rootTask
-                rootTaskStackListener.onRootTaskStackDestroyed(rootTask)
-                taskStackMap.remove(rootTask.id)
-                _taskStackStateMap.remove(rootTask.id)
-                autoTaskRepository.onRootTaskStackDestroyed(rootTask)
-                rootTaskStack = null
+
+            val currentRootTaskStack = rootTaskStack ?: run {
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Received onTaskVanished, when root task stack is null"
+                )
                 return
             }
-            appTasksMap.remove(taskInfo.taskId)
-            rootTaskStackListener.onTaskVanished(taskInfo)
-            autoTaskRepository.onTaskVanished(rootTaskStack, taskInfo)
+            if (currentRootTaskStack.id == taskInfo.taskId) {
+                // Root task vanishing
+                rootTaskStackListener.onRootTaskStackDestroyed(currentRootTaskStack)
+                taskStackMap.remove(currentRootTaskStack.id)
+                _taskStackStateMap.remove(currentRootTaskStack.id)
+                autoTaskRepository.onRootTaskStackDestroyed(currentRootTaskStack)
+                rootTaskStack = null
+            } else {
+                // child task vanishing
+                if (taskStackMap[taskInfo.parentTaskId] == null) {
+                    // This can happen if the parent vanished because of some race condition.
+                    ProtoLog.w(
+                        CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                        "onTaskVanished for child task %d, but parent root task %d not found.",
+                        taskInfo.taskId,
+                        taskInfo.parentTaskId
+                    )
+                }
+                appTasksMap.remove(taskInfo.taskId)
+                rootTaskStackListener.onTaskVanished(taskInfo)
+                autoTaskRepository.onTaskVanished(rootTaskStack, taskInfo)
+            }
         }
 
         /**
@@ -429,24 +463,73 @@ class AutoTaskStackControllerImpl @Inject constructor(
         displayId: Int,
         name: String,
         listener: RootTaskStackListener
-    ) {
-        shellMainThread.execute {
-            if (!enableAutoTaskStackController()) {
-                ProtoLog.e(
-                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "Failed to create root task stack as the " +
-                            "auto_task_stack_windowing TS flag is disabled."
-                )
-            } else {
-                val params =
-                    TaskCreationParams.Builder()
-                        .setName(name)
-                        .setDisplayId(displayId)
-                        .setWindowingMode(WINDOWING_MODE_MULTI_WINDOW)
-                        .build()
-                taskOrganizer.createTask(params, RootTaskStackListenerAdapter(listener, name))
-            }
+    ): RootTaskStack? {
+        if (!enableAutoTaskStackController()) {
+            ProtoLog.e(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Failed to create root task stack as the " +
+                        "auto_task_stack_windowing TS flag is disabled."
+            )
+            return null
         }
+        shellMainThread.assertCurrentThread()
+        val params =
+            TaskCreationParams.Builder()
+                .setName(name)
+                .setDisplayId(displayId)
+                .setWindowingMode(WINDOWING_MODE_MULTI_WINDOW)
+                .build()
+
+        val taskAppearedInfo = taskOrganizer.createTask(
+            params,
+            RootTaskStackListenerAdapter(listener, name)
+        )
+
+        if (taskAppearedInfo == null) {
+            ProtoLog.e(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Failed to create root task. taskAppearedInfo is null."
+            )
+            return null
+        }
+
+        // onTaskAppeared might have happened first
+        if (taskStackMap.containsKey(taskAppearedInfo.taskInfo.taskId)) {
+            ProtoLog.e(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Root task instance already present."
+            )
+            val existing = taskStackMap[taskAppearedInfo.taskInfo.taskId] as RootTaskStack
+            return existing
+        }
+        val rootTaskStack = createAndDispatchRootTaskStack(
+            taskAppearedInfo.taskInfo,
+            taskAppearedInfo.leash,
+            name
+        )
+        return rootTaskStack
+    }
+
+    private fun createAndDispatchRootTaskStack(
+        taskInfo: ActivityManager.RunningTaskInfo,
+        leash: SurfaceControl,
+        name: String
+    ): RootTaskStack {
+        val rootTask =
+            RootTaskStack(
+                taskInfo.taskId,
+                taskInfo.displayId,
+                leash,
+                name,
+                taskInfo
+            )
+        taskStackMap[rootTask.id] = rootTask
+        taskOrganizer.setInterceptBackPressedOnTaskRoot(
+            rootTask.rootTaskInfo.token,
+            true
+        )
+        autoTaskRepository.onRootTaskStackCreated(rootTask) // Renamed from phase 1
+        return rootTask
     }
 
     override fun destroyTaskStack(taskStackId: Int) {
