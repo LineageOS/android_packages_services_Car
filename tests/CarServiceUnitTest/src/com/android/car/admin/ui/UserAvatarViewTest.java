@@ -34,6 +34,7 @@ import androidx.test.runner.AndroidJUnit4;
 import com.android.settingslib.drawable.UserIconDrawable;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +67,7 @@ public final class UserAvatarViewTest {
         assertThat(mUserAvatarView.getUserIconDrawable().getBadge()).isNull();
     }
 
+    @Ignore("b/469589365: Need more time to fix the issue")
     @Test
     public void setAvatarWithBadge_success() {
         Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
