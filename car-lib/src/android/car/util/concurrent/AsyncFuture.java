@@ -46,14 +46,14 @@ public interface AsyncFuture<T> {
     T get() throws InterruptedException, ExecutionException;
 
     /**
-     * See {@link java.util.concurrent.Future#get(long, TimeUnit).
+     * See {@link java.util.concurrent.Future#get(long, TimeUnit)}.
      */
     @Nullable
     T get(long timeout, @NonNull TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException;
 
     /**
-     * See {@link java.util.concurrent.CompletableFuture#whenCompleteAsync(BiConsumer, Executor).
+     * See {@link java.util.concurrent.CompletableFuture#whenCompleteAsync(BiConsumer, Executor)}.
      */
     @NonNull
     AsyncFuture<T> whenCompleteAsync(@NonNull BiConsumer<? super T, ? super Throwable> action,

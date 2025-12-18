@@ -295,7 +295,7 @@ public final class ActivityManagerHelper {
     }
 
     /**
-     * Same as {@link ActivityManager#checkComponentPermission(String, int, int, boolean).
+     * Same as {@link ActivityManager#checkComponentPermission(String, int, int, boolean)}.
      */
     public static int checkComponentPermission(@NonNull String permission, int uid, int owningUid,
             boolean exported) {

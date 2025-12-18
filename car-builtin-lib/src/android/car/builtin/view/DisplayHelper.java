@@ -64,7 +64,7 @@ public final class DisplayHelper {
 
     /**
      * Gets the display type.
-     * @see Display.getType()
+     * @see Display#getType()
      */
     public static int getType(Display display) {
         return display.getType();

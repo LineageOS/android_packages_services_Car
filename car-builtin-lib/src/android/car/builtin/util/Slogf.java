@@ -123,7 +123,7 @@ public final class Slogf {
         return Slog.wtf(tag, msg);
     }
 
-    /** Same as {@link Slog#wtf(String, Throwable). */
+    /** Same as {@link Slog#wtf(String, Throwable)}. */
     public static int wtf(@NonNull String tag, @NonNull Throwable tr) {
         return Slog.wtf(tag, tr);
     }
