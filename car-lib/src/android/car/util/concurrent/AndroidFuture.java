@@ -262,7 +262,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
         }
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     //@Override //TODO uncomment once java 9 APIs are exposed to frameworks
     public AndroidFuture<T> orTimeout(long timeout, @NonNull TimeUnit unit) {
         mTimeoutHandler.postDelayed(this::triggerTimeout, this, unit.toMillis(timeout));
