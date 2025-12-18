@@ -242,13 +242,13 @@ public class AutoTaskRepository {
     }
 
     /**
-     * Updates task repository when new root task is created
+     * Updates task repository when new root task is appeared
      *
      * @param rootTaskStack new root task stack
      */
-    void onRootTaskStackCreated(RootTaskStack rootTaskStack) {
+    void onRootTaskStackAppeared(RootTaskStack rootTaskStack) {
         if (DBG) {
-            Slogf.d(TAG, "onRootTaskStackCreated. RootTask Id %d. RootTask Name %s",
+            Slogf.d(TAG, "onRootTaskStackAppeared. RootTask Id %d. RootTask Name %s",
                     rootTaskStack.getId(), rootTaskStack.getName());
         }
         mRootTaskStacks.put(rootTaskStack.getId(), new RootTaskStackInfo(rootTaskStack));

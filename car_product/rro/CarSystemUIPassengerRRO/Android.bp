@@ -15,11 +15,28 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+// Dynamic overlay to be used in most MUMD systems
 runtime_resource_overlay {
     name: "CarSystemUIPassengerOverlay",
     certificate: "platform",
     resource_dirs: ["res"],
     manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    product_specific: true,
+
+    static_libs: [
+        "car-resource-common",
+        "car-ui-lib-no-overlayable",
+        "androidx-constraintlayout_constraintlayout",
+    ],
+}
+
+// Static variant of the overlay to be used in passenger-only systems
+runtime_resource_overlay {
+    name: "CarSystemUIPassengerOverlay-static",
+    certificate: "platform",
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest-static.xml",
     sdk_version: "current",
     product_specific: true,
 

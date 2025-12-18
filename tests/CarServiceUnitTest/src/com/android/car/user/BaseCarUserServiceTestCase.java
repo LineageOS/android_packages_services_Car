@@ -72,6 +72,7 @@ import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
+import android.content.om.OverlayManager;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
@@ -178,6 +179,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @Mock protected ActivityManager mMockedActivityManager;
     @Mock protected UserManager mMockedUserManager;
     @Mock protected DevicePolicyManager mMockedDevicePolicyManager;
+    @Mock protected OverlayManager mMockedOverlayManager;
     @Mock protected Resources mMockedResources;
     @Mock protected Drawable mMockedDrawable;
     @Mock protected InitialUserSetter mInitialUserSetter;
@@ -635,6 +637,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         private boolean mSwitchGuestUserBeforeGoingSleep = false;
         private String mDriverHomeComponent = FAKE_DRIVER_HOME_COMPONENT;
         private String mPassengerHomeComponent = FAKE_PASSENGER_HOME_COMPONENT;
+        private String[] mOccupantRROMap = new String[0];
 
         protected TestCarUserServiceBuilder setSwitchGuestUserBeforeGoingSleep(boolean enabled) {
             mSwitchGuestUserBeforeGoingSleep = enabled;
@@ -648,6 +651,11 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
         protected TestCarUserServiceBuilder setPassengerHomeComponent(@NonNull String component) {
             mPassengerHomeComponent = component;
+            return this;
+        }
+
+        protected TestCarUserServiceBuilder setOccupantRROMap(@NonNull String[] mapString) {
+            mOccupantRROMap = mapString;
             return this;
         }
 
@@ -671,6 +679,10 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             when(mMockedResources
                     .getString(com.android.car.R.string.config_passengerHomeComponent))
                     .thenReturn(mPassengerHomeComponent);
+
+            when(mMockedResources
+                    .getStringArray(com.android.car.R.array.config_occupantZoneIdToRROMap))
+                    .thenReturn(mOccupantRROMap);
 
             return new CarUserService(
                     mMockContext,

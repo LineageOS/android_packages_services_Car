@@ -130,7 +130,7 @@ public class AutoTaskRepositoryTest {
         ActivityManager.RunningTaskInfo taskInfo1 = createMockTaskInfo(taskId);
         SurfaceControl surfaceControl1 = mock(SurfaceControl.class);
 
-        mTaskRepository.onRootTaskStackCreated(mRootTaskStack1);
+        mTaskRepository.onRootTaskStackAppeared(mRootTaskStack1);
         mTaskRepository.onTaskAppeared(mRootTaskStack1, taskInfo1, surfaceControl1);
 
         assertThat(mTaskRepository.getTaskStack(mRootTaskStack1)).hasSize(1);
@@ -147,7 +147,7 @@ public class AutoTaskRepositoryTest {
         ActivityManager.RunningTaskInfo taskInfo1 = createMockTaskInfo(1);
         SurfaceControl surfaceControl1 = mock(SurfaceControl.class);
 
-        mTaskRepository.onRootTaskStackCreated(mRootTaskStack1);
+        mTaskRepository.onRootTaskStackAppeared(mRootTaskStack1);
         mTaskRepository.onTaskAppeared(mRootTaskStack1, taskInfo1, surfaceControl1);
         mTaskRepository.onTaskChanged(mRootTaskStack1, taskInfo1);
 
@@ -164,7 +164,7 @@ public class AutoTaskRepositoryTest {
         ActivityManager.RunningTaskInfo taskInfo1 = createMockTaskInfo(1);
         SurfaceControl surfaceControl1 = mock(SurfaceControl.class);
 
-        mTaskRepository.onRootTaskStackCreated(mRootTaskStack1);
+        mTaskRepository.onRootTaskStackAppeared(mRootTaskStack1);
         mTaskRepository.onTaskAppeared(mRootTaskStack1, taskInfo1, surfaceControl1);
         mTaskRepository.onTaskVanished(mRootTaskStack1, taskInfo1);
 
@@ -180,7 +180,7 @@ public class AutoTaskRepositoryTest {
         ActivityManager.RunningTaskInfo taskInfo1 = createMockTaskInfo(1);
         SurfaceControl surfaceControl1 = mock(SurfaceControl.class);
 
-        mTaskRepository.onRootTaskStackCreated(mRootTaskStack1);
+        mTaskRepository.onRootTaskStackAppeared(mRootTaskStack1);
         mTaskRepository.onTaskAppeared(mRootTaskStack1, taskInfo1, surfaceControl1);
         mTaskRepository.onRootTaskStackDestroyed(mRootTaskStack1);
 
@@ -197,8 +197,8 @@ public class AutoTaskRepositoryTest {
         ActivityManager.RunningTaskInfo taskInfo2 = createMockTaskInfo(2);
         SurfaceControl surfaceControl2 = mock(SurfaceControl.class);
 
-        mTaskRepository.onRootTaskStackCreated(mRootTaskStack1);
-        mTaskRepository.onRootTaskStackCreated(mRootTaskStack2);
+        mTaskRepository.onRootTaskStackAppeared(mRootTaskStack1);
+        mTaskRepository.onRootTaskStackAppeared(mRootTaskStack2);
         mTaskRepository.onTaskAppeared(mRootTaskStack1, taskInfo1, surfaceControl1);
         mTaskRepository.onTaskAppeared(mRootTaskStack2, taskInfo2, surfaceControl2);
 

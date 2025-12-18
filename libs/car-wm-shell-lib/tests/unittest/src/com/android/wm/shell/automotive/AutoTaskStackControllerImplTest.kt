@@ -240,7 +240,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         // Assert
         val captor = argumentCaptor<RootTaskStack>()
-        verify(rootTaskStackListener).onRootTaskStackCreated(captor.capture())
+        verify(rootTaskStackListener).onRootTaskStackAppeared(captor.capture())
         val taskStack = captor.firstValue
         assertThat(taskStack.id).isEqualTo(32)
     }

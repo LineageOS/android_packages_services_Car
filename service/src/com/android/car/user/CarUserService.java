@@ -19,6 +19,7 @@ package com.android.car.user;
 import static android.Manifest.permission.CREATE_USERS;
 import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.MANAGE_USERS;
+import static android.car.VehicleAreaSeat.SEAT_UNKNOWN;
 import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
@@ -45,7 +46,6 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZoneCallback;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
-import android.car.VehicleAreaSeat;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.devicepolicy.DevicePolicyManagerHelper;
@@ -80,6 +80,7 @@ import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.om.OverlayManager;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
@@ -111,6 +112,7 @@ import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import android.util.proto.ProtoOutputStream;
@@ -232,6 +234,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private static final String BG_HANDLER_THREAD_NAME = "UserService.BG";
 
+    private static final String RRO_OCCUPANT_TYPE_MAP_DELIMITER = ";";
+
     private final Settings mSettings;
     private final CurrentUserFetcher mCurrentUserFetcher;
     private final Context mContext;
@@ -343,6 +347,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private String mUserPickerName;
     private ComponentName mDriverHomeComponent;
     private ComponentName mPassengerHomeComponent;
+    // Map of Occupant Zone ID to a list of RRO package strings.
+    private final SparseArray<List<String>> mOccupantRROMap = new SparseArray<>();
 
     // Whether visible background users are supported on the default display, a.k.a. passenger only
     // systems.
@@ -434,6 +440,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mUserPickerName = mContext.getResources().getString(R.string.config_userPickerActivity);
         // Store the home component names for driver/passenger for reference during user start
         initHomeComponentNames();
+        initOccupantZoneRROMap();
     }
 
     /**
@@ -2185,6 +2192,66 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     }
 
+    private void initOccupantZoneRROMap() {
+        if (!Flags.rrosPerOccupantZone()) {
+            return;
+        }
+        String[] mapStrings = mContext.getResources().getStringArray(
+                R.array.config_occupantZoneIdToRROMap);
+        for (String mapString : mapStrings) {
+            String[] parts = mapString.split(RRO_OCCUPANT_TYPE_MAP_DELIMITER);
+            if (parts.length != 2) {
+                Slogf.e(TAG, "Skipping malformed pair: " + mapString);
+                continue;
+            }
+            int occupantZone;
+            try {
+                occupantZone = Integer.parseInt(parts[0]);
+            } catch (NumberFormatException e) {
+                Slogf.e(TAG, "Skipping malformed pair: " + mapString);
+                continue;
+            }
+            if (!mOccupantRROMap.contains(occupantZone)) {
+                mOccupantRROMap.put(occupantZone, new ArrayList<>());
+            }
+            mOccupantRROMap.get(occupantZone).add(parts[1]);
+        }
+    }
+
+    private void toggleOccupantZoneRROs(@UserIdInt int userId, int occupantZoneId, boolean enable) {
+        if (!Flags.rrosPerOccupantZone()) {
+            return;
+        }
+        if (occupantZoneId == OccupantZoneInfo.INVALID_ZONE_ID) {
+            return;
+        }
+        List<String> rroPackages = mOccupantRROMap.get(occupantZoneId);
+        if (rroPackages == null) {
+            return;
+        }
+        UserHandle userHandle = UserHandle.of(userId);
+        OverlayManager overlayManager = mContext.getSystemService(OverlayManager.class);
+        for (String rroPackage : rroPackages) {
+            try {
+                overlayManager.setEnabled(rroPackage, enable, userHandle);
+            } catch (IllegalArgumentException ex) {
+                Slogf.w(TAG, "Failed to set overlay", ex);
+            }
+        }
+    }
+
+    private int getDriverOccupantZoneId() {
+        if (!mCarOccupantZoneService.hasDriverZone()) {
+            return OccupantZoneInfo.INVALID_ZONE_ID;
+        }
+        CarOccupantZoneManager.OccupantZoneInfo zoneInfo = mCarOccupantZoneService.getOccupantZone(
+                CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER, SEAT_UNKNOWN);
+        if (zoneInfo == null) {
+            return OccupantZoneInfo.INVALID_ZONE_ID;
+        }
+        return zoneInfo.zoneId;
+    }
+
     private void initHomeComponentNames() {
         String driverComponentString = mContext.getResources().getString(
                 R.string.config_driverHomeComponent);
@@ -2674,13 +2741,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     // starts user picker on displays without user allocation exception for on driver main display.
     void startUserPicker() {
-        int driverZoneId = OccupantZoneInfo.INVALID_ZONE_ID;
+        int driverZoneId = getDriverOccupantZoneId();
         boolean hasDriverZone = mCarOccupantZoneService.hasDriverZone();
-        if (hasDriverZone) {
-            driverZoneId = mCarOccupantZoneService.getOccupantZone(
-                    CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
-                    VehicleAreaSeat.SEAT_UNKNOWN).zoneId;
-        }
 
         // Start user picker on displays without user allocation.
         List<OccupantZoneInfo> occupantZoneInfos =
@@ -2770,6 +2832,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             stopUser(userId, new AndroidFuture<UserStopResult>());
             return;
         }
+
+        toggleOccupantZoneRROs(userId, zoneId, /* enable= */ true);
     }
 
     // Unassigns the invisible user from the occupant zone.
@@ -2781,6 +2845,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     userId);
             return;
         }
+
+        toggleOccupantZoneRROs(userId, zoneInfo.zoneId, /* enable= */ false);
 
         int result = mCarOccupantZoneService.unassignOccupantZone(zoneInfo.zoneId);
         if (result != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
@@ -2958,6 +3024,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         notifyLegacyUserSwitch(fromUserId, toUserId);
 
         mInitialUserSetter.setLastActiveUser(toUserId);
+
+        toggleOccupantZoneRROs(fromUserId, getDriverOccupantZoneId(), /* enable= */ false);
+        toggleOccupantZoneRROs(toUserId, getDriverOccupantZoneId(), /* enable= */ true);
 
         t.traceEnd();
     }

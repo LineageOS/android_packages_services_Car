@@ -498,6 +498,15 @@
         <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS|NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
     </string-array>
 
+    <!-- Mapping of occupant zone id to RRO package to apply to the user assigned to this occupant
+         zone. When a user is started and assigned to the occupant zone, the RRO package(s) will be
+         enabled for that user. It is required that RROs included in this map are configured to be
+         dynamic and recommended that these dynamic RROs are not toggled by another process to
+          maintain consistency.
+         Format: <OccupantZoneId>;<RRO package name> -->
+    <string-array name="config_occupantZoneIdToRROMap" translatable="false">
+    </string-array>
+
     <!-- Specifies notice UI that will be launched when user starts a car or do user
          switching. It is recommended to use dialog with at least TYPE_APPLICATION_OVERLAY window
          type to show the UI regardless of activity launches. Target package will be auto-granted
