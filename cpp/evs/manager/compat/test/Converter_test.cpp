@@ -196,6 +196,16 @@ TEST_F(ConverterTest, toBufferDesc_Success) {
             }));
     EXPECT_CALL(mMockNdkCamera, AHardwareBuffer_getNativeHandle(dummyBuffer))
             .WillOnce(Return(dummyHandle));
+    EXPECT_CALL(mMockNdkCamera, AHardwareBuffer_describe(dummyBuffer, _))
+            .WillOnce(Invoke([](const AHardwareBuffer*, AHardwareBuffer_Desc* desc) {
+                desc->width = 640;
+                desc->height = 480;
+                desc->layers = 1;
+                desc->format = AIMAGE_FORMAT_RGBA_8888;
+                desc->usage = GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_OFTEN |
+                        GRALLOC_USAGE_SW_WRITE_OFTEN;
+                desc->stride = 640;
+            }));
     EXPECT_CALL(mMockNdkCamera, AImage_getTimestamp(dummyImage, _))
             .WillOnce(Invoke([](const AImage*, int64_t* timestamp) {
                 *timestamp = 12345;

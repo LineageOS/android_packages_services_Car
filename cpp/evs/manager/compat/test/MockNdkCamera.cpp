@@ -150,6 +150,10 @@ void AHardwareBuffer_release(AHardwareBuffer* buffer) {
     MockNdkCamera::getMockInstance()->AHardwareBuffer_release(buffer);
 }
 
+void AHardwareBuffer_describe(const AHardwareBuffer* buffer, AHardwareBuffer_Desc* outDesc) {
+    MockNdkCamera::getMockInstance()->AHardwareBuffer_describe(buffer, outDesc);
+}
+
 camera_status_t ACameraMetadata_getConstEntry(const ACameraMetadata* metadata, uint32_t tag,
                                               ACameraMetadata_const_entry* entry) {
     return MockNdkCamera::getMockInstance()->ACameraMetadata_getConstEntry(metadata, tag, entry);

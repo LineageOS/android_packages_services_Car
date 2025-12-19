@@ -224,6 +224,17 @@ media_status_t Converter::toBufferDesc(AImage* image, uint32_t bufferId,
         return AMEDIA_ERROR_UNKNOWN;
     }
     outBufferDesc.buffer.handle = std::move(aidlHandle);
+
+    AHardwareBuffer_Desc ahwbDesc;
+    AHardwareBuffer_describe(hardwareBuffer, &ahwbDesc);
+    outBufferDesc.buffer.description.width = ahwbDesc.width;
+    outBufferDesc.buffer.description.height = ahwbDesc.height;
+    outBufferDesc.buffer.description.layers = ahwbDesc.layers;
+    outBufferDesc.buffer.description.format = static_cast<PixelFormat>(ahwbDesc.format);
+    outBufferDesc.buffer.description.usage =
+            static_cast<aidl::android::hardware::graphics::common::BufferUsage>(ahwbDesc.usage);
+    outBufferDesc.buffer.description.stride = ahwbDesc.stride;
+
     AHardwareBuffer_release(hardwareBuffer);
 
     int64_t timestamp = 0;
