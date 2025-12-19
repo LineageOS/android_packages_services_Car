@@ -165,7 +165,8 @@ public final class UsbDeviceHandlerResolver {
         }
 
         intent.setComponent(component);
-        mUsbManager.grantPermission(device, activityInfo.applicationInfo.uid);
+        mUsbManager.grantPermission(
+                device, activityInfo.packageName, activityInfo.applicationInfo.uid);
 
         mContext.startActivity(intent);
         mUsbDeviceResolverHandler.requestCompleteDeviceDispatch();
