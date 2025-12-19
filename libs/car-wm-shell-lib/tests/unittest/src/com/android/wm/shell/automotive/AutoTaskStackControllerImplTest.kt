@@ -31,7 +31,7 @@ import android.testing.AndroidTestingRunner
 import android.view.SurfaceControl
 import android.view.WindowManager.TRANSIT_OPEN
 import android.view.WindowManager.TRANSIT_TO_BACK
-import android.window.TaskOrganizer
+import android.window.TaskCreationParams
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import android.window.WindowContainerToken
@@ -162,12 +162,9 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         }
         var listener: TaskListener? = null
         whenever(
-            taskOrganizer.createRootTask(
-                TaskOrganizer.CreateRootTaskRequest()
-                    .setDisplayId(displayId)
-                    .setWindowingMode(anyOrNull())
-                    .setRemoveWithTaskOrganizer(true),
-            any(TaskListener::class.java)
+            taskOrganizer.createTask(
+                any(TaskCreationParams::class.java),
+                any(TaskListener::class.java)
             )
         ).thenAnswer {
             listener = it.arguments[1] as ShellTaskOrganizer.TaskListener
@@ -221,11 +218,8 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
                 .setTaskId(32).setDisplayId(displayId).build()
         var listener: TaskListener? = null
         whenever(
-            taskOrganizer.createRootTask(
-                TaskOrganizer.CreateRootTaskRequest()
-                    .setDisplayId(displayId)
-                    .setWindowingMode(anyOrNull())
-                    .setRemoveWithTaskOrganizer(true),
+            taskOrganizer.createTask(
+                any(TaskCreationParams::class.java),
                 any(TaskListener::class.java)
             )
         ).thenAnswer {
@@ -282,7 +276,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         // Arrange
         val (taskInfo, taskListener) = setupRootTask(taskId = 12)
         whenever(
-            taskOrganizer.deleteRootTask(any(WindowContainerToken::class.java))
+            taskOrganizer.deleteTask(any(WindowContainerToken::class.java))
         ).thenAnswer {
             taskListener.onTaskVanished(taskInfo)
             true
