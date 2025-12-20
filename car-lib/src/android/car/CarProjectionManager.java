@@ -786,7 +786,7 @@ public final class CarProjectionManager extends CarManagerBase {
          * NONE, WPA2_PSK, so conversion is limited to these security type.</li>
          *
          * @param wifiConfiguration  the {@link WifiConfiguration} of the current hotspot.
-         * @deprecated This callback is deprecated. Use {@link #onStarted(SoftApConfiguration))}
+         * @deprecated This callback is deprecated. Use {@link #onStarted(SoftApConfiguration)}
          * instead.
          */
         @Deprecated
