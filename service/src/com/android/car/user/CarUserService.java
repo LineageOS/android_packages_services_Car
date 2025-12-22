@@ -2198,6 +2198,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         String[] mapStrings = mContext.getResources().getStringArray(
                 R.array.config_occupantZoneIdToRROMap);
+        if (mapStrings == null) {
+            // It is possible for this array to be null in a test context with mocked resources
+            Slogf.w(TAG, "initOccupantZoneRROMap(): config_occupantZoneIdToRROMap is null");
+            return;
+        }
         for (String mapString : mapStrings) {
             String[] parts = mapString.split(RRO_OCCUPANT_TYPE_MAP_DELIMITER);
             if (parts.length != 2) {
