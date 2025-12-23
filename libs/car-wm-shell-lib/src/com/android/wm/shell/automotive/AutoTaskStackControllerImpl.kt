@@ -448,7 +448,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
                         .setName(name)
                         .setDisplayId(displayId)
                         .setWindowingMode(WINDOWING_MODE_MULTI_WINDOW)
-                        .setRemoveWithTaskOrganizer(true)
                         .build()
                 taskOrganizer.createTask(params, RootTaskStackListenerAdapter(listener, name))
             }
