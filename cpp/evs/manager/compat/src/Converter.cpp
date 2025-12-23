@@ -235,8 +235,6 @@ media_status_t Converter::toBufferDesc(AImage* image, uint32_t bufferId,
             static_cast<aidl::android::hardware::graphics::common::BufferUsage>(ahwbDesc.usage);
     outBufferDesc.buffer.description.stride = ahwbDesc.stride;
 
-    AHardwareBuffer_release(hardwareBuffer);
-
     int64_t timestamp = 0;
     AImage_getTimestamp(image, &timestamp);
     outBufferDesc.timestamp = timestamp;

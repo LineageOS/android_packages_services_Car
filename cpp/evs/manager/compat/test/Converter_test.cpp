@@ -211,7 +211,6 @@ TEST_F(ConverterTest, toBufferDesc_Success) {
                 *timestamp = 12345;
                 return AMEDIA_OK;
             }));
-    EXPECT_CALL(mMockNdkCamera, AHardwareBuffer_release(dummyBuffer));
 
     BufferDesc bufferDesc;
     media_status_t status = Converter::toBufferDesc(dummyImage, 1, "test_device", bufferDesc);
@@ -252,7 +251,6 @@ TEST_F(ConverterTest, toBufferDesc_GetNativeHandleFails) {
             }));
     EXPECT_CALL(mMockNdkCamera, AHardwareBuffer_getNativeHandle(dummyBuffer))
             .WillOnce(Return(nullptr));
-    EXPECT_CALL(mMockNdkCamera, AHardwareBuffer_release(dummyBuffer));
 
     BufferDesc bufferDesc;
     media_status_t status = Converter::toBufferDesc(dummyImage, 1, "test_device", bufferDesc);
