@@ -32,7 +32,7 @@ import android.view.SurfaceControl
 import android.view.SurfaceControl.Transaction
 import android.view.WindowManager
 import android.view.WindowManager.TRANSIT_CHANGE
-import android.window.TaskOrganizer
+import android.window.TaskCreationParams
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import android.window.WindowContainerTransaction
@@ -443,14 +443,14 @@ class AutoTaskStackControllerImpl @Inject constructor(
                             "auto_task_stack_windowing TS flag is disabled."
                 )
             } else {
-                taskOrganizer.createRootTask(
-                    TaskOrganizer.CreateRootTaskRequest()
+                val params =
+                    TaskCreationParams.Builder()
                         .setName(name)
                         .setDisplayId(displayId)
                         .setWindowingMode(WINDOWING_MODE_MULTI_WINDOW)
-                        .setRemoveWithTaskOrganizer(true),
-                    RootTaskStackListenerAdapter(listener, name),
-                )
+                        .setRemoveWithTaskOrganizer(true)
+                        .build()
+                taskOrganizer.createTask(params, RootTaskStackListenerAdapter(listener, name))
             }
         }
     }
@@ -466,7 +466,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     taskStackId
                 )
             } else {
-                val deleted: Boolean = taskOrganizer.deleteRootTask(taskStack.rootTaskInfo.token)
+                val deleted: Boolean = taskOrganizer.deleteTask(taskStack.rootTaskInfo.token)
             }
         }
     }
