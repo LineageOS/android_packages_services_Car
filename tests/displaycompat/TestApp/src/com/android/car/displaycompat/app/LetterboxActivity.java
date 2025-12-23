@@ -36,6 +36,13 @@ public class LetterboxActivity extends Activity {
             homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(homeIntent);
 
+            try {
+                // sleep to allow for the intents to be executed independently
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             // Reopen app
             Intent intent = new Intent(LetterboxActivity.this, LetterboxActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
