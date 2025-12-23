@@ -535,4 +535,3 @@ flag {
     description: "Support starting a cluster activity in a root task"
     bug: "437049703"
 }
-

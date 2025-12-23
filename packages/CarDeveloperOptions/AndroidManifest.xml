@@ -1276,9 +1276,20 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.accessibility.setupwizard.AccessibilitySetupWizardActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.accessibility.enable_setuplib_in_a11y_setup_page"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.accessibility.AccessibilitySettingsForSetupWizardActivity"
             android:enabled="false"
             android:exported="false"
+            android:featureFlag="!com.android.settings.accessibility.enable_setuplib_in_a11y_setup_page"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -2743,6 +2754,16 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$AccountsAndBackupDashboardActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.enable_accounts_and_backup_screen"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$EmergencyDashboardActivity"
             android:enabled="false"
             android:exported="false"
@@ -3217,6 +3238,7 @@
             android:name="com.android.settings.FontSizeSettingsForSetupWizardActivity"
             android:enabled="false"
             android:exported="false"
+            android:featureFlag="!com.android.settings.accessibility.enable_setuplib_in_a11y_setup_page"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -3226,6 +3248,7 @@
             android:name="com.android.settings.TextReadingForSetupWizardActivity"
             android:enabled="false"
             android:exported="false"
+            android:featureFlag="!com.android.settings.accessibility.enable_setuplib_in_a11y_setup_page"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
