@@ -432,14 +432,6 @@ flag {
   bug: "352562350"
 }
 
-# DistantDisplayTransitions
-flag {
-    name: "distant_display_transitions"
-    namespace: "car_framework"
-    description: "Enables shell transitions handler in distant display"
-    bug: "316069815"
-}
-
 # Features that Support SDV on IVI
 flag {
     name: "package_manager_extensions_for_sdv"
