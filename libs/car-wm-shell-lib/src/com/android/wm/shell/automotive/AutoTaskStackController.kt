@@ -57,7 +57,7 @@ interface AutoTaskStackTransitionHandlerDelegate {
      */
     fun startAnimation(
         transition: IBinder,
-        changedTaskStacks: Map<Int, AutoTaskStackState>,
+        changedTaskStacks: List<TaskStackStateChange>,
         info: TransitionInfo,
         startTransaction: SurfaceControl.Transaction,
         finishTransaction: SurfaceControl.Transaction,
@@ -87,7 +87,7 @@ interface AutoTaskStackTransitionHandlerDelegate {
      */
     fun mergeAnimation(
         transition: IBinder,
-        changedTaskStacks: Map<Int, AutoTaskStackState>,
+        changedTaskStacks: List<TaskStackStateChange>,
         info: TransitionInfo,
         surfaceTransaction: SurfaceControl.Transaction,
         mergeTarget: IBinder,
@@ -334,3 +334,5 @@ data class AutoTaskStackTransaction internal constructor(
         return this
     }
 }
+
+data class TaskStackStateChange(val taskId: Int, val state: AutoTaskStackState)

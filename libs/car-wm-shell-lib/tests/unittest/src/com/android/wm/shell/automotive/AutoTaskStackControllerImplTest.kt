@@ -100,7 +100,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         AutoTaskStackTransitionHandlerDelegate {
         var lastStartTransaction: SurfaceControl.Transaction? = null
         var lastFinishTransaction: SurfaceControl.Transaction? = null
-        var lastTaskStackStates: Map<Int, AutoTaskStackState>? = null
+        var lastTaskStackStates: List<TaskStackStateChange>? = null
         var handleRequestReturn: AutoTaskStackTransaction? = null
         var play = true
         var startAnimationCalled = false
@@ -116,7 +116,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         override fun startAnimation(
             transition: IBinder,
-            changedTaskStacks: Map<Int, AutoTaskStackState>,
+            changedTaskStacks: List<TaskStackStateChange>,
             info: TransitionInfo,
             startTransaction: SurfaceControl.Transaction,
             finishTransaction: SurfaceControl.Transaction,
@@ -140,7 +140,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         override fun mergeAnimation(
             transition: IBinder,
-            changedTaskStacks: Map<Int, AutoTaskStackState>,
+            changedTaskStacks: List<TaskStackStateChange>,
             info: TransitionInfo,
             surfaceTransaction: SurfaceControl.Transaction,
             mergeTarget: IBinder,
@@ -455,10 +455,17 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     @Test
     fun startTransition_withTaskStackStates_leadsToCorrectStartAnimation() {
         // Arrange
-        val (rootTask, taskListener) = setupRootTask(taskId = 13)
+        val leash = mock(SurfaceControl::class.java)
+        val (rootTask, taskListener) = setupRootTask(taskId = 13, leash = leash)
         val startTransaction = mock(SurfaceControl.Transaction::class.java)
         val finishTransaction = mock(SurfaceControl.Transaction::class.java)
         val claim = Binder()
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(rootTask.token, leash).apply {
+                taskInfo = rootTask
+            })
+            .build()
+
         whenever(
             transitions.startTransition(
                 anyInt(),
@@ -469,7 +476,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             mMainThreadHandler!!.post({
                 controller.startAnimation(
                     claim,
-                    TransitionInfo(1, 0),
+                    info,
                     startTransaction,
                     finishTransaction,
                     mock(TransitionFinishCallback::class.java)
@@ -489,7 +496,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         // Assert
         assertThat(delegate.lastStartTransaction).isEqualTo(startTransaction)
         assertThat(delegate.lastFinishTransaction).isEqualTo(finishTransaction)
-        assertThat(delegate.lastTaskStackStates).isEqualTo(transaction.getTaskStackStates())
+        assertThat(delegate.lastTaskStackStates).isEqualTo(
+            transaction.getTaskStackStates()
+                .map { (taskId, state) -> TaskStackStateChange(taskId, state) }
+        )
     }
 
     private fun waitForMainThread() {
@@ -524,6 +534,15 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val startTransaction = mock(SurfaceControl.Transaction::class.java)
         val finishTransaction = mock(SurfaceControl.Transaction::class.java)
         val claim = Binder()
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(rootTask13.token, leash13).apply {
+                taskInfo = rootTask13
+            })
+            .addChange(TransitionInfo.Change(rootTask15.token, leash15).apply {
+                taskInfo = rootTask15
+            })
+            .build()
+
         whenever(
             transitions.startTransition(
                 anyInt(),
@@ -534,7 +553,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             mMainThreadHandler!!.post({
                 controller.startAnimation(
                     claim,
-                    TransitionInfo(1, 0),
+                    info,
                     startTransaction,
                     finishTransaction,
                     mock(TransitionFinishCallback::class.java)
@@ -845,10 +864,13 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         // Assert
         assertThat(result).isTrue()
-        assertThat(delegate.lastTaskStackStates).containsKey(rootTaskInfo3.taskId)
-        assertThat(delegate.lastTaskStackStates).containsEntry(
-            rootTaskInfo3.taskId,
-            AutoTaskStackState(Rect(), true, AutoTaskStackController.UNKNOWN_Z_LAYER)
+        assertThat(delegate.lastTaskStackStates!!.find { it.taskId == rootTaskInfo3.taskId })
+            .isNotNull()
+        assertThat(delegate.lastTaskStackStates).contains(
+            TaskStackStateChange(
+                rootTaskInfo3.taskId,
+                AutoTaskStackState(Rect(), true, AutoTaskStackController.UNKNOWN_Z_LAYER)
+            )
         )
     }
 
@@ -1036,14 +1058,19 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         // Assert
         assertThat(result).isTrue()
-        assertThat(delegate.lastTaskStackStates).containsKey(rootTaskInfo3.taskId)
-        assertThat(delegate.lastTaskStackStates).containsEntry(
-            rootTaskInfo2.taskId,
-            AutoTaskStackState(Rect(10, 10, 40, 300), false, 0)
+        assertThat(delegate.lastTaskStackStates!!.find { it.taskId == rootTaskInfo3.taskId })
+            .isNotNull()
+        assertThat(delegate.lastTaskStackStates).contains(
+            TaskStackStateChange(
+                rootTaskInfo2.taskId,
+                AutoTaskStackState(Rect(10, 10, 40, 300), false, 0)
+            )
         )
-        assertThat(delegate.lastTaskStackStates).containsEntry(
-            rootTaskInfo3.taskId,
-            AutoTaskStackState(Rect(10, 10, 40, 300), true, 900)
+        assertThat(delegate.lastTaskStackStates).contains(
+            TaskStackStateChange(
+                rootTaskInfo3.taskId,
+                AutoTaskStackState(Rect(10, 10, 40, 300), true, 900)
+            )
         )
     }
 
