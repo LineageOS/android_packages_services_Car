@@ -452,6 +452,16 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.vpn2.AppExclusionActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="android.provider.expose_vpn_app_exclusion_settings"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$DataSaverSummaryActivity"
             android:enabled="false"
             android:exported="false"

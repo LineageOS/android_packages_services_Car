@@ -16,8 +16,6 @@
 
 package com.android.systemui.car.wm;
 
-import static android.car.feature.Flags.distantDisplayTransitions;
-
 import android.app.ActivityManager;
 import android.app.WindowConfiguration;
 import android.car.Car;
@@ -83,13 +81,6 @@ public class DistantDisplayTransitions implements Transitions.TransitionHandler,
             DumpManager dumpManager) {
         mDisplayManager = context.getSystemService(DisplayManager.class);
         mRootTaskDisplayAreaOrganizer = rootTaskDisplayAreaOrganizer;
-        if (!distantDisplayTransitions()) {
-            if (DBG) {
-                Slog.d(TAG, "Not initializing DistantDisplayTransitions, as flag is disabled");
-            }
-            return;
-        }
-
         if (Transitions.ENABLE_SHELL_TRANSITIONS) {
             transitions.addHandler(this);
             carServiceProvider.addListener(this);

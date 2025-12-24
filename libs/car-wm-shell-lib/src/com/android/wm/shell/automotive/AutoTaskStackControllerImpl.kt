@@ -32,7 +32,7 @@ import android.view.SurfaceControl
 import android.view.SurfaceControl.Transaction
 import android.view.WindowManager
 import android.view.WindowManager.TRANSIT_CHANGE
-import android.window.TaskOrganizer
+import android.window.TaskCreationParams
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import android.window.WindowContainerTransaction
@@ -443,14 +443,13 @@ class AutoTaskStackControllerImpl @Inject constructor(
                             "auto_task_stack_windowing TS flag is disabled."
                 )
             } else {
-                taskOrganizer.createRootTask(
-                    TaskOrganizer.CreateRootTaskRequest()
+                val params =
+                    TaskCreationParams.Builder()
                         .setName(name)
                         .setDisplayId(displayId)
                         .setWindowingMode(WINDOWING_MODE_MULTI_WINDOW)
-                        .setRemoveWithTaskOrganizer(true),
-                    RootTaskStackListenerAdapter(listener, name),
-                )
+                        .build()
+                taskOrganizer.createTask(params, RootTaskStackListenerAdapter(listener, name))
             }
         }
     }
@@ -466,7 +465,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     taskStackId
                 )
             } else {
-                val deleted: Boolean = taskOrganizer.deleteRootTask(taskStack.rootTaskInfo.token)
+                val deleted: Boolean = taskOrganizer.deleteTask(taskStack.rootTaskInfo.token)
             }
         }
     }
@@ -649,11 +648,52 @@ class AutoTaskStackControllerImpl @Inject constructor(
     }
 
     /**
-     * Reconciles the requested task stack changes with the actual changes observed during a transition.
-     * This is necessary because the WindowManager might make changes to task visibility (e.g., hiding
-     * a task stack) that were not explicitly requested by the client in the [AutoTaskStackTransaction].
+     * Creates a reconciled TaskStackStateChange, prioritizing the provided requested state,
+     * and falling back to the current known state.
+     *
+     * @param taskStackId The ID of the task stack.
+     * @param newVisibility The reconciled visibility of the task stack's children.
+     * @param requestedTaskStackState The state explicitly requested by the client for this task stack,
+     *                                or `null` if not explicitly requested.
+     * @return A new [TaskStackStateChange] reflecting the reconciled state.
+     */
+    private fun createReconciledTaskStackChange(
+        taskStackId: Int,
+        newVisibility: Boolean,
+        requestedTaskStackState: AutoTaskStackState?
+    ): TaskStackStateChange {
+        // Prioritize the explicitly requested state if available
+        val baseState = requestedTaskStackState
+            // If not explicitly requested, try to get the current actual state
+            ?: _taskStackStateMap[taskStackId]
+
+        val bounds = baseState?.bounds ?: Rect()
+        val layer = baseState?.layer ?: AutoTaskStackController.UNKNOWN_Z_LAYER
+
+        ProtoLog.v(
+            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+            "Creating reconciled task stack change for %d (%s), newVisibility: %b, " +
+                    "layer %d, bounds %s" +
+                    "fromRequestedState: %b, fromCurrentState: %b",
+            taskStackId,
+            taskStackMap[taskStackId]?.name ?: "",
+            newVisibility,
+            layer,
+            bounds,
+            requestedTaskStackState != null,
+            baseState == _taskStackStateMap[taskStackId] && requestedTaskStackState == null
+        )
+
+        return TaskStackStateChange(taskStackId, AutoTaskStackState(bounds, newVisibility, layer))
+    }
+
+    /**
+     * Calculates task stack changes based on what actually changed in window manager.
+     * This is necessary because the WindowManager might make changes to task visibility (e.g.,
+     * hiding a task stack) that were not explicitly requested by the client in the
+     * [AutoTaskStackTransaction].
      * This function ensures that the internal [AutoTaskStackState] accurately reflects the current
-     * state of the task stacks after a transition, handling cases where:
+     * state of the task stacks after a transition, handling cases where (not an exhaustive list):
      * 1. A task stack becomes invisible due to a closing transition, even if it was not explicitly
      *    requested to be invisible by the client.
      * 2. A task stack becoming visible due to an app task launching inside it (this happens
@@ -664,110 +704,85 @@ class AutoTaskStackControllerImpl @Inject constructor(
      *                                  [AutoTaskStackTransaction].
      * @param changes The list of [TransitionInfo.Change] objects representing the actual changes
      *                that occurred during the window transition.
-     * @return A map of task stack IDs to their reconciled [AutoTaskStackState]s.
+     * @return A list of task stack IDs to their reconciled [AutoTaskStackState]s.
      */
-    fun reconcileTaskStackStatesFromTransition(
+    fun calculateTaskStackStateChangesFromTransition(
         requestedTaskStackChanges: Map<Int, AutoTaskStackState>,
         changes: List<TransitionInfo.Change>
-    ): Map<Int, AutoTaskStackState> {
-        var changedTaskStacks = mutableMapOf<Int, AutoTaskStackState>()
-        changedTaskStacks.putAll(requestedTaskStackChanges)
+    ): List<TaskStackStateChange> {
+        val taskStackChanges = mutableListOf<TaskStackStateChange>()
+        val processedTaskStacks = mutableSetOf<Int>()
 
         // TODO: The reconciliation below won't be required once b/388067743 is fixed.
         for (chg in changes) {
             val taskInfo = chg.taskInfo ?: continue
 
-            // Process the task stack changes that have become invisible now but were either not
-            // requested in the transition or were requested to be visible
-            if (TransitionUtil.isClosingMode(chg.mode) &&
-                taskStackMap[taskInfo.taskId] != null) {
-                ProtoLog.v(
-                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "Task stack %d is hiding",
-                    taskInfo.taskId
-                )
-
-                if (requestedTaskStackChanges[taskInfo.taskId] != null &&
-                    !requestedTaskStackChanges[taskInfo.taskId]!!.childrenTasksVisible) {
-                    ProtoLog.v(
-                        CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                        "Task stack %d is already being changed to invisible",
-                        taskInfo.taskId,
-                    )
+            // Determine the relevant taskStackId and whether this is a direct change to the
+            // task stack.
+            val (taskStackId, isTaskStackChange) = when {
+                taskStackMap.containsKey(taskInfo.taskId) -> taskInfo.taskId to true
+                taskInfo.parentTaskId != INVALID_TASK_ID &&
+                        taskStackMap.containsKey(taskInfo.parentTaskId)
+                    -> taskInfo.parentTaskId to false
+                else -> {
+                    // This change is not for a known root task stack or its immediate child.
                     continue
                 }
-                ProtoLog.v(
-                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "Task stack %d is becoming invisible but was not requested to be " +
-                            "invisible",
-                    taskInfo.taskId
-                )
-
-                val taskStackLayer = (_taskStackStateMap[taskInfo.taskId]
-                    ?: requestedTaskStackChanges[taskInfo.taskId])
-                    ?.layer ?: AutoTaskStackController.UNKNOWN_Z_LAYER
-
-                changedTaskStacks[taskInfo.taskId] = AutoTaskStackState(
-                    bounds = (_taskStackStateMap[taskInfo.taskId]
-                        ?: requestedTaskStackChanges[taskInfo.taskId])?.bounds ?: Rect(),
-                    childrenTasksVisible = false,
-                    layer = taskStackLayer
-                )
             }
 
-            // Process as an app task change now
-            if (taskInfo.parentTaskId == INVALID_TASK_ID) continue
-            if (taskStackMap[taskInfo.parentTaskId] == null) {
-                ProtoLog.v(
-                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "%d's parent %d is not known",
-                    taskInfo.taskId,
-                    taskInfo.parentTaskId
-                )
+            if (processedTaskStacks.contains(taskStackId)) {
                 continue
             }
 
-            // Here want to reconcile those panels which are becoming visible and was not
-            // visible in original request.
+            val requestedTaskStackState = requestedTaskStackChanges[taskStackId]
 
-            // Check for the change request if the change is for being visible. If not, ignore the
-            // change. When app task is becoming visible, the parent root task is brought to front
-            // or made visible by the window manager automatically.
             if (TransitionUtil.isOpeningMode(chg.mode)) {
-                // Check if the change was visible in original request, if it is, then there is no
-                // conflict.
-                if (requestedTaskStackChanges[taskInfo.parentTaskId] != null &&
-                    requestedTaskStackChanges[taskInfo.parentTaskId]!!.childrenTasksVisible
-                ) {
+                // When a task is opening, regardless of a task stack itself or an app (child) task
+                // inside the task stack, its given that the underlying task stack is
+                // becoming visible. Since the visibilities are inherited in WM, a child task
+                // cannot become visible without its parent task being visible.
+                if (requestedTaskStackState == null ||
+                    !requestedTaskStackState.childrenTasksVisible) {
                     ProtoLog.v(
                         CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                        "%d's parent %d is already being changed to visible",
-                        taskInfo.taskId,
-                        taskInfo.parentTaskId
+                        "Task stack %d is becoming visible due to child task %d, but was not " +
+                                "requested to be visible. Reconciling.",
+                        taskStackId,
+                        taskInfo.taskId
                     )
-                    continue
                 }
-
-                //  If the change was not visible in original request, but visible in change list,
-                //  it is a conflict, reconcile the unknown changes.
-                ProtoLog.v(
-                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "%d found conflicting task change",
-                    taskInfo.taskId
-                )
-                val taskStackLayer = (_taskStackStateMap[taskInfo.parentTaskId]
-                    ?: requestedTaskStackChanges[taskInfo.parentTaskId])
-                    ?.layer ?: AutoTaskStackController.UNKNOWN_Z_LAYER
-
-                changedTaskStacks[taskInfo.parentTaskId] = AutoTaskStackState(
-                    bounds = (_taskStackStateMap[taskInfo.parentTaskId]
-                        ?: requestedTaskStackChanges[taskInfo.parentTaskId])?.bounds ?: Rect(),
-                    childrenTasksVisible = true,
-                    layer = taskStackLayer
-                )
+                taskStackChanges.add(createReconciledTaskStackChange(
+                    taskStackId,
+                    newVisibility = true,
+                    requestedTaskStackState = requestedTaskStackState
+                ))
+                processedTaskStacks.add(taskStackId)
+            } else if (isTaskStackChange && TransitionUtil.isClosingMode(chg.mode)) {
+                // A 'close' transition on a task stack change means that this task stack is
+                // changing visibility on the core side to false.
+                if (requestedTaskStackState == null ||
+                    requestedTaskStackState.childrenTasksVisible) {
+                    ProtoLog.v(
+                        CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                        "Task stack %d is becoming invisible but was not explicitly requested " +
+                                "to be invisible. Reconciling.",
+                        taskStackId
+                    )
+                }
+                taskStackChanges.add(createReconciledTaskStackChange(
+                    taskStackId,
+                    newVisibility = false,
+                    requestedTaskStackState = requestedTaskStackState
+                ))
+                processedTaskStacks.add(taskStackId)
+            } else if (isTaskStackChange && requestedTaskStackState != null) {
+                // This handles other cases, like bounds changes, where there was an explicit
+                // request from the client, but it wasn't a simple open/close.
+                taskStackChanges.add(TaskStackStateChange(taskStackId, requestedTaskStackState))
+                processedTaskStacks.add(taskStackId)
             }
         }
-        return changedTaskStacks
+        return taskStackChanges
     }
 
     override fun startAnimation(
@@ -784,16 +799,14 @@ class AutoTaskStackControllerImpl @Inject constructor(
             info.changes.toString()
         )
         val pending: PendingTransition? = findPending(transition)
-        var changedTaskStacks = mutableMapOf<Int, AutoTaskStackState>()
+        var changedTaskStacks: List<TaskStackStateChange> = emptyList()
         if (pending != null) {
             pendingTransitions.remove(pending)
-            changedTaskStacks.putAll(
-                reconcileTaskStackStatesFromTransition(
-                    pending.transaction.getTaskStackStates(),
-                    info.changes
-                )
+            changedTaskStacks = calculateTaskStackStateChangesFromTransition(
+                pending.transaction.getTaskStackStates(),
+                info.changes
             )
-            updateTaskStackStates(changedTaskStacks)
+            updateTaskStackStates(changedTaskStacks.associate { it.taskId to it.state })
         }
 
         reorderLeashes(startTransaction)
@@ -825,7 +838,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
             CAR_WM_SHELL_TASK_STACK_CONTROLLER,
             " in startAnimation, id=%d, changedTaskStacks=\n\t%s",
             info.debugId,
-            changedTaskStacks.entries.joinToString("\n\t")
+            changedTaskStacks.joinToString("\n\t")
         )
         if ((pending?.delegateToClient ?: true)) {
             val isPlayedByDelegate = autoTransitionHandlerDelegate?.startAnimation(
@@ -966,21 +979,19 @@ class AutoTaskStackControllerImpl @Inject constructor(
         // Update the task stack states as the client may handle the merge and startAnimation
         // will never be called. Moreover, the changes on WM side have anyway been applied so
         // updating the task stack states here is safe.
-        var changedTaskStacks = mutableMapOf<Int, AutoTaskStackState>()
+        var changedTaskStacks: List<TaskStackStateChange> = emptyList()
         if (pending != null) {
-            changedTaskStacks.putAll(
-                reconcileTaskStackStatesFromTransition(
-                    pending.transaction.getTaskStackStates(),
-                    info.changes
-                )
+            changedTaskStacks = calculateTaskStackStateChangesFromTransition(
+                pending.transaction.getTaskStackStates(),
+                info.changes
             )
-            updateTaskStackStates(changedTaskStacks)
+            updateTaskStackStates(changedTaskStacks.associate { it.taskId to it.state })
         }
         ProtoLog.d(
             CAR_WM_SHELL_TASK_STACK_CONTROLLER,
             " in mergeAnimation, id=%d, changedTaskStacks=\n\t%s",
             info.debugId,
-            changedTaskStacks.entries.joinToString("\n\t")
+            changedTaskStacks.joinToString("\n\t")
         )
 
         if (!(pending?.delegateToClient ?: true)) {
@@ -1033,7 +1044,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
         }
         autoTransitionHandlerDelegate?.onTransitionConsumed(
             transition,
-            pending?.transaction?.getTaskStackStates() ?: mapOf(),
+            pending?.transaction?.getTaskStackStates() ?: emptyMap(),
             aborted,
             finishTransaction
         )
