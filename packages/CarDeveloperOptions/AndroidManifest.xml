@@ -257,7 +257,6 @@
             android:name="com.android.settings.Settings$ColorModeActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.deeplink_display_and_touch_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
