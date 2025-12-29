@@ -318,7 +318,9 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
         when(mFeatureFlags.alwaysSendInitialValueEvent()).thenReturn(true);
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         when(mFeatureFlags.carPropertySupportedValue()).thenReturn(true);
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
 
         when(mHistogramFactory.newUniformHistogram(any(), anyInt(), anyFloat(), anyFloat()))
                 .thenReturn(mock(Histogram.class));
@@ -1414,7 +1416,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testOnPropertyEventChange_vendorStatusFilteredOut_withoutPermission()
             throws Exception {
-        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_DENIED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS);
 
@@ -1454,7 +1455,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testOnPropertyEventChange_vendorStatusNotFilteredOut_withPermission()
             throws Exception {
-        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS);
 
@@ -2222,8 +2222,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testGetAndDispatchInitialValue_serviceSpecificException_flagEnabled()
             throws Exception {
-        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
-
         SparseIntArray statusCodeToCarPropertyStatus = new SparseIntArray();
         statusCodeToCarPropertyStatus.put(
                 VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
@@ -2277,7 +2275,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         doReturn(PackageManager.PERMISSION_GRANTED)
                 .when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS);
-        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
         int vhalStatusCode = VehicleHalStatusCode.STATUS_INTERNAL_ERROR | (VENDOR_ERROR_CODE << 16);
         ICarPropertyEventListener mockHandler = createMockEventListener();
         doThrow(new ServiceSpecificException(vhalStatusCode))
@@ -2308,7 +2305,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS);
-        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
         int vhalStatusCode = VehicleHalStatusCode.STATUS_INTERNAL_ERROR | (VENDOR_ERROR_CODE << 16);
         ICarPropertyEventListener mockHandler = createMockEventListener();
         doThrow(new ServiceSpecificException(vhalStatusCode))
@@ -2494,7 +2490,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testIsRecordingVehiclePropertiesTrue() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
         when(mHalService.isRecordingVehicleProperties()).thenReturn(true);
@@ -2506,7 +2501,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testIsRecordingVehiclePropertiesFalse() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
         when(mHalService.isRecordingVehicleProperties()).thenReturn(false);
@@ -2518,7 +2512,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testStopRecordingVehicleProperties() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
 
@@ -2530,7 +2523,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testRegisterRecordingListener() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
         List<CarPropertyConfig> carPropertyConfigList = new ArrayList<>();
@@ -2553,7 +2545,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testEnableInjectionMode() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
         int[] propertyIds = {1, 2, 3};
@@ -2566,7 +2557,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testDisableInjectionMode() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
 
@@ -2578,7 +2568,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testIsVehiclePropertyInjectionModeEnabledTrue() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
         when(mHalService.isVehiclePropertyInjectionModeEnabled()).thenReturn(true);
@@ -2592,7 +2581,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testIsVehiclePropertyInjectionModeEnabledFalse() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
         when(mHalService.isVehiclePropertyInjectionModeEnabled()).thenReturn(false);
@@ -2606,7 +2594,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testGetLastInjectedVehicleProperty() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
         int propertyId = 123;
@@ -2622,7 +2609,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testInjectVehicleProperties() {
         Assume.assumeTrue(BuildHelper.isDebuggableBuild());
-        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
         List<CarPropertyValue> valuesToInject = new ArrayList<>();
