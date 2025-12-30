@@ -321,6 +321,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         when(mFeatureFlags.carPropertySupportedValue()).thenReturn(true);
         when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
+        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
 
         when(mHistogramFactory.newUniformHistogram(any(), anyInt(), anyFloat(), anyFloat()))
                 .thenReturn(mock(Histogram.class));
@@ -1528,7 +1529,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testGetProperty_vendorErrorCode_withoutPermission() {
-        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
@@ -1546,7 +1546,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testGetProperty_vendorErrorCode_withPermission() {
-        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED)
                 .when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
@@ -1850,7 +1849,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testSetProperty_vendorErrorCode_withoutPermission() {
-        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
@@ -1873,7 +1871,6 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testSetProperty_vendorErrorCode_withPermission() {
-        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED)
                 .when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
@@ -2089,6 +2086,9 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
             returnCd.await(10, TimeUnit.SECONDS);
             return null;
         }).when(mHalService).setProperty(any());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
 
         Executor executor = Executors.newFixedThreadPool(16);
         for (int i = 0; i < 16; i++) {
