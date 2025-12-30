@@ -110,4 +110,9 @@ public class DriverDrowsinessAttentionStateUnitTest {
                 .that(mJavaConstantValue)
                 .isEqualTo(mHalConstantValue);
     }
+
+    @Test
+    public void testValuesAreNotErrorStates() throws IllegalAccessException {
+        CarLibPropertyUnitTestUtils.verifyValueIsNotErrorState(mJavaConstantValue);
+    }
 }
