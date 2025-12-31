@@ -1705,6 +1705,10 @@ public class CarPropertyService extends ICarProperty.Stub
 
     private static void throwWithFilteredVendorErrorCode(ServiceSpecificException e)
             throws ServiceSpecificException {
+        // ErrorCode SYNC_OP_LIMIT_TRY_AGAIN is CarService specific and does not exist in VHAL.
+        if (e.errorCode == SYNC_OP_LIMIT_TRY_AGAIN) {
+            throw e;
+        }
         int vhalErrorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
         ServiceSpecificException filteredException =
                 new ServiceSpecificException(vhalErrorCode, e.getMessage());

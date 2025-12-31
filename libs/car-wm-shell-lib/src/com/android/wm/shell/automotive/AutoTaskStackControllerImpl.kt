@@ -289,29 +289,34 @@ class AutoTaskStackControllerImpl @Inject constructor(
         override fun onBackPressedOnTaskRoot(
             taskInfo: ActivityManager.RunningTaskInfo?,
             isFromMoveActivityTaskToBack: Boolean,
-            isOptInOnBackInvoked: Boolean
+            isOptInOnBackInvoked: Boolean,
+            hasOpaqueSibling: Boolean
         ) {
             if (taskInfo == null) {
                 throw IllegalArgumentException("taskInfo can't be null in onBackPressedOnTaskRoot")
             }
             ProtoLog.d(
                 CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                "onBackPressedOnTaskRoot: task#%d, isFromMoveActivityTaskToBack:%b",
+                "onBackPressedOnTaskRoot: task#%d, isFromMoveActivityTaskToBack:%b" +
+                        ", hasOpaqueSibling:%b",
                 taskInfo.taskId,
-                isFromMoveActivityTaskToBack
+                isFromMoveActivityTaskToBack,
+                hasOpaqueSibling
             )
             super.onBackPressedOnTaskRoot(
                 taskInfo,
                 isFromMoveActivityTaskToBack,
                 isOptInOnBackInvoked,
+                hasOpaqueSibling
             )
             rootTaskStackListener.onBackPressedOnTaskRoot(
                 taskInfo,
                 isFromMoveActivityTaskToBack,
                 isOptInOnBackInvoked,
+                hasOpaqueSibling
             )
             if (isFromMoveActivityTaskToBack) {
-                handleMoveTaskToBack(taskInfo)
+                handleMoveTaskToBack(taskInfo, hasOpaqueSibling)
             } else {
                 handleBackButtonPress(taskInfo)
             }
@@ -323,35 +328,25 @@ class AutoTaskStackControllerImpl @Inject constructor(
          * TODO(b/409394537): try alternative solutions, such as having a per root task
          *  visibility barrier, or creating a new always hidden root task.
          */
-        private fun handleMoveTaskToBack(taskInfo: ActivityManager.RunningTaskInfo) {
-            val parentTaskId = taskInfo.parentTaskId
-            if (parentTaskId != INVALID_TASK_ID) {
-                val allTasksOnDisplay = taskOrganizer.getRunningTasks(taskInfo.displayId)
-                val parentTaskInfo = allTasksOnDisplay.find { it.taskId == parentTaskId }
-                if (parentTaskInfo != null) {
-                    val hasOpaqueSibling = allTasksOnDisplay.any {
-                            sibling -> sibling.parentTaskId == parentTaskId &&
-                            sibling.taskId != taskInfo.taskId &&
-                            !sibling.isActivityStackTransparent
-                    }
-                    if (hasOpaqueSibling) {
-                        val taskToken = parentTaskInfo?.token
-                        ProtoLog.d(
-                            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                            "handleMoveTaskToBack: targetTask#${taskInfo.taskId}, token $taskToken"
-                        )
-                        if (taskToken != null) {
-                            val wct = WindowContainerTransaction()
-                            // false for onTop means move to bottom of its current parent
-                            wct.reorder(taskToken, false)
-                            taskOrganizer.applyTransaction(wct)
-                        }
-                        return
-                    }
-                }
-                // Defer to ScalableUI to handle this case.
-                rootTaskStackListener.moveRootTaskToBack(taskInfo)
+        private fun handleMoveTaskToBack(
+            taskInfo: ActivityManager.RunningTaskInfo,
+            hasOpaqueSibling: Boolean
+        ) {
+            if (hasOpaqueSibling) {
+                val taskToken = taskInfo.token
+                ProtoLog.d(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "handleMoveTaskToBack: targetTask#${taskInfo.taskId}, token $taskToken"
+                )
+                val wct = WindowContainerTransaction()
+                // false for onTop means move to bottom of its current parent
+                wct.reorder(taskToken, false)
+                taskOrganizer.applyTransaction(wct)
+                return
             }
+
+            // Defer to ScalableUI to handle this case.
+            rootTaskStackListener.moveRootTaskToBack(taskInfo)
         }
 
         /** Handle back event and close the task. */
