@@ -91,4 +91,9 @@ public class EmergencyLaneKeepAssistStateUnitTest {
                 .that(mJavaConstantValue)
                 .isEqualTo(mHalConstantValue);
     }
+
+    @Test
+    public void testValuesAreNotErrorStates() throws IllegalAccessException {
+        CarLibPropertyUnitTestUtils.verifyValueIsNotErrorState(mJavaConstantValue);
+    }
 }
