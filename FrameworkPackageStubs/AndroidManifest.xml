@@ -14,6 +14,7 @@
         <activity android:name=".Stubs$CameraStub"
              android:label="@string/stub_name"
              android:excludeFromRecents="true"
+             android:visibleToInstantApps="true"
              android:exported="true">
             <intent-filter android:priority="-1">
                 <action android:name="android.media.action.IMAGE_CAPTURE"/>
