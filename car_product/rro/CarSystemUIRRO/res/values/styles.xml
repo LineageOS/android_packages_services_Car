@@ -23,6 +23,24 @@
         <item name="*android:dotColor">@color/car_secondary_container</item>
     </style>
 
+    <style name="Keyguard.Bouncer.PrimaryMessage" parent="@android:style/Widget.DeviceDefault.TextView">
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontFamily">@*android:string/config_headlineFontFamily</item>
+        <item name="android:textColor">?oemColorOnSurface</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:ellipsize">marquee</item>
+    </style>
+    <style name="Keyguard.Bouncer.SecondaryMessage" parent="@android:style/Widget.DeviceDefault.TextView">
+        <item name="android:textSize">24sp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:lines">2</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">?oemColorOnSurface</item>
+    </style>
+
     <style name="Theme.SystemUI.Dialog" parent="android:Theme.DeviceDefault.Dialog"/>
 
 </resources>
