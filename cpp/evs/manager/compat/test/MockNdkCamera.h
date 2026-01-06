@@ -45,6 +45,8 @@ public:
     MOCK_METHOD(const native_handle_t*, AHardwareBuffer_getNativeHandle,
                 (const AHardwareBuffer* buffer));
     MOCK_METHOD(void, AHardwareBuffer_release, (AHardwareBuffer * buffer));
+    MOCK_METHOD(void, AHardwareBuffer_describe,
+                (const AHardwareBuffer* buffer, AHardwareBuffer_Desc* outDesc));
 
     MOCK_METHOD(camera_status_t, ACameraOutputTarget_create,
                 (ANativeWindow * window, ACameraOutputTarget** outputTarget));

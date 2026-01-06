@@ -43,20 +43,89 @@ using aidl::android::hardware::graphics::common::PixelFormat;
 
 namespace {
 std::vector<uint8_t> serializeNdkMetadata(const ACameraMetadata* ndkMetadata) {
-    const camera_metadata_t* rawMetadata = reinterpret_cast<const camera_metadata_t*>(ndkMetadata);
+    if (!ndkMetadata) {
+        return {};
+    }
+
+    int32_t numTags = 0;
+    const uint32_t* tags = nullptr;
+    camera_status_t status = ACameraMetadata_getAllTags(ndkMetadata, &numTags, &tags);
+    if (status != ACAMERA_OK || numTags < 0) {
+        LOG(ERROR) << "Failed to get camera metadata tags: " << status;
+        return {};
+    }
+
+    // 1. Calculate the size required for the camera_metadata_t
+    size_t entryCapacity = numTags;
+    size_t dataCapacity = 0;
+
+    for (int32_t i = 0; i < numTags; ++i) {
+        ACameraMetadata_const_entry entry;
+        status = ACameraMetadata_getConstEntry(ndkMetadata, tags[i], &entry);
+        if (status != ACAMERA_OK) {
+            LOG(WARNING) << "Failed to get entry for tag " << tags[i] << ", skipping.";
+            continue;
+        }
+        dataCapacity += calculate_camera_metadata_entry_data_size(entry.type, entry.count);
+    }
+
+    // 2. Allocate the camera_metadata_t
+    camera_metadata_t* rawMetadata = allocate_camera_metadata(entryCapacity, dataCapacity);
     if (!rawMetadata) {
+        LOG(ERROR) << "Failed to allocate camera metadata.";
         return {};
     }
 
-    // Validate the metadata structure before trusting it.
-    if (validate_camera_metadata_structure(rawMetadata, nullptr) != 0) {
-        LOG(ERROR) << "Camera metadata validation failed.";
-        return {};
+    // 3. Populate the camera_metadata_t
+    for (int32_t i = 0; i < numTags; ++i) {
+        ACameraMetadata_const_entry entry;
+        status = ACameraMetadata_getConstEntry(ndkMetadata, tags[i], &entry);
+        if (status == ACAMERA_OK) {
+            int ret = -1;
+            switch (entry.type) {
+                case ACAMERA_TYPE_BYTE:
+                    ret = add_camera_metadata_entry(rawMetadata, entry.tag, entry.data.u8,
+                                                    entry.count);
+                    break;
+                case ACAMERA_TYPE_INT32:
+                    ret = add_camera_metadata_entry(rawMetadata, entry.tag, entry.data.i32,
+                                                    entry.count);
+                    break;
+                case ACAMERA_TYPE_FLOAT:
+                    ret = add_camera_metadata_entry(rawMetadata, entry.tag, entry.data.f,
+                                                    entry.count);
+                    break;
+                case ACAMERA_TYPE_INT64:
+                    ret = add_camera_metadata_entry(rawMetadata, entry.tag, entry.data.i64,
+                                                    entry.count);
+                    break;
+                case ACAMERA_TYPE_DOUBLE:
+                    ret = add_camera_metadata_entry(rawMetadata, entry.tag, entry.data.d,
+                                                    entry.count);
+                    break;
+                case ACAMERA_TYPE_RATIONAL:
+                    ret = add_camera_metadata_entry(rawMetadata, entry.tag, entry.data.r,
+                                                    entry.count);
+                    break;
+                default:
+                    LOG(WARNING) << "Unknown tag type " << entry.type << " for tag " << entry.tag;
+                    continue;
+            }
+            if (ret != 0) {
+                LOG(ERROR) << "Failed to add metadata entry for tag " << entry.tag << ": " << ret;
+                free_camera_metadata(rawMetadata);
+                return {};
+            }
+        }
     }
 
+    // 4. Serialize into vector
     size_t size = get_camera_metadata_size(rawMetadata);
     const uint8_t* data = reinterpret_cast<const uint8_t*>(rawMetadata);
-    return std::vector<uint8_t>(data, data + size);
+    std::vector<uint8_t> result(data, data + size);
+
+    free_camera_metadata(rawMetadata);
+    return result;
 }
 
 int32_t toAImageFormat(PixelFormat format) {
@@ -155,7 +224,16 @@ media_status_t Converter::toBufferDesc(AImage* image, uint32_t bufferId,
         return AMEDIA_ERROR_UNKNOWN;
     }
     outBufferDesc.buffer.handle = std::move(aidlHandle);
-    AHardwareBuffer_release(hardwareBuffer);
+
+    AHardwareBuffer_Desc ahwbDesc;
+    AHardwareBuffer_describe(hardwareBuffer, &ahwbDesc);
+    outBufferDesc.buffer.description.width = ahwbDesc.width;
+    outBufferDesc.buffer.description.height = ahwbDesc.height;
+    outBufferDesc.buffer.description.layers = ahwbDesc.layers;
+    outBufferDesc.buffer.description.format = static_cast<PixelFormat>(ahwbDesc.format);
+    outBufferDesc.buffer.description.usage =
+            static_cast<aidl::android::hardware::graphics::common::BufferUsage>(ahwbDesc.usage);
+    outBufferDesc.buffer.description.stride = ahwbDesc.stride;
 
     int64_t timestamp = 0;
     AImage_getTimestamp(image, &timestamp);

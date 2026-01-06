@@ -29,6 +29,7 @@
 #include <system/camera_metadata.h>
 #include <utils/Mutex.h>
 
+#include <atomic>
 #include <deque>
 #include <set>
 #include <thread>
@@ -108,10 +109,7 @@ public:
         return mStreamState == RUNNING;
     }
 
-    unsigned int getMaxFramesInFlight() const {
-        std::lock_guard<std::mutex> lock(mMutex);
-        return mMaxFramesInFlight;
-    }
+    unsigned int getMaxFramesInFlight() const { return mMaxFramesInFlight; }
 
     void setDescriptor(aidlevs::CameraDesc* desc) { mDesc = desc; }
 
@@ -123,7 +121,7 @@ private:
     ::ndk::ScopedAStatus populateSupportedParametersLocked() REQUIRES(mMutex);
 
     std::unordered_map<std::string, std::weak_ptr<CompatHalCamera>> mHalCameras;
-    unsigned int mMaxFramesInFlight GUARDED_BY(mMutex) = 1;
+    std::atomic<unsigned int> mMaxFramesInFlight = 1;
     enum {
         STOPPED,
         RUNNING,

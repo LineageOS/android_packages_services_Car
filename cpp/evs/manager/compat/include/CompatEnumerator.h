@@ -130,7 +130,9 @@ private:
             GUARDED_BY(mLock);
     std::list<std::weak_ptr<CompatVirtualCamera>> mActiveVirtualCameras GUARDED_BY(mLock);
 
-    std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks;
+    mutable std::mutex mCallbackLock;
+    std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks
+            GUARDED_BY(mCallbackLock);
 };
 
 }  // namespace android::hardware::automotive::evs::compat
