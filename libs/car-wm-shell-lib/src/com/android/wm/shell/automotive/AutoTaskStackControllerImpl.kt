@@ -283,42 +283,42 @@ class AutoTaskStackControllerImpl @Inject constructor(
          * Called when a back press is triggered on the root task, or moveTaskToBack() is called on
          * an activity.
          *
-         * Note: rootTaskStackListener.onBackPressedOnTaskRoot() is always called before
+         * Note: rootTaskStackListener.onBackOnTaskRoot() is always called before
          * rootTaskStackListener.moveRootTaskToBack() is potentially called.
          */
-        override fun onBackPressedOnTaskRoot(
+        override fun onBackOnTaskRoot(
             taskInfo: ActivityManager.RunningTaskInfo?,
-            isFromMoveActivityTaskToBack: Boolean,
+            isFromBackPress: Boolean,
             isOptInOnBackInvoked: Boolean,
             hasOpaqueSibling: Boolean
         ) {
             if (taskInfo == null) {
-                throw IllegalArgumentException("taskInfo can't be null in onBackPressedOnTaskRoot")
+                throw IllegalArgumentException("taskInfo can't be null in onBackOnTaskRoot")
             }
             ProtoLog.d(
                 CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                "onBackPressedOnTaskRoot: task#%d, isFromMoveActivityTaskToBack:%b" +
+                "onBackOnTaskRoot: task#%d, isFromBackPress:%b" +
                         ", hasOpaqueSibling:%b",
                 taskInfo.taskId,
-                isFromMoveActivityTaskToBack,
+                isFromBackPress,
                 hasOpaqueSibling
             )
-            super.onBackPressedOnTaskRoot(
+            super.onBackOnTaskRoot(
                 taskInfo,
-                isFromMoveActivityTaskToBack,
+                isFromBackPress,
                 isOptInOnBackInvoked,
                 hasOpaqueSibling
             )
-            rootTaskStackListener.onBackPressedOnTaskRoot(
+            rootTaskStackListener.onBackOnTaskRoot(
                 taskInfo,
-                isFromMoveActivityTaskToBack,
+                isFromBackPress,
                 isOptInOnBackInvoked,
                 hasOpaqueSibling
             )
-            if (isFromMoveActivityTaskToBack) {
-                handleMoveTaskToBack(taskInfo, hasOpaqueSibling)
-            } else {
+            if (isFromBackPress) {
                 handleBackButtonPress(taskInfo)
+            } else {
+                handleMoveTaskToBack(taskInfo, hasOpaqueSibling)
             }
         }
 
