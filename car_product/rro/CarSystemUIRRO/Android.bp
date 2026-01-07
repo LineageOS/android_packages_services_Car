@@ -28,5 +28,9 @@ android_app {
     },
     static_libs: [
         "car-resource-common",
+        "oem-token-lib",
+    ],
+    libs: [
+        "token-shared-lib-prebuilt",
     ],
 }

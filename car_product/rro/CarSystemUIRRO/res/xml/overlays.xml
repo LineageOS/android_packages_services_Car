@@ -16,7 +16,10 @@
   -->
 
 <overlay>
+    <item target="attr/oemColorOnSurface" value="@attr/oemColorOnSurface" />
     <item target="style/Theme.SystemUI.Dialog" value="@style/Theme.SystemUI.Dialog"/>
+    <item target="style/Keyguard.Bouncer.PrimaryMessage" value="@style/Keyguard.Bouncer.PrimaryMessage"/>
+    <item target="style/Keyguard.Bouncer.SecondaryMessage" value="@style/Keyguard.Bouncer.SecondaryMessage"/>
     <item target="id/auth_credential_input" value="@id/auth_credential_input" />
     <item target="id/cancel_button" value="@id/cancel_button" />
     <item target="id/emergencyCallButton" value="@id/emergencyCallButton" />

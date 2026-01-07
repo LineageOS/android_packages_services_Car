@@ -17,24 +17,14 @@ package com.android.car.evs;
 
 import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
 
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_REARVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_SURROUNDVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONTVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_LEFTVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_RIGHTVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_DRIVERVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONT_PASSENGERSVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_USER_DEFINED;
-
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.FlaggedApi;
-import android.content.ComponentName;
 import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
+import android.content.ComponentName;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.evs.CarEvsUtils;
