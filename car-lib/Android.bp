@@ -317,7 +317,6 @@ droiddoc {
     proofread_file: "ds-sdk-docs-proofrerad.txt",
     // See doclava docs in https://github.com/tinks/doclava.
     // See error numbers in external/doclava/src/com/google/doclava/Errors.java.
-    // TODO(b/163831343): Add -werror -lerror to catch bad javadocs
     flags: [
         "-android -manifest $(location AndroidManifest.xml) -toroot / -devsite -yamlV2 " +
             "-metalavaApiSince -hide 111 -hide 113 -hide 125 -hide 126 -hide 127 -hide 128 " +
