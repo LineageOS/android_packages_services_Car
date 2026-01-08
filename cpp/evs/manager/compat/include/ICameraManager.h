@@ -28,7 +28,8 @@ namespace android::hardware::automotive::evs::compat {
 typedef camera_status_t (*ACameraManager_openSharedCamera_fn)(
         ACameraManager* manager, const char* cameraId, ACameraDevice_StateCallbacks* callback,
         /*out*/ ACameraDevice** device, /*out*/ bool* primaryClient);
-typedef bool (*ACameraManager_isCameraDeviceSharingSupported_fn)(ACameraManager* manager);
+typedef camera_status_t (*ACameraManager_isCameraDeviceSharingSupported_fn)(
+        ACameraManager* manager, const char* cameraId, bool* isSharingSupported);
 
 // Function pointer types for shared camera streaming
 typedef camera_status_t (*ACameraCaptureSessionShared_startStreaming_fn)(

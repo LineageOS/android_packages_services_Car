@@ -1566,63 +1566,66 @@ ScopedAStatus CompatVirtualCamera::startVideoStream(
         int64_t lastFrameTimestamp = -1;
         EvsResult status = EvsResult::OK;
         while (true) {
-            std::unique_lock lock(mMutex);
-            ::android::base::ScopedLockAssertion assume_lock(mMutex);
-            if (mStreamState != RUNNING) {
-                LOG(DEBUG) << "Requested to stop capturing frames";
-                break;
-            }
-
-            unsigned count = 0;
-            for (auto&& [key, hwCamera] : mHalCameras) {
-                std::shared_ptr<CompatHalCamera> halCamera = hwCamera.lock();
-                if (!halCamera) {
-                    LOG(WARNING) << "Invalid camera " << key << " is ignored.";
-                    continue;
-                }
-
-                halCamera->requestNewFrame(ref<CompatVirtualCamera>(), lastFrameTimestamp);
-                mSourceCameras.insert(halCamera->getId());
-                ++count;
-            }
-
-            if (count < 1) {
-                LOG(ERROR) << "No camera is available.";
-                status = EvsResult::RESOURCE_NOT_AVAILABLE;
-                break;
-            }
-
-            if (!mFramesReadySignal.wait_for(lock, kFrameTimeout, [this]() REQUIRES(mMutex) {
-                    return mStreamState != RUNNING || mSourceCameras.empty();
-                })) {
-                LOG(DEBUG) << "Timer for a new frame expires";
-                status = EvsResult::UNDERLYING_SERVICE_ERROR;
-                break;
-            }
-
-            if (mStreamState != RUNNING || !mStream) {
-                LOG(DEBUG) << "Requested to stop capturing frames or lost a client";
-                break;
-            }
-
-            if (mFramesHeld.empty()) {
-                continue;
-            }
-
             std::vector<BufferDesc> frames;
-            frames.resize(count);
-            unsigned i = 0;
-            for (auto&& [key, hwCamera] : mHalCameras) {
-                std::shared_ptr<CompatHalCamera> halCamera = hwCamera.lock();
-                if (!halCamera || mFramesHeld[key].empty()) {
+
+            {
+                std::unique_lock lock(mMutex);
+                ::android::base::ScopedLockAssertion assume_lock(mMutex);
+                if (mStreamState != RUNNING) {
+                    LOG(DEBUG) << "Requested to stop capturing frames";
+                    break;
+                }
+
+                unsigned count = 0;
+                for (auto&& [key, hwCamera] : mHalCameras) {
+                    std::shared_ptr<CompatHalCamera> halCamera = hwCamera.lock();
+                    if (!halCamera) {
+                        LOG(WARNING) << "Invalid camera " << key << " is ignored.";
+                        continue;
+                    }
+
+                    halCamera->requestNewFrame(ref<CompatVirtualCamera>(), lastFrameTimestamp);
+                    mSourceCameras.insert(halCamera->getId());
+                    ++count;
+                }
+
+                if (count < 1) {
+                    LOG(ERROR) << "No camera is available.";
+                    status = EvsResult::RESOURCE_NOT_AVAILABLE;
+                    break;
+                }
+
+                if (!mFramesReadySignal.wait_for(lock, kFrameTimeout, [this]() REQUIRES(mMutex) {
+                        return mStreamState != RUNNING || mSourceCameras.empty();
+                    })) {
+                    LOG(DEBUG) << "Timer for a new frame expires";
+                    status = EvsResult::UNDERLYING_SERVICE_ERROR;
+                    break;
+                }
+
+                if (mStreamState != RUNNING || !mStream) {
+                    LOG(DEBUG) << "Requested to stop capturing frames or lost a client";
+                    break;
+                }
+
+                if (mFramesHeld.empty()) {
                     continue;
                 }
 
-                auto frame = dupBufferDesc(mFramesHeld[key].back(), /* doDup= */ true);
-                if (frame.timestamp > lastFrameTimestamp) {
-                    lastFrameTimestamp = frame.timestamp;
+                frames.resize(count);
+                unsigned i = 0;
+                for (auto&& [key, hwCamera] : mHalCameras) {
+                    std::shared_ptr<CompatHalCamera> halCamera = hwCamera.lock();
+                    if (!halCamera || mFramesHeld[key].empty()) {
+                        continue;
+                    }
+
+                    auto frame = dupBufferDesc(mFramesHeld[key].back(), /* doDup= */ true);
+                    if (frame.timestamp > lastFrameTimestamp) {
+                        lastFrameTimestamp = frame.timestamp;
+                    }
+                    frames[i++] = std::move(frame);
                 }
-                frames[i++] = std::move(frame);
             }
 
             if (!mStream->deliverFrame(frames).isOk()) {

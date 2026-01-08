@@ -1121,7 +1121,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         // Act & Assert
         assertThrows(IllegalArgumentException::class.java) {
-            taskListener.onBackPressedOnTaskRoot(null, false, false, false)
+            taskListener.onBackOnTaskRoot(null, true, false, false)
         }
     }
 
@@ -1137,10 +1137,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         taskListener.onTaskAppeared(childTask, mock(SurfaceControl::class.java))
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTask, false, false, false)
+        taskListener.onBackOnTaskRoot(childTask, true, false, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, false, false, false)
+        verify(rootTaskStackListener).onBackOnTaskRoot(childTask, true, false, false)
         // The implementation calls ActivityManager.getService().removeTask(), which is a static
         // call and hard to mock. We verify that the move-to-back logic is not triggered.
         verify(taskOrganizer, never()).applyTransaction(any())
@@ -1154,10 +1154,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val childTask = TestRunningTaskInfoBuilder().setTaskId(10).setParentTaskId(999).build()
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTask, true, false, false)
+        taskListener.onBackOnTaskRoot(childTask, false, false, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTask, true, false, false)
+        verify(rootTaskStackListener).onBackOnTaskRoot(childTask, false, false, false)
         verify(taskOrganizer, never()).applyTransaction(any())
         verify(rootTaskStackListener).moveRootTaskToBack(childTask)
     }
@@ -1178,10 +1178,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .build()
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true, false, true)
+        taskListener.onBackOnTaskRoot(childTaskToMove, false, false, true)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true, false, true)
+        verify(rootTaskStackListener).onBackOnTaskRoot(childTaskToMove, false, false, true)
         val wctCaptor = argumentCaptor<WindowContainerTransaction>()
         verify(taskOrganizer).applyTransaction(wctCaptor.capture())
         val wct = wctCaptor.firstValue
@@ -1203,10 +1203,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .build()
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true, false, false)
+        taskListener.onBackOnTaskRoot(childTaskToMove, false, false, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true, false, false)
+        verify(rootTaskStackListener).onBackOnTaskRoot(childTaskToMove, false, false, false)
         verify(rootTaskStackListener).moveRootTaskToBack(childTaskToMove)
         verify(taskOrganizer, never()).applyTransaction(any())
     }
@@ -1221,10 +1221,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .build()
 
         // Act
-        taskListener.onBackPressedOnTaskRoot(childTaskToMove, true, false, false)
+        taskListener.onBackOnTaskRoot(childTaskToMove, false, false, false)
 
         // Assert
-        verify(rootTaskStackListener).onBackPressedOnTaskRoot(childTaskToMove, true, false, false)
+        verify(rootTaskStackListener).onBackOnTaskRoot(childTaskToMove, false, false, false)
         verify(rootTaskStackListener).moveRootTaskToBack(childTaskToMove)
         verify(taskOrganizer, never()).applyTransaction(any())
     }

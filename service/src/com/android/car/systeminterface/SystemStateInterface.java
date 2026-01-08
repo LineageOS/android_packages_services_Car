@@ -203,7 +203,7 @@ public interface SystemStateInterface {
 
         @Override
         public void shutdown() {
-            PowerManagerHelper.shutdown(mContext, /* confirm= */ false , /* reason= */ null,
+            PowerManagerHelper.shutdown(mContext, /* confirm= */ false , "CarService",
                     /* wait= */ true);
         }
 
