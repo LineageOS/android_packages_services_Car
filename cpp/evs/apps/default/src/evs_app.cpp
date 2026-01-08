@@ -250,6 +250,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    config.useCompat(useCompat);
     config.useExternalMemory(useExternalMemory);
     config.setExternalMemoryFormat(extMemoryFormat);
 
