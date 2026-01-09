@@ -4111,5 +4111,12 @@
             <intent-filter tools:node="removeAll"/>
         </service>
 
+        <activity
+            android:name="com.android.settings.qstile.QSTileLongPressGatewayActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled" />
+
     </application>
 </manifest>
