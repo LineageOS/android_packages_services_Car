@@ -3632,6 +3632,15 @@
         </receiver>
 
         <receiver
+            android:name="com.android.settings.network.telephony.NetworkChangeNotification"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
             android:name="com.android.settings.bluetooth.BluetoothPermissionRequest"
             android:enabled="false"
             android:exported="false"
