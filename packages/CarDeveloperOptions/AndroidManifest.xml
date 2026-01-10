@@ -2213,8 +2213,7 @@
         <activity
             android:name="com.android.settings.Settings$BillingCycleActivity"
             android:enabled="false"
-	    android:exported="false"
-	    android:featureFlag="com.android.settings.flags.deeplink_network_and_internet_25q4"
+            android:exported="false"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
