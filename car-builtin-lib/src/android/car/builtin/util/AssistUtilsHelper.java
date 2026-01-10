@@ -101,7 +101,7 @@ public final class AssistUtilsHelper {
     }
 
     /**
-     * Shows the {@link android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK}
+     * Shows the {@link android.service.voice.VoiceInteractionSession#SHOW_SOURCE_PUSH_TO_TALK}
      * session for active service, if the assistant component is active for the current user.
      *
      * @return whether the assistant component is active for the current user.
