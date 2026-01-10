@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.graphics.Bitmap;
@@ -34,45 +35,52 @@ import androidx.test.runner.AndroidJUnit4;
 import com.android.settingslib.drawable.UserIconDrawable;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /** Unit tests for {@link UserAvatarView}. */
 @RunWith(AndroidJUnit4.class)
 public final class UserAvatarViewTest {
+
+    private static final long TIMEOUT_MS = 5_000;
+
     @Rule
     public ActivityScenarioRule<CarAdminUiTestActivity> mActivityScenarioRule =
             new ActivityScenarioRule<>(CarAdminUiTestActivity.class);
 
+    private Activity mActivity;
     private UserAvatarView mUserAvatarView;
     private DevicePolicyManager mMockDevicePolicyManager;
 
     @Before
     public void setup() {
         mActivityScenarioRule.getScenario().onActivity(activity -> {
+            mActivity = activity;
             mUserAvatarView = ((CarAdminUiTestActivity) activity).mUserAvatarView;
             mMockDevicePolicyManager = ((CarAdminUiTestActivity) activity).mMockDevicePolicyManager;
         });
     }
 
     @Test
-    public void setAvatar() {
+    public void setAvatar() throws Exception {
         Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 
-        mUserAvatarView.setAvatar(bitmap);
+        runOnUiThreadAndWait(() -> mUserAvatarView.setAvatar(bitmap));
 
         assertThat(mUserAvatarView.getUserIconDrawable().getUserIcon()).isEqualTo(bitmap);
         assertThat(mUserAvatarView.getUserIconDrawable().getBadge()).isNull();
     }
 
-    @Ignore("b/469589365: Need more time to fix the issue")
     @Test
-    public void setAvatarWithBadge_success() {
+    public void setAvatarWithBadge_success() throws Exception {
         Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 
-        mUserAvatarView.setAvatarWithBadge(bitmap, ActivityManager.getCurrentUser());
+        runOnUiThreadAndWait(() ->
+                mUserAvatarView.setAvatarWithBadge(bitmap, ActivityManager.getCurrentUser()));
 
         assertThat(mUserAvatarView.getUserIconDrawable().getUserIcon()).isEqualTo(bitmap);
         verify(mMockDevicePolicyManager).getProfileOwnerAsUser(ActivityManager.getCurrentUser());
@@ -81,16 +89,16 @@ public final class UserAvatarViewTest {
     }
 
     @Test
-    public void setDrawable_userIconDrawable_throwsError() {
+    public void setDrawable_userIconDrawable_throwsError() throws Exception {
         assertThrows(IllegalArgumentException.class,
                 () -> mUserAvatarView.setDrawable(new UserIconDrawable()));
     }
 
     @Test
-    public void setDrawable_success() {
+    public void setDrawable_success() throws Exception {
         Drawable d = new ShapeDrawable(new OvalShape());
 
-        mUserAvatarView.setDrawable(d);
+        runOnUiThreadAndWait(() -> mUserAvatarView.setDrawable(d));
 
         assertThat(mUserAvatarView.getUserIconDrawable().getUserDrawable()).isEqualTo(d);
     }
@@ -103,10 +111,11 @@ public final class UserAvatarViewTest {
     }
 
     @Test
-    public void setDrawableWithBadgeAndUserId_success() {
+    public void setDrawableWithBadgeAndUserId_success() throws Exception {
         Drawable d = new ShapeDrawable(new OvalShape());
 
-        mUserAvatarView.setDrawableWithBadge(d, ActivityManager.getCurrentUser());
+        runOnUiThreadAndWait(() ->
+                mUserAvatarView.setDrawableWithBadge(d, ActivityManager.getCurrentUser()));
 
         verify(mMockDevicePolicyManager).getProfileOwnerAsUser(ActivityManager.getCurrentUser());
         // mBadge still remains null because of unmanaged user.
@@ -120,10 +129,10 @@ public final class UserAvatarViewTest {
     }
 
     @Test
-    public void setDrawableWithBadge_success() {
+    public void setDrawableWithBadge_success() throws Exception {
         Drawable d = new ShapeDrawable(new OvalShape());
 
-        mUserAvatarView.setDrawableWithBadge(d);
+        runOnUiThreadAndWait(() -> mUserAvatarView.setDrawableWithBadge(d));
 
         verify(mMockDevicePolicyManager).getDeviceOwnerComponentOnAnyUser();
         // mBadge still remains null because of unmanaged user.
@@ -137,9 +146,21 @@ public final class UserAvatarViewTest {
     }
 
     @Test
-    public void setActivated_invalidatesUserIcon() {
-        mUserAvatarView.setActivated(true);
+    public void setActivated_invalidatesUserIcon() throws Exception {
+        runOnUiThreadAndWait(() -> mUserAvatarView.setActivated(true));
 
         assertThat(mUserAvatarView.getUserIconDrawable().isInvalidated()).isTrue();
     }
+
+    private void runOnUiThreadAndWait(Runnable runnable) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        mActivity.runOnUiThread(() -> {
+            runnable.run();
+            latch.countDown();
+        });
+
+        latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    }
 }
+
