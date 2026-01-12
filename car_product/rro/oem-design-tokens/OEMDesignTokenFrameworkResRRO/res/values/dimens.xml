@@ -51,29 +51,11 @@
     <!-- The top padding for the notification expand button. -->
     <dimen name="notification_expand_button_padding_top">0dp</dimen>
 
-    <!-- The end margin after the application icon in the notification header -->
-    <dimen name="notification_header_icon_margin_end">10dp</dimen>
-
-    <!-- The absolute size of the application icon in the notification header. -->
-    <dimen name="notification_header_icon_size">24dp</dimen>
-
     <!-- The margins before and after each of the items in the notification header.-->
     <dimen name="notification_header_separating_margin">6dp</dimen>
 
     <!-- The margins before the start of the app name in the header. -->
     <dimen name="notification_header_app_name_margin_start">@*android:dimen/notification_header_separating_margin</dimen>
-
-    <!-- The padding at the top of the notification header. -->
-    <dimen name="notification_header_padding_top">0dp</dimen>
-
-    <!-- The padding at the bottom of the notification header. -->
-    <dimen name="notification_header_padding_bottom">0dp</dimen>
-
-    <!-- The margin at the bottom of the notification header. -->
-    <dimen name="notification_header_margin_bottom">0dp</dimen>
-
-    <!-- The absolute height for the header in a media notification. -->
-    <dimen name="media_notification_header_height">@*android:dimen/media_notification_header_height</dimen>
 
     <!-- Top margin to accommodate for the header before the notification content. This value
          is 8dp smaller than the notification_header_height to bring the text closer. Otherwise,
@@ -88,7 +70,7 @@
 
     <!-- The margin on the end of the content view. Keep in sync with
          notification_content_plus_picture_margin! -->
-    <dimen name="notification_content_margin_end">@*android:dimen/notification_content_margin_start</dimen>
+    <dimen name="notification_content_margin_end">52dp</dimen>
 
     <!-- The margin on the end of the content view with a picture. This value is the size of
          the right icon (64dp) + notification_content_margin_end + 16dp. -->
