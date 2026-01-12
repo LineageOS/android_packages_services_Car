@@ -22,7 +22,7 @@
 #include "PackageInfoResolver.h"
 #include "ServiceManager.h"
 
-#include <WatchdogProperties.sysprop.h>
+#include <LegacyWatchdogProperties.sysprop.h>
 #include <aidl/android/automotive/watchdog/IResourceOveruseListener.h>
 #include <aidl/android/automotive/watchdog/ResourceOveruseStats.h>
 #include <aidl/android/automotive/watchdog/internal/PackageIdentifier.h>
