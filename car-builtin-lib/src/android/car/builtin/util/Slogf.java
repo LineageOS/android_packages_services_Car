@@ -134,7 +134,7 @@ public final class Slogf {
     }
 
     /**
-     * Logs a {@link Log.VERBOSE} message.
+     * Logs a {@link Log#VERBOSE} message.
      * <p>
      * <strong>Note: </strong>the message will only be formatted if {@link Log#VERBOSE} logging is
      * enabled for the given {@code tag}, but the compiler will still create an intermediate array
@@ -149,7 +149,7 @@ public final class Slogf {
     }
 
     /**
-     * Logs a {@link Log.DEBUG} message.
+     * Logs a {@link Log#DEBUG} message.
      * <p>
      * <strong>Note: </strong>the message will only be formatted if {@link Log#DEBUG} logging is
      * enabled for the given {@code tag}, but the compiler will still create an intermediate array
@@ -164,7 +164,7 @@ public final class Slogf {
     }
 
     /**
-     * Logs a {@link Log.INFO} message.
+     * Logs a {@link Log#INFO} message.
      * <p>
      * <strong>Note: </strong>the message will only be formatted if {@link Log#INFO} logging is
      * enabled for the given {@code tag}, but the compiler will still create an intermediate array
@@ -179,7 +179,7 @@ public final class Slogf {
     }
 
     /**
-     * Logs a {@link Log.WARN} message.
+     * Logs a {@link Log#WARN} message.
      * <p>
      * <strong>Note: </strong>the message will only be formatted if {@link Log#WARN} logging is
      * enabled for the given {@code tag}, but the compiler will still create an intermediate array
@@ -194,7 +194,7 @@ public final class Slogf {
     }
 
     /**
-     * Logs a {@link Log.WARN} message with an exception
+     * Logs a {@link Log#WARN} message with an exception
      * <p>
      * <strong>Note: </strong>the message will only be formatted if {@link Log#WARN} logging is
      * enabled for the given {@code tag}, but the compiler will still create an intermediate array
@@ -210,7 +210,7 @@ public final class Slogf {
     }
 
     /**
-     * Logs a {@link Log.ERROR} message.
+     * Logs a {@link Log#ERROR} message.
      * <p>
      * <strong>Note: </strong>the message will only be formatted if {@link Log#ERROR} logging is
      * enabled for the given {@code tag}, but the compiler will still create an intermediate array
@@ -225,7 +225,7 @@ public final class Slogf {
     }
 
     /**
-     * Logs a {@link Log.ERROR} message with an exception
+     * Logs a {@link Log#ERROR} message with an exception
      * <p>
      * <strong>Note: </strong>the message will only be formatted if {@link Log#ERROR} logging is
      * enabled for the given {@code tag}, but the compiler will still create an intermediate array

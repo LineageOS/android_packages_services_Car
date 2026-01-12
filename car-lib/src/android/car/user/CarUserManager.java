@@ -492,7 +492,7 @@ public final class CarUserManager extends CarManagerBase {
 
     /**
      * Switches the foreground user to the given user. Ignores UX Restrictions regarding user
-     * switching or {@link CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP}.
+     * switching or {@link CarUxRestrictions#UX_RESTRICTIONS_NO_SETUP}.
      *
      * @param userSwitchRequest contains target user.
      * @param executor to execute the callback.

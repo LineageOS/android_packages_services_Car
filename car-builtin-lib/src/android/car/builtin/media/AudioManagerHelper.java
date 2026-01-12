@@ -292,8 +292,7 @@ public final class AudioManagerHelper {
     }
 
     /**
-     * Returns {@link android.media.AudioAttributes.AttributeUsage} for
-     * {@link android.media.AudioAttributes.AttributeUsage.USAGE_VIRTUAL_SOURCE}.
+     * Returns {@link android.media.AudioAttributes#USAGE_VIRTUAL_SOURCE}.
      */
     public static int getUsageVirtualSource() {
         return USAGE_VIRTUAL_SOURCE;

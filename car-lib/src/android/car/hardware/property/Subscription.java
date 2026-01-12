@@ -170,7 +170,7 @@ public final class Subscription {
          * {@link CarPropertyConfig#getMaxSampleRate}.
          *
          * <p>For better system performance, it is recommended to set this to the smallest
-         * reasonable value, e.g. {@link CarPropertyManager.SENSOR_RATE_NORMAL}.
+         * reasonable value, e.g. {@link CarPropertyManager#SENSOR_RATE_NORMAL}.
          *
          * @param updateRateHz The update rate to set for the given builder
          * @return The original Builder object. This value cannot be {@code null}.
