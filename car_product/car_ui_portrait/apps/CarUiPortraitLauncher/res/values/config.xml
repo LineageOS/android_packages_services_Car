@@ -48,11 +48,6 @@
         <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
     </string-array>
 
-    <!-- A list of package names that provide the cards to display on the home screen -->
-    <string-array name="config_homeCardModuleClasses" translatable="false">
-        <item>com.android.car.portraitlauncher.controlbar.ControlBarModule</item>
-    </string-array>
-
     <!--
      A list of all the apps that are meant to stay in full-screen.
     -->
