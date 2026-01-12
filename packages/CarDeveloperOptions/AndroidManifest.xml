@@ -2429,7 +2429,6 @@
             android:name="com.android.settings.Settings$VibrationSettingsActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.deeplink_sound_and_vibration_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -2439,7 +2438,6 @@
             android:name="com.android.settings.Settings$VibrationIntensitySettingsActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.deeplink_sound_and_vibration_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
