@@ -99,22 +99,50 @@ bool RenderDirectView::activate() {
                                             mCameraDesc.metadata.data()),
                                     ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS, &streamCfgs)) {
         // Stream configurations are found in metadata
-        RawStreamConfig* ptr = reinterpret_cast<RawStreamConfig*>(streamCfgs.data.i32);
-        for (unsigned idx = 0; idx < streamCfgs.count; idx += kStreamCfgSz) {
-            if (ptr->direction == ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT &&
-                ptr->format == HAL_PIXEL_FORMAT_RGBA_8888) {
-                if (ptr->framerate >= minReqFps && ptr->width * ptr->height > maxArea) {
-                    targetCfg->id = ptr->id;
-                    targetCfg->width = ptr->width;
-                    targetCfg->height = ptr->height;
-                    targetCfg->format = static_cast<PixelFormat>(ptr->format);
+        if (mConfig.getUseCompat()) {
+            const int32_t* ptr = streamCfgs.data.i32;
+            const size_t stride = 4;  // Format, Width, Height, Direction
+            for (size_t idx = 0; idx < streamCfgs.count; idx += stride) {
+                int32_t format = ptr[idx];
+                int32_t width = ptr[idx + 1];
+                int32_t height = ptr[idx + 2];
+                int32_t direction = ptr[idx + 3];
 
-                    maxArea = ptr->width * ptr->height;
+                if (direction == ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT &&
+                    format == HAL_PIXEL_FORMAT_RGBA_8888) {
+                    // TODO(b/471293801): Replace hardcoded resolution logic with highest common
+                    // denominator resolution across camera2 HAL (EvsCameraService) and EVS HAL
+                    // (EvsDisplayService).
+                    if (width <= 1920 && height <= 1080 && width * height > maxArea) {
+                        targetCfg->id = static_cast<int32_t>(idx / stride);
+                        targetCfg->width = width;
+                        targetCfg->height = height;
+                        targetCfg->format = static_cast<PixelFormat>(format);
 
-                    foundCfg = true;
+                        maxArea = width * height;
+
+                        foundCfg = true;
+                    }
                 }
             }
-            ++ptr;
+        } else {
+            RawStreamConfig* ptr = reinterpret_cast<RawStreamConfig*>(streamCfgs.data.i32);
+            for (unsigned idx = 0; idx < streamCfgs.count; idx += kStreamCfgSz) {
+                if (ptr->direction == ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT &&
+                    ptr->format == HAL_PIXEL_FORMAT_RGBA_8888) {
+                    if (ptr->framerate >= minReqFps && ptr->width * ptr->height > maxArea) {
+                        targetCfg->id = ptr->id;
+                        targetCfg->width = ptr->width;
+                        targetCfg->height = ptr->height;
+                        targetCfg->format = static_cast<PixelFormat>(ptr->format);
+
+                        maxArea = ptr->width * ptr->height;
+
+                        foundCfg = true;
+                    }
+                }
+                ++ptr;
+            }
         }
     }
 
