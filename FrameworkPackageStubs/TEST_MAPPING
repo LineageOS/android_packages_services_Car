@@ -13,6 +13,14 @@
       ]
     },
     {
+      "name": "CtsInstantAppsHostTestCases",
+      "options": [
+        {
+          "include-filter": "android.appsecurity.cts.EphemeralTest#testExposedSystemActivities"
+        }
+      ]
+    },
+    {
       "name": "android.content.cts.AvailableIntentsTest"
     },
     {
