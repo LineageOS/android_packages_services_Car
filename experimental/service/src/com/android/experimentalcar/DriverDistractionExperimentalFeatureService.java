@@ -372,7 +372,6 @@ public final class DriverDistractionExperimentalFeatureService extends
         if (!mContext.bindServiceAsUser(intent, connection,
                 Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT, UserHandle.SYSTEM)) {
             Log.e(TAG, "Unable to bind with intent: " + intent);
-            // TODO(b/146471650) attempt to rebind
         }
     }
 
@@ -786,7 +785,6 @@ public final class DriverDistractionExperimentalFeatureService extends
         public void onServiceDisconnected(ComponentName name) {
             logd("onServiceDisconnected, name: " + name);
             removeDriverAwarenessSupplier(name);
-            // TODO(b/146471650) rebind to driver awareness suppliers on service disconnect
         }
     }
 

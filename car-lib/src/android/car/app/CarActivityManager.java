@@ -331,7 +331,7 @@ public final class CarActivityManager extends CarManagerBase {
      * Returns all the visible tasks in the given display. The order is not guaranteed.
      *
      * @param displayId the id of {@link Display} to retrieve the tasks,
-     *         {@link Display.INVALID_DISPLAY} to retrieve the tasks in the all displays.
+     *         {@link Display#INVALID_DISPLAY} to retrieve the tasks in the all displays.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @NonNull

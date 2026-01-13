@@ -139,8 +139,8 @@ genrule {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tests
-// TODO(b/206829268):  This target should allow for host supported testing, but
-// currently has platform specific dependencies.
+// These tests are not host-supported because they have platform-specific
+// dependencies. See b/206829268 for context.
 ////////////////////////////////////////////////////////////////////////////////
 cc_test {
     name: "EvsEnumeratorTest",
@@ -151,7 +151,6 @@ cc_test {
     ],
     defaults: ["android.automotive.evs.manager_defaults"],
 
-    // TODO(b/206829268):  See above.
     // host_supported: true,
 }
 

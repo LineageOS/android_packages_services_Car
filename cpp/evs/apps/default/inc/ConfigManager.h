@@ -80,6 +80,8 @@ public:
     float carGraphicRearPixel() const { return mCarGraphicRearPixel; };
 
     const std::vector<CameraInfo>& getCameras() const { return mCameras; };
+    void useCompat(bool flag) { mUseCompat = flag; }
+    bool getUseCompat() const { return mUseCompat; }
 
     int setActiveDisplayId(int displayId) {
         if (displayId == -1) {
@@ -115,6 +117,7 @@ public:
 private:
     // Camera information
     std::vector<CameraInfo> mCameras;
+    bool mUseCompat = false;
 
     // Display information
     std::vector<DisplayInfo> mDisplays;

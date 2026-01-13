@@ -145,6 +145,15 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity android:name="com.android.settings.safetycenter.ui.SafetyCenterQsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.enable_safety_center_quick_settings"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity android:name="com.android.settings.Settings$AirplaneModeSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2213,8 +2222,7 @@
         <activity
             android:name="com.android.settings.Settings$BillingCycleActivity"
             android:enabled="false"
-	    android:exported="false"
-	    android:featureFlag="com.android.settings.flags.deeplink_network_and_internet_25q4"
+            android:exported="false"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -4108,6 +4116,13 @@
             tools:replace="android:exported,android:enabled">
             <intent-filter tools:node="removeAll"/>
         </service>
+
+        <activity
+            android:name="com.android.settings.qstile.QSTileLongPressGatewayActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled" />
 
     </application>
 </manifest>

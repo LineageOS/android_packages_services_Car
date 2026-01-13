@@ -272,8 +272,7 @@ bool EvsStateControl::selectStateForCurrentConditions() {
         static std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
         if (std::chrono::duration_cast<std::chrono::seconds>(now - start).count() > kShowTime) {
-            // Switch to drive (which should turn off the reverse camera)
-            sMockGear = int32_t(VehicleGear::GEAR_DRIVE);
+            sMockGear = int32_t(VehicleGear::GEAR_PARK);
         }
 
         // Build the placeholder vehicle state values (treating single values as 1 element vectors)
