@@ -25,26 +25,4 @@
     <style name="CalmModeText.MediaTitle">
         <item name="android:maxWidth">800dp</item>
     </style>
-    <style name="ControlBarCustomActionStyle">
-        <item name="android:tint">?oemColorOnSurfaceVariant</item>
-        <item name="android:scaleType">fitCenter</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:visibility">gone</item>
-    </style>
-    <style name="ControlBarOverflowButtonStyle">
-        <item name="android:tint">?oemColorOnSurfaceVariant</item>
-        <item name="android:scaleType">fitCenter</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:visibility">gone</item>
-    </style>
-    <style name="ControlBarCustomActionOverflowStyle" parent="ControlBarCustomActionStyle">
-        <item name="android:tint">?oemColorSurfaceContainerHighest</item>
-    </style>
-    <style name="ControlBarOverflowExitButtonStyle" parent="ControlBarCustomActionStyle">
-        <item name="android:tint">?oemColorSurfaceContainerHighest</item>
-    </style>
-    <style name="ControlBarActivityTheme" parent="Theme.CarUi.NoToolbar">
-        <item name="oemTokenOverrideEnabled">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-    </style>
 </resources>

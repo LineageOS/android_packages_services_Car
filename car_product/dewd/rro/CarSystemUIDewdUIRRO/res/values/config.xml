@@ -47,7 +47,7 @@
     <string-array name="config_default_activities" translatable="false">
         <!-- <item>app_grid_panel;com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity</item>
         <item>map_panel;com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</item>
-        <item>widget_panel;com.android.car.portraitlauncher/.controlbar.ControlBarActivity</item> -->
+        <item>widget_panel;com.android.car.portraitlauncher/com.android.car.carlauncher.ControlBarActivity</item> -->
     </string-array>
 
     <!-- Setup and add safe area and toolbar per display on for Display Compat apps . -->
