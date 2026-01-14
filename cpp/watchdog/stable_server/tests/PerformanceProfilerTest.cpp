@@ -21,7 +21,7 @@
 #include "PackageInfoTestUtils.h"
 #include "PerformanceProfiler.h"
 
-#include <WatchdogProperties.sysprop.h>
+#include <LegacyWatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <gmock/gmock.h>
 #include <utils/RefBase.h>

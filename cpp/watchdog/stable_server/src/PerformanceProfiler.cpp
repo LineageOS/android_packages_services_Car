@@ -20,7 +20,7 @@
 
 #include "ServiceManager.h"
 
-#include <WatchdogProperties.sysprop.h>
+#include <LegacyWatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
 #include <android/util/ProtoOutputStream.h>

@@ -15,17 +15,6 @@
 -->
 
 <resources>
-    <!-- The style for the container of media actions in a notification. -->
-    <style name="NotificationMediaActionContainer">
-        <item name="android:background">@*android:color/notification_action_list</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@*android:dimen/notification_action_list_height</item>
-        <item name="android:layout_marginTop">0dp</item>
-        <item name="android:paddingStart">0dp</item>
-        <item name="android:paddingBottom">@*android:dimen/media_notification_actions_padding_bottom</item>
-        <item name="android:gravity">center</item>
-    </style>
-
     <style name="CarDialogActionButton" parent="Widget.DeviceDefault.Button" >
         <item name="android:minWidth">237dp</item>
     </style>
