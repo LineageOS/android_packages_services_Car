@@ -116,7 +116,12 @@ interface ICarActivityService {
     void onRootTaskVanished(int taskId);
 
     /**
-    * Reports that a Root Task is created.
+    * Reports that a Root Task object is created.
+    */
+    void onRootTaskCreated(String name, in RunningTaskInfo taskInfo, in IBinder token);
+
+    /**
+    * Reports that a Root Task has appeared.
     */
     void onRootTaskAppeared(String name, in RunningTaskInfo taskInfo, IBinder rootTaskToken);
 

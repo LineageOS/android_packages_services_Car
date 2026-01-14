@@ -23,6 +23,7 @@ import static com.android.car.internal.common.CommonConstants.INVALID_PID;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.car.app.CarActivityManager;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -204,6 +205,18 @@ public final class CarServiceHelperWrapper {
     public void setLaunchBehaviorForRootTask(IBinder rootTaskToken, int behavior) {
         try {
             waitForCarServiceHelper().setLaunchBehaviorForRootTask(rootTaskToken, behavior);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
+    }
+
+    /**
+     * See {@code ICarServiceHelper}.
+     */
+    public void onRootTaskCreated(String name, ActivityManager.RunningTaskInfo taskInfo,
+            IBinder token) {
+        try {
+            waitForCarServiceHelper().onRootTaskCreated(name, taskInfo, token);
         } catch (RemoteException e) {
             Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
         }

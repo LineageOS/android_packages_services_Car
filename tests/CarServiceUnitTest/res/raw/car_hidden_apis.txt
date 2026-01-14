@@ -165,6 +165,7 @@ android.car.app CarActivityManager int LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TAS
 android.car.app CarActivityManager int LAUNCH_BEHAVIOR_REPARENT_TO_SOURCE_ROOT_TASK
 android.car.app CarActivityManager void onCarDisconnected()
 android.car.app CarActivityManager void onRootTaskAppeared(String name, ActivityManager.RunningTaskInfo taskInfo, IBinder rootTaskToken)
+android.car.app CarActivityManager void onRootTaskCreated(String name, ActivityManager.RunningTaskInfo taskInfo, IBinder token)
 android.car.app CarActivityManager void onRootTaskVanished(int taskId)
 android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash)

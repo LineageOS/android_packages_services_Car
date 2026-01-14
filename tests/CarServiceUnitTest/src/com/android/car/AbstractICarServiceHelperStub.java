@@ -20,6 +20,7 @@ import static com.android.car.internal.common.CommonConstants.INVALID_PID;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.os.IBinder;
@@ -171,6 +172,12 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     public void setDensityScaleFactor(@NonNull String packageName, @UserIdInt int userId,
             int displayId, float densityScaleFactor) {
         // no-op
+    }
+
+    @Override
+    public void onRootTaskCreated(String name, ActivityManager.RunningTaskInfo taskInfo,
+            IBinder rootTaskToken) {
+        Log.d(TAG, "onRootTaskCreated for root task " + name);
     }
 
     @Override
