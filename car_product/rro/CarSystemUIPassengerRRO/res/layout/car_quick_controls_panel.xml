@@ -88,7 +88,7 @@
                         android:layout_height="match_parent"
                         android:layout_marginHorizontal="@dimen/car_padding_1"
                         android:layout_gravity="center"
-                        systemui:controller="com.android.systemui.car.statusicon.ui.WifiSignalStatusIconController"/>
+                        systemui:controller="com.android.systemui.car.statusicon.wifi.WifiSignalStatusIconController"/>
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
