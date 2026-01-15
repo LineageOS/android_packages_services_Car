@@ -567,7 +567,21 @@ public final class CarActivityManager extends CarManagerBase {
     }
 
     /**
-     * Updates CarService that a rootTask is added.
+     * Updates CarService that a rootTask is created.
+     *
+     * @hide
+     */
+    public void onRootTaskCreated(String name, ActivityManager.RunningTaskInfo taskInfo,
+            IBinder token) {
+        try {
+            mService.onRootTaskCreated(name, taskInfo, token);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Updates CarService that a rootTask is appeared.
      *
      * @hide
      */

@@ -49,6 +49,7 @@ java_aconfig_library {
     name: "android.car.feature-aconfig-java",
     aconfig_declarations: "android.car.feature-aconfig",
     defaults: ["car-framework-aconfig-java-defaults"],
+    preserve_legacy_impl_interface: true,
     visibility: [
         "//cts/tests:__subpackages__",
         "//packages/services/Car:__subpackages__",

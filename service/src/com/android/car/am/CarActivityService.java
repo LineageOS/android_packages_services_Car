@@ -427,6 +427,15 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     @Override
+    public void onRootTaskCreated(String name, ActivityManager.RunningTaskInfo taskInfo,
+            IBinder rootTaskToken) {
+        synchronized (mLock) {
+            mRootTaskMap.put(taskInfo.taskId, new RootTaskInfo(name, taskInfo, rootTaskToken));
+        }
+        CarServiceHelperWrapper.getInstance().onRootTaskCreated(name, taskInfo, rootTaskToken);
+    }
+
+    @Override
     public void onRootTaskAppeared(String name, ActivityManager.RunningTaskInfo taskInfo,
             IBinder rootTaskToken) {
         synchronized (mLock) {
