@@ -24,11 +24,17 @@ import java.util.UUID;
  * Defines logging groups for ProtoLog.
  * <p>This file is used by the ProtoLogTool to generate optimized logging code. All of its
  * dependencies must be included in services.core.wm.protologgroups build target.
+ *
+ * <p>Note: For proto logging to function correctly, classes must be initialized through the
+ * {@link AutoShellModule}. This is because the proto logging initialization for `car-wm-shell`
+ * occurs as part of the `AutoShellModule` setup, which happens *after* SystemUI's own
+ * initialization. Consequently, classes instantiated directly by SystemUI that attempt to use
+ * these proto log groups may produce "garbage" or incorrect log outputs due to uninitialized
+ * logging infrastructure.
  */
 public enum CarWmShellProtoLogGroups implements IProtoLogGroup {
 
     CAR_WM_SHELL(Consts.ENABLE_DEBUG, true, Consts.TAG_CAR_WM_SHELL),
-    CAR_WM_SHELL_CAPTION_CONTROLLER(Consts.ENABLE_DEBUG, false, Consts.TAG_AUTO_CAPTION_CONTROLLER),
     CAR_WM_SHELL_DECOR(Consts.ENABLE_DEBUG, false, Consts.TAG_AUTO_DECOR),
     CAR_WM_SHELL_TASK_STACK_CONTROLLER(Consts.ENABLE_DEBUG, true,
             Consts.TAG_AUTO_TASK_STACK_CONTROLLER),
@@ -76,8 +82,7 @@ public enum CarWmShellProtoLogGroups implements IProtoLogGroup {
     }
 
     private static class Consts {
-        private static final String TAG_CAR_WM_SHELL = "CarWmShell";
-        private static final String TAG_AUTO_CAPTION_CONTROLLER = "AutoCaptionController";
+        private static final String TAG_CAR_WM_SHELL = "AutoWmShell";
         private static final String TAG_AUTO_DECOR = "AutoDecor";
         private static final String TAG_AUTO_TASK_STACK_CONTROLLER = "AutoTaskStackController";
 

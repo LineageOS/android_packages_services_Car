@@ -66,6 +66,9 @@ public class AutoTaskRepository {
     private final SparseArray<Pair<ActivityManager.RunningTaskInfo, SurfaceControl>>
             mPendingTasks = new SparseArray<>();
 
+    private final SparseArray<ActivityManager.RunningTaskInfo> mRunningTasks =
+            new SparseArray<>();
+
     /**
      * Map of task id to task info for tasks that are not part of any root task.
      */
@@ -212,6 +215,10 @@ public class AutoTaskRepository {
         return new ArrayList<>(mAppTasksWithNoRootTaskParent.values());
     }
 
+    SparseArray<ActivityManager.RunningTaskInfo> getRunningTasks() {
+        return mRunningTasks;
+    }
+
     void addOrUpdateTask(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo taskInfo,
             SurfaceControl surfaceControl) {
         RootTaskStackInfo rootTaskStackInfo = mRootTaskStacks.get(rootTaskStack.getId());
@@ -227,6 +234,7 @@ public class AutoTaskRepository {
         rootTaskStackInfo.removeTask(taskInfo.taskId);
         rootTaskStackInfo.addOrUpdateTask(taskInfo.taskId, taskInfo);
         mSurfaceControlMap.append(taskInfo.taskId, surfaceControl);
+        mRunningTasks.put(taskInfo.taskId, taskInfo);
     }
 
     void removeTask(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo taskInfo) {
@@ -242,6 +250,7 @@ public class AutoTaskRepository {
 
         rootTaskStackInfo.removeTask(taskInfo.taskId);
         mSurfaceControlMap.remove(taskInfo.taskId);
+        mRunningTasks.remove(taskInfo.taskId);
     }
 
     /**
@@ -284,6 +293,8 @@ public class AutoTaskRepository {
         } else {
             mPendingRootTasks.put(rootTaskStack.getRootTaskInfo().taskId, rootTaskStack);
         }
+        mRunningTasks.put(rootTaskStack.getRootTaskInfo().taskId,
+                rootTaskStack.getRootTaskInfo());
     }
 
     /**
@@ -304,6 +315,7 @@ public class AutoTaskRepository {
             mPendingRootTasks.remove(rootTaskStack.getRootTaskInfo().taskId);
         }
         mSurfaceControlMap.remove(rootTaskStack.getRootTaskInfo().taskId);
+        mRunningTasks.remove(rootTaskStack.getRootTaskInfo().taskId);
     }
 
     /**
@@ -396,6 +408,7 @@ public class AutoTaskRepository {
         }
         mAppTasksWithNoRootTaskParent.put(task.taskId, task);
         mSurfaceControlMap.put(task.taskId, leash);
+        mRunningTasks.put(task.taskId, task);
 
         if (mIsCarReady) {
             mCarActivityManager.onTaskAppeared(task, leash);
@@ -421,6 +434,7 @@ public class AutoTaskRepository {
 
         mAppTasksWithNoRootTaskParent.remove(task.taskId);
         mAppTasksWithNoRootTaskParent.put(task.taskId, task);
+        mRunningTasks.put(task.taskId, task);
 
         if (mIsCarReady) {
             mCarActivityManager.onTaskInfoChanged(task);
@@ -447,6 +461,7 @@ public class AutoTaskRepository {
 
         mAppTasksWithNoRootTaskParent.remove(task.taskId);
         mSurfaceControlMap.remove(task.taskId);
+        mRunningTasks.remove(task.taskId);
 
         if (mIsCarReady) {
             mCarActivityManager.onTaskVanished(task);
