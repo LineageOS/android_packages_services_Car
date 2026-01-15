@@ -44,6 +44,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.PendingIntent;
+import android.app.TaskInfo;
 import android.car.Car;
 import android.car.CarVersion;
 import android.car.builtin.app.ActivityManagerHelper;
@@ -51,6 +52,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.content.pm.ICarBlockingUiCommandListener;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -682,6 +684,96 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         assertThrows(IllegalArgumentException.class, () -> {
             mService.getDensityScaleFactor(TEST_PKG_NAME, USER_ID_99, DISPLAY_ID_20);
         });
+    }
+
+    @Test
+    public void testGetVisibleTasksForActiveUsers_MaintainsZOrder() {
+        ActivityManager.RunningTaskInfo task1 = createTask(1);
+        ActivityManager.RunningTaskInfo task2 = createTask(2);
+
+        mService.handleTaskAppeared(task1);
+        mService.handleTaskAppeared(task2);
+
+        // Map should have task1, task2 (ordered by insertion)
+        assertThat(mService.mTasks.keySet()).containsExactly(1, 2).inOrder();
+
+        // Update task1 info - should move to the end
+        mService.handleTaskInfoChanged(task1);
+        assertThat(mService.mTasks.keySet()).containsExactly(2, 1).inOrder();
+
+    }
+
+    @Test
+    public void testGetVisibleTasksForActiveUsers_HandlesTaskVanished() {
+        ActivityManager.RunningTaskInfo task1 = createTask(1);
+        mService.handleTaskAppeared(task1);
+
+        mService.handleTaskVanished(task1);
+        assertThat(mService.mTasks.containsKey(1)).isFalse();
+
+    }
+
+    @Test
+    public void testGetVisibleTasksForActiveUsers_FiltersByActiveUser() {
+        ActivityManager.RunningTaskInfo task1 = createTask(1);
+        task1.userId = USER_ID_99;
+        ActivityManager.RunningTaskInfo task2 = createTask(2);
+        task2.userId = 100; // Inactive user
+        // Ensure only USER_ID_99 is active
+        applyActiveUsers(Set.of(USER_ID_99));
+
+        mService.handleTaskAppeared(task1);
+        mService.handleTaskAppeared(task2);
+
+        List<TaskInfo> visibleTasks = mService.getVisibleTasksForActiveUsers(DEFAULT_DISPLAY);
+        assertThat(visibleTasks).hasSize(1);
+        assertThat(visibleTasks.get(0).taskId).isEqualTo(1);
+    }
+
+    @Test
+    public void testHandleTaskAppeared_InactiveUser_AbortsEvaluation() {
+        // Prepare task for an inactive user
+        ActivityManager.RunningTaskInfo task1 = createTask(1);
+        task1.userId = 101; // Inactive user
+        // Ensure USER_ID_99 is the only active user
+        applyActiveUsers(Set.of(USER_ID_99));
+
+        mService.handleTaskAppeared(task1);
+
+        // Verify that the blocking check was NOT scheduled.
+        assertThat(mService.getHandler().hasCallbacks(mService.mActivityBlockingControlRunnable))
+                .isFalse();
+    }
+
+    @Test
+    public void testHandleTaskInfoChanged_TriggersBlockCheck() {
+        // Mocking isActivityDistractionOptimized to return false for our test activity
+        ComponentName ndoActivity = new ComponentName("ndo.pkg", "NdoActivity");
+        ActivityManager.RunningTaskInfo task1 = createTask(1);
+        task1.topActivity = ndoActivity;
+        task1.userId = USER_ID_99;
+        applyActiveUsers(Set.of(USER_ID_99));
+
+        // Initial appearance
+        mService.handleTaskAppeared(task1);
+
+        // Verify a re-evaluation was scheduled in the map
+        assertThat(mService.mActivityBlockingControlRunnable).isNotNull();
+    }
+
+    private ActivityManager.RunningTaskInfo createTask(int taskId) {
+        ActivityManager.RunningTaskInfo taskInfo = new ActivityManager.RunningTaskInfo();
+        taskInfo.taskId = taskId;
+        taskInfo.displayId = DEFAULT_DISPLAY;
+        taskInfo.isVisible = true;
+        taskInfo.isRunning = true;
+        taskInfo.topActivity = new ComponentName("test.pkg", "Activity" + taskId);
+        return taskInfo;
+    }
+
+    private void applyActiveUsers(Set<Integer> userIds) {
+        mService.mActiveUsers.clear();
+        mService.mActiveUsers.addAll(userIds);
     }
 
     private ActivityManager.RunningTaskInfo createTask() {

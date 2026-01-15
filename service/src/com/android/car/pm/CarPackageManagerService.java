@@ -23,11 +23,13 @@ import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLO
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.CarServiceUtils.checkCalledByPackage;
 import static com.android.car.CarServiceUtils.getHandlerThread;
-import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.CarServiceUtils.releaseHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -127,8 +129,10 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -157,7 +161,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     private static final String PROPERTY_RO_DRIVING_SAFETY_REGION =
             "ro.android.car.drivingsafetyregion";
-    private static final int ABA_LAUNCH_TIMEOUT_MS = 1_000;
+    private static final int ABA_LAUNCH_TIMEOUT_MS = 500;
+    private static final int ABA_DELAYED_LAUNCH_TIMEOUT_MS = 1_000;
 
     private final Context mContext;
     private final CarActivityService mActivityService;
@@ -171,6 +176,11 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final HandlerThread mHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
     private final PackageHandler mHandler = new PackageHandler(mHandlerThread.getLooper(), this);
     private final Object mLock = new Object();
+
+    @VisibleForTesting
+    Handler getHandler() {
+        return mHandler;
+    }
 
     // For dumpsys logging.
     private final LocalLog mBlockedActivityLogs = new LocalLog(LOG_SIZE);
@@ -239,7 +249,20 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     // For multi-display, monitor blocking ui task information for each display.
     @GuardedBy("mLock")
     private final SparseArray<TaskInfo> mBlockingUiTaskInfoPerDisplay = new SparseArray<>();
+    // K: task id, V: Task info of a task.
+    // For multi-display, monitor all tasks for each display to maintain correct Z-order.
+    @VisibleForTesting
+    @GuardedBy("mLock")
+    final LinkedHashMap<Integer, TaskInfo> mTasks = new LinkedHashMap<>();
+    // List of active users in the system.
+    @VisibleForTesting
+    @GuardedBy("mLock")
+    final ArraySet<Integer> mActiveUsers = new ArraySet<>();
     private final VendorServiceController mVendorServiceController;
+
+    @VisibleForTesting
+    final Runnable mActivityBlockingControlRunnable =
+            this::blockTopActivitiesOnAllDisplaysIfNecessary;
 
     // Information related to when the installed packages should be parsed for building a allow and
     // block list
@@ -258,12 +281,20 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final SparseIntArray mLastKnownDisplayIdForTask = new SparseIntArray();
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
-        if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
-            return;
-        }
-
-        synchronized (mLock) {
-            resetTempAllowedActivitiesLocked();
+        int eventType = event.getEventType();
+        if (eventType == USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
+            synchronized (mLock) {
+                resetTempAllowedActivitiesLocked();
+            }
+        } else if (eventType == USER_LIFECYCLE_EVENT_TYPE_STARTING) {
+            synchronized (mLock) {
+                mActiveUsers.add(event.getUserId());
+            }
+        } else if (eventType == USER_LIFECYCLE_EVENT_TYPE_STOPPING
+                || eventType == USER_LIFECYCLE_EVENT_TYPE_STOPPED) {
+            synchronized (mLock) {
+                mActiveUsers.remove(event.getUserId());
+            }
         }
     };
 
@@ -395,7 +426,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             }
         }
         if (!bypass) { // block top activities if bypassing is disabled.
-            mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
+            mHandler.post(this::scheduleActivityBlockingCheck);
         }
     }
 
@@ -700,10 +731,14 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             setDrivingSafetyRegionWithCheckLocked(safetyRegion);
             mHandler.requestInit();
         }
-        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
-                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
+        UserLifecycleEventFilter userEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
+                .build();
         CarLocalServices.getService(CarUserService.class).addUserLifecycleListener(
-                userSwitchingEventFilter, mUserLifecycleListener);
+                userEventFilter, mUserLifecycleListener);
         CarLocalServices.getService(CarPowerManagementService.class).addPowerPolicyListener(
                 new CarPowerPolicyFilter.Builder().setComponents(PowerComponent.DISPLAY).build(),
                 mDisplayPowerPolicyListener);
@@ -728,6 +763,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             mActivityDenylistPackages.clear();
             mClientPolicies.clear();
             mBlockingUiTaskInfoPerDisplay.clear();
+            mTasks.clear();
+            mActiveUsers.clear();
             if (mProxies != null) {
                 for (AppBlockingPolicyProxy proxy : mProxies) {
                     proxy.disconnect();
@@ -757,6 +794,11 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
     }
 
+    private void scheduleActivityBlockingCheck() {
+        mHandler.removeCallbacks(mActivityBlockingControlRunnable);
+        mHandler.postDelayed(mActivityBlockingControlRunnable, ABA_DELAYED_LAUNCH_TIMEOUT_MS);
+    }
+
     /**
      * Reset driving stat and all dynamically added allow list so that region information for
      * all packages are reset. This also resets one time allow list.
@@ -773,6 +815,23 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     // run from HandlerThread
     private void doHandleInit() {
         startAppBlockingPolicies();
+
+        List<ActivityManager.RunningTaskInfo> tasks =
+                mActivityService.getAllTasksInternal(Display.INVALID_DISPLAY);
+        List<UserHandle> userHandles = UserManagerHelper.getUserHandles(mUserManager,
+                /* excludeDying= */ true);
+        synchronized (mLock) {
+            for (int i = tasks.size() - 1; i >= 0; i--) {
+                ActivityManager.RunningTaskInfo taskInfo = tasks.get(i);
+                mTasks.put(taskInfo.taskId, taskInfo);
+            }
+            for (UserHandle userHandle : userHandles) {
+                if (mUserManager.isUserRunning(userHandle)) {
+                    mActiveUsers.add(userHandle.getIdentifier());
+                }
+            }
+        }
+
         IntentFilter pkgParseIntent = new IntentFilter();
         for (String action : mPackageManagerActions) {
             pkgParseIntent.addAction(action);
@@ -874,7 +933,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
         // Generate allowlist and denylist mapping for the package
         updateActivityAllowlistAndDenylistMap(packageName);
-        mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
+        mHandler.post(this::scheduleActivityBlockingCheck);
     }
 
     private void doHandleRelease() {
@@ -915,7 +974,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 Slogf.d(TAG, "policy set:" + dumpPoliciesLocked(false));
             }
         }
-        mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
+        mHandler.post(this::scheduleActivityBlockingCheck);
     }
 
     @Nullable
@@ -1354,6 +1413,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             writer.println(mCurrentDrivingSafetyRegion);
             writer.print("mTempAllowedActivities:");
             writer.println(mTempAllowedActivities);
+            writer.print("mActiveUsers:");
+            writer.println(mActiveUsers);
             writer.println("Car service overlay packages property name: "
                     + PackageManagerHelper.PROPERTY_CAR_SERVICE_OVERLAY_PACKAGES);
             writer.println("Car service overlay packages: "
@@ -1414,6 +1475,35 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         return sb.toString();
     }
 
+    private List<TaskInfo> getVisibleTasksForActiveUsers() {
+        return getVisibleTasksForActiveUsers(Display.INVALID_DISPLAY);
+    }
+
+    /**
+     * Only monitor tasks for the active users. Since the task list is maintained by the task
+     * listener events, an onTaskVanished is required for tasks to be removed from the task list.
+     * But when a user switch happens, the old user tasks are removed after some time which delays
+     * the onTaskVanished callback, thus the task remains in the task list. See b/477073324 for the
+     * investigation.
+     */
+    @VisibleForTesting
+    List<TaskInfo> getVisibleTasksForActiveUsers(int displayId) {
+        ArrayList<TaskInfo> tasksToReturn = new ArrayList<>();
+        synchronized (mLock) {
+            for (TaskInfo taskInfo : mTasks.values()) {
+                int userId = TaskInfoHelper.getUserId(taskInfo);
+                if (TaskInfoHelper.isVisible(taskInfo) && mActiveUsers.contains(userId)
+                        && (displayId == Display.INVALID_DISPLAY
+                                || displayId == TaskInfoHelper.getDisplayId(taskInfo))) {
+                    tasksToReturn.add(taskInfo);
+                }
+            }
+        }
+        // Reverse the order so that the resultant order is top to bottom.
+        Collections.reverse(tasksToReturn);
+        return tasksToReturn;
+    }
+
     /**
      * Returns whether UX restrictions is required for the given display.
      *
@@ -1444,7 +1534,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      * Blocks top activities on all displays if necessary.
      */
     private void blockTopActivitiesOnAllDisplaysIfNecessary() {
-        List<? extends TaskInfo> visibleTasks = mActivityService.getVisibleTasksInternal();
+        List<TaskInfo> visibleTasks = getVisibleTasksForActiveUsers();
         ArrayList<Integer> restrictedDisplayIds = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
@@ -1478,7 +1568,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     /**
      * Blocks top activities on the given display if necessary.
      */
-    private void blockTopActivitiesOnDisplayIfNecessary(List<? extends TaskInfo> visibleTasks,
+    private void blockTopActivitiesOnDisplayIfNecessary(List<TaskInfo> visibleTasks,
             int displayId) {
         Set<Integer> rootTasksBlocked = new ArraySet<>();
         for (TaskInfo topTask : visibleTasks) {
@@ -1515,22 +1605,6 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 rootTasksBlocked.add(TaskInfoHelper.geParentTaskId(topTask));
             }
         }
-    }
-
-    /**
-     * Blocks the top activity if it's on a Ux restricted display.
-     *
-     * @return {@code true} if the {@code topTask} was blocked, {@code false} otherwise.
-     */
-    private boolean blockTopActivityIfNecessary(TaskInfo topTask) {
-        int displayId = TaskInfoHelper.getDisplayId(topTask);
-        synchronized (mLock) {
-            clearDialogStateIfTopTaskChangedLocked(topTask);
-        }
-        if (isUxRestrictedOnDisplay(displayId)) {
-            return doBlockTopActivityIfNotAllowed(displayId, topTask);
-        }
-        return false;
     }
 
     /**
@@ -1611,7 +1685,11 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 return false;
             }
         }
+        launchActivityBlockingActivity(displayId, topTask);
+        return true;
+    }
 
+    private void launchActivityBlockingActivity(int displayId, TaskInfo topTask) {
         // Figure out the root task of blocked task.
         ComponentName rootTaskActivityName = topTask.baseActivity;
 
@@ -1635,7 +1713,6 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         mBlockingActivityLaunchTimes.put(displayId, SystemClock.uptimeMillis());
         mBlockingActivityTargets.put(displayId, topTask);
         mActivityService.blockActivity(topTask, newActivityIntent);
-        return true;
     }
 
     private boolean isActivityAllowed(TaskInfo topTaskInfoContainer) {
@@ -2094,61 +2171,113 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     private class ActivityListener implements CarActivityService.ActivityListener {
         @Override
-        public void onActivityCameOnTop(TaskInfo topTask) {
-            if (topTask == null) {
-                Slogf.e(TAG, "Received callback with null top task.");
-                return;
-            }
-            boolean isBlockingActivity = Objects.equals(mActivityBlockingActivity,
-                    topTask.topActivity);
-            synchronized (mLock) {
-                if (isBlockingActivity) {
-                    // This is to keep track of the blocking ui taskInfo.
-                    mBlockingUiTaskInfoPerDisplay.put(TaskInfoHelper.getDisplayId(topTask),
-                            topTask);
-                }
-                mLastKnownDisplayIdForTask.put(topTask.taskId,
-                        TaskInfoHelper.getDisplayId(topTask));
-            }
-            blockTopActivityIfNecessary(topTask);
+        public void onTaskAppeared(TaskInfo taskInfo) {
+            mHandler.post(() -> handleTaskAppeared(taskInfo));
         }
 
-        // TODO(b/358905871): Verify if onTaskInfoChanged required to trigger finishing of
-        //  blocking ui.
         @Override
         public void onTaskVanished(TaskInfo taskInfo) {
-            if (taskInfo == null) {
-                Slogf.e(TAG, "Received callback with null task info.");
+            mHandler.post(() -> handleTaskVanished(taskInfo));
+        }
+
+        @Override
+        public void onTaskInfoChanged(TaskInfo taskInfo) {
+            mHandler.post(() -> handleTaskInfoChanged(taskInfo));
+        }
+    }
+
+    @VisibleForTesting
+    void handleTaskAppeared(TaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return;
+        }
+        synchronized (mLock) {
+            // Re-insertion moves the key to the end of the LinkedHashMap, preserving Z-order.
+            mTasks.remove(taskInfo.taskId);
+            mTasks.put(taskInfo.taskId, taskInfo);
+        }
+        handleActivityCameOnTop(taskInfo);
+    }
+
+    private void handleActivityCameOnTop(TaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return;
+        }
+        int displayId = TaskInfoHelper.getDisplayId(taskInfo);
+        boolean isBlockingActivity = Objects.equals(mActivityBlockingActivity,
+                taskInfo.topActivity);
+        synchronized (mLock) {
+            if (isBlockingActivity) {
+                // This is to keep track of the blocking ui taskInfo.
+                mBlockingUiTaskInfoPerDisplay.put(displayId, taskInfo);
+            }
+            mLastKnownDisplayIdForTask.put(taskInfo.taskId, displayId);
+
+            if (!mActiveUsers.contains(TaskInfoHelper.getUserId(taskInfo))) {
+                Slogf.v(TAG, "User %d is not active, skipping block check for %s. mActiveUsers: %s",
+                        TaskInfoHelper.getUserId(taskInfo), taskInfo.topActivity, mActiveUsers);
                 return;
             }
-            int lastKnownDisplayId;
-            synchronized (mLock) {
-                // Only update the array if display Id for the task is valid since display Id can
-                // often be invalid when the task has vanished.
-                if (TaskInfoHelper.getDisplayId(taskInfo) != Display.INVALID_DISPLAY) {
-                    mLastKnownDisplayIdForTask.put(taskInfo.taskId,
-                            TaskInfoHelper.getDisplayId(taskInfo));
-                }
-                lastKnownDisplayId = mLastKnownDisplayIdForTask.get(taskInfo.taskId);
+            clearDialogStateIfTopTaskChangedLocked(taskInfo);
+        }
+
+        if (isUxRestrictedOnDisplay(displayId)) {
+            scheduleActivityBlockingCheck();
+        }
+    }
+
+    @VisibleForTesting
+    void handleTaskVanished(TaskInfo taskInfo) {
+        if (taskInfo == null) {
+            Slogf.e(TAG, "Received callback with null task info.");
+            return;
+        }
+        int lastKnownDisplayId;
+        synchronized (mLock) {
+            mTasks.remove(taskInfo.taskId);
+            // Only update the array if display Id for the task is valid since display Id can
+            // often be invalid when the task has vanished.
+            if (TaskInfoHelper.getDisplayId(taskInfo) != Display.INVALID_DISPLAY) {
+                mLastKnownDisplayIdForTask.put(taskInfo.taskId,
+                        TaskInfoHelper.getDisplayId(taskInfo));
             }
-            // Only finish the blocking ui if it is visible and the activity that is being
-            // blocked has vanished which could have crashed due to which there is a need for
-            // blocking ui to finish.
-            if (isBlockingUiVisible(lastKnownDisplayId) && isBlockedActivityTarget(
-                    lastKnownDisplayId, taskInfo)) {
-                if (DBG) {
-                    Slogf.d(TAG,
-                            "Finish blocking ui callback due to task %s which was blocked on "
-                                    + "display id %d.", taskInfo.taskId, lastKnownDisplayId);
+            lastKnownDisplayId = mLastKnownDisplayIdForTask.get(taskInfo.taskId);
+        }
+        // Only finish the blocking ui if it is visible and the activity that is being
+        // blocked has vanished which could have crashed due to which there is a need for
+        // blocking ui to finish.
+        if (isBlockingUiVisible(lastKnownDisplayId) && isBlockedActivityTarget(
+                lastKnownDisplayId, taskInfo)) {
+            finishBlockingUi(taskInfo);
+            cleanUpBlockingUiInformation(lastKnownDisplayId);
+        } else if (isBlockingUiTask(taskInfo)) {
+            cleanUpBlockingUiInformation(lastKnownDisplayId);
+        }
+    }
+
+    @VisibleForTesting
+    void handleTaskInfoChanged(TaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return;
+        }
+        boolean isActivityCameOnTop = false;
+        synchronized (mLock) {
+            // Re-insertion moves the key to the end of the LinkedHashMap, preserving Z-order.
+            TaskInfo oldTaskInfo = mTasks.remove(taskInfo.taskId);
+            mTasks.put(taskInfo.taskId, taskInfo);
+
+            // Decision logic: Trigger blocking check if task just became visible, or its top
+            // activity changed while visible.
+            if (TaskInfoHelper.isVisible(taskInfo)) {
+                if (oldTaskInfo == null || !TaskInfoHelper.isVisible(oldTaskInfo)
+                        || !Objects.equals(oldTaskInfo.topActivity, taskInfo.topActivity)) {
+                    isActivityCameOnTop = true;
                 }
-                mHandler.post(() -> finishBlockingUi(taskInfo));
-                cleanUpBlockingUiInformation(lastKnownDisplayId);
-            } else if (isBlockingUiTask(taskInfo)) {
-                if (DBG) {
-                    Slogf.d(TAG, "Blocking ui has vanished on display id %d.", lastKnownDisplayId);
-                }
-                cleanUpBlockingUiInformation(lastKnownDisplayId);
             }
+        }
+
+        if (isActivityCameOnTop) {
+            handleActivityCameOnTop(taskInfo);
         }
     }
 
@@ -2325,8 +2454,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             if (shouldCheck) {
                 // Each UxRestrictionsListener is only responsible for blocking activities on their
                 // own display.
-                mHandler.post(() -> blockTopActivitiesOnDisplayIfNecessary(
-                        mActivityService.getVisibleTasksInternal(), mDisplayId));
+                mHandler.post(CarPackageManagerService.this::scheduleActivityBlockingCheck);
             }
         }
 
@@ -2369,9 +2497,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 }
                 // Schedule activity blocking with mHandler to ensure there is no concurrent
                 // activity blocking.
-                mHandler.post(() ->
-                        blockTopActivitiesOnDisplayIfNecessary(
-                            mActivityService.getVisibleTasksInternal(), displayId));
+                mHandler.post(this::scheduleActivityBlockingCheck);
             }
         } else {
             Slogf.d(TAG, "Discarded onWindowChangeEvent received from "
