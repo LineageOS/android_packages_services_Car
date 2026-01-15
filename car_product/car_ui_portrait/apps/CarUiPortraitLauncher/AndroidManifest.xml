@@ -43,6 +43,11 @@
             tools:replace="android:theme"/>
 
         <activity
+            android:name="com.android.car.carlauncher.WidgetHostActivity"
+            tools:node="merge">
+        </activity>
+
+        <activity
             android:name=".homeactivities.BackgroundPanelBaseActivity"
             android:exported="true"
             android:launchMode="singleInstance"
