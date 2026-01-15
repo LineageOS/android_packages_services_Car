@@ -15,9 +15,8 @@
 
 PRODUCT_PACKAGES += \
     CarFrameworkDewdRRO \
-    CarLauncherEnableDewdRRO \
     CarUpdatableDewdRRO \
-    StubCarLauncher // TODO(b/432217693) remove once dedicated visibility barrier is present
+    StubCarLauncher # TODO(b/432217693) remove once dedicated visibility barrier is present
 
 PRODUCT_PACKAGES_DEBUG += \
     HunBottomRRO
