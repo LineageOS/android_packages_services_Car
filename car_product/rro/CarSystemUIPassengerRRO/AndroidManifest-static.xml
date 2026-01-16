@@ -17,9 +17,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.systemui.md.passenger.car.rro.static">
     <application android:hasCode="false"/>
+    <!-- priority needs to be higher DewdDynamicAospRRO and below CarDewdDisabledRRO -->
     <overlay android:targetName="CarSystemUI"
              android:targetPackage="com.android.systemui"
              android:resourcesMap="@xml/overlays"
-             android:priority="201"
+             android:priority="206"
              android:isStatic="true" />
 </manifest>
