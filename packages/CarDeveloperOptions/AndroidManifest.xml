@@ -735,7 +735,6 @@
             android:name="com.android.settings.Settings$DndDisplaySettingsActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.deeplink_modes_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -745,7 +744,6 @@
             android:name="com.android.settings.Settings$DndPeopleSettingsActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.deeplink_modes_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -755,7 +753,6 @@
             android:name="com.android.settings.Settings$DndCallsSettingsActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.deeplink_modes_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
