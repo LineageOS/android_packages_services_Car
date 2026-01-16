@@ -27,6 +27,7 @@ import android.os.Binder;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.InsetsBoundingRect;
 import android.view.InsetsFrameProvider;
 import android.window.WindowContainerTransaction;
 
@@ -142,7 +143,12 @@ public class AutoLayoutManager {
         insetsFrameProviders.add(requestedInset);
 
         WindowContainerTransaction wct = new WindowContainerTransaction();
-        wct.addInsetsSource(taskInfo.token, mInsetToken, index, type, frame, new Rect[0], 0);
+        if (com.android.window.flags.Flags.improveFluidResizingPerformance()) {
+            wct.addInsetsSource(taskInfo.token, mInsetToken, index, type, frame,
+                    new InsetsBoundingRect[0], 0);
+        } else {
+            wct.addInsetsSource(taskInfo.token, mInsetToken, index, type, frame, new Rect[0], 0);
+        }
         mShellTaskOrganizer.applyTransaction(wct);
     }
 
