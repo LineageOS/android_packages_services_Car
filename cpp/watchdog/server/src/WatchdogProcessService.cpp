@@ -68,6 +68,7 @@ using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 using ::android::sp;
 using ::android::String16;
+using ::android::wp;
 using ::android::base::Error;
 using ::android::base::GetIntProperty;
 using ::android::base::GetProperty;
@@ -825,14 +826,21 @@ Result<void> WatchdogProcessService::registerClient(const ClientInfo& clientInfo
         startHealthCheckingLocked(timeout);
         ALOGI("Starting health checking for timeout = %d", timeout);
     }
-    uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    auto callingUid = IPCThreadState::self()->getCallingUid();
+    auto weakThis = wp<WatchdogProcessService>::fromExisting(this);
 
     mPackageInfoResolver
             ->asyncFetchPackageNamesForUids({callingUid},
-                                            [&](std::unordered_map<uid_t, std::string>
+                                            [=](std::unordered_map<uid_t, std::string>
                                                         packageNames) {
+                                                sp<WatchdogProcessService> strongThis =
+                                                        weakThis.promote();
+                                                if (strongThis == nullptr) {
+                                                    // Object is dead. Abort.
+                                                    return;
+                                                }
                                                 ClientInfoMap& clients =
-                                                        this->mClientsByTimeout[timeout];
+                                                        strongThis->mClientsByTimeout[timeout];
                                                 auto client = clients.find(cookieId);
                                                 // The client could have been unregistered by
                                                 // the time that the packageName is updated.

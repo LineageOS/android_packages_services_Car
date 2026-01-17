@@ -22,5 +22,5 @@
         android:targetPackage="com.android.systemui"
         android:isStatic="true"
         android:category="com.android.systemui.car.dewd"
-        android:priority="200" />
+        android:priority="210" />
 </manifest>
