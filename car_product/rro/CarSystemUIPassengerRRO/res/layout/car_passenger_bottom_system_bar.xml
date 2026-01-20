@@ -136,7 +136,7 @@
                 android:layout_marginEnd="@dimen/car_quick_controls_entry_points_icon_space"
                 android:tint="@color/car_status_icon_color"
                 android:duplicateParentState="true"
-                systemui:controller="com.android.systemui.car.statusicon.ui.SignalStatusIconController"/>
+                systemui:controller="com.android.systemui.car.statusicon.connectivity.ActiveConnectivityStatusIconController"/>
             <com.android.systemui.statusbar.policy.Clock
                 android:id="@+id/clock"
                 android:layout_width="wrap_content"
