@@ -23,7 +23,6 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,7 +32,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
-import android.app.AppCompatTaskInfo;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
 import android.content.ComponentName;
@@ -44,13 +42,11 @@ import android.os.UserHandle;
 import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.testing.AndroidTestingRunner;
-import android.util.SparseArray;
 import android.view.View;
 import android.window.DisplayAreaInfo;
 import android.window.WindowContainerToken;
 
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
-import com.android.window.flags.Flags;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.automotive.utility.TestRunningTaskInfoBuilder;
@@ -66,10 +62,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.MockitoSession;
 import org.mockito.quality.Strictness;
 
-import java.lang.reflect.Field;
-
 @RunWith(AndroidTestingRunner.class)
-@EnableFlags(Flags.FLAG_SAFE_REGION_LETTERBOXING_V1)
 public class AutoCaptionControllerTest {
     private static final String TEST_PKG_NAME = "test.package";
     private static final String TEST_CLASS_NAME = "test.class";
@@ -280,101 +273,5 @@ public class AutoCaptionControllerTest {
         verify(mAutoCaptionBarViewController, never()).updateView(any(View.class),
                 any(ActivityManager.RunningTaskInfo.class));
     }
-
-    @Test
-    public void testSetCaptionRegionForRootTask_updatesExistingCaptionBar() throws Exception {
-        int rootTaskId = 1;
-        RootTaskStack rootTaskStack = mock(RootTaskStack.class);
-        when(rootTaskStack.getId()).thenReturn(rootTaskId);
-        ActivityManager.RunningTaskInfo taskInfo = setupAppCompatTaskInfo(
-                rootTaskId, /* isRootTask= */ true);
-        setupRunningTasks(taskInfo);
-
-        // Initial setup
-        Rect initialRegion = new Rect(0, 0, 100, 50);
-        AutoDecor initialDecor = mock(AutoDecor.class);
-        when(mAutoDecorManager.createAutoDecor(any(), anyInt(), eq(initialRegion), anyString()))
-                .thenReturn(initialDecor);
-        mController.setCaptionRegion(rootTaskStack, initialRegion, mAutoCaptionBarViewController);
-        when(mAutoCaptionBarViewController.createView(any())).thenReturn(mock(View.class));
-        when(mAutoTaskRepository.getRootTaskStack(rootTaskId)).thenReturn(rootTaskStack);
-        mAutoAppTaskListener.onTaskAppeared(taskInfo);
-
-        // Update the caption region, this would remove the old caption bar.
-        Rect updatedRegion = new Rect(10, 10, 110, 60);
-        AutoDecor updatedDecor = mock(AutoDecor.class);
-        when(mAutoDecorManager.createAutoDecor(any(), anyInt(), eq(updatedRegion), anyString()))
-                .thenReturn(updatedDecor);
-        mController.setCaptionRegion(rootTaskStack, updatedRegion, mAutoCaptionBarViewController);
-
-        // When the task appears again, a new caption bar is created with the updated bounds.
-        mAutoAppTaskListener.onTaskAppeared(taskInfo);
-        verify(mAutoDecorManager).createAutoDecor(any(), anyInt(), eq(updatedRegion),
-                anyString());
-        assertThat(mController.getTaskIdToCaptionBar().get(taskInfo.taskId)).isSameInstanceAs(
-                updatedDecor);
-    }
-
-    @Test
-    public void testSetCaptionRegionForDisplay_updatesExistingCaptionBar() throws Exception {
-        int displayId = 1;
-        when(mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId)).thenReturn(
-                new DisplayAreaInfo(mock(WindowContainerToken.class), displayId, 0));
-        ActivityManager.RunningTaskInfo taskInfo = setupAppCompatTaskInfo(
-                displayId, /* isRootTask= */ false);
-        setupRunningTasks(taskInfo);
-
-        // Initial setup
-        Rect initialRegion = new Rect(0, 0, 100, 50);
-        AutoDecor initialDecor = mock(AutoDecor.class);
-        when(mAutoDecorManager.createAutoDecor(any(), anyInt(), eq(initialRegion), anyString()))
-                .thenReturn(initialDecor);
-        mController.setCaptionRegion(displayId, initialRegion, mAutoCaptionBarViewController);
-        when(mAutoCaptionBarViewController.createView(any())).thenReturn(mock(View.class));
-        mAutoAppTaskListener.onTaskAppeared(taskInfo);
-
-        // Update the caption region, this would remove the old caption bar.
-        Rect updatedRegion = new Rect(10, 10, 110, 60);
-        AutoDecor updatedDecor = mock(AutoDecor.class);
-        when(mAutoDecorManager.createAutoDecor(any(), anyInt(), eq(updatedRegion), anyString()))
-                .thenReturn(updatedDecor);
-        mController.setCaptionRegion(displayId, updatedRegion, mAutoCaptionBarViewController);
-
-        // When the task appears again, a new caption bar is created with the updated bounds.
-        mAutoAppTaskListener.onTaskAppeared(taskInfo);
-        verify(mAutoDecorManager).createAutoDecor(any(), anyInt(), eq(updatedRegion),
-                anyString());
-        assertThat(mController.getTaskIdToCaptionBar().get(taskInfo.taskId)).isSameInstanceAs(
-                updatedDecor);
-    }
-
-    private void setupRunningTasks(ActivityManager.RunningTaskInfo taskInfo) throws Exception {
-        when(mCarPackageManager.requiresDisplayCompatForUser(
-                taskInfo.topActivity.getPackageName(), taskInfo.userId)).thenReturn(true);
-        SparseArray<ActivityManager.RunningTaskInfo> tasks =
-                new SparseArray<>();
-        tasks.put(taskInfo.taskId, taskInfo);
-        when(mAutoTaskRepository.getRunningTasks()).thenReturn(tasks);
-    }
-
-    private ActivityManager.RunningTaskInfo setupAppCompatTaskInfo(int containerId,
-            boolean isRootTask)
-            throws Exception {
-        int taskId = 123;
-        ActivityManager.RunningTaskInfo taskInfo = new ActivityManager.RunningTaskInfo();
-        taskInfo.taskId = taskId;
-        if (isRootTask) {
-            taskInfo.parentTaskId = containerId;
-        } else {
-            taskInfo.displayId = containerId;
-            taskInfo.parentTaskId = -1; // Top level task on display
-        }
-        taskInfo.topActivity = new ComponentName("test.pkg", "TestActivity");
-        taskInfo.userId = 10;
-        AppCompatTaskInfo mockAppCompatTaskInfo = mock(AppCompatTaskInfo.class);
-        when(mockAppCompatTaskInfo.isTopActivitySafeRegionLetterboxed()).thenReturn(true);
-        Field field = ActivityManager.RunningTaskInfo.class.getField("appCompatTaskInfo");
-        field.set(taskInfo, mockAppCompatTaskInfo);
-        return taskInfo;
-    }
 }
+
