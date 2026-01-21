@@ -608,11 +608,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
     override fun startTransition(transaction: AutoTaskStackTransaction): IBinder? {
         // TODO(b/416504816): Remove this and use coroutine suspend functions to execute this
         // on main thread and still be able to able to return.
-        ProtoLog.d(
-            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-            "startTransition\n\t%s",
-            transaction.operations.joinToString("\n\t")
-        )
         shellMainThread.assertCurrentThread()
 
         if (!enableAutoTaskStackController()) {
@@ -626,10 +621,17 @@ class AutoTaskStackControllerImpl @Inject constructor(
         if (transaction.operations.isEmpty()) {
             ProtoLog.e(
                 CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                "Operations empty, no transaction started"
+                "startTransition(ops=0), no transaction started"
             )
             return null
         }
+
+        ProtoLog.d(
+            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+            "startTransition(ops=%d)\n\t%s",
+            transaction.operations.size,
+            transaction.operations.joinToString("\n\t")
+        )
 
         var wct = WindowContainerTransaction()
         convertToWct(transaction, wct)
