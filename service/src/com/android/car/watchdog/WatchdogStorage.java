@@ -292,16 +292,19 @@ public final class WatchdogStorage {
 
     /** Deletes user package settings and resource overuse stats. */
     public void deleteUserPackage(@UserIdInt int userId, String packageName) {
-        UserPackage userPackage = mUserPackagesByKey.get(UserPackage.getKey(userId, packageName));
-        if (userPackage == null) {
-            Slogf.e(TAG, "Failed to find user package id for user id '%d' and package '%s",
-                    userId, packageName);
-            return;
+        synchronized (mLock) {
+            UserPackage userPackage =
+                    mUserPackagesByKey.get(UserPackage.getKey(userId, packageName));
+            if (userPackage == null) {
+                Slogf.e(TAG, "Failed to find user package id for user id '%d' and package '%s",
+                        userId, packageName);
+                return;
+            }
+            mUserPackagesByKey.remove(userPackage.getKey());
+            mUserPackagesById.remove(userPackage.userPackageId);
+            UserPackageSettingsTable.deleteUserPackage(getDatabase(/* isWritable= */ true), userId,
+                        packageName);
         }
-        mUserPackagesByKey.remove(userPackage.getKey());
-        mUserPackagesById.remove(userPackage.userPackageId);
-        UserPackageSettingsTable.deleteUserPackage(getDatabase(/* isWritable= */ true), userId,
-                    packageName);
     }
 
     /**
@@ -480,29 +483,32 @@ public final class WatchdogStorage {
         List<ContentValues> rows = new ArrayList<>(entries.size());
         try {
             Trace.beginSection("WdStorage.saveIoUsageStats");
-            for (int i = 0; i < entries.size(); ++i) {
-                IoUsageStatsEntry entry = entries.get(i);
-                UserPackage userPackage = mUserPackagesByKey.get(
-                        UserPackage.getKey(entry.userId, entry.packageName));
-                if (userPackage == null) {
-                    Slogf.e(TAG, "Failed to find user package id for user id '%d' and package '%s",
-                            entry.userId, entry.packageName);
-                    continue;
+            synchronized (mLock) {
+                for (int i = 0; i < entries.size(); ++i) {
+                    IoUsageStatsEntry entry = entries.get(i);
+                    UserPackage userPackage = mUserPackagesByKey.get(
+                            UserPackage.getKey(entry.userId, entry.packageName));
+                    if (userPackage == null) {
+                        Slogf.e(TAG,
+                                "Failed to find user package id for user id '%d' and package '%s",
+                                entry.userId, entry.packageName);
+                        continue;
+                    }
+                    android.automotive.watchdog.IoOveruseStats ioOveruseStats =
+                            entry.ioUsage.getInternalIoOveruseStats();
+                    ZonedDateTime statsDate = Instant.ofEpochSecond(ioOveruseStats.startTime)
+                            .atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
+                    if (shouldCheckRetention && STATS_TEMPORAL_UNIT.between(statsDate, currentDate)
+                            >= RETENTION_PERIOD.get(STATS_TEMPORAL_UNIT)) {
+                        continue;
+                    }
+                    long statsDateEpochSeconds = statsDate.toEpochSecond();
+                    rows.add(IoUsageStatsTable.getContentValues(
+                            userPackage.userPackageId, entry, statsDateEpochSeconds));
                 }
-                android.automotive.watchdog.IoOveruseStats ioOveruseStats =
-                        entry.ioUsage.getInternalIoOveruseStats();
-                ZonedDateTime statsDate = Instant.ofEpochSecond(ioOveruseStats.startTime)
-                        .atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
-                if (shouldCheckRetention && STATS_TEMPORAL_UNIT.between(statsDate, currentDate)
-                        >= RETENTION_PERIOD.get(STATS_TEMPORAL_UNIT)) {
-                    continue;
-                }
-                long statsDateEpochSeconds = statsDate.toEpochSecond();
-                rows.add(IoUsageStatsTable.getContentValues(
-                        userPackage.userPackageId, entry, statsDateEpochSeconds));
+                return atomicReplaceEntries(getDatabase(/*isWritable=*/ true),
+                        IoUsageStatsTable.TABLE_NAME, rows);
             }
-            return atomicReplaceEntries(getDatabase(/*isWritable=*/ true),
-                    IoUsageStatsTable.TABLE_NAME, rows);
         } finally {
             Trace.endSection();
         }
