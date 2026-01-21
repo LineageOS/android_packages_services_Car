@@ -16,6 +16,7 @@
 
 package com.android.systemui;
 
+import com.android.systemui.bundle.phone.PodModulePhone;
 import com.android.systemui.dagger.DependencyProvider;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.dagger.SystemUIModule;
@@ -36,6 +37,7 @@ import java.util.Optional;
         CarComponentBinder.class,
         DependencyProvider.class,
         SystemUIModule.class,
+        PodModulePhone.class,
         CarSystemUIModule.class,
         CarSystemUICoreStartableModule.class,
         CarDistantDisplaySystemUIBinder.class,
