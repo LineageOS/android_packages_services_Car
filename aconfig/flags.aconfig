@@ -440,14 +440,6 @@ flag {
     bug: "344832846"
 }
 
-# Feature for task view task reordering
-flag {
-    name: "task_view_task_reordering"
-    namespace: "car_framework"
-    description: "Enables task view task reordering"
-    bug: "369186876"
-}
-
 # 3P VHAL Property Strategy
 flag {
     name: "vehicle_property_remove_system_api_tags"
