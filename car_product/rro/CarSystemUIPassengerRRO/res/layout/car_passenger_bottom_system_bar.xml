@@ -119,7 +119,7 @@
                 android:scaleType="fitCenter"
                 android:layout_marginEnd="@dimen/car_quick_controls_entry_points_icon_space"
                 systemui:controller="com.android.systemui.car.systembar.usernamepanel.UserNameImageViewController"/>
-            <com.android.systemui.car.statusicon.StatusIconView
+            <com.android.systemui.car.statusicon.base.StatusIconView
                 android:id="@+id/media_volume_status_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -128,7 +128,7 @@
                 android:layout_marginEnd="@dimen/car_quick_controls_entry_points_icon_space"
                 android:duplicateParentState="true"
                 systemui:controller="com.android.systemui.car.statusicon.mediavolume.MediaVolumeStatusIconController"/>
-            <com.android.systemui.car.statusicon.StatusIconView
+            <com.android.systemui.car.statusicon.base.StatusIconView
                 android:id="@+id/signal_status_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
