@@ -463,8 +463,8 @@ public final class ClusterHomeManager extends CarManagerBase {
         }
         mVisibilityMonitoringStarted = true;
         ViewTreeObserver observer = getViewTreeObserver(activity);
-        // Can't use onWindowAttached, because SurfaceControl is available at the time, but invalid.
-        // TODO: b/286406553 - Move the callback below to onWindowAttached.
+        // Using an OnPreDrawListener is a workaround for a timing issue where the SurfaceControl
+        // is available but invalid in onWindowAttached. See b/286406553 for context.
         observer.addOnPreDrawListener(
                 new OnPreDrawListener() {
                     @Override
@@ -480,7 +480,6 @@ public final class ClusterHomeManager extends CarManagerBase {
                 new ViewTreeObserver.OnWindowAttachListener() {
                     @Override
                     public void onWindowAttached() {
-                        // Using onPreDraw instead, check b/286406553.
                     }
 
                     @Override
