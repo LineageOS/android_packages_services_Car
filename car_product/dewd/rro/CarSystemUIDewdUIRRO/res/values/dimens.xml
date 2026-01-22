@@ -15,53 +15,9 @@
   ~ limitations under the License.
   -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingDefaultResource,PxUsage">
-    <!-- ScalableUI -->
-    <dimen name="screen_height">2048px</dimen>
-
-    <dimen name="top_bar_bottom">80px</dimen>
-
-    <dimen name="bottom_bar_top">1836px</dimen>
-    <dimen name="bottom_bar_bottom">1920px</dimen>
-
-    <dimen name="app_grid_drawer_bottom">@dimen/contextual_bar_top</dimen>
-    <dimen name="app_grid_drawer_height">749px</dimen>
-
-    <dimen name="map_top">0px</dimen>
-    <dimen name="map_height">1479px</dimen>
-
-    <dimen name="contextual_bar_top">1428px</dimen>
-    <dimen name="contextual_bar_bottom">1836px</dimen>
-    <dimen name="contextual_bar_height">408px</dimen>
-
-    <dimen name="app_immersive_top">@dimen/top_bar_bottom</dimen>
-    <dimen name="app_immersive_height">1712px</dimen>
-    <dimen name="app_bottom">@dimen/contextual_bar_top</dimen>
-    <dimen name="app_height">749px</dimen>
-
-    <dimen name="calm_mode_left">0px</dimen>
-    <dimen name="calm_mode_top">0px</dimen>
-    <dimen name="calm_mode_height">1836px</dimen>
-
     <!-- Keyguard -->
     <dimen name="pin_view_container_maxHeight">380dp</dimen>
     <dimen name="pattern_view_container_maxHeight">800dp</dimen>
-
-    <!-- Bottom system bar dimens -->
-    <dimen name="car_nav_buttons_margin">@*android:dimen/car_padding_3</dimen>
-    <dimen name="system_bar_button_size">64dp</dimen>
-    <dimen name="system_bar_icon_drawing_size">44dp</dimen>
-    <dimen name="system_bar_button_margin">32dp</dimen>
-    <dimen name="system_bar_button_padding">16dp</dimen>
-    <dimen name="dock_container_margin">10dp</dimen>
-    <dimen name="car_keyline_1">24dp</dimen>
-
-    <dimen name="hvac_container_padding">16dp</dimen>
-    <dimen name="hvac_temperature_bar_margin">32dp</dimen>
-    <dimen name="hvac_temperature_text_size">44sp</dimen>
-    <dimen name="hvac_temperature_text_padding">10dp</dimen>
-    <dimen name="hvac_temperature_button_size">64dp</dimen>
-    <dimen name="hvac_temperature_icon_size">36dp</dimen>
-    <dimen name="hvac_temperature_button_padding">12dp</dimen>
 
     <!-- Biometrics dimens -->
     <dimen name="biometric_dialog_elevation">1dp</dimen>
