@@ -60,8 +60,6 @@ Result<void> PressureMonitor::init() {
     }
 
     Mutex::Autolock lock(mMutex);
-    // TODO(b/335508921): Read the below stall type and thresholds from system properties (one per
-    //  pressure level).
     mPressureLevels.push_back(PressureLevelInfo{
             .kPressureLevel = PRESSURE_LEVEL_LOW,
             .kStallType = kLowPsiStallLevel,
@@ -115,8 +113,6 @@ Result<void> PressureMonitor::initializePsiMonitorsLocked() {
                   PressureLevelToString(info.kPressureLevel).c_str());
             continue;
         }
-        // TODO(b/335508921): Read the below window size from system properties. This need to be
-        //  read from system properties (one per pressure level) and store in the PressureLevelInfo.
         if (info.kThresholdUs >= kPsiWindowSizeUs) {
             return Error() << "Threshold duration (" << info.kThresholdUs.count()
                            << ") must be less than the window size duration ("
