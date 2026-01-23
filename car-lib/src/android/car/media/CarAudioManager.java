@@ -33,11 +33,13 @@ import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.feature.Flags;
+import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -392,6 +394,7 @@ public final class CarAudioManager extends CarManagerBase {
     public static final float AUDIO_DEFAULT_BALANCE_LEVEL = 0.0f;
 
     private final ICarAudio mService;
+    private final int mAppTargetSdk;
     private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
     private final CopyOnWriteArrayList<CarVolumeGroupEventCallbackWrapper>
             mCarVolumeEventCallbacks = new CopyOnWriteArrayList<>();
@@ -2029,6 +2032,7 @@ public final class CarAudioManager extends CarManagerBase {
     public CarAudioManager(ICarBase car, IBinder service) {
         super(car);
         mService = ICarAudio.Stub.asInterface(service);
+        mAppTargetSdk = getContext().getApplicationInfo().targetSdkVersion;
         mAudioManager = getContext().getSystemService(AudioManager.class);
         mCarVolumeCallbacks = new CopyOnWriteArrayList<>();
         mEventHandler = new EventHandler(getEventHandler().getLooper());
@@ -2084,6 +2088,11 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Registers a {@link CarVolumeGroupEventCallback} to receive volume group event callbacks
      *
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * or later than {@link Build.VERSION_CODES#CINNAMON_BUN} will receive the
+     * {@link SecurityException} for each registration call if the
+     * {@link Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission is not granted.
+     *
      * @param executor Executor on which callback will be invoked
      * @param callback Callback that will report volume group events
      * @return {@code true} if the callback is successfully registered, {@code false} otherwise
@@ -2100,6 +2109,18 @@ public final class CarAudioManager extends CarManagerBase {
             @NonNull CarVolumeGroupEventCallback callback) {
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
+
+        if (Flags.carAudioVolumeCallbackRegistrationPermissionEnforced()
+                && mAppTargetSdk >= Build.VERSION_CODES.CINNAMON_BUN) {
+            // Check permission on the client side to prevent unauthorized client state changes.
+            // This is an additional check. The permission is also checked on the server side
+            // following the standard pattern.
+            if (getContext().checkSelfPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+                    != PackageManager.PERMISSION_GRANTED) {
+                throw new SecurityException(
+                        "requires permission " + Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+            }
+        }
 
         if (mCarVolumeEventCallbacks.isEmpty()) {
             if (!registerVolumeGroupEventCallback()) {
@@ -2128,6 +2149,11 @@ public final class CarAudioManager extends CarManagerBase {
      * Unregisters a {@link CarVolumeGroupEventCallback} registered via
      * {@link #registerCarVolumeGroupEventCallback}
      *
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * or later than {@link Build.VERSION_CODES#CINNAMON_BUN} will receive the
+     * {@link SecurityException} for each unregistration call if the
+     * {@link Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission is not granted.
+     *
      * @param callback The callback to be removed
      * @throws NullPointerException if callback is {@code null}
      * @throws IllegalStateException if dynamic audio routing is not enabled
@@ -2140,6 +2166,18 @@ public final class CarAudioManager extends CarManagerBase {
     public void unregisterCarVolumeGroupEventCallback(
             @NonNull CarVolumeGroupEventCallback callback) {
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
+
+        if (Flags.carAudioVolumeCallbackRegistrationPermissionEnforced()
+                && mAppTargetSdk >= Build.VERSION_CODES.CINNAMON_BUN) {
+            // Check permission on the client side to prevent unauthorized client state changes.
+            // This is an additional check. The permission is also checked on the server side
+            // following the standard pattern.
+            if (getContext().checkSelfPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+                    != PackageManager.PERMISSION_GRANTED) {
+                throw new SecurityException(
+                        "requires permission " + Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+            }
+        }
 
         CarVolumeGroupEventCallbackWrapper callbackWrapper =
                 new CarVolumeGroupEventCallbackWrapper(/* executor= */ null, callback);
