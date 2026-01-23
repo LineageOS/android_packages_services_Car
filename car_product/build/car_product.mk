@@ -33,9 +33,9 @@ PRODUCT_PACKAGES += \
 # Additional settings for AAOS builds
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.com.android.dataroaming?=true \
-    ro.config.ringtone=Girtab.ogg \
-    ro.config.notification_sound=Tethys.ogg \
-    ro.config.alarm_alert=Oxygen.ogg \
+    ro.config.ringtone?=Girtab.ogg \
+    ro.config.notification_sound?=Tethys.ogg \
+    ro.config.alarm_alert?=Oxygen.ogg \
 
 # Enable dual pane activity embedding by default on automotive
 PRODUCT_PRODUCT_PROPERTIES += \
