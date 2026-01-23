@@ -20,14 +20,22 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/portrait"
+        android:id="@+id/toggle_orientation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Toggle Orientation"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/launch_portrait_activity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/portrait_activity"
         android:layout_gravity="center"/>
 
     <Button
-        android:id="@+id/landscape"
+        android:id="@+id/launch_landscape_activity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

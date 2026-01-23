@@ -18,6 +18,8 @@ package com.google.android.car.kitchensink.orientation;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,16 +35,30 @@ public class OrientationTestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.orientation_test, container, false);
-        Button portrait = (Button) v.findViewById(R.id.portrait);
-        portrait.setOnClickListener(new View.OnClickListener() {
+
+        Button toggleOrientation = v.findViewById(R.id.toggle_orientation);
+        toggleOrientation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int currentRotation = Settings.System.getIntForUser(
+                        getContext().getContentResolver(), Settings.System.USER_ROTATION,
+                        /* def= */ 0, UserHandle.USER_CURRENT);
+                int newRotation = currentRotation == 0 ? 1 : 0;
+                Settings.System.putIntForUser(getContext().getContentResolver(),
+                        Settings.System.USER_ROTATION, newRotation, UserHandle.USER_CURRENT);
+            }
+        });
+
+        Button portraitAct = v.findViewById(R.id.launch_portrait_activity);
+        portraitAct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getContext(), PortraitActivity.class));
             }
         });
 
-        Button landscape = (Button) v.findViewById(R.id.landscape);
-        landscape.setOnClickListener(new View.OnClickListener() {
+        Button landscapeAct = v.findViewById(R.id.launch_landscape_activity);
+        landscapeAct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getContext(), LandscapeActivity.class));
