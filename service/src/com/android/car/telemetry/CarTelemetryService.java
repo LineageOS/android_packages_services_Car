@@ -406,7 +406,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             removeMetricsConfig(metricsConfigName); // clean up
             return STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
         }
-        // TODO(b/199410900): update logic once metrics configs have expiration dates
         return STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
     }
 
