@@ -96,6 +96,7 @@ android_test {
         "src/com/android/car/CarProjectionManagerTest.java",
         "src/com/android/car/CarVendorExtensionManagerTest.java",
         "src/com/android/car/ICarImplTest.java",
+        "src/com/android/car/CarShellCommandTest.java",
     ],
 
     test_config: "AndroidTest_CarTest.xml",
