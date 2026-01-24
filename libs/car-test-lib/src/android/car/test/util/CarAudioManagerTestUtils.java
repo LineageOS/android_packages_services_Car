@@ -22,8 +22,12 @@ import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupEventCallback;
 import android.car.media.CarVolumeGroupInfo;
+import android.os.SystemClock;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -81,29 +85,78 @@ public final class CarAudioManagerTestUtils {
     public static final class TestCarVolumeGroupEventCallback implements
             CarVolumeGroupEventCallback {
 
-        private CountDownLatch mVolumeGroupEventLatch = new CountDownLatch(1);
-        private List<CarVolumeGroupEvent> mEvents;
-        private int mEventTypes;
+        private static final int ANY_ZONE = -1;
+        private static final int ANY_GROUP = -1;
+
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private final List<CarVolumeGroupEvent> mEvents = new ArrayList<>();
+        @GuardedBy("mLock")
+        private int mEventTypes = 0;
 
         public void waitForVolumeGroupEvent() throws InterruptedException {
-            silentAwait(mVolumeGroupEventLatch, WAIT_TIMEOUT_MS);
+            waitForVolumeGroupEvent(ANY_ZONE, ANY_GROUP);
+        }
+
+        /**
+         * Waits for a volume group event that matches the specified {@code zoneId} and
+         * {@code groupId}.
+         *
+         * <p><b>Note:</b> calling this function more than once with the same arguments without
+         * {@link #reset()} in between misbehaves.
+         *
+         * @param zoneId the ID of the audio zone to wait for
+         * @param groupId the ID of the volume group to wait for
+         * @throws InterruptedException if the thread is interrupted while waiting
+         */
+        public void waitForVolumeGroupEvent(int zoneId, int groupId) throws InterruptedException {
+            long startTime = SystemClock.uptimeMillis();
+            synchronized (mLock) {
+                while (getCarVolumeGroupInfoLocked(zoneId, groupId) == null) {
+                    long remainingTime = startTime + WAIT_TIMEOUT_MS - SystemClock.uptimeMillis();
+                    if (remainingTime <= 0) {
+                        break;
+                    }
+                    mLock.wait(remainingTime);
+                }
+            }
         }
 
         public boolean receivedVolumeGroupEvents() throws InterruptedException {
-            return silentAwait(mVolumeGroupEventLatch, WAIT_TIMEOUT_MS);
+            long startTime = SystemClock.uptimeMillis();
+            synchronized (mLock) {
+                while (mEvents.isEmpty()) {
+                    long remainingTime = startTime + WAIT_TIMEOUT_MS - SystemClock.uptimeMillis();
+                    if (remainingTime <= 0) {
+                        break;
+                    }
+                    mLock.wait(remainingTime);
+                }
+                return !mEvents.isEmpty();
+            }
         }
 
         public int getEventTypes() {
-            return mEventTypes;
+            synchronized (mLock) {
+                return mEventTypes;
+            }
         }
 
         public CarVolumeGroupInfo getCarVolumeGroupInfo(int zoneId, int groupId) {
-            for (int i = 0; i < mEvents.size(); i++) {
+            synchronized (mLock) {
+                return getCarVolumeGroupInfoLocked(zoneId, groupId);
+            }
+        }
+
+        @GuardedBy("mLock")
+        private CarVolumeGroupInfo getCarVolumeGroupInfoLocked(int zoneId, int groupId) {
+            for (int i = mEvents.size() - 1; i >= 0; i--) {
                 CarVolumeGroupEvent event = mEvents.get(i);
                 List<CarVolumeGroupInfo> infos = event.getCarVolumeGroupInfos();
                 for (int j = 0; j < infos.size(); j++) {
                     CarVolumeGroupInfo info = infos.get(j);
-                    if (info.getZoneId() == zoneId && info.getId() == groupId) {
+                    if ((info.getZoneId() == zoneId || zoneId == ANY_ZONE)
+                            && (info.getId() == groupId || groupId == ANY_GROUP)) {
                         return info;
                     }
                 }
@@ -112,20 +165,24 @@ public final class CarAudioManagerTestUtils {
         }
 
         public void reset() {
-            mVolumeGroupEventLatch = new CountDownLatch(1);
-            mEvents = null;
-            mEventTypes = 0;
+            synchronized (mLock) {
+                mEvents.clear();
+                mEventTypes = 0;
+                mLock.notifyAll();
+            }
         }
 
         @Override
         public void onVolumeGroupEvent(List<CarVolumeGroupEvent> volumeGroupEvents) {
-            mEvents = volumeGroupEvents;
-            for (int i = 0; i < volumeGroupEvents.size(); i++) {
-                CarVolumeGroupEvent currentEvent = volumeGroupEvents.get(i);
-                mEventTypes |= currentEvent.getEventTypes();
+            synchronized (mLock) {
+                mEvents.addAll(volumeGroupEvents);
+                for (int i = 0; i < volumeGroupEvents.size(); i++) {
+                    CarVolumeGroupEvent currentEvent = volumeGroupEvents.get(i);
+                    mEventTypes |= currentEvent.getEventTypes();
+                }
+                Log.v(TAG, "onVolumeGroupEvent events " + volumeGroupEvents);
+                mLock.notifyAll();
             }
-            Log.v(TAG, "onVolumeGroupEvent events " + volumeGroupEvents);
-            mVolumeGroupEventLatch.countDown();
         }
     }
 
