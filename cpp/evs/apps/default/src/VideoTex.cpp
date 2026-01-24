@@ -153,8 +153,14 @@ VideoTex* createVideoTexture(const std::shared_ptr<IEvsEnumerator>& pEnum, const
     std::shared_ptr<IEvsCamera> pCamera;
     std::shared_ptr<StreamHandler> pStreamHandler;
     if (!streamCfg) {
-        LOG(ERROR) << "Given stream configuration is invalid.";
-        return nullptr;
+        LOG(WARNING) << "Given stream configuration is NULL.";
+        LOG(INFO) << "Setting default streamconfig parameters";
+        std::unique_ptr<Stream> targetCfg(new Stream());
+        streamCfg = std::move(targetCfg);
+        // TODO(b/471293801): We will eventually need to remove the hardcoded resolution for one
+        // queried from the metadata.
+        streamCfg->width = SENSOR_WIDTH;
+        streamCfg->height = SENSOR_HEIGHT;
     }
 
     if (auto status = pEnum->openCamera(evsCameraId, *streamCfg, &pCamera); !status.isOk()) {

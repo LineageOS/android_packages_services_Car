@@ -19,12 +19,30 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+soong_config_module_type {
+  name: "cam_config_cc_defaults",
+  module_type: "cc_defaults",
+  config_namespace: "evscam",
+  bool_variables: ["use_ar0231"],
+  properties: ["cflags"],
+}
+
+cam_config_cc_defaults {
+    name: "cam_config_defaults",
+    soong_config_variables: {
+        use_ar0231: {
+            cflags: ["-DUSE_AR0231"],
+        },
+    },
+}
+
 cc_binary {
     name: "evs_app",
     defaults: [
         "aconfig_lib_cc_shared_link.defaults",
         "android.hardware.graphics.common-ndk_shared",
         "vhalclient_defaults",
+        "cam_config_defaults",
     ],
     local_include_dirs: ["inc"],
     include_dirs: [

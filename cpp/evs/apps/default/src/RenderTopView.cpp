@@ -144,11 +144,8 @@ bool RenderTopView::activate() {
 
     // Set up streaming video textures for our associated cameras
     for (auto&& cam : mActiveCameras) {
-        // We are passing an empty stream configuration; this will make EVS
-        // choose the default stream configuration.
-        std::unique_ptr<Stream> emptyCfg(new Stream());
-        cam.tex.reset(createVideoTexture(mEnumerator, cam.info.cameraId.c_str(),
-                                         std::move(emptyCfg), sDisplay));
+        cam.tex.reset(
+                createVideoTexture(mEnumerator, cam.info.cameraId.c_str(), nullptr, sDisplay));
         if (!cam.tex) {
             LOG(ERROR) << "Failed to set up video texture for " << cam.info.cameraId << " ("
                        << cam.info.function << ")";
