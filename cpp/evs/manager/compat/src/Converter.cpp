@@ -186,9 +186,7 @@ media_status_t Converter::toAImageReader(const Stream& config, int32_t maxImages
 
     media_status_t status =
             AImageReader_newWithUsage(config.width, config.height, format,
-                                      GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_OFTEN |
-                                              GRALLOC_USAGE_SW_WRITE_OFTEN,
-                                      maxImages, reader);
+                                      GRALLOC_USAGE_SW_READ_OFTEN, maxImages, reader);
     if (status != AMEDIA_OK) {
         LOG(ERROR) << "Failed to create AImageReader, status: " << status;
     }
