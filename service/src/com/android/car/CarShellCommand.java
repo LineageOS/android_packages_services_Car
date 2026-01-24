@@ -158,6 +158,7 @@ import com.android.car.telemetry.util.IoUtils;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
 import com.android.car.watchdog.CarWatchdogService;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.modules.utils.BasicShellCommandHandler;
 
@@ -184,7 +185,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-final class CarShellCommand extends BasicShellCommandHandler {
+class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String NO_INITIAL_USER = "N/A";
 
@@ -216,6 +217,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_SET_DISPLAY_STATE = "set-display-state";
     private static final String COMMAND_SET_DISPLAY_BRIGHTNESS = "set-display-brightness";
     private static final String COMMAND_GET_DISPLAY_BRIGHTNESS = "get-display-brightness";
+    private static final String COMMAND_GET_DENSITY_SCALE_FACTOR = "get-density-scale-factor";
+    private static final String COMMAND_SET_DENSITY_SCALE_FACTOR = "set-density-scale-factor";
+    private static final String[] GET_OR_SET_DENSITY_SCALE_FACTOR_PERMISSIONS = new String[]{
+            android.car.Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY,
+            android.Manifest.permission.QUERY_ALL_PACKAGES
+    };
+    private static final String PARAM_USER = "--user";
+    private static final String PARAM_DISPLAY = "--display";
     private static final String PARAM_SIMULATE = "--simulate";
     private static final String PARAM_REAL = "--real";
     private static final String PARAM_AUTO = "--auto";
@@ -384,6 +393,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_UNASSIGN_EXTRA_DISPLAY,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_DENSITY_SCALE_FACTOR,
+                GET_OR_SET_DENSITY_SCALE_FACTOR_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SET_DENSITY_SCALE_FACTOR,
+                GET_OR_SET_DENSITY_SCALE_FACTOR_PERMISSIONS);
     }
 
     // List of commands allowed in user build. All these command should be protected with
@@ -713,6 +726,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\tset-display-state [displayId] [true|false]");
         pw.println("\tset-display-brightness [displayId] [brightness_at_0_to_1_scale]");
         pw.println("\tget-display-brightness [displayId]");
+        pw.printf("\t%s\n", getDisplayDensityScaleFactorUsage());
+        pw.printf("\t%s\n", setDisplayDensityScaleFactorUsage());
         pw.println("\t  Turn on or off the individual display.");
         pw.println("\tprojection-tethering [true|false]");
         pw.println("\t  Whether tethering should be used when creating access point for"
@@ -848,15 +863,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s [occupantZoneId]\n", COMMAND_RESET_USER_ID_IN_OCCUPANT_ZONE);
         pw.println("\t  Unmaps the user assigned to occupant zone id.");
 
-        pw.printf("\t%s [--hal-only] [--user USER_ID] TYPE1 [..TYPE_N]\n",
-                COMMAND_GET_USER_AUTH_ASSOCIATION);
+        pw.printf("\t%s [--hal-only] [%s USER_ID] TYPE1 [..TYPE_N]\n",
+                COMMAND_GET_USER_AUTH_ASSOCIATION, PARAM_USER);
         pw.println("\t  Gets the N user authentication values for the N types for the given user");
         pw.println("\t  (or current user when not specified).");
         pw.println("\t  By default it calls CarUserManager, but using --hal-only will call just "
                 + "UserHalService.");
 
-        pw.printf("\t%s [--hal-only] [--user USER_ID] TYPE1 VALUE1 [..TYPE_N VALUE_N]\n",
-                COMMAND_SET_USER_AUTH_ASSOCIATION);
+        pw.printf("\t%s [--hal-only] [%s USER_ID] TYPE1 VALUE1 [..TYPE_N VALUE_N]\n",
+                COMMAND_SET_USER_AUTH_ASSOCIATION, PARAM_USER);
         pw.println("\t  Sets the N user authentication types with the N values for the given user");
         pw.println("\t  (or current user when not specified).");
         pw.println("\t  By default it calls CarUserManager, but using --hal-only will call just "
@@ -961,7 +976,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s enable|disable\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
         pw.println("\t  Enables/disables car watchdog process health check.");
 
-        pw.printf("\t%s <PACKAGE_NAME> [--user USER_ID]\n", COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL);
+        pw.printf("\t%s <PACKAGE_NAME> [%s USER_ID]\n", COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL,
+                PARAM_USER);
         pw.println("\t  Kills PACKAGE_NAME due to resource overuse.");
 
         pw.printf("\t%s [REGION_STRING]", COMMAND_DRIVING_SAFETY_SET_REGION);
@@ -987,9 +1003,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 + "ECHO_REVERSE_BYTES, REQUEST_SIZE is how many byteValues in the request. "
                 + "This command can be used for testing LargeParcelable by passing large request.");
 
-        pw.printf("\t%s [--user USER] <APP1> [APPN]", COMMAND_GET_TARGET_CAR_VERSION);
-        pw.println("\t  Gets the target API version (major and minor) defined by the given apps "
-                + "for the given user (or current user when --user is not set).");
+        pw.printf("\t%s [%s USER] <APP1> [APPN]", COMMAND_GET_TARGET_CAR_VERSION, PARAM_USER);
+        pw.printf("\t  Gets the target API version (major and minor) defined by the given apps "
+                + "for the given user (or current user when %s is not set).", PARAM_USER);
 
         pw.printf("\t%s <PID> <CPU_GROUP_ID>", COMMAND_SET_PROCESS_GROUP);
         pw.println("\t Change CPU group of a process. Check android.os.Process.setProcessGroup "
@@ -1363,6 +1379,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 return setDisplayBrightness(args, writer);
             case COMMAND_GET_DISPLAY_BRIGHTNESS:
                 return getDisplayBrightness(args, writer);
+            case COMMAND_GET_DENSITY_SCALE_FACTOR:
+                // fall through
+            case COMMAND_SET_DENSITY_SCALE_FACTOR:
+                return runDisplayDensityScaleFactor(args, writer);
             case COMMAND_SET_UID_TO_ZONE:
                 if (args.length != 3) {
                     return showInvalidArguments(writer);
@@ -1684,6 +1704,158 @@ final class CarShellCommand extends BasicShellCommandHandler {
             writer.println("Brightness for display Id " + displayId + ": " + brightness);
         } catch (SecurityException e) {
             writer.println("Car shell does not have permission to get display brightness");
+            return RESULT_ERROR;
+        }
+
+        return RESULT_OK;
+    }
+
+    private static String getDisplayDensityScaleFactorUsage() {
+        return String.format(
+                "%s <PACKAGE_NAME> [%s USER_ID] [%s DISPLAY_ID]",
+                COMMAND_GET_DENSITY_SCALE_FACTOR, PARAM_USER, PARAM_DISPLAY);
+    }
+
+    private static String setDisplayDensityScaleFactorUsage() {
+        return String.format(
+                "%s <PACKAGE_NAME> <DENSITY_SCALE_FACTOR> [%s USER_ID] [%s DISPLAY_ID]",
+                COMMAND_SET_DENSITY_SCALE_FACTOR, PARAM_USER, PARAM_DISPLAY);
+    }
+
+    /**
+     * Processes shell commands to either retrieve or update the display density scale factor
+     * for a specific package.
+     * <p>
+     * Package name arg is always required .
+     * For set operations a non-negative float scale factor is required.
+     * <p>
+     * For incorrect/malformed flag values (user/display IDs), the method warns the
+     * user but falls back to defaults.
+     *
+     * @return {@code RESULT_OK} (0) if the operation succeeded;
+     * {@code RESULT_ERROR} (-1) for syntax or execution failures.
+     */
+    private int runDisplayDensityScaleFactor(String[] args, IndentingPrintWriter writer) {
+        if (!Flags.displayCompatibilityV2()) {
+            writer.println("command is unavailable");
+            return RESULT_ERROR;
+        }
+        // args[0] is always either COMMAND_GET_DENSITY_SCALE_FACTOR or
+        // COMMAND_SET_DENSITY_SCALE_FACTOR.
+        String command = args[0];
+        boolean isGetDensityScaleFactor = Objects.equals(command, COMMAND_GET_DENSITY_SCALE_FACTOR);
+        String packageName = null;
+        int displayId = Display.DEFAULT_DISPLAY;
+        int userId = getActivityManagerCurrentUser();
+        int index = 1;
+        float densityScaleFactor = -1f;
+        boolean isPkgSet = false;
+        boolean isScaleFtrSet = false;
+
+        while (index < args.length) {
+            if (!PARAM_USER.equals(args[index]) && !PARAM_DISPLAY.equals(args[index])) {
+                String argValue = args[index];
+                index++;
+                if (!isPkgSet) {
+                    packageName = argValue;
+                    isPkgSet = true;
+                    continue;
+                }
+
+                // pkg is already set
+                if (isGetDensityScaleFactor) {
+                    writer.printf("Found multiple values for <PACKAGE_NAME>: %s %s\n",
+                            packageName, argValue);
+                    return RESULT_ERROR;
+                }
+
+                if (!isScaleFtrSet) {
+                    try {
+                        densityScaleFactor = Float.parseFloat(argValue);
+                        isScaleFtrSet = true;
+                    } catch (NumberFormatException e) {
+                        writer.printf("Invalid scale factor: %s, must be a valid float\n",
+                                argValue);
+                        return RESULT_ERROR;
+                    }
+                    continue;
+                }
+
+                // scale is already set
+                writer.printf("Found multiple values for <DENSITY_SCALE_FACTOR>: %f %s\n",
+                        densityScaleFactor, argValue);
+                return RESULT_ERROR;
+            }
+
+            int valueIndex = index + 1;
+            if (valueIndex >= args.length) {
+                writer.printf("Invalid command syntax.\nUsage: %s\n",
+                        isGetDensityScaleFactor ? getDisplayDensityScaleFactorUsage()
+                                : setDisplayDensityScaleFactorUsage());
+                return RESULT_ERROR;
+            }
+            String argValue = args[valueIndex];
+            switch (args[index]) {
+                case PARAM_USER:
+                    try {
+                        userId = Integer.parseInt(argValue);
+                    } catch (NumberFormatException e) {
+                        writer.printf(
+                                "Invalid user id: %s, must be a valid integer, using default "
+                                        + "value of: %d instead\n",
+                                argValue, userId);
+                    }
+                    break;
+                case PARAM_DISPLAY:
+                    try {
+                        displayId = Integer.parseInt(argValue);
+                    } catch (NumberFormatException e) {
+                        writer.printf(
+                                "Invalid display id: %s, must be a valid integer, using default "
+                                        + "value of: %d instead\n",
+                                argValue, displayId);
+                    }
+                    break;
+            }
+            // next tag after the parameter and the value
+            index += 2;
+        }
+
+        if (packageName == null) {
+            writer.printf("Valid package name not provided.\nUsage: %s\n",
+                    isGetDensityScaleFactor ? getDisplayDensityScaleFactorUsage()
+                            : setDisplayDensityScaleFactorUsage());
+            return RESULT_ERROR;
+        }
+
+        if (!isGetDensityScaleFactor && densityScaleFactor < 0) {
+            writer.printf("Valid scale factor not provided.\nUsage: %s\n",
+                    isGetDensityScaleFactor ? getDisplayDensityScaleFactorUsage()
+                            : setDisplayDensityScaleFactorUsage());
+            return RESULT_ERROR;
+        }
+
+        try {
+            if (isGetDensityScaleFactor) {
+                densityScaleFactor = mCarPackageManagerService.getDensityScaleFactor(packageName,
+                        userId, displayId);
+                writer.println(densityScaleFactor);
+                return RESULT_OK;
+            }
+            mCarPackageManagerService.setDensityScaleFactor(packageName, userId, displayId,
+                    densityScaleFactor);
+            writer.printf(
+                    "Density scale factor for package: %S, user id: %d, display id: %d is set to "
+                            + "%f\n",
+                    packageName, userId, displayId, densityScaleFactor);
+        } catch (IllegalArgumentException e) {
+            writer.printf(
+                    "Arguments are not correctly formatted or are invalid. package: %S, user id: "
+                            + "%d, display id: %d\n",
+                    packageName, userId, displayId);
+            return RESULT_ERROR;
+        } catch (SecurityException e) {
+            writer.println("Car shell does not have permission to manage density scale");
             return RESULT_ERROR;
         }
 
@@ -2798,7 +2970,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
             switch (arg) {
-                case "--user":
+                case PARAM_USER:
                     try {
                         userId = Integer.parseInt(args[++i]);
                     } catch (NumberFormatException e) {
@@ -2931,7 +3103,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
             switch (arg) {
-                case "--user":
+                case PARAM_USER:
                     try {
                         userId = Integer.parseInt(args[++i]);
                     } catch (NumberFormatException e) {
@@ -3823,7 +3995,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         String packageName = args[1];
         int userId;
-        if (args.length > 2 && Objects.equals(args[2], "--user")) {
+        if (args.length > 2 && Objects.equals(args[2], PARAM_USER)) {
             try {
                 userId = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
@@ -4444,7 +4616,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         // TODO(b/234499460): move --user logic to private helper / support 'all'
         int userId = UserHandle.CURRENT.getIdentifier();
-        if (Objects.equals(args[1], "--user")) {
+        if (Objects.equals(args[1], PARAM_USER)) {
             if (args.length < 4) {
                 showInvalidArguments(writer);
                 return;
@@ -4667,5 +4839,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
             mStatus = 0;
             mStatusLatch = new CountDownLatch(1);
         }
+    }
+
+    @VisibleForTesting
+    @UserIdInt
+    int getActivityManagerCurrentUser() {
+        return ActivityManager.getCurrentUser();
     }
 }

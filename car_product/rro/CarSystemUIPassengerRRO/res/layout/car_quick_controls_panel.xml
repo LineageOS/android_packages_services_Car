@@ -71,19 +71,19 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/date">
-                    <com.android.systemui.car.statusicon.StatusIconView
+                    <com.android.systemui.car.statusicon.base.StatusIconView
                         android:layout_width="@dimen/car_quick_controls_entry_points_icon_width"
                         android:layout_height="match_parent"
                         android:layout_marginHorizontal="@dimen/car_padding_1"
                         android:layout_gravity="center"
                         systemui:controller="com.android.systemui.car.statusicon.location.LocationStatusIconController"/>
-                    <com.android.systemui.car.statusicon.StatusIconView
+                    <com.android.systemui.car.statusicon.base.StatusIconView
                         android:layout_width="@dimen/car_quick_controls_entry_points_icon_width"
                         android:layout_height="match_parent"
                         android:layout_marginHorizontal="@dimen/car_padding_1"
                         android:layout_gravity="center"
                         systemui:controller="com.android.systemui.car.statusicon.mobile.MobileSignalStatusIconController"/>
-                    <com.android.systemui.car.statusicon.StatusIconView
+                    <com.android.systemui.car.statusicon.base.StatusIconView
                         android:layout_width="@dimen/car_quick_controls_entry_points_icon_width"
                         android:layout_height="match_parent"
                         android:layout_marginHorizontal="@dimen/car_padding_1"

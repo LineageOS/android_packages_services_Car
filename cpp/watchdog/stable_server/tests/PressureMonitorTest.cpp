@@ -108,8 +108,6 @@ MATCHER_P(PsiMonitorInfoEq, expected, "") {
                               arg, result_listener);
 }
 
-// TODO(b/335508921): Once stats are read from system properties, mock the system property APIs to
-//   pass this value.
 const std::vector<PsiMonitorInfo> kDefaultPsiMonitorInfos =
         {PsiMonitorInfo{
                  .kStallType = kLowPsiStallLevel,
