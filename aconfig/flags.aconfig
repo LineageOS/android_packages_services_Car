@@ -384,6 +384,14 @@ flag {
 }
 
 flag {
+  name: "camera2_sample_rear_view_service"
+  namespace: "car_perception"
+  description: "A sample implementation of rear view camera service using camera2."
+  bug: "458092316"
+  is_fixed_read_only: true
+}
+
+flag {
   name: "car_evs_compat_lib"
   namespace: "car_perception"
   description: "Add an EVS compatible library to simplify the migration from EVS to Camera2."

@@ -345,6 +345,10 @@ android_library {
     static_libs: [
         "android.car.builtin.testonly",
     ],
+
+    flags_packages: [
+        "android.car.feature-aconfig", // Add the module name here
+    ],
 }
 
 filegroup {
