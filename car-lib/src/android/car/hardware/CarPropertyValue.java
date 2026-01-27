@@ -701,7 +701,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     public String toString() {
         String propertyIdToString = VehiclePropertyIds.toString(mPropertyId);
         if (Flags.carPropertySimulation()) {
-            if (isPropertyIdSimulationPropId()) {
+            if (BuildHelper.isDebuggableBuild() && isPropertyIdSimulationPropId()) {
                 propertyIdToString = "0x" + Integer.toHexString(mPropertyId);
             }
         }
@@ -717,7 +717,7 @@ public final class CarPropertyValue<T> implements Parcelable {
                 + ", mHasPermissionToReadPropertyVendorStatus="
                 + mHasPermissionToReadPropertyVendorStatus;
         if (Flags.carPropertySimulation()) {
-            if (isPropertyIdSimulationPropId()) {
+            if (BuildHelper.isDebuggableBuild() && isPropertyIdSimulationPropId()) {
                 return propertyValueString
                         + ", mIsSimulationPropId=" + mIsSimulationPropId
                         + '}';
