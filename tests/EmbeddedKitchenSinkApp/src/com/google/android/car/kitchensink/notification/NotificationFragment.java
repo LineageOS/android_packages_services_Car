@@ -34,6 +34,7 @@ import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -111,6 +112,7 @@ public class NotificationFragment extends Fragment {
         initTestMessagesButton(view);
         initProgressButton(view);
         initProgressColorizedButton(view);
+        initLiveUpdateButton(view);
         initNavigationButton(view);
         initMediaButton(view);
         initCallButton(view);
@@ -916,6 +918,55 @@ public class NotificationFragment extends Fragment {
         };
         mUpdateRunnables.put(id, runnable);
         return runnable;
+    }
+
+    private void initLiveUpdateButton(View view) {
+        view.findViewById(R.id.promoted_ongoing).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            Notification notification = getLiveUpdateBaseNotification()
+                    .setContentTitle("Promoted Ongoing - Init")
+                    .setContentText("Promoted ongoing - default priority, no heads up")
+                    .setShortCriticalText("Init")
+                    .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ false)
+                    .build();
+            mManager.notify(id, notification);
+
+            int progress = 0;
+            Runnable runnable = getLiveUpdateRunnable(id, progress);
+            mUpdateRunnables.put(id, runnable);
+            mHandler.post(runnable);
+        });
+    }
+
+    private Runnable getLiveUpdateRunnable(int id, int progress) {
+        List<String> criticalList = Arrays.asList("Preparing", "Starting", "Processing", "Done");
+        String criticalText = criticalList.get(Math.min(Math.floorDiv(progress, 25), 3));
+        Runnable runnable = () -> {
+            Notification.Builder builder = getLiveUpdateBaseNotification()
+                    .setContentTitle("Promoted Ongoing - " + criticalText)
+                    .setContentText("Promoted ongoing - default priority, no heads up")
+                    .setShortCriticalText(criticalText)
+                    .setProgress(/* max= */ 100, progress, /* indeterminate= */ false);
+            if (progress >= 100) {
+                builder.setOngoing(false).setRequestPromotedOngoing(false);
+            }
+            Notification updateNotification = builder.build();
+            mManager.notify(id, updateNotification);
+            if (progress + 5 <= 100) {
+                mHandler.postDelayed(getLiveUpdateRunnable(id, progress + 5),
+                        /* delayMillis= */ 2000);
+            }
+        };
+        mUpdateRunnables.put(id, runnable);
+        return runnable;
+    }
+
+    private Notification.Builder getLiveUpdateBaseNotification() {
+        return new Notification.Builder(mContext, IMPORTANCE_DEFAULT_ID)
+                .setSmallIcon(R.drawable.car_ic_mode)
+                .setOngoing(true)
+                .setRequestPromotedOngoing(true);
     }
 
     private void initNavigationButton(View view) {
