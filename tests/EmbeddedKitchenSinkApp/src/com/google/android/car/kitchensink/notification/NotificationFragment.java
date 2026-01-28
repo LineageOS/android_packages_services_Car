@@ -9,6 +9,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.media.session.MediaSession;
 import android.os.Bundle;
@@ -112,6 +113,11 @@ public class NotificationFragment extends Fragment {
         initTestMessagesButton(view);
         initProgressButton(view);
         initProgressColorizedButton(view);
+        initProgressButtonWithActions(view);
+        initProgressIndeterminateButton(view);
+        initProgressIndeterminateColorizedButton(view);
+        initProgressIndeterminateButtonWithAction(view);
+        initProgressStyleButton(view);
         initLiveUpdateButton(view);
         initNavigationButton(view);
         initMediaButton(view);
@@ -849,22 +855,41 @@ public class NotificationFragment extends Fragment {
         view.findViewById(R.id.progress_button).setOnClickListener(v -> {
             int id = mCurrentNotificationId++;
 
-            Notification notification = new Notification
-                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
+            Notification.Builder builder = getProgressBaseNotification()
                     .setContentTitle("Progress")
-                    .setOngoing(/* ongoing= */ true)
-                    .setContentText(
-                            "Doesn't show heads-up; Importance Default; Groups; Ongoing (cannot "
-                                    + "be dismissed)")
+                    .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ false);
+            mManager.notify(id, builder.build());
+
+            Runnable runnable = getProgressNotifUpdateRunnable(id, /* progress= */ 0,
+                    /* indeterminate= */ false, builder);
+            mUpdateRunnables.put(id, runnable);
+            mHandler.post(runnable);
+        });
+    }
+
+    private void initProgressButtonWithActions(View view) {
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
+        Notification.Action action1 = new Notification.Action.Builder(
+                R.drawable.architecture, "architecture", pendingIntent)
+                .build();
+        Notification.Action action2 = new Notification.Action.Builder(
+                Icon.createWithResource(this.getContext(), R.drawable.archive),
+                "archive", pendingIntent).build();
+        view.findViewById(R.id.progress_button_actions).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            Notification.Builder builder = getProgressBaseNotification()
+                    .setContentTitle("Progress (w/ 2 Actions)")
                     .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ false)
-                    .setContentInfo("0%")
-                    .setSmallIcon(R.drawable.car_ic_mode)
-                    .build();
-            mManager.notify(id, notification);
+                    .addAction(action1)
+                    .addAction(action2);
+            mManager.notify(id, builder.build());
 
             int progress = 0;
-            Runnable runnable = getProgressNotifUpdateRunnable(id, progress, /* isColorized= */
-                    false);
+            Runnable runnable = getProgressNotifUpdateRunnable(id, progress,
+                    /* indeterminate= */ false, builder);
             mUpdateRunnables.put(id, runnable);
             mHandler.post(runnable);
         });
@@ -874,50 +899,159 @@ public class NotificationFragment extends Fragment {
         view.findViewById(R.id.progress_button_colorized).setOnClickListener(v -> {
             int id = mCurrentNotificationId++;
 
-            Notification notification = new Notification
-                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
+            Notification.Builder builder = getProgressBaseNotification()
                     .setContentTitle("Progress (Colorized)")
-                    .setOngoing(/* ongoing= */ true)
-                    .setContentText(
-                            "Doesn't show heads-up; Importance Default; Groups; Ongoing (cannot "
-                                    + "be dismissed)")
                     .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ false)
-                    .setColor(mContext.getColor(android.R.color.holo_purple))
-                    .setContentInfo("0%")
-                    .setSmallIcon(R.drawable.car_ic_mode)
-                    .build();
-            mManager.notify(id, notification);
+                    .setColor(mContext.getColor(android.R.color.holo_purple));
+            mManager.notify(id, builder.build());
 
             int progress = 0;
-            Runnable runnable = getProgressNotifUpdateRunnable(id, progress, /* isColorized= */
-                    true);
+            Runnable runnable = getProgressNotifUpdateRunnable(id, progress,
+                    /* indeterminate= */ false, builder);
             mUpdateRunnables.put(id, runnable);
             mHandler.post(runnable);
         });
     }
 
-    private Runnable getProgressNotifUpdateRunnable(int id, int progress, boolean isColorized) {
+    private void initProgressIndeterminateButton(View view) {
+        view.findViewById(R.id.progress_button_indeterminate).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            Notification.Builder builder = getProgressBaseNotification()
+                    .setContentTitle("Progress (Indeterminate)")
+                    .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ true);
+            mManager.notify(id, builder.build());
+
+            Runnable runnable = getProgressNotifUpdateRunnable(id, /* progress= */ 0,
+                    /* indeterminate= */ true, builder);
+            mUpdateRunnables.put(id, runnable);
+            mHandler.post(runnable);
+        });
+    }
+
+    private void initProgressIndeterminateColorizedButton(View view) {
+        view.findViewById(R.id.progress_button_colorized_indeterminate).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            Notification.Builder builder = getProgressBaseNotification()
+                    .setContentTitle("Progress (Indeterminate Colorized)")
+                    .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ true)
+                    .setColor(mContext.getColor(android.R.color.holo_purple));
+            mManager.notify(id, builder.build());
+
+            Runnable runnable = getProgressNotifUpdateRunnable(id, /* progress= */ 0,
+                    /* indeterminate= */ true, builder);
+            mUpdateRunnables.put(id, runnable);
+            mHandler.post(runnable);
+        });
+    }
+
+    private void initProgressIndeterminateButtonWithAction(View view) {
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
+        Notification.Action action = new Notification.Action.Builder(
+                R.drawable.architecture, "architecture", pendingIntent)
+                .build();
+        view.findViewById(R.id.progress_button_indeterminate_action).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            Notification.Builder builder = getProgressBaseNotification()
+                    .setContentTitle("Progress (Indeterminate w/ Action)")
+                    .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ true)
+                    .addAction(action);
+            mManager.notify(id, builder.build());
+
+            Runnable runnable = getProgressNotifUpdateRunnable(id, /* progress= */ 0,
+                    /* indeterminate= */ true, builder);
+            mUpdateRunnables.put(id, runnable);
+            mHandler.post(runnable);
+        });
+    }
+
+    private Runnable getProgressNotifUpdateRunnable(int id, int progress, boolean indeterminate,
+            Notification.Builder builder) {
         Runnable runnable = () -> {
-            Notification.Builder builder = new Notification
-                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
-                    .setContentTitle("Progress")
-                    .setContentText("Doesn't show heads-up; Importance Default; Groups")
-                    .setProgress(/* max= */ 100, progress, /* indeterminate= */ false)
-                    .setOngoing(/* ongoing= */ true)
-                    .setContentInfo(progress + "%")
-                    .setSmallIcon(R.drawable.car_ic_mode);
-            if (isColorized) {
-                builder.setColor(mContext.getColor(android.R.color.holo_purple));
-            }
+            builder.setProgress(/* max= */ 100, progress, indeterminate)
+                    .setContentInfo(progress + "%");
             Notification updateNotification = builder.build();
             mManager.notify(id, updateNotification);
             if (progress + 5 <= 100) {
-                mHandler.postDelayed(getProgressNotifUpdateRunnable(id, progress + 5, isColorized),
-                        /* delayMillis= */ 1000);
+                mHandler.postDelayed(
+                        getProgressNotifUpdateRunnable(id, progress + 5, indeterminate,
+                                builder), /* delayMillis= */ 1000);
             }
         };
         mUpdateRunnables.put(id, runnable);
         return runnable;
+    }
+
+    private Notification.Builder getProgressBaseNotification() {
+        return new Notification.Builder(mContext, IMPORTANCE_DEFAULT_ID)
+                .setOngoing(/* ongoing= */ true)
+                .setContentText(
+                        "Doesn't show heads-up; Importance Default; Groups; Ongoing (cannot "
+                                + "be dismissed)")
+                .setContentInfo("0%")
+                .setSmallIcon(R.drawable.car_ic_mode);
+    }
+
+    private void initProgressStyleButton(View view) {
+        view.findViewById(R.id.progress_style_button).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+            Notification.ProgressStyle style = new Notification.ProgressStyle()
+                    .addProgressSegment(
+                            new Notification.ProgressStyle.Segment(30).setColor(Color.RED))
+                    .addProgressSegment(
+                            new Notification.ProgressStyle.Segment(40).setColor(Color.BLUE))
+                    .addProgressSegment(
+                            new Notification.ProgressStyle.Segment(30).setColor(Color.GREEN))
+                    .addProgressPoint(
+                            new Notification.ProgressStyle.Point(10).setColor(Color.BLACK))
+                    .addProgressPoint(
+                            new Notification.ProgressStyle.Point(50).setColor(Color.BLACK))
+                    .addProgressPoint(
+                            new Notification.ProgressStyle.Point(90).setColor(Color.BLACK))
+                    .setProgressTrackerIcon(
+                            Icon.createWithResource(view.getContext(), R.drawable.car_ic_mode))
+                    .setProgressStartIcon(
+                            Icon.createWithResource(view.getContext(), R.drawable.avatar1))
+                    .setProgressEndIcon(
+                            Icon.createWithResource(view.getContext(), R.drawable.avatar2))
+                    .setProgress(0);
+
+            Notification n = new Notification.Builder(mContext, IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("Progress Style")
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .setStyle(style)
+                    .build();
+            mManager.notify(id, n);
+
+            Runnable r = getProgressStyleUpdateRunnable(id, 0, style);
+            mUpdateRunnables.put(id, r);
+            mHandler.post(r);
+        });
+    }
+
+    private Runnable getProgressStyleUpdateRunnable(int id, int progress,
+            Notification.ProgressStyle style) {
+        return () -> {
+            style.setProgress(progress);
+
+            Notification.Builder builder = new Notification
+                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("Progress Style")
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .setStyle(style);
+
+            mManager.notify(id, builder.build());
+
+            if (progress + 5 <= 100) {
+                Runnable nextRunnable = getProgressStyleUpdateRunnable(id, progress + 5, style);
+                mUpdateRunnables.put(id, nextRunnable);
+                mHandler.postDelayed(nextRunnable, 1000);
+            }
+        };
     }
 
     private void initLiveUpdateButton(View view) {
