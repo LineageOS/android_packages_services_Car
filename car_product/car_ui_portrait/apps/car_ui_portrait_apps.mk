@@ -20,7 +20,6 @@ PRODUCT_PACKAGES += \
     car-ui-lib-portrait-proxyplugin \
     CarNotification \
     CarUiPortraitCommon \
-    CarUiPortraitLauncher \
     PaintBooth
 
 # All apps to be excluded in car_ui_portrait builds should be specified as part of CarUiPortraitHideApps.
