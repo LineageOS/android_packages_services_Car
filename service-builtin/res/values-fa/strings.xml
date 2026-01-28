@@ -26,9 +26,9 @@
     <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"مدیریت رویدادهای ورودی"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"هنگام رانندگی نمی‌توانید از این ویژگی استفاده کنید"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"برای شروع مجدد با ویژگی‌های برنامه امن، <xliff:g id="EXIT_BUTTON">%s</xliff:g> را انتخاب کنید."</string>
-    <string name="exit_button" msgid="3491899413031549265">"برگشت"</string>
+    <string name="exit_button" msgid="3491899413031549265">"برگشتن"</string>
     <string name="exit_button_close_application" msgid="5153716684207539041">"بستن برنامه"</string>
-    <string name="exit_button_go_back" msgid="6921595432375141935">"برگشت"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"برگشتن"</string>
     <string name="importance_default" msgid="8017186728206153704">"اهمیت پیش‌فرض"</string>
     <string name="importance_high" msgid="3393374688015554727">"اهمیت زیاد"</string>
     <string name="android_system_label" msgid="9209428539477894959">"سیستم Android"</string>
