@@ -209,23 +209,41 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
         verifyWriteAccess(propId, areaId);
 
         HalPropValue updatedValue = buildRawPropValueAndCheckRange(propValue);
-        maybeInvokeCallback(updatedValue, propId, areaId);
+        final boolean invokeCallback;
+        synchronized (mLock) {
+            invokeCallback = shouldInvokeCallback(updatedValue, propId, areaId);
+        }
+        if (invokeCallback) {
+            mReplayingVehicleHalCallback
+                    .getRealCallback()
+                    .onInjectionPropertyEvent(List.of(updatedValue));
+        }
     }
 
     private void buildHalPropValueAndMaybeInvokeCallback(CarPropertyValue carPropertyValue) {
         int propId = carPropertyValue.getPropertyId();
         int areaId = carPropertyValue.getAreaId();
-        HalPropValue halPropValue = buildHalPropValue(carPropertyValue,
-                carPropertyValue.getPropertyId(), SystemClock.elapsedRealtimeNanos());
-        if (maybeInvokeCallback(halPropValue, propId, areaId)) {
-            synchronized (mLock) {
+        HalPropValue halPropValue =
+                buildHalPropValue(
+                        carPropertyValue,
+                        carPropertyValue.getPropertyId(),
+                        SystemClock.elapsedRealtimeNanos());
+        final boolean invokeCallback;
+        synchronized (mLock) {
+            invokeCallback = shouldInvokeCallback(halPropValue, propId, areaId);
+            if (invokeCallback) {
                 mLastInjectedProperty.put(propId, carPropertyValue);
             }
         }
+        if (invokeCallback) {
+            mReplayingVehicleHalCallback
+                    .getRealCallback()
+                    .onInjectionPropertyEvent(List.of(halPropValue));
+        }
     }
 
-    private boolean maybeInvokeCallback(HalPropValue halPropValue, int propId, int areaId) {
-        HalPropValue oldValue;
+    @GuardedBy("mLock")
+    private boolean shouldInvokeCallback(HalPropValue halPropValue, int propId, int areaId) {
         // Need mLock in case of race condition E.G.
         // Thread 1 get returns 4
         // Thread 2 get returns 4
@@ -233,18 +251,19 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
         // Thread 2 put 4
         // If lock is not present, thread 2 would not invoke onPropertyEvent change from 3 -> 4,
         // client would assume the propValue would be 3
-        synchronized (mLock) {
-            if (mReplayingVehicleHalCallback == null) {
-                Slogf.w(TAG, "Replaying Vehicle Hal Callback is null");
-                return false;
-            }
-            oldValue = getPropValue(propId, areaId);
-            Slogf.d(TAG, "Fake value stored for propId: %d, areaId: %d, value: %s Storing "
-                            + "new value %s", propId, areaId, oldValue, halPropValue);
-            putPropValue(propId, areaId, halPropValue);
+        if (mReplayingVehicleHalCallback == null) {
+            Slogf.w(TAG, "Replaying Vehicle Hal Callback is null");
+            return false;
         }
-        mReplayingVehicleHalCallback.getRealCallback().onInjectionPropertyEvent(List.of(
-                halPropValue));
+        HalPropValue oldValue = getPropValue(propId, areaId);
+        Slogf.d(
+                TAG,
+                "Fake value stored for propId: %d, areaId: %d, value: %s Storing new value %s",
+                propId,
+                areaId,
+                oldValue,
+                halPropValue);
+        putPropValue(propId, areaId, halPropValue);
         return true;
     }
 
