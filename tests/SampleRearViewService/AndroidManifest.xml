@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!--
+     This is a sample rear view reference application using the Camera2 API.
+     It monitors the vehicle gear state and starts the activity when the vehicle is in reverse.
+
+     The namespace attribute brings in the Android platform namespace, and the package
+     supplies a unique name for the application. When writing your
+     own application, the package name must be changed from "com.google.*"
+     to come from a domain that you own or have control over.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.google.android.car.samplerearviewservice">
+    <!-- Permission to interact with users across user boundaries, necessary for a system service. -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <!-- Permission to create windows that are displayed on top of other applications. -->
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
+    <!-- Permissions required to access the Camera2 API. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SYSTEM_CAMERA" />
+    <uses-permission android:name="android.permission.CAMERA_HEADLESS_SYSTEM_USER" />
+    <uses-permission android:name="android.permission.CAMERA_PRIVACY_ALLOWLIST" />
+
+    <!-- Permission to access car powertrain data, which can be used to trigger the camera. -->
+    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
+    <!-- Allows the service to start activities from the background, which is necessary for the
+         rear-view camera to be displayed when triggered. -->
+    <uses-permission android:name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
+
+    <!-- The application is persistent and directBootAware, ensuring it's always running and can
+         operate before the user unlocks the device. -->
+    <application
+        android:label="samplerearviewservice"
+        android:persistent="true"
+        android:directBootAware="true">
+        <!-- The main activity that displays the camera feed.
+        It's exported so the service can start it, and shown for all users. -->
+        <activity
+            android:name="com.google.android.car.samplerearviewservice.SampleRearViewActivity"
+            android:theme="@style/Theme.Transparent"
+            android:exported="true"
+            android:showForAllUsers="true"
+            android:featureFlag="android.car.feature.camera2_sample_rear_view_service"
+            android:turnScreenOn="true"
+            android:resizeableActivity="false">
+
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+
+        </activity>
+
+        <!-- The main service that listens for camera triggers and starts the activity.
+             It's exported so the car service can bind to it, and is directBootAware to
+             be able to start early in the boot process. -->
+        <service
+            android:name="com.google.android.car.samplerearviewservice.SampleRearViewService"
+            android:exported="true"
+            android:directBootAware="true"
+            android:featureFlag="android.car.feature.camera2_sample_rear_view_service" />
+
+    </application>
+</manifest>

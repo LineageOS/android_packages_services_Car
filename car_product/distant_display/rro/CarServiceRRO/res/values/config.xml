@@ -21,7 +21,8 @@
   Overlay resources to configure car service based on each OEM's preference.
   See also packages/services/Car/service/res/values/config.xml
 -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+xmlns:android="http://schemas.android.com/apk/res/android">
     <!--  The name of Activity who is in charge of ClusterHome. -->
     <string name="config_clusterHomeActivity" translatable="false">com.android.car.driverui/.MainActivity</string>
 
@@ -32,7 +33,7 @@
         <item>diagnostic</item>
         <item>storage_monitoring</item>
         <item>vehicle_map_service</item>
-        <item>car_evs_service</item>
+        <item android:featureFlag="!android.car.feature.camera2_sample_rear_view_service">car_evs_service</item>
         <item>car_telemetry_service</item>
     </string-array>
 

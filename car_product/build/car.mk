@@ -55,6 +55,7 @@ PRODUCT_PACKAGES += \
     CarHotwordDetectionServiceOne \
     KitchenSinkServerlessRemoteTaskClientRRO \
     AaosCustomizationTool \
+    SampleRearViewService \
 
 # SEPolicy for test apps / services
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test

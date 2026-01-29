@@ -234,6 +234,14 @@
                 android:textSize="30sp"/>
 
             <Button
+                android:id="@+id/promoted_ongoing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Promoted ongoing notification (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
                 android:id="@+id/custom_group_summary_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

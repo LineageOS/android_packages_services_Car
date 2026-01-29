@@ -23,5 +23,8 @@ runtime_resource_overlay {
     resource_dirs: ["res"],
     manifest: "AndroidManifest.xml",
     sdk_version: "current",
-    product_specific: true
+    product_specific: true,
+    flags_packages: [
+        "android.car.feature-aconfig",
+    ],
 }
