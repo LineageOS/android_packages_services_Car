@@ -5,5 +5,5 @@ service evs_app /system/bin/evs_app
     group automotive_evs
     disabled # will not automatically start with its class; must be explictly started.
 
-on late-init
+on property:apex.all.ready=true
     start evs_app
