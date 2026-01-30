@@ -226,11 +226,51 @@
                 android:textSize="30sp"/>
 
             <Button
+                android:id="@+id/progress_button_actions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Progress With 2 Actions (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
                 android:id="@+id/progress_button_colorized"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:text="Progress Colorized (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/progress_button_indeterminate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Progress Indeterminate (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/progress_button_colorized_indeterminate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Progress Indeterminate Colorized (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/progress_button_indeterminate_action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Progress Indeterminate With 1 Action (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/progress_style_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Progress Style"
                 android:textSize="30sp"/>
 
             <Button
