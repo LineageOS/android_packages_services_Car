@@ -17,3 +17,5 @@
 # Default density overrides for DisplayCompat
 PRODUCT_PACKAGES += \
     display_compat_config
+
+PRODUCT_SOONG_NAMESPACES += packages/services/Car/car_product/displaycompat
