@@ -14,7 +14,6 @@
 # limitations under the License.
 
 PRODUCT_PACKAGES += \
-    CarUiPortraitLauncher \
     car-ui-lib-portrait-proxyplugin \
     PaintBooth \
     StubCarLauncher // TODO(b/432217693) remove once dedicated visibility barrier is present
