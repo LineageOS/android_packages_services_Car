@@ -53,6 +53,25 @@ public final class PackageIoUsage {
         mHistoricalNotForgivenOveruses = MISSING_VALUE;
     }
 
+    public PackageIoUsage(PackageIoUsage other) {
+        if (other.mIoOveruseStats != null) {
+            mIoOveruseStats = new android.automotive.watchdog.IoOveruseStats();
+            mIoOveruseStats.killableOnOveruse = other.mIoOveruseStats.killableOnOveruse;
+            mIoOveruseStats.startTime = other.mIoOveruseStats.startTime;
+            mIoOveruseStats.durationInSeconds = other.mIoOveruseStats.durationInSeconds;
+            mIoOveruseStats.totalOveruses = other.mIoOveruseStats.totalOveruses;
+            mIoOveruseStats.writtenBytes = copyPerStateBytes(other.mIoOveruseStats.writtenBytes);
+            mIoOveruseStats.remainingWriteBytes =
+                    copyPerStateBytes(other.mIoOveruseStats.remainingWriteBytes);
+        } else {
+            mIoOveruseStats = null;
+        }
+        mForgivenWriteBytes = copyPerStateBytes(other.mForgivenWriteBytes);
+        mForgivenOveruses = other.mForgivenOveruses;
+        mTotalTimesKilled = other.mTotalTimesKilled;
+        mHistoricalNotForgivenOveruses = other.mHistoricalNotForgivenOveruses;
+    }
+
     /** Returns the I/O overuse stats related to the package. */
     public android.automotive.watchdog.IoOveruseStats getInternalIoOveruseStats() {
         return mIoOveruseStats;
@@ -202,6 +221,19 @@ public final class PackageIoUsage {
             android.automotive.watchdog.PerStateBytes internalPerStateBytes) {
         return new PerStateBytes(internalPerStateBytes.foregroundBytes,
                 internalPerStateBytes.backgroundBytes, internalPerStateBytes.garageModeBytes);
+    }
+
+    private static android.automotive.watchdog.PerStateBytes copyPerStateBytes(
+            android.automotive.watchdog.PerStateBytes other) {
+        if (other == null) {
+            return null;
+        }
+        android.automotive.watchdog.PerStateBytes copy =
+                new android.automotive.watchdog.PerStateBytes();
+        copy.foregroundBytes = other.foregroundBytes;
+        copy.backgroundBytes = other.backgroundBytes;
+        copy.garageModeBytes = other.garageModeBytes;
+        return copy;
     }
 
     private static long totalPerStateBytes(
