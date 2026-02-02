@@ -40,7 +40,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toTopOf="parent">
-                <com.android.systemui.car.qc.SystemUIQCView
+                <com.android.systemui.car.qc.base.SystemUIQCView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
