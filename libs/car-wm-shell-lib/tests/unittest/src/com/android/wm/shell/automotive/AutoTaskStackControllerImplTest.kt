@@ -491,6 +491,28 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     }
 
     @Test
+    fun startTransition_withEmptyTransaction_returnsNull() {
+        // Verifies that calling startTransition with an empty transaction returns null
+        // and does not start a transition.
+
+        // Arrange
+        val transaction = AutoTaskStackTransaction()
+
+        // Act
+        val result = controller.startTransition(transaction)
+
+        // Assert
+        // Expect null because no operations were provided.
+        assertThat(result).isNull()
+        // Expect that no transition is started.
+        verify(transitions, never()).startTransition(
+            anyInt(),
+            any(WindowContainerTransaction::class.java),
+            any(Transitions.TransitionHandler::class.java)
+        )
+    }
+
+    @Test
     fun startTransition_withTaskStackStates_leadsToCorrectStartAnimation() {
         // Arrange
         val leash = mock(SurfaceControl::class.java)

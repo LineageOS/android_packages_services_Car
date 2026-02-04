@@ -127,9 +127,7 @@ TEST_F(ConverterTest, toAImageReader_ValidConfig) {
 
     EXPECT_CALL(mMockNdkCamera,
                 AImageReader_newWithUsage(640, 480, AIMAGE_FORMAT_RGBA_8888,
-                                          GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_OFTEN |
-                                                  GRALLOC_USAGE_SW_WRITE_OFTEN,
-                                          3, _))
+                                          GRALLOC_USAGE_SW_READ_OFTEN, 3, _))
             .WillOnce(Invoke([](int32_t, int32_t, int32_t, uint64_t, int32_t,
                                 AImageReader** reader) -> media_status_t {
                 *reader = dummyReader;
@@ -163,9 +161,7 @@ TEST_F(ConverterTest, toAImageReader_AImageReaderNewFails) {
 
     EXPECT_CALL(mMockNdkCamera,
                 AImageReader_newWithUsage(640, 480, AIMAGE_FORMAT_RGBA_8888,
-                                          GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_OFTEN |
-                                                  GRALLOC_USAGE_SW_WRITE_OFTEN,
-                                          3, _))
+                                          GRALLOC_USAGE_SW_READ_OFTEN, 3, _))
             .WillOnce(Return(AMEDIA_ERROR_UNKNOWN));
 
     AImageReader* reader = nullptr;
@@ -202,8 +198,7 @@ TEST_F(ConverterTest, toBufferDesc_Success) {
                 desc->height = 480;
                 desc->layers = 1;
                 desc->format = AIMAGE_FORMAT_RGBA_8888;
-                desc->usage = GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_OFTEN |
-                        GRALLOC_USAGE_SW_WRITE_OFTEN;
+                desc->usage = GRALLOC_USAGE_SW_READ_OFTEN;
                 desc->stride = 640;
             }));
     EXPECT_CALL(mMockNdkCamera, AImage_getTimestamp(dummyImage, _))

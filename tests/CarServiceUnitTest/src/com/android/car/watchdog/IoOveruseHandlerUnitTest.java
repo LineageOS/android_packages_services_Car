@@ -3806,6 +3806,23 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         expectThat(perStateBytes.getGaragemodeBytes()).isEqualTo(600);
     }
 
+    @Test
+    public void testPackageIoUsageCopyConstructor() throws Exception {
+        PackageIoUsage usage =
+                new PackageIoUsage(
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(600, 700, 800),
+                                /* totalOveruses= */ 3),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
+                        /* forgivenOveruses= */ 3, /* totalTimesKilled= */ 0);
+        PackageIoUsage deepCopy = new PackageIoUsage(usage);
+
+        assertThat(usage).isNotSameInstanceAs(deepCopy);
+        assertThat(usage.getInternalIoOveruseStats())
+                .isNotSameInstanceAs(deepCopy.getInternalIoOveruseStats());
+    }
+
     private static SparseArray<String> constructPackagesByNotificationId(int idOffset,
             String... packages) {
         SparseArray<String> packagesById = new SparseArray<>();
