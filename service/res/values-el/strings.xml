@@ -254,8 +254,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Καταχωρήστε έναν διακομιστή μεσολάβησης διεπαφής χρήστη συστήματος που μπορεί να χρησιμοποιηθεί από άλλες εφαρμογές για τη διαχείριση της διεπαφής χρήστη συστήματος και τη δημιουργία προβολών εργασιών."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Επικοινωνήστε με τη διεπαφή χρήστη συστήματος για να δημιουργήσετε προβολές εργασιών ή για να λαμβάνετε ειδοποιήσεις σχετικά με αλλαγές στη διεπαφή χρήστη συστήματος."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Επικοινωνήστε με τη διεπαφή χρήστη συστήματος για να δημιουργήσετε προβολές εργασιών ή για να λαμβάνετε ειδοποιήσεις σχετικά με αλλαγές στη διεπαφή χρήστη συστήματος."</string>
-    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Διαβάστε τις σταθερές ρυθμίσεις σύνδεσης του αυτοκινήτου"</string>
-    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Διαβάστε τις σταθερές ρυθμίσεις σύνδεσης του αυτοκινήτου"</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Διαβάστε τις σταθερές ρυθμίσεις διαμοιρασμού του αυτοκινήτου"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Διαβάστε τις σταθερές ρυθμίσεις διαμοιρασμού του αυτοκινήτου"</string>
     <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"εγγραφή ιδιοτήτων οχήματος"</string>
     <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"εγγραφή ιδιοτήτων οχήματος"</string>
     <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"εισαγωγή ιδιοτήτων οχήματος"</string>
