@@ -99,6 +99,7 @@ android_library {
         "Slogf",
         "WindowManager-Shell",
         "WindowManager-Shell-shared",
+        "com_android_wm_shell_automotive_flags_lib",
     ],
 
     libs: ["android.car"],

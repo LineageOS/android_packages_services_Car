@@ -1,0 +1,11 @@
+# proto-file: build/make/tools/aconfig/aconfig_protos/protos/aconfig.proto
+
+package: "com.android.wm.shell.automotive"
+container: "system"
+
+flag {
+    name: "enable_mumd_car_wm_shell"
+    namespace: "car_framework"
+    description: "Enables proxy and host implementation in MUMD car-wm-shell for automotive"
+    bug: "473838490"
+}
