@@ -1278,7 +1278,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         verify(mAudioManager).unregisterAudioDeviceCallback(any());
         verify(mAudioManager).clearAudioServerStateCallback();
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl).releaseModuleChangeCallback();
     }
 
     @Test
@@ -1289,7 +1289,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         service.release();
 
-        verify(mAudioControlWrapperAidl, never()).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl, never()).releaseModuleChangeCallback();
     }
 
     @Test
@@ -2890,7 +2890,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mMockPowerService).removePowerPolicyListener(any());
         verify(mMockTelephonyManager).unregisterTelephonyCallback(any());
         verify(mAudioManager).unregisterAudioDeviceCallback(deviceCallback);
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl).releaseModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
         verify(mAudioControlWrapperAidl, never()).unlinkToDeath();
@@ -2917,7 +2917,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mMockPowerService).removePowerPolicyListener(any());
         verify(mMockTelephonyManager).unregisterTelephonyCallback(any());
         verify(mAudioManager).unregisterAudioDeviceCallback(deviceCallback);
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl).releaseModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
         verify(mAudioControlWrapperAidl, never()).unlinkToDeath();
@@ -2944,7 +2944,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mMockPowerService).removePowerPolicyListener(any());
         verify(mMockTelephonyManager).unregisterTelephonyCallback(any());
         verify(mAudioManager).unregisterAudioDeviceCallback(deviceCallback);
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl).releaseModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
         verify(mAudioControlWrapperAidl, never()).unlinkToDeath();

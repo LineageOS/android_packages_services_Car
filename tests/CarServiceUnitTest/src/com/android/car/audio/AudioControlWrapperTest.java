@@ -70,6 +70,7 @@ import android.media.AudioManager;
 import android.media.audio.common.AudioGain;
 import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
+import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.platform.test.annotations.DisableFlags;
@@ -992,6 +993,34 @@ public final class AudioControlWrapperTest extends AbstractExtendedMockitoTestCa
 
         verify(mAudioControl, after(TEST_CALLBACK_TIMEOUT_MS).never())
                 .clearModuleChangeCallback();
+    }
+
+    @Test
+    public void releaseModuleChangeCallback() throws Exception {
+        mAudioControlWrapper.releaseModuleChangeCallback();
+
+        verify(mAudioControl, timeout(TEST_CALLBACK_TIMEOUT_MS)).clearModuleChangeCallback();
+    }
+
+    @Test
+    public void releaseModuleChangeCallback_withDeadObjectException_doesNotThrow()
+            throws Exception {
+        doThrow(new DeadObjectException()).when(mAudioControl).clearModuleChangeCallback();
+
+        mAudioControlWrapper.releaseModuleChangeCallback();
+
+        verify(mAudioControl, timeout(TEST_CALLBACK_TIMEOUT_MS)).clearModuleChangeCallback();
+        // Exception is caught internally and logged
+    }
+
+    @Test
+    public void releaseModuleChangeCallback_withRemoteException_doesNotThrow() throws Exception {
+        doThrow(new RemoteException()).when(mAudioControl).clearModuleChangeCallback();
+
+        mAudioControlWrapper.releaseModuleChangeCallback();
+
+        verify(mAudioControl, timeout(TEST_CALLBACK_TIMEOUT_MS)).clearModuleChangeCallback();
+        // Exception is caught internally and logged
     }
 
     @Test

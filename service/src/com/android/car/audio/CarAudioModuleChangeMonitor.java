@@ -63,6 +63,16 @@ final class CarAudioModuleChangeMonitor {
     }
 
     /**
+     * Clears (any) {@code HalAudioModuleChangeCallback} from {@code AudioControlWrapper}
+     *
+     * <p>This is used exclusively during the shutdown-related release procedure to avoid crashing
+     * when the AudioControl HAL is destroyed before CarAudioService.
+     */
+    void releaseModuleChangeCallback() {
+        mAudioControlWrapper.releaseModuleChangeCallback();
+    }
+
+    /**
      * Handles incoming list of updated {@code HalAudioDeviceInfo}.
      * If the changes result in volume group info updates (min/max/current),
      * trigger volume group event(s) callback on the listeners.

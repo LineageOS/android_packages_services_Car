@@ -44,6 +44,7 @@ import android.hardware.automotive.audiocontrol.IModuleChangeCallback;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
 import android.media.audio.common.AudioPort;
+import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -424,9 +425,23 @@ final class AudioControlWrapper implements IBinder.DeathRecipient {
     }
 
     /**
-     * Clears all module change callbacks that's registered on the AudioControl HAL
+     * Clears all module change callbacks that are registered on the AudioControl HAL
      */
     void clearModuleChangeCallback() {
+        clearModuleChangeCallbackInternal(/* isRelease= */ false);
+    }
+
+    /**
+     * Clears all module change callbacks that are registered on the AudioControl HAL
+     *
+     * <p>This is used exclusively during the shutdown-related release procedure to avoid crashing
+     * when the AudioControl HAL is destroyed before CarAudioService.
+     */
+    void releaseModuleChangeCallback() {
+        clearModuleChangeCallbackInternal(/* isRelease= */ true);
+    }
+
+    private void clearModuleChangeCallbackInternal(boolean isRelease) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -438,7 +453,20 @@ final class AudioControlWrapper implements IBinder.DeathRecipient {
                     }
                     mAudioControl.clearModuleChangeCallback();
                     mModuleChangeCallbackRegistered = false;
+                } catch (DeadObjectException e) {
+                    if (isRelease) {
+                        // HAL crashed. Binder death is going to restore the connection.
+                        // Don't throw an exception as the callbacks are cleared anyway on the crash
+                        Slogf.w(TAG, "Failed to clear module change callback, HAL likely died", e);
+                        return;
+                    }
+                    throw new IllegalStateException(
+                            "IAudioControl#clearModuleChangeCallback failed", e);
                 } catch (RemoteException e) {
+                    if (isRelease) {
+                        Slogf.e(TAG, "IAudioControl#clearModuleChangeCallback failed", e);
+                        return;
+                    }
                     throw new IllegalStateException(
                             "IAudioControl#clearModuleChangeCallback failed", e);
                 } catch (UnsupportedOperationException e) {
