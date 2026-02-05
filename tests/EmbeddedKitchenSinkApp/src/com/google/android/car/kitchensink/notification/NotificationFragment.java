@@ -449,10 +449,11 @@ public class NotificationFragment extends Fragment {
     private void initOngoingButton(View view) {
         view.findViewById(R.id.ongoing_button).setOnClickListener(v -> {
 
+            // Dismissible due to com.android.systemui.car.promoted_notifications Flag
             Notification notification = new Notification
                     .Builder(mContext, IMPORTANCE_DEFAULT_ID)
                     .setContentTitle("Persistent/Ongoing Notification")
-                    .setContentText("Cannot be dismissed; No heads-up; Importance default; Groups")
+                    .setContentText("Dismissible; No heads-up; Importance default; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .setOngoing(true)
                     .build();
@@ -1058,9 +1059,10 @@ public class NotificationFragment extends Fragment {
         view.findViewById(R.id.promoted_ongoing).setOnClickListener(v -> {
             int id = mCurrentNotificationId++;
 
+            // Dismissible due to com.android.systemui.car.promoted_notifications Flag
             Notification notification = getLiveUpdateBaseNotification()
                     .setContentTitle("Promoted Ongoing - Init")
-                    .setContentText("Promoted ongoing - default priority, no heads up")
+                    .setContentText("Promoted ongoing - dismissible once done, heads up")
                     .setShortCriticalText("Init")
                     .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ false)
                     .build();
@@ -1078,8 +1080,9 @@ public class NotificationFragment extends Fragment {
         String criticalText = criticalList.get(Math.min(Math.floorDiv(progress, 25), 3));
         Runnable runnable = () -> {
             Notification.Builder builder = getLiveUpdateBaseNotification()
-                    .setContentTitle("Promoted Ongoing - " + criticalText)
-                    .setContentText("Promoted ongoing - default priority, no heads up")
+                    .setContentTitle("Promoted Ongoing (Dimissable) - " + criticalText)
+                    .setContentText("Promoted ongoing - dismissible, "
+                            + "retriggers in NC every update, heads up")
                     .setShortCriticalText(criticalText)
                     .setProgress(/* max= */ 100, progress, /* indeterminate= */ false);
             if (progress >= 100) {
@@ -1087,7 +1090,7 @@ public class NotificationFragment extends Fragment {
             }
             Notification updateNotification = builder.build();
             mManager.notify(id, updateNotification);
-            if (progress + 5 <= 100) {
+            if (progress < 100) {
                 mHandler.postDelayed(getLiveUpdateRunnable(id, progress + 5),
                         /* delayMillis= */ 2000);
             }
@@ -1097,10 +1100,12 @@ public class NotificationFragment extends Fragment {
     }
 
     private Notification.Builder getLiveUpdateBaseNotification() {
-        return new Notification.Builder(mContext, IMPORTANCE_DEFAULT_ID)
+        return new Notification.Builder(mContext, IMPORTANCE_HIGH_ID)
                 .setSmallIcon(R.drawable.car_ic_mode)
                 .setOngoing(true)
-                .setRequestPromotedOngoing(true);
+                .setRequestPromotedOngoing(true)
+                // Set so the HUN does not keep re-triggered even after being dismissed to NC
+                .setOnlyAlertOnce(true);
     }
 
     private void initNavigationButton(View view) {
