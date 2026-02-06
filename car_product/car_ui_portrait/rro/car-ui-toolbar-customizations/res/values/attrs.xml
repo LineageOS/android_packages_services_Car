@@ -74,5 +74,4 @@
         <enum name="spread_inside" value="1"/>
         <enum name="packed" value="2"/>
     </attr>
-    <attr name="state_ux_restricted" format="boolean" />
 </resources>
