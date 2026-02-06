@@ -20,7 +20,7 @@
         <layer-list>
             <item>
                 <shape android:shape="rectangle">
-                    <solid android:color="@color/car_on_secondary_container"/>
+                    <solid android:color="?android:attr/textColorPrimary"/>
                     <corners android:radius="24dp"/>
                     <size android:height="88dp" android:width="88dp"/>
                 </shape>
@@ -33,7 +33,7 @@
         <layer-list>
             <item>
                 <shape android:shape="oval">
-                    <solid android:color="@color/car_secondary_container"/>
+                    <solid android:color="?android:attr/colorControlActivated"/>
                     <size android:height="88dp" android:width="88dp"/>
                 </shape>
             </item>
