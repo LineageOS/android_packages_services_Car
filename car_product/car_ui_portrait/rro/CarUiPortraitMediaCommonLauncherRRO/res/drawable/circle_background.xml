@@ -29,7 +29,7 @@
                 android:scaleY="0.5">
                 <path
                     android:name="_R_G_L_0_G_D_0_P_0"
-                    android:fillColor="@color/play_pause_ic_bg_color"
+                    android:fillColor="?android:attr/colorPrimary"
                     android:fillAlpha="1"
                     android:fillType="nonZero"
                     android:pathData=" M48 0.25 C48,0.25 48,0 48,0 C47.75,26 31.25,48 0,48 C0,48 0,48 0,48 C-30,48 -48,25.75 -48,-0.25 C-48,-0.25 -48,-0.25 -48,-0.25 C-47.75,-23.5 -32.25,-47.75 0.5,-48 C0.5,-48 0.5,-48 0.5,-48 C28,-47.75 47.75,-29.75 48,0.25c " />

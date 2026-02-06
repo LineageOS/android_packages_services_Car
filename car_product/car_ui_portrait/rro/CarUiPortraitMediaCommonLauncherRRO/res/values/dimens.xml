@@ -15,7 +15,6 @@
   ~ limitations under the License.
   -->
 <resources>
-    <dimen name="play_pause_button_bg_radius">24dp</dimen>
     <dimen name="play_pause_disabled_button_bg_radius">16dp</dimen>
     <dimen name="circular_progress_bar_padding">9dp</dimen>
 </resources>
