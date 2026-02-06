@@ -36,6 +36,7 @@ PRODUCT_PACKAGES += \
     CarUiPortraitNotificationRRO \
     CarUiPortraitRadioRRO \
     CarUiPortraitSettingsRRO \
+    SampleRearViewServiceRRO \
 
 ifneq ($(INCLUDE_SEAHAWK_ONLY_RROS),)
 PRODUCT_PACKAGES += \
@@ -90,6 +91,7 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.google.android.gsf.googlecaruiportrait.rro; \
     com.google.android.packageinstaller.googlecaruiportrait.rro; \
     com.google.android.permissioncontroller.googlecaruiportrait.rro; \
+    com.google.android.car.samplerearviewservice.caruiportrait.rro; \
     com.google.android.tts.googlecaruiportrait.rro
 
 

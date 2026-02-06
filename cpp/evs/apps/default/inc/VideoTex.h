@@ -32,6 +32,14 @@
 
 #include <system/graphics-base.h>
 
+#ifdef USE_AR0231
+#define SENSOR_WIDTH 1920
+#define SENSOR_HEIGHT 1080
+#else
+#define SENSOR_WIDTH 1280
+#define SENSOR_HEIGHT 800
+#endif
+
 class VideoTex final : public TexWrapper {
     friend VideoTex* createVideoTexture(
             const std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator>& pEnum,
