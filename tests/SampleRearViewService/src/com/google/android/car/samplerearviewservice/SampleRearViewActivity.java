@@ -166,17 +166,17 @@ public class SampleRearViewActivity extends Activity {
         WindowManager wm = getSystemService(WindowManager.class);
         wm.addView(mRootView, params);
 
-        mCameraManager = getSystemService(CameraManager.class);
         mSurfaceView = mRootView.findViewById(R.id.rear_view_camera_preview);
-        SurfacePreviewListener surfacePreviewListener = new SurfacePreviewListener();
-        mSurfaceView.getHolder().addCallback(surfacePreviewListener);
         mHandlerThread = new HandlerThread("CameraPreviewThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
-        mDisplayManager = getSystemService(DisplayManager.class);
-        mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
         mCameraStateListener = new CameraStateListener();
         mCameraSessionListener = new CameraSessionListener();
+        mCameraManager = getSystemService(CameraManager.class);
+        SurfacePreviewListener surfacePreviewListener = new SurfacePreviewListener();
+        mSurfaceView.getHolder().addCallback(surfacePreviewListener);
+        mDisplayManager = getSystemService(DisplayManager.class);
+        mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
 
         mBroadcastReceiver =
                 new BroadcastReceiver() {
