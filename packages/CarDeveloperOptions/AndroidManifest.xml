@@ -1405,7 +1405,7 @@
             android:featureFlag="android.app.supervision.flags.enable_supervision_settings_screen"
             tools:node="remove" />
 
-        <activity android:name="com.android.settings.supervision.SupervisionPinManagementActivity"
+        <activity android:name="com.android.settings.supervision.credentialmanagement.SupervisionPinManagementActivity"
             android:enabled="false"
             android:exported="false"
             android:featureFlag="android.app.supervision.flags.enable_supervision_settings_ui_updates"
