@@ -16,7 +16,5 @@
   -->
 
 <resources>
-    <color name="icon_color">#202124</color>
-    <color name="disabled_icon_color">#9AA0A6</color>
     <color name="action_button_icon_tint">@android:color/transparent</color>
 </resources>
