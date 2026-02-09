@@ -23,9 +23,6 @@ android_app {
         "--no-resource-deduping",
         "--no-resource-removal",
     ],
-    static_libs: [
-        "car-portrait-ui-common",
-    ],
     dex_preopt: {
         enabled: false,
     },
