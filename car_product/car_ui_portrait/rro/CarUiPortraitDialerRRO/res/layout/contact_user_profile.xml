@@ -42,7 +42,7 @@
         android:layout_toEndOf="@id/icon"
         android:layout_alignTop="@id/icon"
         android:singleLine="true"
-        style="@style/TextAppearance.ContactUserProfile.Title" />
+        android:textAppearance="?attr/oemTextAppearanceBodyMedium" />
 
     <TextView
         android:id="@id/text"
@@ -51,7 +51,8 @@
         android:layout_below="@id/title"
         android:layout_toEndOf="@id/icon"
         android:singleLine="true"
-        style="@style/TextAppearance.ContactUserProfile.Text" />
+        android:textAppearance="?attr/oemTextAppearanceBodySmall"
+        android:textColor="?attr/oemColorOnSurfaceVariant" />
 
     <RelativeLayout
         android:id="@+id/show_contact_detail_id"

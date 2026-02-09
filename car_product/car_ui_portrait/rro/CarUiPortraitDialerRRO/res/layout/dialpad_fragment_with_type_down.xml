@@ -46,7 +46,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                style="@style/TextAppearance.DialNumber"/>
+                android:textAppearance="?attr/oemTextAppearanceHeadlineLarge"
+                android:textDirection="ltr"/>
         </FrameLayout>
 
         <fragment
