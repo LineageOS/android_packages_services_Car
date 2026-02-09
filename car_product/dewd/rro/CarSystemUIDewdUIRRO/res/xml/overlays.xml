@@ -18,6 +18,13 @@
 
     <!-- Tokens -->
     <item target="attr/oemColorSurface" value="@attr/oemColorSurface" />
+    <item target="attr/oemColorPrimary" value="@attr/oemColorPrimary" />
+    <item target="attr/oemColorError" value="@attr/oemColorError" />
+    <item target="attr/oemColorSecondaryPalette80" value="@attr/oemColorSecondaryPalette80" />
+
+    <item target="attr/oemTextAppearanceHeadlineLarge" value="@attr/oemTextAppearanceHeadlineLarge" />
+    <item target="attr/oemTextAppearanceDisplayLarge" value="@attr/oemTextAppearanceDisplayLarge" />
+    <item target="attr/oemTextAppearanceDisplaySmall" value="@attr/oemTextAppearanceDisplaySmall" />
 
     <item target="bool/config_enableScalableUI" value="@bool/config_enableScalableUI"/>
     <item target="bool/config_enableTopSystemBar" value="@bool/config_enableTopSystemBar" />
