@@ -27,7 +27,7 @@
                 android:translateY="12.125">
                 <path
                     android:name="_R_G_L_1_G_D_0_P_0"
-                    android:fillColor="@color/play_pause_icon_color"
+                    android:fillColor="?android:attr/textColorPrimaryInverse"
                     android:fillAlpha="1"
                     android:fillType="nonZero"
                     android:pathData=" M-6 7 C-6,7 -2,7 -2,7 C-2,7 -2,-7 -2,-7 C-2,-7 -6,-7 -6,-7 C-6,-7 -6,7 -6,7c " />
@@ -38,7 +38,7 @@
                 android:translateY="12.125">
                 <path
                     android:name="_R_G_L_0_G_D_0_P_0"
-                    android:fillColor="@color/play_pause_icon_color"
+                    android:fillColor="?android:attr/textColorPrimaryInverse"
                     android:fillAlpha="1"
                     android:fillType="nonZero"
                     android:pathData=" M2 7 C2,7 6,7 6,7 C6,7 6,-0.12 6,-0.12 C6,-0.12 6,-7 6,-7 C6,-7 2,-7 2,-7 C2,-7 2,7 2,7c " />

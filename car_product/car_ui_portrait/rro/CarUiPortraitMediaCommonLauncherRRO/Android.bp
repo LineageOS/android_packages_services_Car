@@ -24,8 +24,6 @@ android_app {
         "--no-resource-removal",
     ],
     static_libs: [
-        "car-portrait-ui-common",
         "car-media-common",
-        "car-ui-lib",
     ],
 }
