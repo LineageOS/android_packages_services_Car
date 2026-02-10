@@ -145,8 +145,28 @@ public final class CarActivityService extends ICarActivityService.Stub
         void onTaskVanished(TaskInfo taskInfo);
     }
 
+    /** Listener for root task callbacks. */
+    public interface RootTaskListener {
+        /**
+         * Notified when a root task vanishes.
+         *
+         * @param name Name of the root task that vanishes.
+         */
+        void onRootTaskVanished(String name);
+
+        /**
+         * Notified when a root task appears.
+         *
+         * @param name Name of the root task that appears.
+         */
+        void onRootTaskAppeared(String name);
+    }
+
     @GuardedBy("mLock")
     private final ArrayList<ActivityListener> mActivityListeners = new ArrayList<>();
+
+    @GuardedBy("mLock")
+    private final ArrayList<RootTaskListener> mRootTaskListeners = new ArrayList<>();
 
     private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
             CLASS_NAME);
@@ -186,6 +206,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     public void release() {
         synchronized (mLock) {
             mActivityListeners.clear();
+            mRootTaskListeners.clear();
         }
     }
 
@@ -250,6 +271,29 @@ public final class CarActivityService extends ICarActivityService.Stub
     public void unregisterActivityListener(@NonNull ActivityListener listener) {
         synchronized (mLock) {
             mActivityListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Registers a {@link RootTaskListener} that will be called when a root task appears or
+     * vanishes.
+     *
+     * @param listener Listener to register.
+     */
+    public void registerRootTaskListener(@NonNull RootTaskListener listener) {
+        synchronized (mLock) {
+            mRootTaskListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregisters a {@link RootTaskListener}.
+     *
+     * @param listener Listener to unregister.
+     */
+    public void unregisterRootTaskListener(@NonNull RootTaskListener listener) {
+        synchronized (mLock) {
+            mRootTaskListeners.remove(listener);
         }
     }
 
@@ -422,6 +466,11 @@ public final class CarActivityService extends ICarActivityService.Stub
         synchronized (mLock) {
             name = mRootTaskMap.get(taskId).getName();
             mRootTaskMap.remove(taskId);
+            if (Flags.rootTaskCluster()) {
+                for (int i = 0; i < mRootTaskListeners.size(); i++) {
+                    mRootTaskListeners.get(i).onRootTaskVanished(name);
+                }
+            }
         }
         CarServiceHelperWrapper.getInstance().onRootTaskVanished(name);
     }
@@ -440,9 +489,33 @@ public final class CarActivityService extends ICarActivityService.Stub
             IBinder rootTaskToken) {
         synchronized (mLock) {
             mRootTaskMap.put(taskInfo.taskId, new RootTaskInfo(name, taskInfo, rootTaskToken));
+            if (Flags.rootTaskCluster()) {
+                for (int i = 0; i < mRootTaskListeners.size(); i++) {
+                    mRootTaskListeners.get(i).onRootTaskAppeared(name);
+                }
+            }
         }
         CarServiceHelperWrapper.getInstance().onRootTaskAppeared(name, rootTaskToken);
     }
+
+    /**
+     * Gets the root task info with the specified {@code name}.
+     *
+     * @param name Name of the root task
+     * @return the task info of the root task if found. {@code null} otherwise.
+     */
+    @Nullable
+    public TaskInfo getRootTaskInfo(String name) {
+        for (int i = 0; i < mRootTaskMap.size(); i++) {
+            RootTaskInfo rootTask = mRootTaskMap.valueAt(i);
+            if (name.equals(rootTask.getName())) {
+                return rootTask.getTaskInfo();
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void unregisterTaskMonitor(IBinder token) {
         if (DBG) Slogf.d(TAG, "unregisterTaskMonitor: %s", token);
@@ -891,8 +964,17 @@ public final class CarActivityService extends ICarActivityService.Stub
             for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
                 writer.println("  " + TaskInfoHelper.toString(taskInfo));
             }
-            writer.println(" Surfaces: " + mTaskToSurfaceMap.toString());
-            writer.println(" ActivityListeners: " + mActivityListeners.toString());
+            writer.println(" RootTasks:");
+            for (int i = 0; i < mRootTaskMap.size(); i++) {
+                RootTaskInfo rootTask = mRootTaskMap.valueAt(i);
+                writer.println("  " + rootTask.getName() + " taskId=" + mRootTaskMap.keyAt(i)
+                        + " taskInfo=" + TaskInfoHelper.toString(rootTask.getTaskInfo()));
+            }
+            writer.println(" Surfaces: " + mTaskToSurfaceMap);
+            writer.println(" ActivityListeners: " + mActivityListeners);
+            if (Flags.rootTaskCluster()) {
+                writer.println(" RootTaskListeners: " + mRootTaskListeners);
+            }
             // This IsAutoTaskStackUsed from the dump is used to read status in CTS test. Please be
             // cautious when modifying it.
             writer.println(" IsAutoTaskStackUsed: " + mIsUsingAutoTaskStackWindowing);

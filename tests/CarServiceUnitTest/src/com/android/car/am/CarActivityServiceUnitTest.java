@@ -16,6 +16,7 @@
 
 package com.android.car.am;
 
+import static android.car.feature.Flags.FLAG_ROOT_TASK_CLUSTER;
 import static android.car.feature.Flags.FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS;
 import static android.view.Display.DEFAULT_DISPLAY;
 
@@ -27,11 +28,14 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
@@ -51,6 +55,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceHelperWrapperTimeout;
 import com.android.car.R;
+import com.android.car.am.CarActivityService.RootTaskListener;
 import com.android.car.internal.ICarServiceHelper;
 
 import org.junit.After;
@@ -220,5 +225,56 @@ public class CarActivityServiceUnitTest {
         mCarActivityService.setLaunchBehaviorForRootTask(token, behavior);
 
         verify(mICarServiceHelper, never()).setLaunchBehaviorForRootTask(any(), anyInt());
+    }
+
+    @Test
+    public void getRootTaskInfo() {
+        String rootTaskName = "TEST_ROOT_TASK_NAME";
+        ActivityManager.RunningTaskInfo runningTaskInfo = new ActivityManager.RunningTaskInfo();
+        mCarActivityService.onRootTaskAppeared(
+                rootTaskName, runningTaskInfo, /* rootTaskToken= */ null);
+
+        assertThat(mCarActivityService.getRootTaskInfo(rootTaskName)).isEqualTo(runningTaskInfo);
+    }
+
+    @Test
+    public void getRootTaskInfo_returnsNullIfNotExist() {
+        ActivityManager.RunningTaskInfo runningTaskInfo = new ActivityManager.RunningTaskInfo();
+        mCarActivityService.onRootTaskAppeared(
+                "TEST_ROOT_TASK_NAME", runningTaskInfo, /* rootTaskToken= */ null);
+
+        assertThat(mCarActivityService.getRootTaskInfo("NOT_EXISTING_ROOT_TASK")).isNull();
+    }
+
+    @Test
+    @EnableFlags({FLAG_ROOT_TASK_CLUSTER})
+    public void registerRootTaskListener() {
+        RootTaskListener mockListener = mock(RootTaskListener.class);
+        mCarActivityService.registerRootTaskListener(mockListener);
+        String rootTaskName = "TEST_ROOT_TASK_NAME";
+        ActivityManager.RunningTaskInfo runningTaskInfo = new ActivityManager.RunningTaskInfo();
+
+        mCarActivityService.onRootTaskAppeared(
+                rootTaskName, runningTaskInfo, /* rootTaskToken= */ null);
+        verify(mockListener).onRootTaskAppeared(rootTaskName);
+
+        mCarActivityService.onRootTaskVanished(runningTaskInfo.getTaskId());
+        verify(mockListener).onRootTaskVanished(rootTaskName);
+    }
+
+    @Test
+    @EnableFlags({FLAG_ROOT_TASK_CLUSTER})
+    public void unregisterRootTaskListener() {
+        RootTaskListener mockListener = mock(RootTaskListener.class);
+        mCarActivityService.registerRootTaskListener(mockListener);
+        mCarActivityService.unregisterRootTaskListener(mockListener);
+        ActivityManager.RunningTaskInfo runningTaskInfo = new ActivityManager.RunningTaskInfo();
+
+        mCarActivityService.onRootTaskAppeared(
+                "rootTaskName", runningTaskInfo, /* rootTaskToken= */ null);
+        verifyNoInteractions(mockListener);
+
+        mCarActivityService.onRootTaskVanished(runningTaskInfo.getTaskId());
+        verifyNoInteractions(mockListener);
     }
 }
