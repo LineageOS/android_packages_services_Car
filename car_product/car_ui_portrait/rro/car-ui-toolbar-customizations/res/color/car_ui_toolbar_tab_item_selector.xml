@@ -18,8 +18,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="@color/car_on_surface_variant"/>
+        android:color="?android:attr/textColorSecondary"/>
     <item android:state_activated="true"
-        android:color="@color/car_on_secondary_container" />
-    <item android:color="@color/car_on_surface_variant" />
+        android:color="?android:attr/textColorPrimary" />
+    <item android:color="?android:attr/textColorSecondary" />
 </selector>
