@@ -22,6 +22,6 @@
         android:viewportHeight="48">
     <path
         android:pathData="M12,12H16V36H12V12ZM19,24L36,36V12L19,24ZM25.94,24L32,28.28V19.72L25.94,24Z"
-        android:fillColor="@color/disabled_icon_color"
+        android:fillColor="?android:attr/textColorSecondary"
         android:fillType="evenOdd"/>
 </vector>
