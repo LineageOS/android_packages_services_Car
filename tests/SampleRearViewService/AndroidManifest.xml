@@ -51,6 +51,7 @@
         It's exported so the service can start it, and shown for all users. -->
         <activity
             android:name="com.google.android.car.samplerearviewservice.SampleRearViewActivity"
+            android:configChanges="@integer/config_changes"
             android:theme="@style/Theme.Transparent"
             android:exported="true"
             android:showForAllUsers="true"
