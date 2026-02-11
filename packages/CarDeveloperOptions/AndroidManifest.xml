@@ -3962,7 +3962,7 @@
         </service>
 
         <service
-            android:name="com.android.settings.development.qstile.DevelopmentTiles$WirelessDebugging"
+            android:name="com.android.settings.development.qstile.AdbWirelessDebuggingDevelopmentTile"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
