@@ -15,7 +15,7 @@
   ~ limitations under the License
   -->
 
-<com.android.systemui.car.systembar.CarSystemBarView
+<com.android.systemui.car.systembar.base.CarSystemBarView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:systemui="http://schemas.android.com/apk/res-auto"
     android:id="@+id/car_top_bar"
@@ -61,7 +61,7 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/clock_container"/>
 
-        <com.android.systemui.car.systembar.CarSystemBarButton
+        <com.android.systemui.car.systembar.base.CarSystemBarButton
             android:id="@+id/notifications"
             android:contentDescription="@string/system_bar_notifications_label"
             android:layout_width="wrap_content"
@@ -112,4 +112,4 @@
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true" />
     </RelativeLayout>
-</com.android.systemui.car.systembar.CarSystemBarView>
+</com.android.systemui.car.systembar.base.CarSystemBarView>
