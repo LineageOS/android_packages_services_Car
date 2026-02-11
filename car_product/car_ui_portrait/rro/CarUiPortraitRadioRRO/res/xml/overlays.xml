@@ -22,23 +22,5 @@
     <item target="dimen/playback_card_margin_bottom" value="@dimen/playback_card_margin_bottom" />
     <item target="dimen/playback_card_margin_horizontal" value="@dimen/playback_card_margin_horizontal" />
 
-    <item target="color/accent_color" value="@color/accent_color" />
-    <item target="color/playback_card_background_color" value="@color/playback_card_background_color" />
-    <item target="color/control_button_color" value="@color/control_button_color" />
-    <item target="color/control_button_ripple_color" value="@color/control_button_ripple_color" />
-    <item target="color/control_button_disabled_color" value="@color/control_button_disabled_color" />
-    <item target="color/band_selector_flat_text_color" value="@color/band_selector_flat_text_color" />
-    <item target="color/band_selector_flat_text_color_selected" value="@color/band_selector_flat_text_color_selected" />
-    <item target="color/manual_tuner_button_text_color" value="@color/manual_tuner_button_text_color" />
-    <item target="color/manual_tuner_done_disabled_color" value="@color/manual_tuner_done_disabled_color" />
-    <item target="color/manual_tuner_button_ripple_background_color" value="@color/manual_tuner_button_ripple_fill_color" />
-    <item target="color/manual_tuner_button_background_color" value="@color/manual_tuner_button_background_color" />
-    <item target="color/radio_card_color" value="@color/radio_card_color" />
-    <item target="color/browse_fragment_list_color" value="@color/browse_fragment_list_color" />
-    <item target="color/browse_item_text_color" value="@color/browse_item_text_color" />
-    <item target="color/radio_am_fill_color" value="@color/radio_am_fill_color" />
-    <item target="color/radio_fm_fill_color" value="@color/radio_fm_fill_color" />
-
     <item target="style/RadioPlaybackCard" value="@style/RadioPlaybackCard" />
-
 </overlay>

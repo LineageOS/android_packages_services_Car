@@ -18,9 +18,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="LockPattern">
-        <item name="*android:regularColor">@color/car_primary</item>
-        <item name="*android:successColor">@color/car_primary</item>
-        <item name="*android:errorColor">@color/car_error</item>
-        <item name="*android:dotColor">@color/car_secondary_80</item>
+        <item name="*android:regularColor">?oemColorPrimary</item>
+        <item name="*android:successColor">?oemColorPrimary</item>
+        <item name="*android:errorColor">?oemColorError</item>
+        <item name="*android:dotColor">?oemColorSecondaryPalette80</item>
     </style>
 </resources>

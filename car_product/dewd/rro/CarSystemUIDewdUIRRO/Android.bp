@@ -27,7 +27,6 @@ android_app {
     manifest: "AndroidManifest.xml",
     system_ext_specific: true,
     static_libs: [
-        "car-portrait-ui-common",
         "car-ui-lib",
         "oem-token-lib",
         "com_android_car_scalableui_flags_lib",

@@ -61,5 +61,4 @@
     <item target="attr/layout_goneMarginStart" value="@attr/layout_goneMarginStart"/>
     <item target="attr/layout_goneMarginEnd" value="@attr/layout_goneMarginEnd"/>
     <item target="attr/layout_constraintHorizontal_chainStyle" value="@attr/layout_constraintHorizontal_chainStyle"/>
-    <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
 </overlay>
