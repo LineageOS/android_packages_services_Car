@@ -39,6 +39,7 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.Instrumentation.ActivityMonitor;
 import android.app.TaskInfo;
+import android.car.builtin.app.TaskInfoHelper;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.util.DisplayUtils.VirtualDisplaySession;
 import android.content.ComponentName;
@@ -183,6 +184,34 @@ public class CarActivityServiceTaskMonitorUnitTest {
         public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
             mService.onTaskVanished(mToken, taskInfo);
         }
+    }
+
+    @Test
+    public void testOnTaskInfoChanged_triggeredForInvisibleTask() throws Exception {
+        CountDownLatch infoChangedLatch = new CountDownLatch(1);
+        CarActivityService.ActivityListener listener = new CarActivityService.ActivityListener() {
+            @Override
+            public void onTaskAppeared(TaskInfo taskInfo) {}
+            @Override
+            public void onTaskVanished(TaskInfo taskInfo) {}
+            @Override
+            public void onTaskInfoChanged(TaskInfo taskInfo) {
+                if (mActivityA.equals(taskInfo.topActivity)) {
+                    infoChangedLatch.countDown();
+                }
+            }
+        };
+        mService.registerActivityListener(listener);
+
+        // Simulate task info change from TaskOrganizer for an invisible task
+        ActivityManager.RunningTaskInfo taskInfo = new ActivityManager.RunningTaskInfo();
+        taskInfo.taskId = 123;
+        taskInfo.topActivity = mActivityA;
+        taskInfo.isVisible = false;
+
+        mService.onTaskInfoChanged(mToken, taskInfo);
+
+        assertThat(infoChangedLatch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     }
 
     @Test
@@ -413,7 +442,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     private FilteredListener startActivityAndAssertCameOnTop(
             ComponentName activity, int displayId) throws InterruptedException {
-        FilteredListener listener = new FilteredListener(activity);
+        FilteredListener listener = new FilteredListener(activity, displayId);
         mService.registerActivityListener(listener);
         startActivity(activity, displayId);
         listener.assertTopTaskActivityCameOnTop();
@@ -499,6 +528,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     private static final class FilteredListener implements CarActivityService.ActivityListener {
         private final ComponentName mDesiredComponent;
+        private final int mExpectedDisplayId;
         private final CountDownLatch mActivityCameOnTop = new CountDownLatch(1);
         private final CountDownLatch mTaskVanished = new CountDownLatch(1);
         private TaskInfo mTopTask;
@@ -508,24 +538,48 @@ public class CarActivityServiceTaskMonitorUnitTest {
          * that filters based on the component name or does not filter if component name is null.
          */
         private FilteredListener(@NonNull ComponentName desiredComponent) {
+            this(desiredComponent, Display.DEFAULT_DISPLAY);
+        }
+
+        /**
+         * Creates an instance of a {@link CarActivityService.ActivityListener}
+         * that filters based on the component name and display ID.
+         */
+        private FilteredListener(@NonNull ComponentName desiredComponent, int displayId) {
             mDesiredComponent = desiredComponent;
+            mExpectedDisplayId = displayId;
         }
 
         @Override
-        public void onActivityCameOnTop(TaskInfo topTask) {
+        public void onTaskAppeared(TaskInfo topTask) {
             if (isActivityOutsideTestPackage(topTask)) {
                 return;
             }
-            if (!topTask.topActivity.equals(mDesiredComponent)) {
-                Log.d(TAG,
-                        String.format("onActivityCameOnTop#Unexpected component: %s. Expected: %s",
-                                topTask.topActivity.getClassName(), mDesiredComponent));
+            if (mDesiredComponent.equals(topTask.topActivity)
+                    && TaskInfoHelper.isVisible(topTask)
+                    && (mExpectedDisplayId == Display.INVALID_DISPLAY
+                        || TaskInfoHelper.getDisplayId(topTask) == mExpectedDisplayId)) {
+                if (mTopTask == null) {  // We are interested in the first one only.
+                    mTopTask = topTask;
+                }
+                mActivityCameOnTop.countDown();
+            }
+        }
+
+        @Override
+        public void onTaskInfoChanged(TaskInfo taskInfo) {
+            if (isActivityOutsideTestPackage(taskInfo)) {
                 return;
             }
-            if (mTopTask == null) {  // We are interested in the first one only.
-                mTopTask = topTask;
+            if (mDesiredComponent.equals(taskInfo.topActivity)
+                    && TaskInfoHelper.isVisible(taskInfo)
+                    && (mExpectedDisplayId == Display.INVALID_DISPLAY
+                        || TaskInfoHelper.getDisplayId(taskInfo) == mExpectedDisplayId)) {
+                if (mTopTask == null) {
+                    mTopTask = taskInfo;
+                }
+                mActivityCameOnTop.countDown();
             }
-            mActivityCameOnTop.countDown();
         }
 
         @Override
