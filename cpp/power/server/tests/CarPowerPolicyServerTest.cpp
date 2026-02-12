@@ -52,6 +52,7 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <mutex>   // NOLINT(build/c++11)
+#include <semaphore.h>
 #include <thread>  // NOLINT(build/c++11)
 #include <unordered_set>
 #include <utility>
@@ -937,6 +938,13 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_duplicatedRe
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
+    sem_t blocker_started;
+    sem_t should_unblock;
+    sem_t callback_finished;
+    sem_init(&blocker_started, 0, 0);
+    sem_init(&should_unblock, 0, 0);
+    sem_init(&callback_finished, 0, 0);
+
     sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
@@ -944,18 +952,24 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_duplicatedRe
     server->init();
     setSystemCallingUid();
     EXPECT_CALL(*callback, updatePowerComponents)
-            .WillRepeatedly(
-                    Invoke([]([[maybe_unused]] const CarPowerPolicy& policy) -> ScopedAStatus {
-                        // To make sure that both requests of applying power policy occur together.
-                        std::this_thread::sleep_for(kGeneralWaitTime);
-                        return ScopedAStatus::ok();
-                    }));
+            .WillRepeatedly(Invoke([&](const CarPowerPolicy& policy) -> ScopedAStatus {
+                if (policy.policyId == "policy_id_other_off") {
+                    sem_post(&blocker_started);
+                    struct timespec ts;
+                    clock_gettime(CLOCK_REALTIME, &ts);
+                    ts.tv_sec += 5;
+                    sem_timedwait(&should_unblock, &ts);
+                    sem_post(&callback_finished);
+                }
+                return ScopedAStatus::ok();
+            }));
     EXPECT_CALL(*callback, onApplyPowerPolicySucceeded)
             .WillRepeatedly(Invoke([]([[maybe_unused]] int32_t requestId,
                                       [[maybe_unused]] const CarPowerPolicy& accumulatedPolicy,
                                       [[maybe_unused]] bool deferred) -> ScopedAStatus {
                 return ScopedAStatus::ok();
             }));
+
     PowerPolicyInitData initData;
     server->notifyCarServiceReady(callback, &initData);
 
@@ -963,10 +977,30 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_duplicatedRe
                                                          /*force=*/false);
     ASSERT_TRUE(status.isOk()) << "applyPowerPolicyAsync should return OK";
 
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 5;
+    if (sem_timedwait(&blocker_started, &ts) != 0) {
+        sem_post(&should_unblock);
+        FAIL() << "Timeout: Callback never started";
+    }
+
     status = server->applyPowerPolicyAsync(/*requestId=*/9999, "policy_id_other_untouched",
                                            /*force=*/false);
     ASSERT_FALSE(status.isOk())
             << "applyPowerPolicyAsync should return an error when request ID is duplicated";
+
+    sem_post(&should_unblock);
+
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 5;
+    if (sem_timedwait(&callback_finished, &ts) != 0) {
+        FAIL() << "Timeout: Callback failed to finish after unblocking";
+    }
+
+    sem_destroy(&blocker_started);
+    sem_destroy(&should_unblock);
+    sem_destroy(&callback_finished);
 }
 
 TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync) {
