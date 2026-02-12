@@ -72,7 +72,7 @@
 
         <com.android.car.apps.common.UxrTextView
             android:id="@+id/error_message"
-            android:textColor="@color/fragment_error_text_primary_color"
+            android:textColor="?attr/oemColorOnSurface"
             android:layout_width="520dp"
             android:layout_height="44dp"
             android:gravity="center"

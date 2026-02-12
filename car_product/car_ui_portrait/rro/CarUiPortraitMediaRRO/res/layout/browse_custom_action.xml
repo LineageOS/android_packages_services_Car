@@ -32,7 +32,7 @@
       android:layout_width="@dimen/media_browse_list_item_icons_size"
       android:layout_height="@dimen/media_browse_list_item_icons_size"
       android:scaleType="fitCenter"
-      android:tint="@color/car_on_background"
+      android:tint="?attr/oemColorOnSurface"
       android:layout_marginStart="@dimen/media_browse_list_item_icon_margin"
       android:layout_marginEnd="@dimen/media_browse_list_item_icon_margin"
      />
