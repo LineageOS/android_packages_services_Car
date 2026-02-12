@@ -15,11 +15,11 @@
   ~ limitations under the License.
   -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/car_on_surface"
+    <item android:color="?attr/oemColorOnSurface"
           android:state_enabled="true"
           android:state_activated="false"/>
-    <item android:color="@color/car_on_primary"
+    <item android:color="?attr/oemColorOnPrimary"
           android:state_enabled="true"
           android:state_activated="true"/>
-    <item android:color="@color/car_on_surface"/>
+    <item android:color="?attr/oemColorOnSurface"/>
 </selector>

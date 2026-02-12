@@ -40,7 +40,7 @@
         android:layout_alignTop="@id/contact_picture"
         android:singleLine="true"
         android:duplicateParentState="true"
-        style="@style/TextAppearance.ContactResultTitle" />
+        android:textAppearance="?attr/oemTextAppearanceBodyMedium" />
 
     <TextView
         android:id="@+id/phone_number"
@@ -49,5 +49,6 @@
         android:layout_toEndOf="@+id/contact_picture"
         android:layout_below="@+id/contact_name"
         android:singleLine="true"
-        style="@style/TextAppearance.ContactResult.PhoneNumber" />
+        android:textAppearance="?attr/oemTextAppearanceBodySmall"
+        android:textColor="?attr/oemColorOnSurfaceVariant" />
 </RelativeLayout>
