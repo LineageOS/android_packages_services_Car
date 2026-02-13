@@ -118,12 +118,4 @@
     <item target="style/TextAppearance.NoContent" value="@style/TextAppearance.NoContent"/>
 
     <item target="drawable/media_item_divider" value="@drawable/media_item_divider"/>
-
-    <item target="attr/oemColorGreen" value="@attr/oemColorGreen"/>
-    <item target="attr/oemColorOnSurface" value="@attr/oemColorOnSurface"/>
-    <item target="attr/oemColorOnSurfaceVariant" value="@attr/oemColorOnSurfaceVariant"/>
-    <item target="attr/oemTextAppearanceBodySmall" value="@attr/oemTextAppearanceBodySmall"/>
-    <item target="attr/oemTextAppearanceBodyMedium" value="@attr/oemTextAppearanceBodyMedium"/>
-    <item target="attr/oemTextAppearanceBodyLarge" value="@attr/oemTextAppearanceBodyLarge"/>
-    <item target="attr/oemTextAppearanceHeadlineMedium" value="@attr/oemTextAppearanceHeadlineMedium"/>
 </overlay>
