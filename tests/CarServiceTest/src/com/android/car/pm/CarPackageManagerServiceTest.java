@@ -36,6 +36,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.Configurator;
 import android.support.test.uiautomator.UiDevice;
@@ -68,8 +69,7 @@ public class CarPackageManagerServiceTest {
     // cf_x86_auto is very slow, so uses very long timeout.
     private static final int UI_TIMEOUT_MS = 20_000;
     private static final int NOT_FOUND_UI_TIMEOUT_MS = 10_000;
-    private static final long ACTIVITY_TIMEOUT_MS = 5000;
-    private static final int HOME_DISPLAYED_TIMEOUT_MS = 5_000;
+    private static final long ACTIVITY_TIMEOUT_MS = 10_000;
 
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarPackageManager mCarPackageManager;
@@ -169,6 +169,22 @@ public class CarPackageManagerServiceTest {
                 getTestContext().getPackageName(),
                 CarAppActivity.class.getName()
         )).isFalse();
+    }
+
+    @Test
+    public void testBlockingActivity_rapidTaskSwitch_debounced() throws Exception {
+        // Start an NDO activity but immediately switch away to a DO activity.
+        // The 1.0s timeout in CPMS should allow the switch to complete, and the
+        // re-evaluation should see the DO activity and NOT block.
+        startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
+        startDoActivity(/* extra= */ null);
+
+        // Wait to ensure we are beyond the re-evaluation timeout
+        SystemClock.sleep(2000);
+
+        // Verify DO activity is still on top and ABA never launched
+        assertActivityLaunched(DoActivity.class.getSimpleName());
+        assertBlockingActivityNotFound();
     }
 
     @Test

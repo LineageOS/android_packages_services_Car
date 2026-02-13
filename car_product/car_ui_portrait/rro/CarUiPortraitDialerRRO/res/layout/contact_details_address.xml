@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/icon"
             android:layout_alignParentEnd="true"
-            style="@style/TextAppearance.ContactDetailsListTitle"/>
+            android:textAppearance="?attr/oemTextAppearanceBodyMedium"/>
 
         <TextView
             android:id="@+id/text"
@@ -50,7 +50,8 @@
             android:layout_below="@id/title"
             android:layout_toEndOf="@id/icon"
             android:singleLine="true"
-            style="@style/TextAppearance.ContactDetailsListSubtitle" />
+            android:textAppearance="?attr/oemTextAppearanceBodySmall"
+            android:textColor="?attr/oemColorOnSurfaceVariant" />
     </RelativeLayout>
 
     <RelativeLayout

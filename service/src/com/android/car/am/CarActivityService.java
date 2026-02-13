@@ -79,7 +79,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Service responsible for Activities in Car.
@@ -131,11 +130,11 @@ public final class CarActivityService extends ICarActivityService.Stub
      */
     public interface ActivityListener {
         /**
-         * Notify coming of an activity on the top of the stack.
+         * Notify appearance of an activity or task.
          *
-         * @param topTask Task information for what is currently launched.
+         * @param taskInfo Task information for what is currently launched.
          */
-        void onActivityCameOnTop(TaskInfo topTask);
+        void onTaskAppeared(TaskInfo taskInfo);
 
         /**
          * Notify vanish of an activity or task in the backstack.
@@ -143,6 +142,13 @@ public final class CarActivityService extends ICarActivityService.Stub
          * @param taskInfo task information for what is currently vanished.
          */
         void onTaskVanished(TaskInfo taskInfo);
+
+        /**
+         * Notify change of an activity or task information.
+         *
+         * @param taskInfo task information for what is currently changed.
+         */
+        void onTaskInfoChanged(TaskInfo taskInfo);
     }
 
     /** Listener for root task callbacks. */
@@ -371,17 +377,25 @@ public final class CarActivityService extends ICarActivityService.Stub
                 mTaskToSurfaceMap.put(taskInfo.taskId, leash);
             }
         }
-        if (TaskInfoHelper.isVisible(taskInfo)) {
-            mHandler.post(() -> notifyActivityCameOnTop(taskInfo));
+        mHandler.post(() -> notifyTaskAppeared(taskInfo));
+        Trace.endSection();
+    }
+
+    private void notifyTaskAppeared(TaskInfo taskInfo) {
+        Trace.beginSection("CarActivityService-notifyTaskAppeared: " + taskInfo.taskId);
+        synchronized (mLock) {
+            for (int i = 0, size = mActivityListeners.size(); i < size; ++i) {
+                mActivityListeners.get(i).onTaskAppeared(taskInfo);
+            }
         }
         Trace.endSection();
     }
 
-    private void notifyActivityCameOnTop(TaskInfo taskInfo) {
-        Trace.beginSection("CarActivityService-notifyActivityCameOnTop: " + taskInfo.taskId);
+    private void notifyTaskInfoChanged(TaskInfo taskInfo) {
+        Trace.beginSection("CarActivityService-notifyTaskInfoChanged: " + taskInfo.taskId);
         synchronized (mLock) {
             for (int i = 0, size = mActivityListeners.size(); i < size; ++i) {
-                mActivityListeners.get(i).onActivityCameOnTop(taskInfo);
+                mActivityListeners.get(i).onTaskInfoChanged(taskInfo);
             }
         }
         Trace.endSection();
@@ -451,11 +465,7 @@ public final class CarActivityService extends ICarActivityService.Stub
             // LinkedHashMap.
             TaskInfo oldTaskInfo = mTasks.remove(taskInfo.taskId);
             mTasks.put(taskInfo.taskId, taskInfo);
-            if ((oldTaskInfo == null || !TaskInfoHelper.isVisible(oldTaskInfo)
-                    || !Objects.equals(oldTaskInfo.topActivity, taskInfo.topActivity))
-                    && TaskInfoHelper.isVisible(taskInfo)) {
-                mHandler.post(() -> notifyActivityCameOnTop(taskInfo));
-            }
+            mHandler.post(() -> notifyTaskInfoChanged(taskInfo));
         }
         Trace.endSection();
     }
@@ -534,6 +544,24 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     public List<ActivityManager.RunningTaskInfo> getVisibleTasksInternal() {
         return getVisibleTasksInternal(Display.INVALID_DISPLAY);
+    }
+
+    /**
+     * Returns all the tasks in the given display. The order is not guaranteed.
+     */
+    public List<ActivityManager.RunningTaskInfo> getAllTasksInternal(int displayId) {
+        ArrayList<ActivityManager.RunningTaskInfo> tasksToReturn = new ArrayList<>();
+        synchronized (mLock) {
+            for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
+                if (displayId == Display.INVALID_DISPLAY
+                        || displayId == TaskInfoHelper.getDisplayId(taskInfo)) {
+                    tasksToReturn.add(taskInfo);
+                }
+            }
+        }
+        // Reverse the order so that the resultant order is still predictable and top to bottom.
+        Collections.reverse(tasksToReturn);
+        return tasksToReturn;
     }
 
     /** Car service internal version without the permission enforcement. */

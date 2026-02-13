@@ -15,14 +15,11 @@
   ~ limitations under the License.
   -->
 <overlay>
-    <item target="array/tabs_config" value="@array/tabs_config"/>
-    <item target="array/tabs_title" value="@array/tabs_title"/>
 
     <item target="drawable/dialer_ripple_background" value="@drawable/dialer_ripple_background"/>
     <item target="drawable/ic_answer_icon" value="@drawable/ic_answer_icon"/>
     <item target="drawable/ic_arrow_right" value="@drawable/ic_arrow_right"/>
     <item target="drawable/ic_backspace" value="@drawable/ic_backspace"/>
-    <item target="drawable/ic_bluetooth" value="@drawable/ic_bluetooth"/>
     <item target="drawable/ic_decline_icon" value="@drawable/ic_decline_icon"/>
     <item target="drawable/ic_direction" value="@drawable/ic_direction"/>
     <item target="drawable/ic_phone" value="@drawable/ic_phone"/>
@@ -33,7 +30,6 @@
     <item target="id/background_image" value="@id/background_image" />
     <item target="id/call_action_id" value="@id/call_action_id" />
     <item target="id/call_button" value="@id/call_button" />
-    <item target="id/connect_bluetooth_button" value="@id/connect_bluetooth_button" />
     <item target="id/contact_details_favorite_button" value="@id/contact_details_favorite_button" />
     <item target="id/contact_details_sms_button" value="@id/contact_details_sms_button" />
     <item target="id/contact_list_button" value="@id/contact_list_button" />
@@ -49,15 +45,11 @@
     <item target="id/divider" value="@id/divider" />
     <item target="id/divider1" value="@id/divider1" />
     <item target="id/divider2" value="@id/divider2" />
-    <item target="id/emergency_call_button" value="@id/emergency_call_button" />
-    <item target="id/error_icon" value="@id/error_icon" />
-    <item target="id/error_string" value="@id/error_string" />
     <item target="id/icon" value="@id/icon" />
     <item target="id/incall_dialpad_fragment" value="@id/incall_dialpad_fragment" />
     <item target="id/label" value="@id/label" />
     <item target="id/list_view" value="@id/list_view" />
     <item target="id/navigation_button" value="@id/navigation_button" />
-    <item target="id/no_hfp_error_container" value="@id/no_hfp_error_container" />
     <item target="id/onhold_user_profile" value="@id/onhold_user_profile" />
     <item target="id/phone_number" value="@id/phone_number" />
     <item target="id/restricted_dialing_mode_label" value="@id/restricted_dialing_mode_label" />
@@ -70,9 +62,6 @@
     <item target="id/user_profile_phone_number" value="@id/user_profile_phone_number" />
     <item target="id/user_profile_title" value="@id/user_profile_title" />
 
-    <item target="string/answer_call" value="@string/answer_call" />
-    <item target="string/decline_call" value="@string/decline_call" />
-    <item target="string/search_title" value="@string/search_title" />
 
     <item target="color/contact_details_icon_tint" value="@color/contact_details_icon_tint" />
     <item target="color/divider_color" value="@color/divider_color" />
@@ -106,27 +95,37 @@
     <item target="layout/dialpad_fragment_with_type_down" value="@layout/dialpad_fragment_with_type_down"/>
     <item target="layout/dialpad_user_profile" value="@layout/dialpad_user_profile"/>
     <item target="layout/incall_dialpad_fragment" value="@layout/incall_dialpad_fragment"/>
-    <item target="layout/no_hfp" value="@layout/no_hfp"/>
     <item target="layout/ongoing_call_fragment" value="@layout/ongoing_call_fragment"/>
     <item target="layout/restricted_dialing_mode_label" value="@layout/restricted_dialing_mode_label"/>
     <item target="layout/type_down_list_item" value="@layout/type_down_list_item"/>
     <item target="layout/user_profile_large" value="@layout/user_profile_large"/>
 
-    <item target="style/AddFavoriteText" value="@style/AddFavoriteText"/>
-    <item target="style/KeypadButtonStyle" value="@style/KeypadButtonStyle"/>
-    <item target="style/KeypadLetter" value="@style/KeypadLetter"/>
-    <item target="style/KeypadNumber" value="@style/KeypadNumber"/>
     <item target="style/TextAppearance.CallLogCallCountMissedCall" value="@style/TextAppearance.CallLogCallCountMissedCall"/>
     <item target="style/TextAppearance.CallLogSubtitle" value="@style/TextAppearance.CallLogSubtitle"/>
-    <item target="style/TextAppearance.CallLogTimestampMissedCall" value="@style/TextAppearance.CallLogTimestampMissedCall"/>
-    <item target="style/TextAppearance.CallLogTitleDefault" value="@style/TextAppearance.CallLogTitleDefault"/>
-    <item target="style/TextAppearance.CallLogTitleMissedCall" value="@style/TextAppearance.CallLogTitleMissedCall"/>
     <item target="style/TextAppearance.ContactDetailsTitle" value="@style/TextAppearance.ContactDetailsTitle"/>
-    <item target="style/TextAppearance.ContactDetailsListTitle" value="@style/TextAppearance.ContactDetailsListTitle"/>
-    <item target="style/TextAppearance.ContactDetailsListSubtitle" value="@style/TextAppearance.ContactDetailsListSubtitle"/>
-    <item target="style/TextAppearance.ContactResultTitle" value="@style/TextAppearance.ContactResultTitle"/>
+
     <item target="style/TextAppearance.DialpadDisplayName" value="@style/TextAppearance.DialpadDisplayName"/>
-    <item target="style/TextAppearance.DialNumber" value="@style/TextAppearance.DialNumber"/>
-    <item target="style/TextAppearance.TypeDownListSpan" value="@style/TextAppearance.TypeDownListSpan"/>
-    <item target="style/SubheaderText" value="@style/SubheaderText"/>
+    <!-- OEM Colors -->
+    <item target="attr/oemColorPrimary" value="@attr/oemColorPrimary"/>
+    <item target="attr/oemColorOnPrimary" value="@attr/oemColorOnPrimary"/>
+    <item target="attr/oemColorSecondary" value="@attr/oemColorSecondary"/>
+    <item target="attr/oemColorOnSecondary" value="@attr/oemColorOnSecondary"/>
+    <item target="attr/oemColorSecondaryContainer" value="@attr/oemColorSecondaryContainer"/>
+    <item target="attr/oemColorOnSecondaryContainer" value="@attr/oemColorOnSecondaryContainer"/>
+    <item target="attr/oemColorSurface" value="@attr/oemColorSurface"/>
+    <item target="attr/oemColorOnSurface" value="@attr/oemColorOnSurface"/>
+    <item target="attr/oemColorSurfaceVariant" value="@attr/oemColorSurfaceVariant"/>
+    <item target="attr/oemColorOnSurfaceVariant" value="@attr/oemColorOnSurfaceVariant"/>
+    <item target="attr/oemColorOutline" value="@attr/oemColorOutline"/>
+    <item target="attr/oemColorError" value="@attr/oemColorError"/>
+    <item target="attr/oemColorGreen" value="@attr/oemColorGreen"/>
+
+    <!-- OEM Text Appearances -->
+    <item target="attr/oemTextAppearanceHeadlineLarge" value="@attr/oemTextAppearanceHeadlineLarge"/>
+    <item target="attr/oemTextAppearanceBodyMedium" value="@attr/oemTextAppearanceBodyMedium"/>
+    <item target="attr/oemTextAppearanceBodySmall" value="@attr/oemTextAppearanceBodySmall"/>
+    <item target="attr/oemTextAppearanceDisplaySmall" value="@attr/oemTextAppearanceDisplaySmall"/>
+    <item target="attr/oemTextAppearanceBodyLarge" value="@attr/oemTextAppearanceBodyLarge"/>
+    <item target="attr/oemTextAppearanceHeadlineSmall" value="@attr/oemTextAppearanceHeadlineSmall"/>
+    <item target="attr/oemTextAppearanceLabelLarge" value="@attr/oemTextAppearanceLabelLarge"/>
 </overlay>

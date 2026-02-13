@@ -29,7 +29,7 @@ class CarAppFunctions(private val context: Context) {
      * @param appFunctionContext The context of the AppFunction.
      * @param message The message to show in the toast.
      */
-    @AppFunction(isDescribedByKdoc = true)
+    @AppFunction(isDescribedByKDoc = true)
     suspend fun openSettings(appFunctionContext: AppFunctionContext) {
         val intent = Intent(Settings.ACTION_SETTINGS).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

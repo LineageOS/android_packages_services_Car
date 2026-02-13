@@ -28,7 +28,8 @@
         android:layout_marginTop="@dimen/in_call_title_margin"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        style="@style/TextAppearance.DialNumber" />
+        android:textAppearance="?attr/oemTextAppearanceHeadlineLarge"
+        android:textDirection="ltr" />
 
     <com.android.car.ui.FocusArea
         android:id="@+id/dialpad_focus_area"

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <!-- OEM Color Tokens -->
+    <attr name="oemColorPrimary" format="color"/>
+    <attr name="oemColorOnPrimary" format="color"/>
+    <attr name="oemColorSecondary" format="color"/>
+    <attr name="oemColorOnSecondary" format="color"/>
+    <attr name="oemColorSecondaryContainer" format="color"/>
+    <attr name="oemColorOnSecondaryContainer" format="color"/>
+    <attr name="oemColorSurface" format="color"/>
+    <attr name="oemColorOnSurface" format="color"/>
+    <attr name="oemColorSurfaceVariant" format="color"/>
+    <attr name="oemColorOnSurfaceVariant" format="color"/>
+    <attr name="oemColorOutline" format="color"/>
+    <attr name="oemColorError" format="color"/>
+    <attr name="oemColorGreen" format="color"/>
+
+    <!-- OEM Text Appearance Tokens -->
+    <attr name="oemTextAppearanceHeadlineLarge" format="reference"/>
+    <attr name="oemTextAppearanceBodyMedium" format="reference"/>
+    <attr name="oemTextAppearanceBodySmall" format="reference"/>
+    <attr name="oemTextAppearanceDisplaySmall" format="reference"/>
+    <attr name="oemTextAppearanceBodyLarge" format="reference"/>
+    <attr name="oemTextAppearanceHeadlineSmall" format="reference"/>
+    <attr name="oemTextAppearanceLabelLarge" format="reference"/>
+</resources>

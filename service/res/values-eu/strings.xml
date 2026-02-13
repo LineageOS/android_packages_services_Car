@@ -51,9 +51,9 @@
     <string name="car_permission_label_radio" msgid="6009465291685935112">"kudeatu autoaren irratia"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Atzitu autoaren irratia."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"proiektatu telefonoaren interfazea autoaren pantailan"</string>
-    <string name="car_permission_desc_projection" msgid="2352178999656292944">"Telefonoaren interfazea autoaren pantailan proiektatzeko baimena ematen dio aplikazioari."</string>
+    <string name="car_permission_desc_projection" msgid="2352178999656292944">"Telefonoaren interfazea autoaren pantailan proiektatzeko baimena ematen die aplikazioei."</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"atzitu proiekzio-egoera"</string>
-    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Autoaren pantailan proiektatutako aplikazioen egoera erabiltzeko baimena ematen dio aplikazioari."</string>
+    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Autoaren pantailan proiektatutako aplikazioen egoera erabiltzeko baimena ematen die aplikazioei."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kontrolatu autoaren audioaren bolumena"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"kudeatu autoaren audio-ezarpenak"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulatu autoaren hardware-abstrakzioaren geruza (HAL)"</string>
@@ -77,7 +77,7 @@
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Irakurtzeko baimena pantailaren ID pribatuari"</string>
     <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Irakurtzeko baimena ematen dio pantailaren identifikatzaile pribatuari"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Komunikatu AOAP moduan USB bidezko gailuekin"</string>
-    <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Gailuekin AOAP moduan komunikatzeko baimena ematen dio aplikazioari."</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Gailuekin AOAP moduan komunikatzeko baimena ematen die aplikazioei."</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Bidaiariak hautemateko sistema irakurtzeko sarbidea"</string>
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Bidaiariak hautemateko sistemaren egoerei eta hautemateei buruzko datuak irakurtzeko aukera ematen du"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kontrolatu Bidaiariak hautemateko sistemaren grafikoa"</string>
