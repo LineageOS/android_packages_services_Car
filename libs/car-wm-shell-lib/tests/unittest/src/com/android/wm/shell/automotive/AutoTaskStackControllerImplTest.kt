@@ -387,7 +387,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val wctCaptor = argumentCaptor<WindowContainerTransaction>()
         verify(taskOrganizer).applyTransaction(wctCaptor.capture())
         assertThat(wctCaptor.firstValue.isEmpty).isFalse()
-        assertThat(wctCaptor.firstValue.hierarchyOps).hasSize(1)
+        assertThat(wctCaptor.firstValue.hierarchyOps).hasSize(2)
         assertThat(wctCaptor.firstValue.hierarchyOps[0].type).isEqualTo(
             HIERARCHY_OP_TYPE_SET_LAUNCH_ROOT
         )
@@ -406,7 +406,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val wctCaptor = argumentCaptor<WindowContainerTransaction>()
         verify(taskOrganizer, times(2)).applyTransaction(wctCaptor.capture())
         assertThat(wctCaptor.firstValue.isEmpty).isFalse()
-        assertThat(wctCaptor.firstValue.hierarchyOps).hasSize(1)
+        assertThat(wctCaptor.firstValue.hierarchyOps).hasSize(2)
 
         assertThat(wctCaptor.firstValue.hierarchyOps[0].type).isEqualTo(
             HIERARCHY_OP_TYPE_SET_LAUNCH_ROOT
