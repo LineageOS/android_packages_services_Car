@@ -14,6 +14,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
+<!--
+  @deprecated This sample application uses the EVS API.
+  It is being replaced by {@link com.google.android.car.samplerearviewservice.SampleRearViewService}
+  which uses the Camera2 API for rearview functionality.
+  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.car.evs">
 
