@@ -43,15 +43,16 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.feature.Flags;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.platform.test.annotations.DisableFlags;
 import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 
@@ -120,6 +121,8 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     @Mock
     private ICarAudio mServiceMock;
     @Mock
+    private ApplicationInfo mApplicationInfoMock;
+    @Mock
     private AudioManager mAudioManagerMock;
     @Mock
     private Context mContextMock;
@@ -165,9 +168,12 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
+        mApplicationInfoMock.targetSdkVersion = Build.VERSION_CODES.CUR_DEVELOPMENT;
+
         when(mBinderMock.queryLocalInterface(anyString())).thenReturn(mServiceMock);
         when(mCar.getContext()).thenReturn(mContextMock);
         when(mCar.getEventHandler()).thenReturn(mHandler);
+        when(mContextMock.getApplicationInfo()).thenReturn(mApplicationInfoMock);
         when(mContextMock.getSystemService(AudioManager.class)).thenReturn(mAudioManagerMock);
         mCarAudioManager = new CarAudioManager(mCar, mBinderMock);
         doAnswer(invocation -> invocation.getArgument(1)).when(mCar)
