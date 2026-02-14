@@ -585,6 +585,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     }
                     wct.setLaunchRoot(
                         taskStack.rootTaskInfo.token,
+                        // TODO(b/483764748): Consider adding all relevant windowing modes.
                         intArrayOf(WINDOWING_MODE_UNDEFINED),
                         intArrayOf(
                             ACTIVITY_TYPE_STANDARD,
@@ -596,6 +597,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
                             //  AssistantStackTests accordingly.
                             ACTIVITY_TYPE_ASSISTANT
                         )
+                    )
+                    // Preserve leaf tasks if relaunched from different windowing mode.
+                    wct.setPreserveLeafTaskIfRelaunch(
+                        taskStack.rootTaskInfo.token,
+                        /* preserveLeafTaskIfRelaunch= */ true
                     )
                     defaultRootTaskPerDisplay[displayId] = taskStack.id
                 }

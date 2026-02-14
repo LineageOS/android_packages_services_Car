@@ -57,14 +57,14 @@
                 android:layout_width="@dimen/media_browse_indicator_size"
                 android:layout_height="@dimen/media_browse_indicator_size"
                 android:src="@drawable/ic_file_download_done"
-                android:tint="?attr/oemColorOnSurface" />
+                android:tint="@color/icon_tint" />
 
             <ImageView
                 android:id="@+id/explicit_icon_with_title"
                 android:layout_width="@dimen/media_browse_indicator_size"
                 android:layout_height="@dimen/media_browse_indicator_size"
                 android:src="@drawable/ic_explicit"
-                android:tint="?attr/oemColorOnSurface" />
+                android:tint="@color/icon_tint" />
 
             <TextView
                 android:id="@+id/title"
@@ -94,7 +94,7 @@
                 android:layout_width="@dimen/media_browse_indicator_size"
                 android:layout_height="@dimen/media_browse_indicator_size"
                 android:src="@drawable/ic_explicit"
-                android:tint="?attr/oemColorOnSurface" />
+                android:tint="@color/icon_tint" />
 
             <TextView
                 android:id="@+id/subtitle"

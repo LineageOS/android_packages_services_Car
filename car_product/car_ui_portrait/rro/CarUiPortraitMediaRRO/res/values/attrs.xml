@@ -48,12 +48,4 @@
         </attr>
         <attr name="CarUiToolbarMenuItem_onClick" format="string"/>
 
-        <attr name="oemColorGreen" format="color" />
-        <attr name="oemColorOnSurface" format="color" />
-        <attr name="oemColorOnSurfaceVariant" format="color" />
-        <attr name="oemTextAppearanceBodySmall" format="reference" />
-        <attr name="oemTextAppearanceBodyMedium" format="reference" />
-        <attr name="oemTextAppearanceBodyLarge" format="reference" />
-        <attr name="oemTextAppearanceHeadlineMedium" format="reference" />
-
 </resources>

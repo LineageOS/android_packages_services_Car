@@ -1568,13 +1568,16 @@ void CarPowerPolicyServer::handleApplyPowerPolicyRequest(const int32_t requestId
             return;
         }
         policyRequest = mPolicyRequestById[requestId];
-        mPolicyRequestById.erase(requestId);
     }
     std::shared_ptr<ICarPowerManagementDelegateCallback> callback =
             getPowerManagementDelegateCallback();
-    if (const auto& ret = applyPowerPolicyInternal(policyRequest.policyId, policyRequest.force,
-                                                   /*notifyCarService=*/false);
-        !ret.ok()) {
+    const auto& ret = applyPowerPolicyInternal(policyRequest.policyId, policyRequest.force,
+                                               /*notifyCarService=*/false);
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mPolicyRequestById.erase(requestId);
+    }
+    if (!ret.ok()) {
         ALOGW("%s", ret.error().message().c_str());
         if (callback != nullptr) {
             callback->onApplyPowerPolicyFailed(requestId,

@@ -24,16 +24,23 @@ import android.car.feature.Flags;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.util.Log;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SampleRearViewService extends Service {
 
     private static final String TAG = "SampleRearViewService";
     private Car mCar;
     private CarPropertyManager mCarPropertyManager;
+    private CarUserManager mCarUserManager;
+    private final AtomicBoolean mInReverse = new AtomicBoolean(false);
 
     private final CarPropertyEventCallback mGearCallback =
             new CarPropertyEventCallback() {
@@ -42,7 +49,8 @@ public class SampleRearViewService extends Service {
                     if (value.getPropertyId() == VehiclePropertyIds.GEAR_SELECTION) {
                         Log.d(TAG, "onChangeEvent gear selection");
                         int currentGear = (Integer) value.getValue();
-                        if (currentGear == VehicleGear.GEAR_REVERSE) {
+                        mInReverse.set(currentGear == VehicleGear.GEAR_REVERSE);
+                        if (mInReverse.get()) {
                             launchRearviewActivity();
                         } else {
                             stopRearviewActivity();
@@ -58,6 +66,14 @@ public class SampleRearViewService extends Service {
                 }
             };
 
+    private final UserLifecycleListener mUserLifecycleListener =
+            event -> {
+                if (mInReverse.get()) {
+                    Log.i(TAG, "Re-launching rearview activity after user event UNLOCKED");
+                    launchRearviewActivity();
+                }
+            };
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -69,8 +85,25 @@ public class SampleRearViewService extends Service {
         mCar = Car.createCar(this);
         mCarPropertyManager = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
         if (mCarPropertyManager != null) {
+            try {
+                int currentGear = mCarPropertyManager.getIntProperty(
+                        VehiclePropertyIds.GEAR_SELECTION, 0);
+                mInReverse.set(currentGear == VehicleGear.GEAR_REVERSE);
+                if (mInReverse.get()) {
+                    launchRearviewActivity();
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to get initial gear selection", e);
+            }
             mCarPropertyManager.registerCallback(
                     mGearCallback, VehiclePropertyIds.GEAR_SELECTION, /* updateRateHz= */ 0);
+        }
+        mCarUserManager = mCar.getCarManager(CarUserManager.class);
+        if (mCarUserManager != null) {
+            UserLifecycleEventFilter filter = new UserLifecycleEventFilter.Builder()
+                    .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                    .build();
+            mCarUserManager.addListener(getMainExecutor(), filter, mUserLifecycleListener);
         }
     }
 
@@ -96,6 +129,9 @@ public class SampleRearViewService extends Service {
 
     @Override
     public void onDestroy() {
+        if (mCarUserManager != null) {
+            mCarUserManager.removeListener(mUserLifecycleListener);
+        }
         if (mCarPropertyManager != null) {
             mCarPropertyManager.unregisterCallback(mGearCallback);
         }
