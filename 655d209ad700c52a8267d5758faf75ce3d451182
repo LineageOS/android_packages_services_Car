@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aca536dc_cfd4d561",
+        "filename": "car_product/dewd/car_dewd_common.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 36600
+      },
+      "writtenOn": "2026-02-15T13:15:46Z",
+      "side": 1,
+      "message": "Pushed the same to aosp: https://android-review.googlesource.com/c/platform/packages/services/Car/+/3953601",
+      "revId": "655d209ad700c52a8267d5758faf75ce3d451182",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
