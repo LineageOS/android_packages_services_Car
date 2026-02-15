@@ -105,6 +105,24 @@
       "parentUuid": "5788bde8_9f63834b",
       "revId": "655d209ad700c52a8267d5758faf75ce3d451182",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0b207f6_5bc2fdea",
+        "filename": "car_product/dewd/car_dewd_common.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 36600
+      },
+      "writtenOn": "2026-02-15T16:10:35Z",
+      "side": 1,
+      "message": "Hope it\u0027s better now. I\u0027m so used to following https://www.conventionalcommits.org/en/v1.0.0/ that I didn\u0027t notice the projects pattern.",
+      "parentUuid": "d0f246ee_2eb0593f",
+      "revId": "655d209ad700c52a8267d5758faf75ce3d451182",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
