@@ -25,7 +25,6 @@ PRODUCT_PACKAGES += \
     CarEvsCameraPreviewAppRRO \
     CarUiPortraitAppGridReferenceRRO \
     CarUiPortraitCarServiceRRO \
-    CarUiPortraitCommon \
     CarUiPortraitDataSubscriptionReferenceRRO \
     CarUiPortraitDialerRRO \
     CarUiPortraitFrameworkResRRO \
