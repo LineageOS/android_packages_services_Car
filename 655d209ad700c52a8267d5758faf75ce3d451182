@@ -87,6 +87,24 @@
       "parentUuid": "63734161_f922aec0",
       "revId": "655d209ad700c52a8267d5758faf75ce3d451182",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0f246ee_2eb0593f",
+        "filename": "car_product/dewd/car_dewd_common.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 36600
+      },
+      "writtenOn": "2026-02-15T13:57:49Z",
+      "side": 1,
+      "message": "Reverted this to my initial patch since it\u0027s cleaner.",
+      "parentUuid": "5788bde8_9f63834b",
+      "revId": "655d209ad700c52a8267d5758faf75ce3d451182",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
