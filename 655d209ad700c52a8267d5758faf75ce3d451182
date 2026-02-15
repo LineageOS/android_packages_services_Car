@@ -18,6 +18,24 @@
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa3b6409_c9ae90db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36600
+      },
+      "writtenOn": "2026-02-15T13:48:03Z",
+      "side": 1,
+      "message": "I\u0027ll rework them to make them more lineage compliant.\n\nFor future commits, is it just the format that\u0027s strange or should I work on the content too?",
+      "parentUuid": "4cef33d0_7e8a1008",
+      "revId": "655d209ad700c52a8267d5758faf75ce3d451182",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aca536dc_cfd4d561",
@@ -49,6 +67,24 @@
       "side": 1,
       "message": "FYI it only works because it\u0027s the last line",
       "parentUuid": "aca536dc_cfd4d561",
+      "revId": "655d209ad700c52a8267d5758faf75ce3d451182",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5788bde8_9f63834b",
+        "filename": "car_product/dewd/car_dewd_common.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 36600
+      },
+      "writtenOn": "2026-02-15T13:48:03Z",
+      "side": 1,
+      "message": "Yep. I actually moved the comment out of the assignment operator in the first aosp patch-set. I then noticed that there was a similar patch in lineage for car_dewd_landscape_common.mk which just changed the // to a #, so I just went with the same. I can move it out if you also think it\u0027s better.",
+      "parentUuid": "63734161_f922aec0",
       "revId": "655d209ad700c52a8267d5758faf75ce3d451182",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
