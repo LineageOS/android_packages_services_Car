@@ -14,8 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
    -->
+
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="add_favorite_button_text" msgid="769405423070740622">"मन पर्नेमा थप्नुहोस्"</string>
-    <string name="no_hfp" msgid="2403350988312998712">"कल गर्न सर्वप्रथम आफ्नो फोन ब्लुटुथमार्फत कारमा कनेक्ट गर्नुहोस्।"</string>
+    <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"गाडी चलाइरहेका बेला डायलप्याड प्रयोग गर्न मिल्दैन"</string>
 </resources>
