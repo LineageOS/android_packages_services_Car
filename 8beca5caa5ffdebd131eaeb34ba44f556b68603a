@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a493db0_04ce5430",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36600
+      },
+      "writtenOn": "2026-02-17T07:48:19Z",
+      "side": 1,
+      "message": "Verified on the following:\n- With https://review.lineageos.org/q/topic:%22car_sdk_and_gsi_fixes%22 : sdk_car_x86_64 and gsi_car_x86_64 (userdebug/eng). EPPE violations are reduced to 1 for the GSI.\n- 23.2 tree without additional changes: No new issues caused.",
+      "revId": "8beca5caa5ffdebd131eaeb34ba44f556b68603a",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
