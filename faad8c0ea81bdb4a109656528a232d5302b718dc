@@ -34,6 +34,24 @@
       "parentUuid": "054d2099_1026834b",
       "revId": "faad8c0ea81bdb4a109656528a232d5302b718dc",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d321b71f_0022ddf1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16185
+      },
+      "writtenOn": "2026-02-17T20:21:59Z",
+      "side": 1,
+      "message": "FWIW - you could have left topic, we can process topic changes in any order at any time.",
+      "parentUuid": "a4e157a8_eccba0dc",
+      "revId": "faad8c0ea81bdb4a109656528a232d5302b718dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
