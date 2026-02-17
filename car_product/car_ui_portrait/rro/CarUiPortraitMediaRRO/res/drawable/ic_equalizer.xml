@@ -19,6 +19,6 @@ limitations under the License.
         android:viewportWidth="48.0"
         android:viewportHeight="48.0">
     <path
-        android:fillColor="@color/queue_playing_icon_color"
+        android:fillColor="?attr/oemColorOnSurface"
         android:pathData="M20,40h8L28,8h-8v32zM8,40h8L16,24L8,24v16zM32,18v22h8L40,18h-8z" />
 </vector>
