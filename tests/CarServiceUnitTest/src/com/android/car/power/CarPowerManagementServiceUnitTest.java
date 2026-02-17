@@ -22,6 +22,7 @@ import static android.net.ConnectivityManager.TETHERING_WIFI;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -49,6 +50,7 @@ import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.app.AppOpsManagerHelper;
 import android.car.builtin.app.VoiceInteractionHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.feature.FakeFeatureFlagsImpl;
@@ -81,6 +83,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.os.UserManager;
+import android.os.test.TestLooper;
 import android.util.AtomicFile;
 import android.util.Log;
 import android.util.Pair;
@@ -274,7 +277,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         session
             .spyStatic(ActivityManager.class)
             .spyStatic(ActivityManagerHelper.class)
-            .spyStatic(VoiceInteractionHelper.class);
+            .spyStatic(VoiceInteractionHelper.class)
+            .spyStatic(AppOpsManagerHelper.class);
     }
 
     @Before
@@ -2882,6 +2886,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
      */
     private void setService() throws Exception {
         doReturn(mResources).when(mContext).getResources();
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_CAR_POWER);
+        doNothing().when(() -> AppOpsManagerHelper.setTurnScreenOnAllowed(any(), anyInt(), any(),
+                anyBoolean()));
         // During the test, changing Wifi state according to a power policy takes long time, leading
         // to timeout. Also, we don't want to actually change Wifi state.
         doReturn(mWifiManager).when(mContext).getSystemService(WifiManager.class);
@@ -2925,7 +2933,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.setShutdownTimersForTest(0, 0);
         mPowerHal.setSignalListener(mPowerSignalListener);
         mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
-        assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
+        // Wait for the VHAL notification. Use a longer timeout to prevent failures on slower
+        // devices.
+        assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0, WAIT_TIMEOUT_LONG_MS);
     }
 
     /**
@@ -2955,7 +2965,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.initializePowerPolicy();
         mService.setShutdownTimersForTest(0, 0);
         mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
-        assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
+        // Wait for the VHAL notification. Use a longer timeout to prevent failures on slower
+        // devices.
+        assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0, WAIT_TIMEOUT_LONG_MS);
     }
 
     private void writeToTempFile(File file, String content) throws IOException {
@@ -3058,7 +3070,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     private void assertStateReceived(int expectedState, int expectedParam) throws Exception {
-        int[] state = mPowerHal.waitForSend(WAIT_TIMEOUT_MS);
+        assertStateReceived(expectedState, expectedParam, WAIT_TIMEOUT_MS);
+    }
+
+    private void assertStateReceived(int expectedState, int expectedParam,
+            long timeoutMs) throws Exception {
+        int[] state = mPowerHal.waitForSend(timeoutMs);
         assertThat(state[0]).isEqualTo(expectedState);
         assertThat(state[1]).isEqualTo(expectedParam);
     }
