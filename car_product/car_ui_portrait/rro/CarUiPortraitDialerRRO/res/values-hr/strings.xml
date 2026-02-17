@@ -14,9 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
    -->
+
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="add_favorite_button_text" msgid="769405423070740622">"Dodaj favorit"</string>
-    <string name="emergency_button_text" msgid="5012352862848993348">"Hitni slučaj"</string>
-    <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"Povezivanje s Bluetoothom"</string>
+    <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"Upotreba površine za biranje brojeva ograničena je tijekom vožnje"</string>
 </resources>

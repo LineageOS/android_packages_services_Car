@@ -14,9 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
    -->
+
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="add_favorite_button_text" msgid="769405423070740622">"加入我的最愛"</string>
-    <string name="emergency_button_text" msgid="5012352862848993348">"緊急求救"</string>
-    <string name="no_hfp" msgid="2403350988312998712">"如要完成通話，請先透過藍牙將手機連線到汽車。"</string>
+    <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"開車時無法使用撥號鍵盤"</string>
 </resources>
