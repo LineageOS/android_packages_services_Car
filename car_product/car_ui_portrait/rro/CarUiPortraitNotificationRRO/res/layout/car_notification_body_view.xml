@@ -49,10 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/notification_body_title_margin"
-            android:textAppearance="?attr/oemTextAppearanceBodyLarge"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:textAlignment="viewStart"/>
+            style="@style/NotificationBodyTitleText"/>
 
         <ImageView
             android:id="@+id/notification_body_title_icon"
@@ -76,10 +73,7 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginEnd="@dimen/card_end_margin"
         android:layout_marginTop="@dimen/notification_body_content_top_margin"
-        android:textAppearance="?attr/oemTextAppearanceBodySmall"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:textAlignment="viewStart"/>
+        style="@style/NotificationBodyContentText"/>
 
     <TextView
         android:id="@+id/message_count"
@@ -88,8 +82,5 @@
         android:layout_alignLeft="@id/notification_body_content"
         android:layout_below="@id/notification_body_content"
         android:layout_marginTop="@dimen/message_count_top_margin"
-        android:textAppearance="?attr/oemTextAppearanceBodySmall"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:textAlignment="viewStart"/>
+        style="@style/NotificationBodyContentText"/>
 </merge>
