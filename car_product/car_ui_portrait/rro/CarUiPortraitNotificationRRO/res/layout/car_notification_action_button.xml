@@ -29,9 +29,7 @@
 
     <TextView
         android:id="@+id/car_action_button_text"
-        android:textAppearance="?attr/oemTextAppearanceLabelLarge"
-        android:maxLines="1"
-        android:ellipsize="end"
+        style="@style/NotificationActionButtonText"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:clickable="false"

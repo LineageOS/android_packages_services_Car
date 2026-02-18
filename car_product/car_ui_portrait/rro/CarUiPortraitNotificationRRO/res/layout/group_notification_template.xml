@@ -124,11 +124,7 @@
                     android:gravity="center"
                     android:textDirection="locale"
                     android:textAlignment="gravity"
-                    android:ellipsize="end"
-                    android:maxWidth="@dimen/notification_text_max_width"
-                    android:textColor="@color/primary_text_color"
-                    android:lineSpacingExtra="8sp"
-                    android:textAppearance="?attr/oemTextAppearanceTitleMedium"/>
+                    style="@style/GroupNotificationFooterText"/>
 
                 <include
                     layout="@layout/dismiss_button"
