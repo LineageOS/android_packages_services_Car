@@ -1011,15 +1011,19 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
         mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
         // Second processing after wakeup
-        assertThat(mDisplayInterface.isAnyDisplayEnabled()).isTrue();
-        expectPowerPolicySet(SYSTEM_POWER_POLICY_INITIAL_ON);
-
+        mDisplayInterface.waitForAllDisplaysOn(WAIT_TIMEOUT_MS);
         mService.setStateForWakeUp();
+        expectPowerPolicySet(SYSTEM_POWER_POLICY_INITIAL_ON);
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mDisplayInterface.waitForAllDisplaysOn(WAIT_TIMEOUT_MS);
         // Should wait until Handler has finished ON processing
         CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
+
+        if (mRefactoredCarPowerManagementDaemon.isWaitingForListeners(CarPowerManager.STATE_ON)) {
+            mRefactoredCarPowerManagementDaemon.setAllPowerStateChangeListenersComplete(
+                    CarPowerManager.STATE_ON);
+        }
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
@@ -1446,6 +1450,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         assertWithMessage("Apply power policy from command status").that(
                 isSuccess).isTrue();
+
+        // Allow the service to finish processing state changes.
+        CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
+
         assertPowerPolicyApplied(policyId, listenerToWait);
     }
 
@@ -1832,6 +1840,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY));
 
+        // Allow the service to finish processing state changes.
+        CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
         expectDaemonReceivedPowerState(CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE);
         mRefactoredCarPowerManagementDaemon.setAllPowerStateChangeListenersComplete(
                 CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE);
@@ -1839,12 +1849,17 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mRefactoredCarPowerManagementDaemon.setAllPowerStateChangeListenersComplete(
                 CarPowerManager.STATE_SHUTDOWN_PREPARE);
         expectDaemonReceivedPowerState(CarPowerManager.STATE_HIBERNATION_ENTER);
-        // Car service should not have notified power signal listeners of state change to
-        // hibernation, as native listeners have not completed
-        assertThrows("Power signal listener should not yet be notified of state change to "
-                + "hibernation entry", IllegalStateException.class, () ->
-                mPowerSignalListener.waitFor(PowerHalService.SET_HIBERNATION_ENTRY,
-                        STATE_CHANGE_TIMEOUT_MS));
+
+        // Allow the service to finish processing state changes.
+        CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
+        assertWithMessage("Daemon should be waiting for listener completion").that(
+                mRefactoredCarPowerManagementDaemon.isWaitingForListeners(
+                        CarPowerManager.STATE_HIBERNATION_ENTER)).isTrue();
+
+        assertThrows("Power signal listener should not have received signal yet",
+                IllegalStateException.class, () ->
+                mPowerSignalListener.waitFor(PowerHalService.SET_HIBERNATION_ENTRY, 0));
+
         mRefactoredCarPowerManagementDaemon.setAllPowerStateChangeListenersComplete(
                 CarPowerManager.STATE_HIBERNATION_ENTER);
         mPowerSignalListener.waitFor(
