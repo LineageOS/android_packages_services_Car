@@ -52,6 +52,24 @@
       "parentUuid": "a4e157a8_eccba0dc",
       "revId": "faad8c0ea81bdb4a109656528a232d5302b718dc",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bbb34a7_21e06f5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36600
+      },
+      "writtenOn": "2026-02-18T08:30:20Z",
+      "side": 1,
+      "message": "Aah. Didn\u0027t know that. The gerrit instance we use at my workplace just shows \"submit whole topic\" and no other option.",
+      "parentUuid": "d321b71f_0022ddf1",
+      "revId": "faad8c0ea81bdb4a109656528a232d5302b718dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
