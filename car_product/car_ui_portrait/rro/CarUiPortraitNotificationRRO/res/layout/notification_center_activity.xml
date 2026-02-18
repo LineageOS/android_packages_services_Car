@@ -50,7 +50,7 @@
                     android:layout_centerVertical="true"
                     android:layout_centerHorizontal="true"
                     android:text="@string/empty_notification_header"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textAppearance="?attr/oemTextAppearanceBodyLarge"
                     android:visibility="gone"/>
 
                 <androidx.recyclerview.widget.RecyclerView
