@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
+import android.os.ServiceSpecificException;
 
 import com.android.car.CarLog;
 import com.android.car.R;
@@ -115,8 +116,13 @@ public final class TimeHalService extends HalServiceBase {
             }
 
             if (mExternalCarTimeSupported) {
-                HalPropValue propValue = mHal.get(EXTERNAL_CAR_TIME);
-                suggestExternalTimeLocked(propValue);
+                try {
+                    HalPropValue propValue = mHal.get(EXTERNAL_CAR_TIME);
+                    suggestExternalTimeLocked(propValue);
+                } catch (ServiceSpecificException exception) {
+                    Slogf.w(CarLog.TAG_TIME, "Unable to suggest external time on init. VHAL"
+                            + " property EXTERNAL_CAR_TIME was unavailable: " + exception);
+                }
 
                 mHal.subscribePropertySafe(this, EXTERNAL_CAR_TIME);
                 Slogf.d(CarLog.TAG_TIME, "Subscribed to VHAL property EXTERNAL_CAR_TIME.");
