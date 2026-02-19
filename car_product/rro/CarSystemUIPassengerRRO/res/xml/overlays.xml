@@ -108,7 +108,7 @@
     <item target="id/user_name_text" value="@id/user_name_text"/>
     <item target="id/clock" value="@id/clock"/>
     <item target="attr/amPmStyle" value="@attr/amPmStyle"/>
-    <item target="style/TopBarButton" value="@style/TopBarButton"/>
+    <item target="style/HorizontalBarButton" value="@style/HorizontalBarButton"/>
     <item target="style/QCFooterButtonViewStyle" value="@style/QCFooterButtonViewStyle"/>
     <item target="drawable/system_bar_background" value="@drawable/system_bar_background"/>
     <item target="attr/showDark" value="@attr/showDark"/>
