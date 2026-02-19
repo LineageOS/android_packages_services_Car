@@ -14,8 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
    -->
+
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="add_favorite_button_text" msgid="769405423070740622">"အသုံးများစာရင်းတွင် ထည့်ရန်"</string>
-    <string name="no_hfp" msgid="2403350988312998712">"ဖုန်းခေါ်ဆိုရန် ဘလူးတုသ်သုံးပြီး ဖုန်းကို သင့်ကားနှင့် ဦးစွာချိတ်ဆက်ပါ။"</string>
+    <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"ကားမောင်းနေစဉ် နံပါတ်ကွက်အသုံးပြုမှုကို ကန့်သတ်ထားသည်"</string>
 </resources>

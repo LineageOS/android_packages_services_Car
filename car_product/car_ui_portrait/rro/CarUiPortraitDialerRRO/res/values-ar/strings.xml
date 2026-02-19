@@ -14,11 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
    -->
+
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="add_favorite_button_text" msgid="769405423070740622">"إضافة إلى العناصر المفضّلة"</string>
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"يُحظر استخدام لوحة الاتصال أثناء القيادة."</string>
-    <string name="emergency_button_text" msgid="5012352862848993348">"الطوارئ"</string>
-    <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"الاتصال بالبلوتوث"</string>
-    <string name="no_hfp" msgid="2403350988312998712">"لاستئناف المكالمة، يجب أولاً توصيل الهاتف بالسيارة من خلال البلوتوث."</string>
 </resources>

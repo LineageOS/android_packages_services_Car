@@ -2806,7 +2806,6 @@
             android:name="com.android.settings.Settings$ResetDashboardActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.deeplink_system_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -3483,7 +3482,6 @@
             android:name="com.android.settings.Settings$SoftwareUpdateActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.flags.deeplink_system_25q4"
             tools:node="merge"
             tools:replace="android:exported, android:enabled">
             <intent-filter tools:node="removeAll"/>

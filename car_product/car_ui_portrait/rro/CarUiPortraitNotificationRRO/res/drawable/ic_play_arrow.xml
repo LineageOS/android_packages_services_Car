@@ -21,7 +21,7 @@
         android:width="@dimen/play_arrow_width"
         android:height="@dimen/play_arrow_height">
     <path
-        android:fillColor="@color/play_icon_tint"
+        android:fillColor="?attr/oemColorOnPrimary"
         android:pathData="M30.333,18L9.333,31.5V4.5L30.333,18ZM23.223,18L13.158,11.52V24.48L23.223,18Z"
         android:fillType="evenOdd"/>
 </vector>

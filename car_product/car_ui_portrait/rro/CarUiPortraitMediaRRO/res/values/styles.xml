@@ -24,50 +24,60 @@
         <item name="android:background">@drawable/grid_image_background</item>
         <item name="android:clipToOutline">true</item>
     </style>
-    <style name="BrowseGridTitleStyle" parent="TextAppearance.Car.Body.Medium">
-        <item name="android:textColor">@color/car_on_surface</item>
+    <style name="BrowseGridTitleStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodyMedium</item>
+        <item name="android:textColor">?attr/oemColorOnSurface</item>
     </style>
-    <style name="BrowseGridSubtitleStyle" parent="TextAppearance.Car.Body.Small">
-        <item name="android:textColor">@color/car_on_surface_variant</item>
+    <style name="BrowseGridSubtitleStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodySmall</item>
+        <item name="android:textColor">?attr/oemColorOnSurfaceVariant</item>
     </style>
-    <style name="BrowseListTitleStyle" parent="TextAppearance.Car.Body.Large">
-        <item name="android:textColor">@color/car_on_surface</item>
+    <style name="BrowseListTitleStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/oemColorOnSurface</item>
     </style>
-    <style name="BrowseListSubtitleStyle" parent="TextAppearance.Car.Body.Small">
-        <item name="android:textColor">@color/car_on_surface_variant</item>
+    <style name="BrowseListSubtitleStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodySmall</item>
+        <item name="android:textColor">?attr/oemColorOnSurfaceVariant</item>
     </style>
     <style name="BrowseListItemRightArrowStyle">
         <item name="android:src">@null</item>
     </style>
-    <style name="MinimizedControlBarTitleStyle" parent="TextAppearance.Car.Body.Medium">
-        <item name="android:textColor">@color/car_on_surface</item>
+    <style name="MinimizedControlBarTitleStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodyMedium</item>
+        <item name="android:textColor">?attr/oemColorOnSurface</item>
     </style>
-    <style name="MinimizedControlBarSubtitleStyle" parent="TextAppearance.Car.Body.Small">
-        <item name="android:textColor">@color/car_on_surface_variant</item>
+    <style name="MinimizedControlBarSubtitleStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodySmall</item>
+        <item name="android:textColor">?attr/oemColorOnSurfaceVariant</item>
     </style>
     <style name="MinimizedControlBarContentTileStyle" parent="MediaGridIconContainerStyle"/>
 
-    <style name="BrowseSubheaderStyle" parent="TextAppearance.Car.Headline.Medium">
+    <style name="BrowseSubheaderStyle">
+      <item name="android:textAppearance">?attr/oemTextAppearanceHeadlineMedium</item>
       <item name="android:paddingHorizontal">8dp</item>
       <item name="android:paddingVertical">24dp</item>
     </style>
 
     <style name="ErrorButtonStyle">
         <item name="android:background">@drawable/error_button_background</item>
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body.Large</item>
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodyLarge</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:singleLine">true</item>
         <item name="android:textAlignment">center</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/fragment_error_text_primary_color</item>
+        <item name="android:textColor">?attr/oemColorOnSurface</item>
     </style>
 
-    <style name="TextAppearance.NoContent" parent="TextAppearance.Car.Body.Large">
-        <item name="android:textColor">@color/car_on_background</item>
+    <style name="TextAppearance.NoContent">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/oemColorOnSurface</item>
     </style>
 
-    <style name="ErrorTextStyle" parent="TextAppearance.Car.Body.Large"/>
+    <style name="ErrorTextStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodyLarge</item>
+    </style>
 
     <style name="QueueListItemTitlesContainerStyle">
         <item name="android:layout_width">0dp</item>
@@ -75,7 +85,8 @@
         <item name="android:layout_weight">1</item>
     </style>
 
-    <style name="QueueListItemTitleStyle" parent="TextAppearance.Car.Body.Large">
+    <style name="QueueListItemTitleStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodyLarge</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:singleLine">true</item>
@@ -83,7 +94,8 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="QueueListItemSubtitleStyle" parent="TextAppearance.Car.Body.Small">
+    <style name="QueueListItemSubtitleStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodySmall</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:singleLine">true</item>
@@ -92,7 +104,8 @@
         <item name="android:visibility">gone</item>
     </style>
 
-    <style name="QueueListItemTimeStyle" parent="TextAppearance.Car.Body.Small">
+    <style name="QueueListItemTimeStyle">
+        <item name="android:textAppearance">?attr/oemTextAppearanceBodySmall</item>
         <item name="android:singleLine">true</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:gravity">center_vertical</item>
