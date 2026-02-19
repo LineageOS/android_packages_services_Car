@@ -25,10 +25,10 @@ per-file src/com/android/car/CarOccupantZoneServiceTest.java = xiangw@google.com
 per-file src/com/android/car/pm/* = gauravbhola@google.com
 
 # Power
-per-file src/com/android/car/garagemode/* = hubertmis@google.com
-per-file src/com/android/car/hardware/power/* = hubertmis@google.com
-per-file src/com/android/car/hal/PowerHalServiceTest.java = hubertmis@google.com
-per-file src/com/android/car/power/* = hubertmis@google.com
+per-file src/com/android/car/garagemode/* = pdunaj@google.com,hubertmis@google.com
+per-file src/com/android/car/hardware/power/* = pdunaj@google.com,hubertmis@google.com
+per-file src/com/android/car/hal/PowerHalServiceTest.java = pdunaj@google.com,hubertmis@google.com
+per-file src/com/android/car/power/* = pdunaj@google.com,hubertmis@google.com
 
 # ProcInspector
 per-file src/com/android/car/procinspector/* = jahdiel@google.com
@@ -43,7 +43,7 @@ per-file src/com/android/car/property/*.java = file:platform/hardware/interfaces
 per-file src/com/android/car/storagemonitoring/* = jahdiel@google.com
 
 # SystemInterface
-per-file src/com/android/car/systeminterface/* = hubertmis@google.com
+per-file src/com/android/car/systeminterface/* = pdunaj@google.com,hubertmis@google.com
 
 # Watchdog
 per-file assets/os/* = jahdiel@google.com
