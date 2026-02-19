@@ -3530,7 +3530,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws CarInternalErrorException if failed to get the information from the hardware.
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
-    public <T> @NonNull MinMaxSupportedValue<T> getMinMaxSupportedValue(
+    public @NonNull <T> MinMaxSupportedValue<T> getMinMaxSupportedValue(
             int propertyId, int areaId) {
         assertPropertyIdIsSupported(propertyId);
 
@@ -3594,7 +3594,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws CarInternalErrorException if failed to get the information from the hardware.
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
-    public <T> @Nullable List<T> getSupportedValuesList(int propertyId, int areaId) {
+    public @Nullable <T> List<T> getSupportedValuesList(int propertyId, int areaId) {
         assertPropertyIdIsSupported(propertyId);
 
         List<RawPropertyValue> supportedRawPropertyValues;
