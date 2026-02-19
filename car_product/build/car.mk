@@ -54,7 +54,6 @@ PRODUCT_PACKAGES += \
     RailwayReferenceApp \
     CarHotwordDetectionServiceOne \
     KitchenSinkServerlessRemoteTaskClientRRO \
-    AaosCustomizationTool \
     SampleRearViewService \
 
 # SEPolicy for test apps / services

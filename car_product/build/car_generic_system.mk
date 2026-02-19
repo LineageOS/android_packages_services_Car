@@ -42,7 +42,6 @@ PRODUCT_PACKAGES_DEBUG += \
     NetworkPreferenceApp \
     RailwayReferenceApp \
     SampleCustomInputService \
-    AaosCustomizationTool \
     SampleRearViewService \
 
 # Default boot animation for AAOS
