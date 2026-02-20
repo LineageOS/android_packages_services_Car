@@ -104,7 +104,7 @@
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
             android:paddingHorizontal="@dimen/car_padding_1"
-            style="@style/TopBarButton"
+            style="@style/HorizontalBarButton"
             app:panelLayoutRes="@layout/car_quick_controls_panel"
             app:disabledWhileUnprovisioned="true"
             app:systemBarDisable2Flags="quickSettings"

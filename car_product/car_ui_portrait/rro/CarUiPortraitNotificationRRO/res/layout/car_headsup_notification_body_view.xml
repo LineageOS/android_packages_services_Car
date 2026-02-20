@@ -35,10 +35,7 @@
         android:layout_marginStart="@dimen/card_start_margin"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginTop="@dimen/hun_body_title_margin_top"
-        android:textAppearance="?attr/oemTextAppearanceBodyLarge"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:textAlignment="viewStart"/>
+        style="@style/NotificationBodyTitleText"/>
 
     <TextView
         android:id="@+id/notification_body_content"
@@ -49,8 +46,5 @@
         android:layout_marginStart="@dimen/card_start_margin"
         android:layout_marginTop="@dimen/hun_body_content_margin_top"
         android:layout_alignWithParentIfMissing="true"
-        android:textAppearance="?attr/oemTextAppearanceBodySmall"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:textAlignment="viewStart"/>
+        style="@style/NotificationBodyContentText"/>
 </merge>

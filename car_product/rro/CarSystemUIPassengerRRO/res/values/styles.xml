@@ -25,7 +25,7 @@
         <item name="android:background">@drawable/nav_bar_button_background</item>
     </style>
 
-    <style name="TopBarButton">
+    <style name="HorizontalBarButton">
         <item name="android:layout_marginTop">@dimen/car_quick_controls_entry_points_button_margin_top</item>
         <item name="android:layout_marginBottom">@dimen/car_quick_controls_entry_points_button_margin_bottom</item>
         <item name="android:layout_marginStart">@dimen/car_quick_controls_entry_points_button_margin_start</item>
