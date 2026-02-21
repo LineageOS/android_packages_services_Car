@@ -284,3 +284,10 @@ prebuilt_etc {
     filename_from_src: true,
     product_specific: true,
 }
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.templates.host",
+    sub_dir: "permissions",
+    src: "com.android.car.templates.host.xml",
+    filename_from_src: true,
+}
