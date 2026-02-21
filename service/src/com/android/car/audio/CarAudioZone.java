@@ -152,6 +152,17 @@ public class CarAudioZone {
         return getCurrentCarAudioZoneConfig().validateCanUseDynamicMixRouting(useCoreAudioRouting);
     }
 
+    boolean validateAllCanUseDynamicMixRouting(boolean useCoreAudioRouting) {
+        boolean result = true;
+        for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
+            CarAudioZoneConfig zoneConfig = mCarAudioZoneConfigs.valueAt(index);
+            if (!zoneConfig.validateCanUseDynamicMixRouting(useCoreAudioRouting)) {
+                result = false;
+            }
+        }
+        return result;
+    }
+
     /**
      * Constraints applied here:
      *
