@@ -593,7 +593,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithZeroWriteBytes) {
                                            SystemState::NORMAL_MODE, mMockUidStatsCollector,
                                            nullptr, &actualResourceStats));
 
-    EXPECT_TRUE(actualResourceStats.resourceOveruseStats->packageIoOveruseStats.empty())
+    EXPECT_TRUE(!actualResourceStats.resourceOveruseStats.has_value() ||
+                actualResourceStats.resourceOveruseStats->packageIoOveruseStats.empty())
             << "I/O overuse stats list is not empty";
 }
 
@@ -795,7 +796,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithNoPackageInfo) {
                                            SystemState::NORMAL_MODE, mMockUidStatsCollector,
                                            nullptr, &actualResourceStats));
 
-    EXPECT_TRUE(actualResourceStats.resourceOveruseStats->packageIoOveruseStats.empty())
+    EXPECT_TRUE(!actualResourceStats.resourceOveruseStats.has_value() ||
+                actualResourceStats.resourceOveruseStats->packageIoOveruseStats.empty())
             << "I/O overuse stats list is not empty";
 }
 
