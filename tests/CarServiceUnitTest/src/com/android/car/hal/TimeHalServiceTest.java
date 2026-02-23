@@ -229,4 +229,19 @@ public final class TimeHalServiceTest {
         return mPropValueBuilder.build(EXTERNAL_CAR_TIME, /* areaId= */ 0,
                 timeMicros, VehiclePropertyStatus.AVAILABLE, timeMicros);
     }
+
+    @Test
+    public void testInitDoesNotCrash_whenExternalTimeThrows() {
+        TimeHalService timeHalService = mTimeHalServiceProvider.get();
+        timeHalService.takeProperties(Collections.singletonList(CAR_TIME_PROP));
+        when(mVehicleHal.get(EXTERNAL_CAR_TIME)).thenThrow(
+                new android.os.ServiceSpecificException(-1, "Test Exception"));
+
+        // Initialization should not crash
+        try {
+            timeHalService.init();
+        } catch (Exception e) {
+            org.junit.Assert.fail("Initialization crashed: " + e.getMessage());
+        }
+    }
 }
