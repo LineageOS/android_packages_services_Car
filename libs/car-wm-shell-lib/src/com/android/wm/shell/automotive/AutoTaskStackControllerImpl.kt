@@ -80,6 +80,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     private val defaultRootTaskPerDisplay = mutableMapOf<Int, Int>()
 
     override fun initialize() {
+        AutoTaskStackNameRegistry.setRepository(autoTaskRepository)
         transitions.addHandler(this)
     }
 
@@ -851,7 +852,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
             baseState == _taskStackStateMap[taskStackId] && requestedTaskStackState == null
         )
 
-        return TaskStackStateChange(taskStackId, AutoTaskStackState(bounds, newVisibility, layer))
+        return TaskStackStateChange(
+            taskId = taskStackId,
+            state = AutoTaskStackState(bounds, newVisibility, layer)
+        )
     }
 
     /**
@@ -945,7 +949,12 @@ class AutoTaskStackControllerImpl @Inject constructor(
             } else if (isTaskStackChange && requestedTaskStackState != null) {
                 // This handles other cases, like bounds changes, where there was an explicit
                 // request from the client, but it wasn't a simple open/close.
-                taskStackChanges.add(TaskStackStateChange(taskStackId, requestedTaskStackState))
+                taskStackChanges.add(
+                    TaskStackStateChange(
+                        taskId = taskStackId,
+                        state = requestedTaskStackState
+                    )
+                )
                 processedTaskStacks.add(taskStackId)
             }
         }
