@@ -22,6 +22,7 @@ import static android.car.media.CarMediaIntents.EXTRA_MEDIA_COMPONENT;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
@@ -41,6 +42,7 @@ import android.car.Car;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimeUtils;
 import android.car.builtin.util.UsageStatsManagerHelper;
+import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -269,17 +271,10 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             Slogf.d(TAG, "CarMediaService.onEvent(%s)", event);
         }
 
-        // Note that we receive different event types based on the platform version, beacause of
-        // the way we build the filter when registering the listener.
-        //
-        // Before U:
-        //   Receives USER_SWITCHING and USER UNLOCKED
-        // U and after:
-        //   Receives USER_VISIBLE, USER_INVISIBLE, and USER_UNLOCKED
-        //
-        // See the constructor of this class to see how the UserLifecycleEventFilter is built
-        // differently based on the platform version.
         switch (event.getEventType()) {
+            case USER_LIFECYCLE_EVENT_TYPE_STOPPED:
+                onUserStopped(event.getUserId());
+                break;
             case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
                 onUserSwitch(event.getPreviousUserId(), event.getUserId());
                 break;
@@ -420,12 +415,16 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         mPowerManagementService = powerManagementService;
 
         // Before U, only listen to USER_SWITCHING and USER_UNLOCKED.
-        // U and after, only listen to USER_VISIBLE, USER_INVISIBLE, and USER_UNLOCKED.
+        // U and after, listen to USER_STOPPED, USER_VISIBLE, USER_INVISIBLE, and USER_UNLOCKED.
         UserLifecycleEventFilter.Builder userLifecycleEventFilterBuilder =
                 new UserLifecycleEventFilter.Builder()
-                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
-        userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
-                .addEventType(USER_LIFECYCLE_EVENT_TYPE_VISIBLE);
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_VISIBLE);
+        if (Flags.clearUserDataOnStopped()) {
+            userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED);
+        } else {
+            userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE);
+        }
         mUserService.addUserLifecycleListener(userLifecycleEventFilterBuilder.build(),
                 mUserLifecycleListener);
 
@@ -993,9 +992,29 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
     /** Clears the user data when the user becomes invisible. */
     private void onUserInvisible(@UserIdInt int userId) {
+        if (Flags.clearUserDataOnStopped()) {
+            // When the flag is enabled, wait until USER_STOPPED before clearing the user data.
+            return;
+        }
         if (DEBUG) {
             Slogf.d(TAG, "onUserInvisible(): userId=%d. Clearing data for the user.", userId);
         }
+        clearUser(userId);
+    }
+
+    /** Clears the user data when the user is stopped. */
+    private void onUserStopped(@UserIdInt int userId) {
+        if (!Flags.clearUserDataOnStopped()) {
+            // Do nothing because the user data is cleared in onUserInvisible().
+            return;
+        }
+        if (DEBUG) {
+            Slogf.d(TAG, "onUserStopped(): userId=%d. Clearing data for the user.", userId);
+        }
+        clearUser(userId);
+    }
+
+    private void clearUser(@UserIdInt int userId) {
         synchronized (mLock) {
             clearUserDataLocked(userId);
             mUserMediaPlayContexts.delete(userId);
