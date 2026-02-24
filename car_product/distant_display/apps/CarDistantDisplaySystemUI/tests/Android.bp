@@ -31,6 +31,9 @@ android_test {
     static_libs: ["DistantDisplaySystemUI-tests"],
     compile_multilib: "both",
 
+    // TODO(sgjesse): b/487247571 CarDistantDisplaySystemUITest makes R8 run out of memory
+    no_dex_container: true,
+
     jni_libs: [
         "libdexmakerjvmtiagent",
         "libmultiplejvmtiagentsinterferenceagent",
