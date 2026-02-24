@@ -95,6 +95,7 @@ class PixelStreamManager : public StreamManager, StreamManagerInit {
     std::mutex mStateLock;
     int mStreamId;
     uint32_t mMaxInFlightPackets;
+    int mNextBufferId = 0;
     std::shared_ptr<StreamEngineInterface> mEngine;
 
     struct BufferMetadata {
