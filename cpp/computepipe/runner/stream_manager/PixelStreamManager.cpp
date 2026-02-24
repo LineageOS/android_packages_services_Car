@@ -69,13 +69,17 @@ Status PixelMemHandle::setFrameData(uint64_t timestamp, const InputFrame& inputF
     // Allocate a new buffer if it is currently null.
     FrameInfo frameInfo = inputFrame.getFrameInfo();
     if (mBuffer == nullptr) {
+        memset(&mDesc, 0, sizeof(mDesc));
         mDesc.format = PixelFormatToHardwareBufferFormat(frameInfo.format);
         mDesc.height = frameInfo.height;
         mDesc.width = frameInfo.width;
         mDesc.layers = 1;
-        mDesc.rfu0 = 0;
-        mDesc.rfu1 = 0;
-        mDesc.stride = frameInfo.stride;
+        // The stride for hardware buffer is specified in pixels while the stride
+        // for InputFrame data structure is specified in bytes.
+        int bytesPerPixel = numBytesPerPixel(static_cast<AHardwareBuffer_Format>(mDesc.format));
+        if (bytesPerPixel > 0) {
+            mDesc.stride = frameInfo.stride / bytesPerPixel;
+        }
         mDesc.usage = mUsage;
         int err = AHardwareBuffer_allocate(&mDesc, &mBuffer);
 
@@ -113,7 +117,7 @@ Status PixelMemHandle::setFrameData(uint64_t timestamp, const InputFrame& inputF
         memcpy(mappedBuffer, inputFrame.getFramePtr(), mDesc.stride * mDesc.height * bytesPerPixel);
     } else {
         for (int y = 0; y < frameInfo.height; y++) {
-            memcpy((uint8_t*)mappedBuffer + mDesc.stride * y * bytesPerPixel,
+            memcpy(reinterpret_cast<uint8_t*>(mappedBuffer) + mDesc.stride * y * bytesPerPixel,
                    inputFrame.getFramePtr() + y * frameInfo.stride,
                    std::min(frameInfo.stride, mDesc.stride * bytesPerPixel));
         }
