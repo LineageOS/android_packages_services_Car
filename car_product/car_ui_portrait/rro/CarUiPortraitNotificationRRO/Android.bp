@@ -42,7 +42,6 @@ android_library {
     manifest: "AndroidManifest-empty.xml",
     static_libs: [
         "CarNotificationLib",
-        "car-portrait-ui-common",
         "oem-token-lib",
     ],
     libs: [
