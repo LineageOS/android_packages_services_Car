@@ -551,9 +551,6 @@
     <string name="camera2_details_button" translatable="false">Details</string>
     <string name="camera2_selection_checkbox" translatable="false">Camera ID: %1$s</string>
 
-    <!-- Customization Switch -->
-    <string name="customization_tool_switch" translatable="false">Enable the Customization Tool</string>
-
     <!-- Data Subscription -->
     <string name="data_subscription_inactive" translatable="false">Inactive</string>
     <string name="data_subscription_trial" translatable="false">Trial</string>
