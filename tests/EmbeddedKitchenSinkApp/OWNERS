@@ -1,6 +1,11 @@
 # TLs
 dnek@google.com
 
+# Audio
+per-file src/com/google/android/car/kitchensink/AudioAutoStartActivity.java = hubertmis@google.com
+per-file src/com/google/android/car/kitchensink/audio/* = hubertmis@google.com
+per-file src/com/google/android/car/kitchensink/volume/* = hubertmis@google.com
+
 # Bluetooth
 per-file src/com/google/android/car/kitchensink/bluetooth/* = salsavage@google.com
 
@@ -33,4 +38,4 @@ per-file src/com/google/android/car/kitchensink/property/* = file:platform/hardw
 per-file src/com/google/android/car/kitchensink/sensor/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # res folder
-per-file res/** = salsavage@google.com, jahdiel@google.com, aaqibismail@google.com, evaschen@google.com
+per-file res/** = salsavage@google.com, jahdiel@google.com, aaqibismail@google.com, evaschen@google.com, hubertmis@google.com

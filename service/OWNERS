@@ -7,6 +7,11 @@ per-file src/com/android/car/SystemActivityMonitoringService.java = gauravbhola@
 per-file src/com/android/car/am/* = gauravbhola@google.com
 per-file src/com/android/car/systeminterface/ActivityManagerInterface.java = gauravbhola@google.com
 
+# Audio
+per-file proto/android/car/audio/* = hubertmis@google.com
+per-file src/com/android/car/audio/* = hubertmis@google.com
+per-file src/com/android/car/audio/hal/* = hubertmis@google.com
+
 # Bluetooth
 per-file src/com/android/car/bluetooth/* = salsavage@google.com
 
