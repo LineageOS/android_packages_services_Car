@@ -27,5 +27,9 @@
         android:layout_alignParentStart="true"
         android:text="@string/notification_header"
         android:visibility="gone"
-        style="@style/NotificationCenterHeaderText" />
+        android:layout_marginStart="204dp"
+        android:paddingTop="21dp"
+        android:gravity="center"
+        android:textColor="?attr/oemColorOutline"
+        android:textAppearance="?attr/oemTextAppearanceTitleMedium" />
 </RelativeLayout>
