@@ -98,8 +98,8 @@ import android.car.oem.CarAudioFadeConfiguration;
 import android.car.oem.CarAudioFeaturesInfo;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.media.AudioAttributes;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
@@ -2560,7 +2560,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return;
         }
         try {
-            mCarAudioModuleChangeMonitor.clearModuleChangeCallback();
+            mCarAudioModuleChangeMonitor.releaseModuleChangeCallback();
         } catch (Exception e) {
             Slogf.w(TAG, "Failed to clear audio control wrapper module change callback", e);
         }
