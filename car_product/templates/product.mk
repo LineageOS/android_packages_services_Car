@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2025 The Android Open-Source Project
+# Copyright (C) 2026 The Android Open-Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,6 @@
 # limitations under the License.
 #
 
-# Device supports DisplayCompat
+# Device supports CAL
 PRODUCT_COPY_FILES += \
-    packages/services/Car/car_product/displaycompat/android.software.car.display_compatibility.xml:system/etc/permissions/android.software.car.display_compatibility.xml \
-    device/generic/car/common/com.android.car.background_audio_while_driving.xml:system/etc/permissions/com.android.car.background_audio_while_driving.xml
-
-# Debug packages for DisplayCompat
-PRODUCT_PACKAGES_DEBUG += \
-    DisplayCompatTestApp \
-    DisplayCompatIntentApp
+    packages/services/Car/car_product/templates/android.software.car.templates.host.xml:system/etc/permissions/android.software.car.templates.host.xml
