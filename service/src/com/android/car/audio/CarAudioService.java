@@ -4252,7 +4252,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
     }
 
-    private CarAudioZone getCarAudioZone(int zoneId) {
+    @VisibleForTesting
+    CarAudioZone getCarAudioZone(int zoneId) {
         synchronized (mImplLock) {
             return getCarAudioZoneLocked(zoneId);
         }
@@ -4399,6 +4400,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 }
                 if (!zone.audioDevicesAdded(devices)) {
                     continue;
+                }
+                if (!zone.validateAllCanUseDynamicMixRouting(mUseCoreAudioRouting)) {
+                    Slogf.w(TAG, "Failed to validate dynamic mix routing for zone %d",
+                            zone.getId());
                 }
                 updatedInfos.addAll(zone.getCarAudioZoneConfigInfos());
             }
