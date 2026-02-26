@@ -39,12 +39,14 @@ interface AutoTaskStack {
  * Data class representing the state of an auto task stack.
  *
  * @property bounds The bounds of the task stack.
- * @property childrenTasksVisible Whether the child tasks of the stack are visible.
+ * @property isAboveBarrier Whether the task stack is above the visibility
+ *           barrier. This would effect the visibility of the task stack along
+ *           with the visibility of all the tasks in the task stack.
  * @property layer The layer of the task stack.
  */
 data class AutoTaskStackState(
     val bounds: Rect = Rect(),
-    val childrenTasksVisible: Boolean,
+    val isAboveBarrier: Boolean,
     val layer: Int
 )
 

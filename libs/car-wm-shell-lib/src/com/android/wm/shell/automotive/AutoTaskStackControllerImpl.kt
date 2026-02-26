@@ -100,7 +100,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 return
             }
             wct.setBounds(taskStack.rootTaskInfo.token, state.bounds)
-            wct.reorder(taskStack.rootTaskInfo.token, state.childrenTasksVisible)
+            wct.reorder(taskStack.rootTaskInfo.token, state.isAboveBarrier)
         }
 
         fun applyVisibility(
@@ -685,7 +685,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
             for ((key, value) in taskStackStateMap.entries) {
                 ast.setTaskStackStateIfNotSet(
                     key,
-                    AutoTaskStackState(value.bounds, value.childrenTasksVisible, value.layer)
+                    AutoTaskStackState(value.bounds, value.isAboveBarrier, value.layer)
                 )
             }
         }
@@ -828,7 +828,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 // becoming visible. Since the visibilities are inherited in WM, a child task
                 // cannot become visible without its parent task being visible.
                 if (requestedTaskStackState == null ||
-                    !requestedTaskStackState.childrenTasksVisible) {
+                    !requestedTaskStackState.isAboveBarrier) {
                     ProtoLog.v(
                         CAR_WM_SHELL_TASK_STACK_CONTROLLER,
                         "Task stack %d is becoming visible due to child task %d, but was not " +
@@ -847,7 +847,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 // A 'close' transition on a task stack change means that this task stack is
                 // changing visibility on the core side to false.
                 if (requestedTaskStackState == null ||
-                    requestedTaskStackState.childrenTasksVisible) {
+                    requestedTaskStackState.isAboveBarrier) {
                     ProtoLog.v(
                         CAR_WM_SHELL_TASK_STACK_CONTROLLER,
                         "Task stack %d is becoming invisible but was not explicitly requested " +
