@@ -1115,9 +1115,17 @@ class AutoTaskStackControllerImpl @Inject constructor(
             aborted
         )
         val pending: PendingTransition? = findPending(transition)
+        val changedTaskStacks = mutableListOf<TaskStackStateChange>()
         if (pending != null) {
+            // When consumed, the requested state is already the current state - update the saved
+            // state from the pending transition to stay up-to-date.
             pendingTransitions.remove(pending)
             updateTaskStackStates(pending.transaction.getTaskStackStates())
+            val newChanges = pending.transaction.getTaskStackStates().mapNotNull { entry ->
+                TaskStackStateChange(entry.key, entry.value)
+            }
+            changedTaskStacks.addAll(newChanges)
+
             // Still update the surface order because this means wm didn't lead to any change
             if (finishTransaction != null) {
                 reorderLeashes(finishTransaction)
@@ -1130,7 +1138,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
         }
         autoTransitionHandlerDelegate?.onTransitionConsumed(
             transition,
-            pending?.transaction?.getTaskStackStates() ?: emptyMap(),
+            changedTaskStacks,
             aborted,
             finishTransaction
         )

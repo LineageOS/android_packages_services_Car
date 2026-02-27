@@ -132,7 +132,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         override fun onTransitionConsumed(
             transition: IBinder,
-            requestedTaskStacks: Map<Int, AutoTaskStackState>,
+            changedTaskStacks: List<TaskStackStateChange>,
             aborted: Boolean,
             finishTransaction: SurfaceControl.Transaction?
         ) {
