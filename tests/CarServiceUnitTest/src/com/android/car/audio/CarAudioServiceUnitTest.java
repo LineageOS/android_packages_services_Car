@@ -1278,7 +1278,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         verify(mAudioManager).unregisterAudioDeviceCallback(any());
         verify(mAudioManager).clearAudioServerStateCallback();
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl).releaseModuleChangeCallback();
     }
 
     @Test
@@ -1289,7 +1289,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         service.release();
 
-        verify(mAudioControlWrapperAidl, never()).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl, never()).releaseModuleChangeCallback();
     }
 
     @Test
@@ -2890,7 +2890,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mMockPowerService).removePowerPolicyListener(any());
         verify(mMockTelephonyManager).unregisterTelephonyCallback(any());
         verify(mAudioManager).unregisterAudioDeviceCallback(deviceCallback);
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl).releaseModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
         verify(mAudioControlWrapperAidl, never()).unlinkToDeath();
@@ -2917,7 +2917,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mMockPowerService).removePowerPolicyListener(any());
         verify(mMockTelephonyManager).unregisterTelephonyCallback(any());
         verify(mAudioManager).unregisterAudioDeviceCallback(deviceCallback);
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl).releaseModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
         verify(mAudioControlWrapperAidl, never()).unlinkToDeath();
@@ -2944,7 +2944,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mMockPowerService).removePowerPolicyListener(any());
         verify(mMockTelephonyManager).unregisterTelephonyCallback(any());
         verify(mAudioManager).unregisterAudioDeviceCallback(deviceCallback);
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+        verify(mAudioControlWrapperAidl).releaseModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
         verify(mAudioControlWrapperAidl, never()).unlinkToDeath();
@@ -5577,6 +5577,56 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void onAudioDevicesAdded_withCoreAudioRouting_withDynamicDevice_cantUseDynamicPolicyMix()
+            throws Exception {
+        CarAudioService service = setUpAudioServiceWithDynamicDevices(/* useCoreRouting= */ true);
+        initServiceAndWaitForComplete(service);
+
+        // Driver logs in
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        // Driver connects a BT device
+        TestAudioZoneConfigurationsChangeCallback configCallback =
+                getRegisteredZoneConfigCallback(service);
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
+        configCallback.waitForCallback();
+
+        // Driver selects a BT device as the output device
+        List<CarAudioZoneConfigInfo> configInfos = service.getAudioZoneConfigInfos(
+                PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfigInfo btConfigInfo = configInfos.stream()
+                .filter(info -> info.getName().contains("BT"))
+                .findFirst()
+                .get();
+        SwitchAudioZoneConfigCallbackImpl switchCallback = new SwitchAudioZoneConfigCallbackImpl();
+        service.switchZoneToConfig(btConfigInfo, switchCallback);
+        switchCallback.waitForCallback();
+
+        // Verify that the BT device is not capable of being routed with dynamic policy mix
+        CarAudioZone zone = service.getCarAudioZone(PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfig config = zone.getCurrentCarAudioZoneConfig();
+        CarAudioDeviceInfo btDeviceInfo = null;
+        for (CarVolumeGroup group : config.getVolumeGroups()) {
+            btDeviceInfo = group.getCarAudioDeviceInfoForAddress(
+                    mCarAudioDeviceUtils.mBTAudioDeviceInfo.getAddress());
+            if (btDeviceInfo != null) {
+                break;
+            }
+        }
+        expectWithMessage("BT device present in the primary audio zone config")
+                .that(btDeviceInfo)
+                .isNotNull();
+        expectWithMessage("Added and selected BT device capability to be routed with dynamic " +
+                "policy mix")
+                .that(btDeviceInfo.canBeRoutedWithDynamicPolicyMix())
+                .isFalse();
+    }
+
+
+    @Test
     public void onAudioDevicesRemoved_forDynamicDevicesEnabled_triggersCallback()
             throws Exception {
         CarAudioService serviceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
@@ -7383,16 +7433,27 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private CarAudioService setUpAudioServiceWithDynamicDevices() throws Exception {
+        return setUpAudioServiceWithDynamicDevices(/* useCoreRouting= */ false);
+    }
+
+    private CarAudioService setUpAudioServiceWithDynamicDevices(boolean useCoreRouting)
+            throws Exception {
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration_using_dynamic_routing);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
         return setUpAudioServiceWithDynamicDevices(mTempCarAudioConfigFile,
-                mTempCarAudioFadeConfigFile);
+                mTempCarAudioFadeConfigFile, useCoreRouting);
     }
 
     private CarAudioService setUpAudioServiceWithDynamicDevices(TemporaryFile fileAudio,
             TemporaryFile fileFade) {
+        return setUpAudioServiceWithDynamicDevices(fileAudio, fileFade,
+                /* useCoreRouting= */ false);
+    }
+
+    private CarAudioService setUpAudioServiceWithDynamicDevices(TemporaryFile fileAudio,
+            TemporaryFile fileFade, boolean useCoreRouting) {
         when(mMockResources.getBoolean(audioUseCoreVolume)).thenReturn(true);
-        when(mMockResources.getBoolean(audioUseCoreRouting)).thenReturn(false);
+        when(mMockResources.getBoolean(audioUseCoreRouting)).thenReturn(useCoreRouting);
         CarAudioService audioServiceWithDynamicDevices = createCarAudioService(mMockContext,
                 mAudioManager, fileAudio.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 fileFade.getFile().getAbsolutePath());

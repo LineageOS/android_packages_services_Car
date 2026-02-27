@@ -98,6 +98,8 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     private final ArrayList<Integer> mNotifiedPowerStates = new ArrayList<>();
     @GuardedBy("mLock")
     private final SparseIntArray mPowerStateChangeIds = new SparseIntArray();
+    @GuardedBy("mLock")
+    private final ArrayList<Integer> mPendingListeners = new ArrayList<>();
 
     private String mLastSetPowerPolicyGroupId = POLICY_PER_STATE_GROUP_ID;
     private String mPendingPowerPolicyId;
@@ -329,6 +331,9 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
         synchronized (mLock) {
             mNotifiedPowerStates.add(newState);
             mPowerStateChangeIds.put(newState, changeId);
+            if (mHasPowerStateListenersWithCompletion) {
+                mPendingListeners.add(newState);
+            }
         }
         if (!mHasPowerStateListenersWithCompletion) {
             setAllPowerStateChangeListenersComplete(newState);
@@ -361,6 +366,7 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
         ICarPowerManagementDelegateCallback callback;
         int changeId = -1;
         synchronized (mLock) {
+            mPendingListeners.remove(Integer.valueOf(state));
             if (mCallback == null) {
                 Slogf.i(TAG, "notifyCarServiceReady is not called yet. Ignoring power state "
                         + "change");
@@ -615,4 +621,11 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
             }
         }
     }
+
+    public boolean isWaitingForListeners(int state) {
+        synchronized (mLock) {
+            return mPendingListeners.contains(state);
+        }
+    }
+
 }

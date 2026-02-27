@@ -6,6 +6,10 @@ per-file src/com/android/car/am/* = gauravbhola@google.com
 # AppFocus
 per-file src/com/android/car/AppFocusServiceTest.java = bkchoi@google.com
 
+# Audio
+per-file src/com/android/car/audio/* = hubertmis@google.com
+per-file src/com/android/car/audio/hal/* = hubertmis@google.com
+
 # Bluetooth
 per-file src/com/android/car/bluetooth/* = salsavage@google.com
 
@@ -62,4 +66,4 @@ per-file src/com/android/car/hal/VehicleHal*.java = file:platform/hardware/inter
 per-file src/com/android/car/*VehicleStubUnitTest.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # res folder
-per-file res/** = salsavage@google.com, kanant@google.com, evaschen@google.com, aaqibismail@google.com, jahdiel@google.com
+per-file res/** = salsavage@google.com, kanant@google.com, evaschen@google.com, aaqibismail@google.com, jahdiel@google.com, hubertmis@google.com
