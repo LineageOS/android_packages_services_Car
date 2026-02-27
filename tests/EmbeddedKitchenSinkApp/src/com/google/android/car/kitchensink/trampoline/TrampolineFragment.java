@@ -30,6 +30,7 @@ import com.google.android.car.kitchensink.R;
 public class TrampolineFragment extends Fragment {
     public static String DOUBLE_TRAMPOLINE_KEY = "DOUBLE_TRAMPOLINE_KEY";
     public static String FINISH_KEY = "FINISH_KEY";
+    public static String HOME_TRAMPOLINE_KEY = "HOME_TRAMPOLINE_KEY";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,6 +60,15 @@ public class TrampolineFragment extends Fragment {
             intent.putExtra(DOUBLE_TRAMPOLINE_KEY, true);
             intent.putExtra(FINISH_KEY, true);
             startActivity(intent);
+        });
+
+        Button startSingleTrampolineToHome = view.findViewById(
+                R.id.start_single_trampoline_to_home);
+        startSingleTrampolineToHome.setOnClickListener(v -> {
+            Intent intent1 = new Intent(getActivity(), TrampolineTestActivity1.class);
+            intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent1.putExtra(HOME_TRAMPOLINE_KEY, true);
+            startActivity(intent1);
         });
 
         return view;
