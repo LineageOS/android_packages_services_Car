@@ -18,8 +18,6 @@
           package="com.android.server.telecom.car.config.rro">
     <application android:hasCode="false" />
     <overlay
-        android:targetPackage="com.android.server.telecom.resources"
-        android:targetName="TelecomLibCustomization"
-        android:priority="0"
+        android:targetPackage="com.android.server.telecom"
         android:isStatic="true"/>
 </manifest>
