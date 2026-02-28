@@ -21,7 +21,12 @@
 #include <android-base/scopeguard.h>
 #include <gui/ISurfaceComposer.h>
 #include <gui/SurfaceComposerClient.h>
+#include <gui/Flags.h> // Remove with WB_AAOS
+#if COM_ANDROID_GRAPHICS_LIBGUI_FLAGS(WB_AAOS)
+#include <gui/bufferqueue/2.0/Surface2HGraphicBufferProducer.h>
+#else
 #include <gui/bufferqueue/2.0/B2HGraphicBufferProducer.h>
+#endif
 #include <gui/view/Surface.h>
 #include <ui/Rotation.h>
 
@@ -33,6 +38,11 @@ using ::aidl::android::frameworks::automotive::display::DisplayDesc;
 using ::aidl::android::frameworks::automotive::display::Rotation;
 using ::aidl::android::hardware::common::NativeHandle;
 using ::android::SurfaceComposerClient;
+#if COM_ANDROID_GRAPHICS_LIBGUI_FLAGS(WB_AAOS)
+using ::android::hardware::graphics::bufferqueue::V2_0::utils::Surface2HGraphicBufferProducer;
+#else
+using ::android::hardware::graphics::bufferqueue::V2_0::utils::B2HGraphicBufferProducer;
+#endif
 using ::ndk::ScopedAStatus;
 
 // We're using the highest Z-order.
@@ -140,10 +150,12 @@ ScopedAStatus CarDisplayProxy::getHGraphicBufferProducer(int64_t id, NativeHandl
 
     // SurfaceControl::getSurface() is guaranteed to be non-null.
     auto targetSurface = surfaceControl->getSurface();
+#if COM_ANDROID_GRAPHICS_LIBGUI_FLAGS(WB_AAOS)
+    auto hgbp = new Surface2HGraphicBufferProducer(targetSurface);
+#else
     auto igbp = targetSurface->getIGraphicBufferProducer();
-    auto hgbp =
-            new ::android::hardware::graphics::bufferqueue::V2_0::utils::B2HGraphicBufferProducer(
-                    igbp);
+    auto hgbp = new B2HGraphicBufferProducer(igbp);
+#endif
 
     ::android::HalToken halToken;
     if (!::android::createHalToken(hgbp, &halToken)) {

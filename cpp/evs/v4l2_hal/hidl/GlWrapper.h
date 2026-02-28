@@ -27,9 +27,12 @@
 #include <android/frameworks/automotive/display/1.0/IAutomotiveDisplayProxyService.h>
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <bufferqueueconverter/BufferQueueConverter.h>
+#include <gui/Flags.h> // Remove with WB_AAOS TODO(b/487968885)
 
 using ::android::frameworks::automotive::display::V1_0::IAutomotiveDisplayProxyService;
+#if !COM_ANDROID_GRAPHICS_LIBGUI_FLAGS(WB_AAOS)
 using ::android::hardware::graphics::bufferqueue::V2_0::IGraphicBufferProducer;
+#endif
 
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
@@ -51,7 +54,9 @@ public:
     unsigned getHeight() { return mHeight; };
 
 private:
+#if !COM_ANDROID_GRAPHICS_LIBGUI_FLAGS(WB_AAOS)
     android::sp<IGraphicBufferProducer> mGfxBufferProducer;
+#endif
 
     EGLDisplay mDisplay;
     EGLSurface mSurface;

@@ -221,6 +221,7 @@ PRODUCT_PACKAGES += \
     car-frameworks-service \
     com.android.car.procfsinspector \
     com.android.permission \
+    CarAppHost \
 
 ifeq ($(HAS_SCALABLEUI),true)
     $(call inherit-product, packages/services/Car/car_product/dewd/car_dewd_common.mk)
@@ -288,3 +289,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Displaycompat
 $(call inherit-product, packages/services/Car/car_product/displaycompat/display_compat_system.mk)
+
+# CAL
+$(call inherit-product, packages/services/Car/car_product/templates/product.mk)

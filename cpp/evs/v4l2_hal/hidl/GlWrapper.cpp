@@ -196,6 +196,13 @@ bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy, uint
         LOG(DEBUG) << "Display resolution is " << mWidth << " x " << mHeight;
     });
 
+#if COM_ANDROID_GRAPHICS_LIBGUI_FLAGS(WB_AAOS)
+    mSurfaceHolder = pWindowProxy->getSurface(displayId);
+    if (mSurfaceHolder == nullptr) {
+        LOG(ERROR) << "Failed to get a Surface from HGBP.";
+        return false;
+    }
+#else
     mGfxBufferProducer = pWindowProxy->getIGraphicBufferProducer(displayId);
     if (mGfxBufferProducer == nullptr) {
         LOG(ERROR) << "Failed to get IGraphicBufferProducer from IAutomotiveDisplayProxyService.";
@@ -207,6 +214,7 @@ bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy, uint
         LOG(ERROR) << "Failed to get a Surface from HGBP.";
         return false;
     }
+#endif
 
     mWindow = getNativeWindow(mSurfaceHolder.get());
     if (mWindow == nullptr) {

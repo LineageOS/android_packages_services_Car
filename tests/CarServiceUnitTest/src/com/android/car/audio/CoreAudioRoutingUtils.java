@@ -81,6 +81,7 @@ import android.hardware.automotive.audiocontrol.AudioZoneContextInfo;
 import android.hardware.automotive.audiocontrol.DeviceToContextEntry;
 import android.hardware.automotive.audiocontrol.VolumeGroupConfig;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.IAudioService;
 import android.media.MediaRecorder;
 import android.media.audio.common.AudioContentType;
@@ -560,5 +561,23 @@ public final class CoreAudioRoutingUtils {
                 "core_oem_port");
         var oemContext = createDeviceToContextEntry(oemPortDevice, List.of(OEM_CONTEXT_NAME));
         return List.of(oemContext);
+    }
+
+    /**
+     * Resets the static IAudioService references in framework classes to prevent state leakage.
+     */
+    public static void resetAudioFrameworkStatics() {
+        resetStaticField(AudioProductStrategy.class, "sService");
+        resetStaticField(AudioManager.class, "sService");
+    }
+
+    private static void resetStaticField(Class<?> clazz, String fieldName) {
+        try {
+            java.lang.reflect.Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(null, null);
+        } catch (Exception e) {
+            // Ignore errors if the field is not found or inaccessible in some environments
+        }
     }
 }

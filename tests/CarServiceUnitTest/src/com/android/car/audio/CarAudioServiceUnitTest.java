@@ -605,6 +605,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @After
     public void tearDown() throws Exception {
+        CoreAudioRoutingUtils.resetAudioFrameworkStatics();
         if (mTempCarAudioConfigFile != null) {
             mTempCarAudioConfigFile.close();
         }

@@ -51,6 +51,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseIntArray;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -163,6 +164,11 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 TEST_ZONE_CONFIG_NAME_1).addVolumeGroup(mMockGroup1).build();
         mTestAudioZone = new CarAudioZone(TEST_CAR_AUDIO_CONTEXT, TEST_ZONE_NAME,
                 TEST_ZONE_ID);
+    }
+
+    @After
+    public void tearDown() {
+        CoreAudioRoutingUtils.resetAudioFrameworkStatics();
     }
 
     @Test
