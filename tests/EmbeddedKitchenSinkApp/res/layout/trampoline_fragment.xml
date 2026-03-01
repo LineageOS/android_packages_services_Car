@@ -37,4 +37,10 @@
         android:layout_height="wrap_content"
         android:text="Start double trampoline w/ finish in between"/>
 
+    <Button
+        android:id="@+id/start_single_trampoline_to_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start single trampoline to Home"/>
+
 </LinearLayout>

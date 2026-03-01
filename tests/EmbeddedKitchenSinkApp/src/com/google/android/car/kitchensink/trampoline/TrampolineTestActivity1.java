@@ -36,6 +36,14 @@ public class TrampolineTestActivity1 extends Activity {
         Button backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> finish());
 
+        if (getIntent().getBooleanExtra(TrampolineFragment.HOME_TRAMPOLINE_KEY, false)) {
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
+            homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(homeIntent);
+            return;
+        }
+
         Intent intent = new Intent(this, TrampolineTestActivity2.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (getIntent().getBooleanExtra(TrampolineFragment.DOUBLE_TRAMPOLINE_KEY, false)) {
