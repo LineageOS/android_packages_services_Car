@@ -18,6 +18,7 @@ package com.android.car.audio;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.car.builtin.media.AudioManagerHelper;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
@@ -25,6 +26,9 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class AudioFocusInfoBuilder {
@@ -38,12 +42,33 @@ public final class AudioFocusInfoBuilder {
     private int mSdk = Build.VERSION.SDK_INT;
     private boolean mDelayedFocusRequestEnabled;
     private boolean mPausesOnDuckRequestEnabled;
+    private AudioAttributes mAudioAttributes;
+    private final List<String> mTags = new ArrayList<>();
 
     /**
      * Set audio focus info usage
      */
     public AudioFocusInfoBuilder setUsage(int usage) {
         mUsage = usage;
+        return this;
+    }
+
+    /**
+     * Add tag to audio focus info
+     */
+    public AudioFocusInfoBuilder addTag(String tag) {
+        mTags.add(tag);
+        return this;
+    }
+
+    /**
+     * Set audio focus attributes.
+     *
+     * <p>Note: if this method is used, other attributes (usage, tags, bundle) set by other methods
+     * are ignored.
+     */
+    public AudioFocusInfoBuilder setAudioAttributes(AudioAttributes attributes) {
+        mAudioAttributes = attributes;
         return this;
     }
 
@@ -124,18 +149,26 @@ public final class AudioFocusInfoBuilder {
      * Build audio focus info
      */
     public AudioFocusInfo createAudioFocusInfo() {
-        AudioAttributes.Builder builder = new AudioAttributes.Builder();
-        if (AudioAttributes.isSystemUsage(mUsage)) {
-            builder.setSystemUsage(mUsage);
-        } else {
-            builder.setUsage(mUsage);
+        AudioAttributes attributes = mAudioAttributes;
+        if (attributes == null) {
+            AudioAttributes.Builder builder = new AudioAttributes.Builder();
+            if (AudioAttributes.isSystemUsage(mUsage)) {
+                builder.setSystemUsage(mUsage);
+            } else {
+                builder.setUsage(mUsage);
+            }
+
+            for (int i = 0; i < mTags.size(); i++) {
+                AudioManagerHelper.addTagToAudioAttributes(builder, mTags.get(i));
+            }
+
+            if (mBundle != null) {
+                builder = builder.addBundle(mBundle);
+            }
+            attributes = builder.build();
         }
 
         int flags = 0;
-        if (mBundle != null) {
-            builder = builder.addBundle(mBundle);
-        }
-
         if (mDelayedFocusRequestEnabled) {
             flags |= AudioManager.AUDIOFOCUS_FLAG_DELAY_OK;
         }
@@ -144,7 +177,7 @@ public final class AudioFocusInfoBuilder {
             flags |= AudioManager.AUDIOFOCUS_FLAG_PAUSES_ON_DUCKABLE_LOSS;
         }
 
-        return new AudioFocusInfo(builder.build(), mClientUid, mClientId,
+        return new AudioFocusInfo(attributes, mClientUid, mClientId,
                 mPackageName, mGainRequest, mLossReceived, flags, mSdk);
     }
 }

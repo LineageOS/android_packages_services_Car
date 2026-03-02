@@ -26,6 +26,7 @@ import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.media.EnforcedAudioFocusInfo;
@@ -38,6 +39,7 @@ import android.os.Binder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.Trace;
+import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
@@ -49,9 +51,12 @@ import com.android.car.internal.util.LocalLog;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Class to manage audio focus enforcement in cars
@@ -326,13 +331,20 @@ final class CarAudioFocusEnforcement {
             if (info.getClientUid() != playback.getClientUid()) {
                 continue;
             }
-            // Audio attributes must match exactly
-            if (!info.getAttributes().equals(playback.getAudioAttributes())) {
-                continue;
+            if (usageAndTagsMatch(info.getAttributes(), playback.getAudioAttributes())) {
+                return false;
             }
-            return false;
         }
         return true;
+    }
+
+    private boolean usageAndTagsMatch(AudioAttributes aa1, AudioAttributes aa2) {
+        if (aa1.getSystemUsage() != aa2.getSystemUsage()) {
+            return false;
+        }
+
+        return removeEmptyTags(AudioManagerHelper.getTags(aa1))
+                .equals(removeEmptyTags(AudioManagerHelper.getTags(aa2)));
     }
 
     private void onAudioFocusChange(List<AudioFocusInfo> focusInfos) {
@@ -363,6 +375,15 @@ final class CarAudioFocusEnforcement {
             }
         }
         return false;
+    }
+
+    private Set<String> removeEmptyTags(Set<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return tags.stream()
+                .filter(tag -> !TextUtils.isEmpty(tag) && !tag.trim().isEmpty())
+                .collect(Collectors.toSet());
     }
 
     void onFocusChange(SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId) {
