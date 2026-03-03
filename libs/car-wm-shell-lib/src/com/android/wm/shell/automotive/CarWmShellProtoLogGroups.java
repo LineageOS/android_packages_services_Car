@@ -38,6 +38,7 @@ public enum CarWmShellProtoLogGroups implements IProtoLogGroup {
     CAR_WM_SHELL_DECOR(Consts.ENABLE_DEBUG, false, Consts.TAG_AUTO_DECOR),
     CAR_WM_SHELL_TASK_STACK_CONTROLLER(Consts.ENABLE_DEBUG, true,
             Consts.TAG_AUTO_TASK_STACK_CONTROLLER),
+    CAR_WM_SHELL_VISIBILITY_BARRIER(Consts.ENABLE_DEBUG, true, Consts.TAG_AUTO_VISIBILITY_BARRIER),
     TEST_GROUP(true, false, "CarWmShellProtoLogTest");
 
     private final boolean mEnabled;
@@ -85,6 +86,7 @@ public enum CarWmShellProtoLogGroups implements IProtoLogGroup {
         private static final String TAG_CAR_WM_SHELL = "AutoWmShell";
         private static final String TAG_AUTO_DECOR = "AutoDecor";
         private static final String TAG_AUTO_TASK_STACK_CONTROLLER = "AutoTaskStackController";
+        private static final String TAG_AUTO_VISIBILITY_BARRIER = "AutoVisibilityBarrier";
 
         private static final boolean ENABLE_DEBUG = true;
 
