@@ -2852,7 +2852,8 @@ public final class Car implements ICarBase {
      * initialization if the client calls this early during the boot process.
      *
      * @param serviceName Name of service that should be created like {@link #SENSOR_SERVICE}.
-     * @return Matching service manager or null if there is no such service.
+     * @return Matching service manager or {@code null} if there is no such service. Note that this
+     * can return {@code null} at runtime if the CarService process crashes or is disconnected.
      */
     @Nullable
     public Object getCarManager(String serviceName) {
@@ -2897,7 +2898,8 @@ public final class Car implements ICarBase {
      * initialization if the client calls this early during the boot process.
      *
      * @param serviceClass The class of the desired service.
-     * @return Matching service manager or {@code null} if there is no such service.
+     * @return Matching service manager or {@code null} if there is no such service. Note that this
+     * can return {@code null} at runtime if the CarService process crashes or is disconnected.
      */
     @Nullable
     public <T> T getCarManager(@NonNull Class<T> serviceClass) {
