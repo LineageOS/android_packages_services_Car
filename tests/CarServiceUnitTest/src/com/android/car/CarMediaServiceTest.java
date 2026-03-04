@@ -18,9 +18,11 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID;
+import static android.car.feature.Flags.FLAG_CLEAR_USER_DATA_ON_STOPPED;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -76,6 +78,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.platform.test.annotations.DisableFlags;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.view.KeyEvent;
 
 import com.android.car.CarInputService.KeyEventListener;
@@ -118,6 +123,9 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
             new ComponentName(MEDIA_PACKAGE2, MEDIA_CLASS2);
     private static final ComponentName BACKUP_COMPONENT =
             new ComponentName("backup.package", "backup.class");
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Rule
     public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
@@ -478,6 +486,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .isEqualTo(MEDIA_COMPONENT);
     }
 
+    @DisableFlags(FLAG_CLEAR_USER_DATA_ON_STOPPED)
     @Test
     public void testDefaultMediaSource_userDataRemoved() {
         mockGetCallingUserHandle(TEST_USER_ID);
@@ -502,6 +511,41 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .isEqualTo(MEDIA_COMPONENT);
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK,
                         ANOTHER_TEST_USER_ID))
+                .isEqualTo(MEDIA_COMPONENT);
+    }
+
+    @EnableFlags(FLAG_CLEAR_USER_DATA_ON_STOPPED)
+    @Test
+    public void testUserDataRemoved_onUserStopped() {
+        mockGetCallingUserHandle(TEST_USER_ID);
+        initMediaService(MEDIA_CLASS);
+
+        // Set a different media source for another user.
+        mockGetCallingUserHandle(ANOTHER_TEST_USER_ID);
+        sendUserLifecycleEvent(new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
+                ANOTHER_TEST_USER_ID));
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT2, MEDIA_SOURCE_MODE_PLAYBACK,
+                ANOTHER_TEST_USER_ID);
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK,
+                ANOTHER_TEST_USER_ID))
+                .isEqualTo(MEDIA_COMPONENT2);
+
+        // Background user becomes invisible. Flag is enabled, so it should NOT clear data.
+        sendUserLifecycleEvent(new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
+                ANOTHER_TEST_USER_ID));
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK,
+                ANOTHER_TEST_USER_ID))
+                .isEqualTo(MEDIA_COMPONENT2);
+
+        // Background user stopped. Flag is enabled, so it should clear data.
+        sendUserLifecycleEvent(new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPED,
+                ANOTHER_TEST_USER_ID));
+
+        // Now returns the default media source.
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_BROWSE, ANOTHER_TEST_USER_ID))
+                .isEqualTo(MEDIA_COMPONENT);
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK,
+                ANOTHER_TEST_USER_ID))
                 .isEqualTo(MEDIA_COMPONENT);
     }
 

@@ -43,6 +43,17 @@ flag {
     bug: "467141039"
 }
 
+# CarMediaService
+flag {
+  name: "clear_user_data_on_stopped"
+  namespace: "car_framework"
+  description: "Clear user data on user stopped"
+  bug: "487381528"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+  }
+}
+
 # CarPackageManager
 flag {
   name: "display_compatibility"
