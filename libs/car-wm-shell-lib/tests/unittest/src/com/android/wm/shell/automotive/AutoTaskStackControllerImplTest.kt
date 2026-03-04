@@ -17,10 +17,12 @@
 package com.android.wm.shell.automotive
 
 import android.app.ActivityManager.RunningTaskInfo
+import android.app.ActivityTaskManager.INVALID_TASK_ID
 import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
 import android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD
 import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
+import android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.graphics.Rect
 import android.os.Binder
@@ -28,6 +30,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.testing.AndroidTestingRunner
+import android.view.Display.DEFAULT_DISPLAY
 import android.view.SurfaceControl
 import android.view.WindowManager.TRANSIT_OPEN
 import android.view.WindowManager.TRANSIT_TO_BACK
@@ -37,6 +40,7 @@ import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import android.window.WindowContainerToken
 import android.window.WindowContainerTransaction
+import android.window.WindowContainerTransaction.HierarchyOp.HIERARCHY_OP_TYPE_REPARENT
 import android.window.WindowContainerTransaction.HierarchyOp.HIERARCHY_OP_TYPE_SET_LAUNCH_ROOT
 import androidx.test.filters.SmallTest
 import com.android.testing.wm.util.TransitionInfoBuilder
@@ -49,6 +53,7 @@ import com.android.wm.shell.common.ShellExecutor
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertThrows
@@ -1287,5 +1292,60 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         verify(rootTaskStackListener).onBackOnTaskRoot(childTaskToMove, false, false, false)
         verify(rootTaskStackListener).moveRootTaskToBack(childTaskToMove)
         verify(taskOrganizer, never()).applyTransaction(any())
+    }
+
+    @Test
+    fun handleRequest_fullscreenTaskWithoutParent_reparentsToLaunchRoot() {
+        // Setup an orphaned, fullscreen, non-home task
+        val triggerTask = TestRunningTaskInfoBuilder()
+            .setTaskId(100)
+            .setParentTaskId(INVALID_TASK_ID) // -1
+            .setWindowingMode(WINDOWING_MODE_FULLSCREEN)
+            .setActivityType(ACTIVITY_TYPE_STANDARD)
+            .setDisplayId(DEFAULT_DISPLAY)
+            .build()
+
+        // Configure a launch root task for this display in the controller
+        val (launchRootTask, _) = setupRootTask(taskId = 200)
+        controller.setDefaultRootTaskStackOnDisplay(DEFAULT_DISPLAY, 200)
+
+        // Populate autoTaskStateMap with the root task
+        val rootTaskState = AutoTaskStackState(
+            bounds = Rect(0, 0, 1000, 1000),
+            isAboveBarrier = true,
+            layer = 1
+        )
+        controller.updateTaskStackStates(mapOf(200 to rootTaskState))
+
+        // Create an opening transition request
+        val request = TransitionRequestInfo(TRANSIT_OPEN, triggerTask, null)
+
+        // Act
+        val wct = controller.handleRequest(Binder(), request)
+
+        // Assert
+        assertThat(wct).isNotNull()
+        // Ensure that the transaction contains a reparent operation
+        assertWctHasReparent(wct!!, triggerTask.token, launchRootTask.token)
+    }
+
+    /**
+     * Asserts that the given [WindowContainerTransaction] contains a reparent operation
+     * for the [task] to the [parent].
+     */
+    private fun assertWctHasReparent(
+        wct: WindowContainerTransaction,
+        task: WindowContainerToken,
+        parent: WindowContainerToken?
+    ) {
+        val hierarchyOps = wct.hierarchyOps
+        val hasReparent = hierarchyOps.any { op ->
+            op.type == HIERARCHY_OP_TYPE_REPARENT &&
+                    op.container == task.asBinder() &&
+                    op.newParent == parent?.asBinder()
+        }
+        assertWithMessage(
+            "WCT should contain a reparent operation for task $task to parent $parent"
+        ).that(hasReparent).isTrue()
     }
 }
