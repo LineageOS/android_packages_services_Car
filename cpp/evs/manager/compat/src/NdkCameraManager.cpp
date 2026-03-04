@@ -29,9 +29,14 @@ NdkCameraManager::NdkCameraManager() : mManager(ACameraManager_create()) {
     }
 
     // Dynamically load camera sharing and streaming functions
-    void* libcamera_ndk = dlopen("libcamera2ndk.so", RTLD_NOW);
+#ifdef __ANDROID_VNDK__
+    const char* libcamera_ndk_name = "libcamera2ndk_vendor.so";
+#else
+    const char* libcamera_ndk_name = "libcamera2ndk.so";
+#endif
+    void* libcamera_ndk = dlopen(libcamera_ndk_name, RTLD_NOW);
     if (!libcamera_ndk) {
-        LOG(ERROR) << "Failed to open libcamera2ndk.so: " << dlerror();
+        LOG(ERROR) << "Failed to open " << libcamera_ndk_name << ": " << dlerror();
         return;
     }
 
