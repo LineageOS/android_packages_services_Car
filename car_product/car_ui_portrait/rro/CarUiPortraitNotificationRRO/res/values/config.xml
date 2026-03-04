@@ -70,5 +70,9 @@
     <!-- Whether heads-up notifications is dismissible in vertical directions. If set to false
          the notification would be dismissible in horizontal directions. -->
     <bool name="config_isHeadsUpNotificationDismissibleVertically">true</bool>
+
+    <!-- Missing integer configs added from base notification app -->
+    <integer name="config_headsUpNotificationMaxBodyLines">3</integer>
+    <integer name="config_notificationPanelMaxBodyLines">3</integer>
 </resources>
 

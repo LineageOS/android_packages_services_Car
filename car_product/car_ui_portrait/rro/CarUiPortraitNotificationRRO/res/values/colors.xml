@@ -16,4 +16,12 @@
   -->
 
 <resources>
+  <color name="car_ui_rotary_focus_stroke_color">#94CBFF</color>
+  <color name="car_ui_rotary_focus_fill_color">#3D94CBFF</color>
+  <color name="car_ui_rotary_focus_pressed_stroke_color">#94CBFF</color>
+  <color name="car_ui_rotary_focus_pressed_fill_color">#8A94CBFF</color>
+  <color name="car_ui_rotary_focus_stroke_secondary_color">#0059B3</color>
+  <color name="car_ui_rotary_focus_fill_secondary_color">#3D0059B3</color>
+  <color name="car_ui_rotary_focus_pressed_stroke_secondary_color">#0041BE</color>
+  <color name="car_ui_rotary_focus_pressed_fill_secondary_color">#8A0041BE</color>
 </resources>
