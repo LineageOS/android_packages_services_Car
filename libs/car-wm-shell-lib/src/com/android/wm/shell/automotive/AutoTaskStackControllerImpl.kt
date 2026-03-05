@@ -22,6 +22,7 @@ import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
 import android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD
 import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
+import android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN
 import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.content.Context
@@ -649,6 +650,12 @@ class AutoTaskStackControllerImpl @Inject constructor(
         return startTransitionNow(pending)
     }
 
+    private fun isHomeTask(taskInfo: ActivityManager.RunningTaskInfo): Boolean {
+        val action = taskInfo.baseIntent?.action
+        val categories = taskInfo.baseIntent?.categories
+        return action == Intent.ACTION_MAIN && categories?.contains(Intent.CATEGORY_HOME) == true
+    }
+
     override fun handleRequest(
         transition: IBinder,
         request: TransitionRequestInfo
@@ -661,12 +668,32 @@ class AutoTaskStackControllerImpl @Inject constructor(
             request.type,
             request.triggerTask?.toShortString()
         )
-        var ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
-        val action = request.triggerTask?.baseIntent?.action
-        val category = request.triggerTask?.baseIntent?.categories
 
-        if (action?.equals(Intent.ACTION_MAIN) == true &&
-            category?.contains(Intent.CATEGORY_HOME) == true &&
+        // TODO(b/469818404): Short-term fix: Intercept and reparent fullscreen app tasks (excluding
+        //  Home) that lack a parent root task. This handles cases where the activity interceptor
+        //  logic was bypassed (e.g. when an activity moves from a virtual display to default
+        //  display), ensuring the task is correctly routed to the intended launch root task.
+        //
+        // TODO(b/471280938): Update the recovery reparenting conditional once visible barrier is
+        //  added.
+        if (requiresReparenting(request)) {
+            handleRecoveryReparenting(request.triggerTask!!)?.let { ast ->
+                val wct = WindowContainerTransaction()
+                convertToWct(ast, wct)
+                pendingTransitions.add(
+                    PendingTransition(request.type, wct, ast, delegateToClient = true).apply {
+                        isClaimed = transition
+                    }
+                )
+                return wct
+            }
+        }
+
+        val triggerTask = request.triggerTask
+        var ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
+        if (
+            triggerTask != null &&
+            isHomeTask(triggerTask) &&
             TransitionUtil.isOpeningType(request.type)
         ) {
             // This is done for the home event only because home task is a fullscreen task that can
@@ -716,6 +743,60 @@ class AutoTaskStackControllerImpl @Inject constructor(
             PendingTransition(request.type, wct, ast).apply { isClaimed = transition }
         )
         return wct
+    }
+
+    private fun requiresReparenting(request: TransitionRequestInfo): Boolean =
+        (TransitionUtil.isOpeningType(request.type)) &&
+                request.triggerTask != null &&
+                request.triggerTask?.parentTaskId == INVALID_TASK_ID &&
+                request.triggerTask?.windowingMode == WINDOWING_MODE_FULLSCREEN &&
+                !isHomeTask(request.triggerTask!!)
+
+    private fun handleRecoveryReparenting(
+        triggerTask: ActivityManager.RunningTaskInfo
+    ): AutoTaskStackTransaction? {
+        // Ensure the task is tracked by the controller, as it skipped the interceptor path.
+        appTasksMap.putIfAbsent(triggerTask.taskId, triggerTask)
+        val launchRootTaskId = defaultRootTaskPerDisplay[triggerTask.displayId]
+            ?: INVALID_TASK_ID
+        if (launchRootTaskId != INVALID_TASK_ID) {
+            val ast = AutoTaskStackTransaction()
+
+            // Reparent the task without a parent to the launch root task
+            ast.reparentTask(triggerTask.taskId, launchRootTaskId, /* onTop= */ true)
+
+            val currentState = taskStackStateMap[launchRootTaskId]
+            if (currentState == null) {
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "handleRecoveryReparenting: taskStackStateMap doesn't have a stack state " +
+                            "for launchRootTaskId: $launchRootTaskId"
+                )
+                return null
+            }
+
+            val newState = currentState.copy(isAboveBarrier = true)
+            ast.setTaskStackState(launchRootTaskId, newState)
+
+            for ((key, value) in taskStackStateMap.entries) {
+                if (key != launchRootTaskId) {
+                    ast.setTaskStackStateIfNotSet(
+                        key,
+                        AutoTaskStackState(value.bounds, value.isAboveBarrier, value.layer)
+                    )
+                }
+            }
+
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "handleRecoveryReparenting: Fullscreen task=%s has no parent" +
+                        " (interceptor bypassed);" +
+                        " reparenting to default launch root task",
+                triggerTask.toShortString()
+            )
+            return ast
+        }
+        return null
     }
 
     fun ActivityManager.RunningTaskInfo.toShortString(): String {
