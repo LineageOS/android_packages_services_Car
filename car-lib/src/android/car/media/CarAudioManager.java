@@ -2110,8 +2110,7 @@ public final class CarAudioManager extends CarManagerBase {
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
 
-        if (Flags.carAudioVolumeCallbackRegistrationPermissionEnforced()
-                && mAppTargetSdk >= Build.VERSION_CODES.CINNAMON_BUN) {
+        if (mAppTargetSdk >= Build.VERSION_CODES.CINNAMON_BUN) {
             // Check permission on the client side to prevent unauthorized client state changes.
             // This is an additional check. The permission is also checked on the server side
             // following the standard pattern.
@@ -2167,8 +2166,7 @@ public final class CarAudioManager extends CarManagerBase {
             @NonNull CarVolumeGroupEventCallback callback) {
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
 
-        if (Flags.carAudioVolumeCallbackRegistrationPermissionEnforced()
-                && mAppTargetSdk >= Build.VERSION_CODES.CINNAMON_BUN) {
+        if (mAppTargetSdk >= Build.VERSION_CODES.CINNAMON_BUN) {
             // Check permission on the client side to prevent unauthorized client state changes.
             // This is an additional check. The permission is also checked on the server side
             // following the standard pattern.

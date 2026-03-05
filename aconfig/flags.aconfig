@@ -233,16 +233,6 @@ flag {
     bug: "415404935"
 }
 
-flag {
-    name: "car_audio_volume_callback_registration_permission_enforced"
-    namespace: "car_framework"
-    description: "Enables permission checks for un/registerCarVolumeGroupEventCallback methods"
-    bug: "482408889"
-    metadata {
-      purpose: PURPOSE_BUGFIX
-    }
-}
-
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"
