@@ -20,13 +20,6 @@
     <string name="config_appGridComponentName" translatable="false">@string/appgrid_componentName</string>
     <string name="config_calmModeComponentName">@string/calmMode_componentName</string>
 
-    <!-- A list of packages that are excluded from being shown on Dock -->
-    <string-array name="config_packagesExcludedFromDock" translatable="false">
-      <item>com.android.car.portraitlauncher</item>
-      <item>com.android.car.stub.launcher</item>
-      <item>android.car.usb.handler</item>
-    </string-array>
-
     <!-- System bar strings -->
     <!-- System bar contentDescription for home menu-->
     <string name="system_bar_home_label">Home Screen</string>
