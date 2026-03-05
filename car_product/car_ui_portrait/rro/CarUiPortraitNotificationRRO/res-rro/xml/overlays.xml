@@ -25,6 +25,38 @@
     <item target="attr/cardElevation" value="@attr/cardElevation"/>
     <item target="attr/textColor" value="@attr/textColor"/>
 
+    <!-- Primary Colors -->
+    <item target="attr/oemColorPrimary" value="@attr/oemColorPrimary" />
+    <item target="attr/oemColorOnPrimary" value="@attr/oemColorOnPrimary" />
+    <item target="attr/oemColorPrimaryContainer" value="@attr/oemColorPrimaryContainer" />
+
+    <!-- Secondary Colors -->
+    <item target="attr/oemColorSecondary" value="@attr/oemColorSecondary" />
+    <item target="attr/oemColorSecondaryContainer" value="@attr/oemColorSecondaryContainer" />
+    <item target="attr/oemColorOnSecondaryContainer" value="@attr/oemColorOnSecondaryContainer" />
+
+    <!-- Surface Colors -->
+    <item target="attr/oemColorOnSurface" value="@attr/oemColorOnSurface" />
+
+    <!-- Surface Containers -->
+    <item target="attr/oemColorSurfaceContainer" value="@attr/oemColorSurfaceContainer" />
+    <item target="attr/oemColorSurfaceContainerHigh" value="@attr/oemColorSurfaceContainerHigh" />
+    <item target="attr/oemColorSurfaceContainerHighest" value="@attr/oemColorSurfaceContainerHighest" />
+
+    <!-- Utilities & Effects -->
+    <item target="attr/oemColorOutline" value="@attr/oemColorOutline" />
+
+    <!-- Custom Semantic Colors (Yellow) -->
+    <item target="attr/oemColorYellowContainer" value="@attr/oemColorYellowContainer" />
+
+    <item target="attr/oemTextAppearanceHeadlineSmall" value="@attr/oemTextAppearanceHeadlineSmall" />
+    <item target="attr/oemTextAppearanceTitleMedium" value="@attr/oemTextAppearanceTitleMedium" />
+    <item target="attr/oemTextAppearanceLabelLarge" value="@attr/oemTextAppearanceLabelLarge" />
+    <item target="attr/oemTextAppearanceBodyLarge" value="@attr/oemTextAppearanceBodyLarge" />
+    <item target="attr/oemTextAppearanceBodySmall" value="@attr/oemTextAppearanceBodySmall" />
+
+    <item target="attr/oemShapeCornerLarge" value="?attr/oemShapeCornerLarge"/>
+
     <item target="bool/config_collapseShadePanelAfterManageButtonPress" value="@bool/config_collapseShadePanelAfterManageButtonPress" />
     <item target="bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" value="@bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" />
     <item target="bool/config_enableMessageNotificationDirectReply" value="@bool/config_enableMessageNotificationDirectReply"/>

@@ -40,4 +40,29 @@
         <!-- Text color -->
         <attr name="textColor" format="color"/>
     </declare-styleable>
+
+    <attr name="oemColorPrimary" format="color" />
+    <attr name="oemColorOnPrimary" format="color" />
+    <attr name="oemColorPrimaryContainer" format="color" />
+    <attr name="oemColorSecondary" format="color" />
+    <attr name="oemColorSecondaryContainer" format="color" />
+    <attr name="oemColorOnSecondaryContainer" format="color" />
+    <attr name="oemColorOnSurface" format="color" />
+    <attr name="oemColorOutline" format="color" />
+    <attr name="oemColorSurfaceContainer" format="color" />
+    <attr name="oemColorSurfaceContainerHigh" format="color" />
+    <attr name="oemColorSurfaceContainerHighest" format="color" />
+    <attr name="oemColorYellowContainer" format="color" />
+
+    <attr name="oemTextAppearanceHeadlineSmall" format="reference" />
+    <attr name="oemTextAppearanceTitleMedium" format="reference" />
+    <attr name="oemTextAppearanceLabelLarge" format="reference" />
+    <attr name="oemTextAppearanceBodyLarge" format="reference" />
+    <attr name="oemTextAppearanceBodySmall" format="reference" />
+
+    <attr name="oemShapeCornerLarge" format="dimension" />
+
+    <attr name="cardElevation" format="dimension"/>
+    <attr name="cardCornerRadius" format="dimension"/>
+    <attr name="cardBackgroundColor" format="color"/>
 </resources>

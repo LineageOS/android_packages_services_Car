@@ -18,7 +18,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.car.notification.caruiportrait.rro">
     <application android:hasCode="false">
-            <uses-library android:name="com.android.oem.tokens" android:required="false"/>
     </application>
     <overlay android:priority="20"
              android:targetName="CarNotification"
