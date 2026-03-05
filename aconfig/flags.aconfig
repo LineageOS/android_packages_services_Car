@@ -30,13 +30,6 @@ flag {
 }
 
 flag {
-  name: "visible_background_user_toggle_home_components"
-  namespace: "car_framework"
-  description: "Selectively enable home components for visible background users"
-  bug: "441579704"
-}
-
-flag {
   name: "rros_per_occupant_zone"
     namespace: "car_framework"
     description: "Selectively enable RROs for different occupant zones"

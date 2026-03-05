@@ -18,7 +18,6 @@ package com.android.car.user;
 
 import static android.car.feature.Flags.FLAG_RROS_PER_OCCUPANT_ZONE;
 import static android.car.feature.Flags.FLAG_SUPPORTS_SECURE_PASSENGER_USERS;
-import static android.car.feature.Flags.FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackgroundVisibleOnDisplay;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
@@ -654,7 +653,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    @EnableFlags({FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS})
     public void testOnUserVisible_sameHome_noComponentStateChange() throws Exception {
         ComponentName homeComponent = new ComponentName("com.android.car",
                 "com.android.car.TestHome");
@@ -677,7 +675,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    @EnableFlags({FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS})
     public void testOnUserVisible_differentHome_driver_componentStateChange() throws Exception {
         ComponentName driverHomeComponent = new ComponentName("com.android.car",
                 "com.android.car.TestHome");
@@ -703,7 +700,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    @EnableFlags({FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS})
     public void testOnUserVisible_differentHome_passenger_componentStateChange() throws Exception {
         ComponentName driverHomeComponent = new ComponentName("com.android.car",
                 "com.android.car.TestHome");
