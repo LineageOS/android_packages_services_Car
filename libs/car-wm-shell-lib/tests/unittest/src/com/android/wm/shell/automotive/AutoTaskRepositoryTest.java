@@ -253,6 +253,34 @@ public class AutoTaskRepositoryTest {
         verify(mCarActivityManager).onTaskVanished(any());
     }
 
+    @Test
+    public void testRemoveBarrierToken_NonExistentKey() {
+        int displayId = 2;
+
+        // Removing a key that hasn't been added should not crash
+        mTaskRepository.removeBarrierToken(displayId);
+
+        assertThat(mTaskRepository.getBarrierToken(displayId)).isNull();
+    }
+
+    @Test
+    public void testSetAndGetBarrierToken() {
+        int displayId0 = 0;
+        int displayId1 = 1;
+        WindowContainerToken token0 = mock(WindowContainerToken.class);
+        WindowContainerToken token1 = mock(WindowContainerToken.class);
+
+        mTaskRepository.setBarrierToken(displayId0, token0);
+        mTaskRepository.setBarrierToken(displayId1, token1);
+
+        assertThat(mTaskRepository.getBarrierToken(displayId0)).isEqualTo(token0);
+        assertThat(mTaskRepository.getBarrierToken(displayId1)).isEqualTo(token1);
+
+        mTaskRepository.removeBarrierToken(displayId0);
+        assertThat(mTaskRepository.getBarrierToken(displayId0)).isNull();
+        assertThat(mTaskRepository.getBarrierToken(displayId1)).isEqualTo(token1);
+    }
+
     private ActivityManager.RunningTaskInfo createMockTaskInfo(int taskId) {
         ActivityManager.RunningTaskInfo taskInfo = mock(ActivityManager.RunningTaskInfo.class);
         WindowContainerToken rootTaskToken = mock(WindowContainerToken.class);
