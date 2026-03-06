@@ -563,7 +563,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         assertThat(delegate.lastFinishTransaction).isEqualTo(finishTransaction)
         assertThat(delegate.lastTaskStackStates).isEqualTo(
             transaction.getTaskStackStates()
-                .map { (taskId, state) -> TaskStackStateChange(taskId, state) }
+                .map { (taskId, state) -> TaskStackStateChange(taskId = taskId, state = state) }
         )
     }
 
@@ -933,8 +933,8 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .isNotNull()
         assertThat(delegate.lastTaskStackStates).contains(
             TaskStackStateChange(
-                rootTaskInfo3.taskId,
-                AutoTaskStackState(Rect(), true, AutoTaskStackController.UNKNOWN_Z_LAYER)
+                taskId = rootTaskInfo3.taskId,
+                state = AutoTaskStackState(Rect(), true, AutoTaskStackController.UNKNOWN_Z_LAYER)
             )
         )
     }
@@ -1127,14 +1127,14 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             .isNotNull()
         assertThat(delegate.lastTaskStackStates).contains(
             TaskStackStateChange(
-                rootTaskInfo2.taskId,
-                AutoTaskStackState(Rect(10, 10, 40, 300), false, 0)
+                taskId = rootTaskInfo2.taskId,
+                state = AutoTaskStackState(Rect(10, 10, 40, 300), false, 0)
             )
         )
         assertThat(delegate.lastTaskStackStates).contains(
             TaskStackStateChange(
-                rootTaskInfo3.taskId,
-                AutoTaskStackState(Rect(10, 10, 40, 300), true, 900)
+                taskId = rootTaskInfo3.taskId,
+                state = AutoTaskStackState(Rect(10, 10, 40, 300), true, 900)
             )
         )
     }
