@@ -603,7 +603,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     // Preserve leaf tasks if relaunched from different windowing mode.
                     wct.setPreserveLeafTaskIfRelaunch(
                         taskStack.rootTaskInfo.token,
-                        /* preserveLeafTaskIfRelaunch= */ true
+                        /* preserveLeafTaskIfRelaunch= */
+                        true
                     )
                     defaultRootTaskPerDisplay[displayId] = taskStack.id
                 }
@@ -764,7 +765,12 @@ class AutoTaskStackControllerImpl @Inject constructor(
             val ast = AutoTaskStackTransaction()
 
             // Reparent the task without a parent to the launch root task
-            ast.reparentTask(triggerTask.taskId, launchRootTaskId, /* onTop= */ true)
+            ast.reparentTask(
+                triggerTask.taskId,
+                launchRootTaskId,
+                /* onTop= */
+                true
+            )
 
             val currentState = taskStackStateMap[launchRootTaskId]
             if (currentState == null) {
@@ -859,6 +865,56 @@ class AutoTaskStackControllerImpl @Inject constructor(
     }
 
     /**
+     * Returns a [TaskStackStateChange] for a requested change that was not found in the change list
+     * from the TransitionInfo or null if no additional change is required.
+     */
+    private fun getTaskStackChangeForMissingRequest(
+        taskStackId: Int,
+        requestedState: AutoTaskStackState,
+    ): TaskStackStateChange? {
+        ProtoLog.d(
+            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+            "requested change not found in change list $requestedState"
+        )
+
+        val taskStack = taskStackMap[taskStackId] as? RootTaskStack
+        if (taskStack == null) {
+            ProtoLog.w(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Requested change not in task stack map $taskStackId"
+            )
+            return null
+        }
+
+        if (requestedState.isAboveBarrier == taskStack.rootTaskInfo.isVisible) {
+            // Visibility state aligns - assume requested state should be applied
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Manually applying requested change state for $taskStackId"
+            )
+            return TaskStackStateChange(taskStackId, requestedState)
+        }
+
+        val currentState = taskStackStateMap[taskStackId]
+        if (currentState?.isAboveBarrier == taskStack.rootTaskInfo.isVisible) {
+            ProtoLog.i(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Current visibility of $taskStackId same as before"
+            )
+            return null
+        }
+        ProtoLog.e(
+            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+            "Current visibility of $taskStackId is not correct or what was requested"
+        )
+        return createReconciledTaskStackChange(
+            taskStackId,
+            newVisibility = taskStack.rootTaskInfo.isVisible,
+            requestedTaskStackState = requestedState
+        )
+    }
+
+    /**
      * Calculates task stack changes based on what actually changed in window manager.
      * This is necessary because the WindowManager might make changes to task visibility (e.g.,
      * hiding a task stack) that were not explicitly requested by the client in the
@@ -870,6 +926,9 @@ class AutoTaskStackControllerImpl @Inject constructor(
      * 2. A task stack becoming visible due to an app task launching inside it (this happens
      *    implicitly where core brings the task stack (or root task) to the front) even if it was
      *    not explicitly requested by the client.
+     * 3. A requested task stack change is not included in the changes list because it either is
+     *    already in the requested state or it has moved to a different state than what was
+     *    requested.
      *
      * @param requestedTaskStackChanges The task stack states requested by the client in the
      *                                  [AutoTaskStackTransaction].
@@ -955,6 +1014,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
                         state = requestedTaskStackState
                     )
                 )
+                processedTaskStacks.add(taskStackId)
+            }
+        }
+
+        for (requestedChange in requestedTaskStackChanges) {
+            val taskStackId = requestedChange.key
+            if (processedTaskStacks.contains(taskStackId)) {
+                continue
+            }
+
+            getTaskStackChangeForMissingRequest(
+                taskStackId,
+                requestedChange.value
+            )?.let { stateChange ->
+                taskStackChanges.add(stateChange)
                 processedTaskStacks.add(taskStackId)
             }
         }
