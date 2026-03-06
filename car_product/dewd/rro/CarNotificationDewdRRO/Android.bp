@@ -19,12 +19,16 @@ android_app {
     name: "CarNotificationDewdRRO",
     resource_dirs: ["res"],
     certificate: "platform",
+    aaptflags: [
+        "--no-resource-deduping",
+        "--no-resource-removal",
+    ],
     platform_apis: true,
     static_libs: [
         "CarUiPortraitNotificationRROResLib",
     ],
-    libs: [
-        "token-shared-lib-prebuilt",
-    ],
+    dex_preopt: {
+        enabled: false,
+    },
     enforce_uses_libs: false,
 }

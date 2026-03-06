@@ -18,5 +18,13 @@
 <resources>
     <!-- Notification header text displayed on top of the notification center shade [CHAR_LIMIT=25] -->
     <string name="notification_header">Notification Center</string>
+
+    <string name="clear_all">Clear all</string>
+    <string name="empty_notification_header">No notifications</string>
+    <string name="manage_text">Manage</string>
+
+    <string name="assist_action_play_label">Play</string>
+    <string name="assist_action_reply_label">Reply</string>
+    <string name="action_mute_short">Mute</string>
 </resources>
 

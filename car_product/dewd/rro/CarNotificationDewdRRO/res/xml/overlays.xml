@@ -25,21 +25,37 @@
     <item target="attr/cardElevation" value="@attr/cardElevation"/>
     <item target="attr/textColor" value="@attr/textColor"/>
 
-    <item target="attr/oemColorOnPrimary" value="@attr/oemColorOnPrimary"/>
-    <item target="attr/oemColorPrimary" value="@attr/oemColorPrimary"/>
-    <item target="attr/oemTextAppearanceBodyLarge" value="@attr/oemTextAppearanceBodyLarge"/>
-    <item target="attr/oemTextAppearanceBodySmall" value="@attr/oemTextAppearanceBodySmall"/>
-    <item target="attr/oemTextAppearanceTitleMedium" value="@attr/oemTextAppearanceTitleMedium"/>
-    <item target="attr/oemColorOutline" value="@attr/oemColorOutline"/>
-    <item target="attr/oemTextAppearanceLabelLarge" value="@attr/oemTextAppearanceLabelLarge"/>
-    <item target="attr/oemColorYellowContainer" value="@attr/oemColorYellowContainer"/>
-    <item target="attr/oemColorSurfaceContainer" value="@attr/oemColorSurfaceContainer"/>
-    <item target="attr/oemColorOnSecondaryContainer" value="@attr/oemColorOnSecondaryContainer"/>
-    <item target="attr/oemColorSecondary" value="@attr/oemColorSecondary"/>
-    <item target="attr/oemColorOnSurface" value="@attr/oemColorOnSurface"/>
-    <item target="attr/oemColorPrimaryContainer" value="@attr/oemColorPrimaryContainer"/>
-    <item target="attr/oemColorSurfaceContainerHigh" value="@attr/oemColorSurfaceContainerHigh"/>
-    <item target="attr/oemColorSecondaryContainer" value="@attr/oemColorSecondaryContainer"/>
+    <!-- Primary Colors -->
+    <item target="attr/oemColorPrimary" value="@attr/oemColorPrimary" />
+    <item target="attr/oemColorOnPrimary" value="@attr/oemColorOnPrimary" />
+    <item target="attr/oemColorPrimaryContainer" value="@attr/oemColorPrimaryContainer" />
+
+    <!-- Secondary Colors -->
+    <item target="attr/oemColorSecondary" value="@attr/oemColorSecondary" />
+    <item target="attr/oemColorSecondaryContainer" value="@attr/oemColorSecondaryContainer" />
+    <item target="attr/oemColorOnSecondaryContainer" value="@attr/oemColorOnSecondaryContainer" />
+
+    <!-- Surface Colors -->
+    <item target="attr/oemColorOnSurface" value="@attr/oemColorOnSurface" />
+
+    <!-- Surface Containers -->
+    <item target="attr/oemColorSurfaceContainer" value="@attr/oemColorSurfaceContainer" />
+    <item target="attr/oemColorSurfaceContainerHigh" value="@attr/oemColorSurfaceContainerHigh" />
+    <item target="attr/oemColorSurfaceContainerHighest" value="@attr/oemColorSurfaceContainerHighest" />
+
+    <!-- Utilities & Effects -->
+    <item target="attr/oemColorOutline" value="@attr/oemColorOutline" />
+
+    <!-- Custom Semantic Colors (Yellow) -->
+    <item target="attr/oemColorYellowContainer" value="@attr/oemColorYellowContainer" />
+
+    <item target="attr/oemTextAppearanceHeadlineSmall" value="@attr/oemTextAppearanceHeadlineSmall" />
+    <item target="attr/oemTextAppearanceTitleMedium" value="@attr/oemTextAppearanceTitleMedium" />
+    <item target="attr/oemTextAppearanceLabelLarge" value="@attr/oemTextAppearanceLabelLarge" />
+    <item target="attr/oemTextAppearanceBodyLarge" value="@attr/oemTextAppearanceBodyLarge" />
+    <item target="attr/oemTextAppearanceBodySmall" value="@attr/oemTextAppearanceBodySmall" />
+
+    <item target="attr/oemShapeCornerLarge" value="?attr/oemShapeCornerLarge"/>
 
     <item target="bool/config_collapseShadePanelAfterManageButtonPress" value="@bool/config_collapseShadePanelAfterManageButtonPress" />
     <item target="bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" value="@bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" />
@@ -55,32 +71,16 @@
     <item target="bool/config_useLauncherIcon" value="@bool/config_useLauncherIcon"/>
 
     <item target="color/icon_tint" value="@color/icon_tint"/>
-    <item target="color/call_accept_button" value="@color/call_accept_button"/>
-    <item target="color/call_decline_button" value="@color/call_decline_button"/>
 
     <item target="color/action_button_background_color" value="@color/action_button_background_color"/>
     <item target="color/clear_all_button_background_color" value="@color/clear_all_button_background_color"/>
-    <item target="color/count_text" value="@color/count_text"/>
-    <item target="color/dark_icon_tint" value="@color/dark_icon_tint"/>
-    <item target="color/emergency_background_color" value="@color/emergency_background_color"/>
-    <item target="color/emergency_primary_text_color" value="@color/emergency_primary_text_color"/>
-    <item target="color/emergency_secondary_text_color" value="@color/emergency_secondary_text_color"/>
     <item target="color/first_action_button_text_color" value="@color/first_action_button_text_color"/>
     <item target="color/group_notification_background_color" value="@color/group_notification_background_color"/>
     <item target="color/information_background_color" value="@color/information_background_color"/>
-    <item target="color/information_primary_text_color" value="@color/information_primary_text_color"/>
-    <item target="color/information_secondary_text_color" value="@color/information_secondary_text_color"/>
     <item target="color/notification_accent_color" value="@color/notification_accent_color"/>
     <item target="color/notification_background_color" value="@color/notification_background_color"/>
     <item target="color/notification_list_divider_color" value="@color/notification_list_divider_color"/>
-    <item target="color/primary_text_color" value="@color/primary_text_color"/>
-    <item target="color/progress_bar_bg_color" value="@color/progress_bar_bg_color"/>
-    <item target="color/progress_bar_color" value="@color/progress_bar_color"/>
-    <item target="color/secondary_text_color" value="@color/secondary_text_color"/>
-    <item target="color/unmute_button" value="@color/unmute_button"/>
     <item target="color/warning_background_color" value="@color/warning_background_color"/>
-    <item target="color/warning_primary_text_color" value="@color/warning_primary_text_color"/>
-    <item target="color/warning_secondary_text_color" value="@color/warning_secondary_text_color"/>
 
     <item target="dimen/action_button_height" value="@dimen/action_button_height" />
     <item target="dimen/action_button_min_width" value="@dimen/action_button_min_width" />
@@ -192,15 +192,10 @@
 
     <item target="style/ClearAllButton" value="@style/ClearAllButton"/>
     <item target="style/ExpandedGroupNotificationHeaderText" value="@style/ExpandedGroupNotificationHeaderText"/>
-    <item target="style/GroupNotificationFooterText" value="@style/GroupNotificationFooterText"/>
     <item target="style/HeadsUpNotificationCard" value="@style/HeadsUpNotificationCard"/>
     <item target="style/NotificationActionButtonBase" value="@style/NotificationActionButtonBase"/>
     <item target="style/NotificationActionViewLayout" value="@style/NotificationActionViewLayout"/>
-    <item target="style/NotificationBodyContentText" value="@style/NotificationBodyContentText" />
     <item target="style/NotificationBodyImageIcon" value="@style/NotificationBodyImageIcon" />
-    <item target="style/NotificationBodyTitleText" value="@style/NotificationBodyTitleText" />
-    <item target="style/NotificationCenterHeaderText" value="@style/NotificationCenterHeaderText" />
-    <item target="style/NotificationActionButtonText" value="@style/NotificationActionButtonText"/>
     <item target="style/Theme.DeviceDefault.NoActionBar.Notification" value="@style/Theme.DeviceDefault.NoActionBar.Notification"/>
     <item target="style/NotificationActionButton1" value="@style/NotificationActionButton1"/>
     <item target="style/NotificationActionButton2" value="@style/NotificationActionButton2"/>
