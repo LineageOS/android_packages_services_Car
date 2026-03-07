@@ -73,7 +73,7 @@ interface AutoTaskStackTransitionHandlerDelegate {
      */
     fun onTransitionConsumed(
         transition: IBinder,
-        requestedTaskStacks: Map<Int, AutoTaskStackState>,
+        changedTaskStacks: List<TaskStackStateChange>,
         aborted: Boolean,
         finishTransaction: SurfaceControl.Transaction?
     )
@@ -93,6 +93,29 @@ interface AutoTaskStackTransitionHandlerDelegate {
         mergeTarget: IBinder,
         finishCallback: TransitionFinishCallback
     )
+}
+
+/**
+ * A static bridge used to provide human-readable names for task stacks in logging.
+ *
+ * This registry exists because [TaskStackOperation] and [TaskStackStateChange] are
+ * simple data classes often created in contexts where the Dagger-injected
+ * [AutoTaskRepository] is not available.
+ *
+ * Using this static bridge avoids "polluting" the operation APIs with a direct
+ * repository dependency while ensuring that human-readable names are automatically
+ * resolved when these objects are logged (via their `toString()` methods).
+ */
+internal object AutoTaskStackNameRegistry {
+    private var repository: AutoTaskRepository? = null
+
+    fun setRepository(repo: AutoTaskRepository) {
+        repository = repo
+    }
+
+    fun get(id: Int): String? {
+        return repository?.getRootTaskStack(id)?.name
+    }
 }
 
 /**
@@ -167,6 +190,7 @@ internal sealed class TaskStackOperation {
     data class ReparentTask(
         val taskId: Int,
         val parentTaskStackId: Int,
+        internal val taskStackName: String? = AutoTaskStackNameRegistry.get(parentTaskStackId),
         val onTop: Boolean
     ) : TaskStackOperation()
 
@@ -178,15 +202,18 @@ internal sealed class TaskStackOperation {
 
     data class SetTaskStackState(
         val taskStackId: Int,
+        internal val taskStackName: String? = AutoTaskStackNameRegistry.get(taskStackId),
         val state: AutoTaskStackState
     ) : TaskStackOperation()
 
     data class SetFocusedTaskStack(
         val taskStackId: Int,
+        internal val taskStackName: String? = AutoTaskStackNameRegistry.get(taskStackId)
     ) : TaskStackOperation()
 
     data class SetSafeRegionBounds(
         val taskStackId: Int,
+        internal val taskStackName: String? = AutoTaskStackNameRegistry.get(taskStackId),
         val safeRegionBounds: Rect
     ) : TaskStackOperation()
 }
@@ -204,7 +231,13 @@ data class AutoTaskStackTransaction internal constructor(
         parentTaskStackId: Int,
         onTop: Boolean
     ): AutoTaskStackTransaction {
-        operations.add(TaskStackOperation.ReparentTask(taskId, parentTaskStackId, onTop))
+        operations.add(
+            TaskStackOperation.ReparentTask(
+                taskId = taskId,
+                parentTaskStackId = parentTaskStackId,
+                onTop = onTop
+            )
+        )
         return this
     }
 
@@ -233,9 +266,17 @@ data class AutoTaskStackTransaction internal constructor(
         }
         if (existingOperation != null) {
             val index = operations.indexOf(existingOperation)
-            operations[index] = TaskStackOperation.SetTaskStackState(taskStackId, state)
+            operations[index] = TaskStackOperation.SetTaskStackState(
+                taskStackId = taskStackId,
+                state = state
+            )
         } else {
-            operations.add(TaskStackOperation.SetTaskStackState(taskStackId, state))
+            operations.add(
+                TaskStackOperation.SetTaskStackState(
+                    taskStackId = taskStackId,
+                    state = state
+                )
+            )
         }
         if (state.layer < AutoTaskStackController.MIN_Z_LAYER) {
             ProtoLog.e(
@@ -267,10 +308,17 @@ data class AutoTaskStackTransaction internal constructor(
         }
         if (existingOperation != null) {
             val index = operations.indexOf(existingOperation)
-            operations[index] =
-                TaskStackOperation.SetSafeRegionBounds(taskStackId, safeRegionBounds)
+            operations[index] = TaskStackOperation.SetSafeRegionBounds(
+                taskStackId = taskStackId,
+                safeRegionBounds = safeRegionBounds
+            )
         } else {
-            operations.add(TaskStackOperation.SetSafeRegionBounds(taskStackId, safeRegionBounds))
+            operations.add(
+                TaskStackOperation.SetSafeRegionBounds(
+                    taskStackId = taskStackId,
+                    safeRegionBounds = safeRegionBounds
+                )
+            )
         }
         return this
     }
@@ -307,7 +355,12 @@ data class AutoTaskStackTransaction internal constructor(
             it is TaskStackOperation.SetTaskStackState && it.taskStackId == taskStackId
         }
         if (existingOperation == null) {
-            operations.add(TaskStackOperation.SetTaskStackState(taskStackId, state))
+            operations.add(
+                TaskStackOperation.SetTaskStackState(
+                    taskStackId = taskStackId,
+                    state = state
+                )
+            )
         }
         return this
     }
@@ -328,12 +381,24 @@ data class AutoTaskStackTransaction internal constructor(
         }
         if (existingOperation != null) {
             val index = operations.indexOf(existingOperation)
-            operations[index] = TaskStackOperation.SetFocusedTaskStack(taskStackId)
+            operations[index] = TaskStackOperation.SetFocusedTaskStack(taskStackId = taskStackId)
         } else {
-            operations.add(TaskStackOperation.SetFocusedTaskStack(taskStackId))
+            operations.add(TaskStackOperation.SetFocusedTaskStack(taskStackId = taskStackId))
         }
         return this
     }
 }
 
-data class TaskStackStateChange(val taskId: Int, val state: AutoTaskStackState)
+data class TaskStackStateChange(
+    val taskId: Int,
+    internal val taskStackName: String? = AutoTaskStackNameRegistry.get(taskId),
+    val state: AutoTaskStackState
+) {
+    @JvmOverloads
+    constructor(taskId: Int, state: AutoTaskStackState) : this(
+        taskId = taskId,
+        taskStackName = AutoTaskStackNameRegistry.get(taskId),
+        state = state
+    )
+}
+

@@ -80,6 +80,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     private val defaultRootTaskPerDisplay = mutableMapOf<Int, Int>()
 
     override fun initialize() {
+        AutoTaskStackNameRegistry.setRepository(autoTaskRepository)
         transitions.addHandler(this)
     }
 
@@ -851,7 +852,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
             baseState == _taskStackStateMap[taskStackId] && requestedTaskStackState == null
         )
 
-        return TaskStackStateChange(taskStackId, AutoTaskStackState(bounds, newVisibility, layer))
+        return TaskStackStateChange(
+            taskId = taskStackId,
+            state = AutoTaskStackState(bounds, newVisibility, layer)
+        )
     }
 
     /**
@@ -945,7 +949,12 @@ class AutoTaskStackControllerImpl @Inject constructor(
             } else if (isTaskStackChange && requestedTaskStackState != null) {
                 // This handles other cases, like bounds changes, where there was an explicit
                 // request from the client, but it wasn't a simple open/close.
-                taskStackChanges.add(TaskStackStateChange(taskStackId, requestedTaskStackState))
+                taskStackChanges.add(
+                    TaskStackStateChange(
+                        taskId = taskStackId,
+                        state = requestedTaskStackState
+                    )
+                )
                 processedTaskStacks.add(taskStackId)
             }
         }
@@ -1196,9 +1205,17 @@ class AutoTaskStackControllerImpl @Inject constructor(
             aborted
         )
         val pending: PendingTransition? = findPending(transition)
+        val changedTaskStacks = mutableListOf<TaskStackStateChange>()
         if (pending != null) {
+            // When consumed, the requested state is already the current state - update the saved
+            // state from the pending transition to stay up-to-date.
             pendingTransitions.remove(pending)
             updateTaskStackStates(pending.transaction.getTaskStackStates())
+            val newChanges = pending.transaction.getTaskStackStates().mapNotNull { entry ->
+                TaskStackStateChange(entry.key, entry.value)
+            }
+            changedTaskStacks.addAll(newChanges)
+
             // Still update the surface order because this means wm didn't lead to any change
             if (finishTransaction != null) {
                 reorderLeashes(finishTransaction)
@@ -1211,7 +1228,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
         }
         autoTransitionHandlerDelegate?.onTransitionConsumed(
             transition,
-            pending?.transaction?.getTaskStackStates() ?: emptyMap(),
+            changedTaskStacks,
             aborted,
             finishTransaction
         )
