@@ -14,8 +14,6 @@
   ~ limitations under the License.
   -->
 <overlay>
-    <item target="array/config_packagesExcludedFromDock" value="@array/config_packagesExcludedFromDock"/>
-
     <!-- Tokens -->
     <item target="attr/oemColorSurface" value="@attr/oemColorSurface" />
     <item target="attr/oemColorPrimary" value="@attr/oemColorPrimary" />
