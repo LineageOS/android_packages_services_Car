@@ -27,21 +27,16 @@
     <attr name="packages" format="string" />
     <attr name="clearBackStack" format="boolean" />
     <attr name="unselectedAlpha" format="float"/>
-
-    <!-- Custom attributes to configure hvac values -->
-    <declare-styleable name="AnimatedTemperatureView">
+    <!-- Custom attributes to configure HVAC values -->
+    <declare-styleable name="HvacView">
         <attr name="hvacAreaId" format="integer"/>
         <attr name="hvacPropertyId" format="integer"/>
         <attr name="hvacTempFormat" format="string"/>
-        <!-- how far away the animations should center around -->
-        <attr name="hvacPivotOffset" format="dimension"/>
-        <attr name="hvacMinValue" format="float"/>
-        <attr name="hvacMaxValue" format="float"/>
-        <attr name="hvacMinText" format="string|reference"/>
-        <attr name="hvacMaxText" format="string|reference"/>
-        <attr name="android:gravity"/>
-        <attr name="android:minEms"/>
-        <attr name="android:textAppearance"/>
+        <attr name="hvacToggleOnButtonDrawable" format="reference"/>
+        <attr name="hvacToggleOffButtonDrawable" format="reference"/>
+        <!-- Whether the given HvacView must be turned off if the HVAC Auto mode is on.
+               Defaults to false. -->
+        <attr name="hvacDisableViewIfAutoOn" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="Clock">

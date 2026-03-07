@@ -31,9 +31,6 @@
     <item target="bool/config_enableBottomSystemBar" value="@bool/config_enableBottomSystemBar" />
     <item target="bool/config_enableClearBackStack" value="@bool/config_enableClearBackStack"/>
     <item target="bool/config_enableSafeAreaAndToolbarPerDisplay" value="@bool/config_enableSafeAreaAndToolbarPerDisplay"/>
-
-    <item target="dimen/pin_view_container_maxHeight" value="@dimen/pin_view_container_maxHeight"/>
-    <item target="dimen/pattern_view_container_maxHeight" value="@dimen/pattern_view_container_maxHeight"/>
     <!-- Biometric prompt dimens -->
     <item target="dimen/biometric_dialog_elevation" value="@dimen/biometric_dialog_elevation" />
     <item target="dimen/biometric_car_auth_pattern_view_size" value="@dimen/biometric_car_auth_pattern_view_size" />
