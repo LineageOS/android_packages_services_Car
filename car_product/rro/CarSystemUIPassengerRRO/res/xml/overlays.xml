@@ -36,12 +36,7 @@
     <item target="attr/hvacAreaId" value="@attr/hvacAreaId"/>
     <item target="attr/hvacPropertyId" value="@attr/hvacPropertyId"/>
     <item target="attr/hvacTempFormat" value="@attr/hvacTempFormat"/>
-    <item target="attr/hvacPivotOffset" value="@attr/hvacPivotOffset"/>
     <item target="attr/clearBackStack" value="@attr/clearBackStack"/>
-    <item target="attr/hvacMinValue" value="@attr/hvacMinValue"/>
-    <item target="attr/hvacMaxValue" value="@attr/hvacMaxValue"/>
-    <item target="attr/hvacMinText" value="@attr/hvacMinText"/>
-    <item target="attr/hvacMaxText" value="@attr/hvacMaxText"/>
     <!-- start the intent as a broad cast instead of an activity if true-->
     <item target="attr/broadcast" value="@attr/broadcast"/>
 
@@ -94,15 +89,12 @@
     <item target="color/system_bar_text_color_with_selection" value="@color/system_bar_text_color_with_selection"/>
     <item target="color/system_bar_text_selected_color" value="@color/system_bar_text_selected_color"/>
     <item target="color/system_bar_text_color" value="@color/system_bar_text_color"/>
-    <item target="drawable/car_user_icon_circle_background" value="@drawable/car_user_icon_circle_background"/>
     <item target="color/car_user_switcher_add_user_background_color" value="@color/car_user_switcher_add_user_background_color"/>
-    <item target="dimen/user_icon_background_size" value="@dimen/user_icon_background_size"/>
     <item target="drawable/status_icon_background" value="@drawable/status_icon_background"/>
     <item target="color/status_icon_selected_button_color" value="@color/status_icon_selected_button_color"/>
     <item target="dimen/system_bar_pill_radius" value="@dimen/system_bar_pill_radius"/>
     <item target="drawable/system_bar_pill_rotary_background" value="@drawable/system_bar_pill_rotary_background"/>
     <item target="color/system_bar_background_pill_color" value="@color/system_bar_background_pill_color"/>
-    <item target="drawable/system_bar_background_pill" value="@drawable/system_bar_background_pill"/>
     <item target="drawable/car_quick_controls_pill_button_background" value="@drawable/car_quick_controls_pill_button_background"/>
     <item target="id/user_icon" value="@id/user_icon"/>
     <item target="id/user_name_text" value="@id/user_name_text"/>
@@ -113,7 +105,6 @@
     <item target="drawable/system_bar_background" value="@drawable/system_bar_background"/>
     <item target="attr/showDark" value="@attr/showDark"/>
     <item target="dimen/car_quick_controls_entry_points_icon_width" value="@dimen/car_quick_controls_entry_points_icon_width"/>
-    <item target="dimen/car_quick_controls_entry_points_icon_space" value="@dimen/car_quick_controls_entry_points_icon_space"/>
     <item target="dimen/car_quick_controls_entry_points_button_margin_top" value="@dimen/car_quick_controls_entry_points_button_margin_top"/>
     <item target="dimen/car_quick_controls_entry_points_button_margin_bottom" value="@dimen/car_quick_controls_entry_points_button_margin_bottom"/>
     <item target="dimen/car_quick_controls_entry_points_button_margin_start" value="@dimen/car_quick_controls_entry_points_button_margin_start"/>
@@ -123,12 +114,9 @@
     <item target="dimen/car_quick_controls_panel_footer_button_view_padding" value="@dimen/car_quick_controls_panel_footer_button_view_padding"/>
     <item target="dimen/car_quick_controls_icon_drawable_width" value="@dimen/car_quick_controls_icon_drawable_width"/>
     <item target="dimen/car_quick_controls_icon_drawable_height" value="@dimen/car_quick_controls_icon_drawable_height"/>
-    <item target="dimen/car_body1_size" value="@dimen/car_body1_size"/>
     <item target="dimen/car_body3_size" value="@dimen/car_body3_size"/>
     <item target="dimen/car_padding_1" value="@dimen/car_padding_1"/>
     <item target="dimen/car_padding_2" value="@dimen/car_padding_2"/>
-    <item target="dimen/car_padding_3" value="@dimen/car_padding_3"/>
     <item target="dimen/car_padding_4" value="@dimen/car_padding_4"/>
-    <item target="style/SystemBarClockWithSelectionText" value="@style/SystemBarClockWithSelectionText"/>
     <item target="style/SystemBarUsernameText" value="@style/SystemBarUsernameText"/>
 </overlay>
