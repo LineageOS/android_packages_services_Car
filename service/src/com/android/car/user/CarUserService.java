@@ -2084,11 +2084,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        if (Flags.visibleBackgroundUserToggleHomeComponents()) {
-            // Update the home component enablement on user visible. Because only visible users
-            // require home, this will cover both the passenger start and the driver switch.
-            setHomeComponentEnabledStates(userId);
-        }
+        // Update the home component enablement on user visible. Because only visible users
+        // require home, this will cover both the passenger start and the driver switch.
+        setHomeComponentEnabledStates(userId);
 
         // Non-current user only
         // TODO(b/270719791): Keep track of the current user to avoid IPC to AM.
