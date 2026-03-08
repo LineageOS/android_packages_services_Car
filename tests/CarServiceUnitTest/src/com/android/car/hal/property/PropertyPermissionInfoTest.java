@@ -18,6 +18,7 @@ package com.android.car.hal.property;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
@@ -146,7 +147,7 @@ public class PropertyPermissionInfoTest {
     }
 
     @Test
-    public void tesPropertyPermissionsHash() {
+    public void testPropertyPermissionsHash() {
         PropertyPermissions p1 = new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("abc"))
                 .setWritePermission(new SinglePermission("bcd"))
@@ -161,10 +162,14 @@ public class PropertyPermissionInfoTest {
         PropertyPermissions p4 = new PropertyPermissionsBuilder()
                 .setWritePermission(new SinglePermission("bcd"))
                 .build();
+        PropertyPermissions p5 = new PropertyPermissionsBuilder()
+                .setIsVendorProperty(true)
+                .build();
 
         assertThat(p1.hashCode()).isEqualTo(p2.hashCode());
         assertThat(p1.hashCode()).isNotEqualTo(p3.hashCode());
         assertThat(p1.hashCode()).isNotEqualTo(p4.hashCode());
+        assertThat(p1.hashCode()).isNotEqualTo(p5.hashCode());
     }
 
     /* TODO(b/232458264): The EqualsTest will automatically include several test classes that are
@@ -237,4 +242,18 @@ public class PropertyPermissionInfoTest {
                 .addEqualityGroup(p4).testEquals();
     }
     */
+
+    @Test
+    public void testPropertyPermissions_noPermissionsSet_nonVendorProperty_throwsException() {
+        assertThrows(IllegalStateException.class, new PropertyPermissionsBuilder()::build);
+    }
+
+    @Test
+    public void testPropertyPermissions_noPermissionsSet_vendorProperty_setsNull() {
+        PropertyPermissions propertyPermissions = new PropertyPermissionsBuilder()
+                .setIsVendorProperty(true).build();
+
+        assertThat(propertyPermissions.readPermission()).isNull();
+        assertThat(propertyPermissions.writePermission()).isNull();
+    }
 }

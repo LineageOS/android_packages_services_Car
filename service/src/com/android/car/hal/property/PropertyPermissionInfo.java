@@ -79,6 +79,7 @@ public class PropertyPermissionInfo {
         private PermissionCondition mReadPermission;
         @Nullable
         private PermissionCondition mWritePermission;
+        private boolean mIsVendorProperty;
 
         /**
          * Sets the read permission.
@@ -97,12 +98,24 @@ public class PropertyPermissionInfo {
         }
 
         /**
+         * Sets whether the property is a vendor property.
+         */
+        public PropertyPermissionsBuilder setIsVendorProperty(boolean isVendorProperty) {
+            mIsVendorProperty = isVendorProperty;
+            return this;
+        }
+
+        /**
          * Builds the permission.
+         *
+         * @throws IllegalStateException if at least one permission (read or write) is
+         *                               not set for a system property.
          */
         public PropertyPermissions build() {
-            if (mReadPermission == null && mWritePermission == null) {
-                throw new IllegalStateException("Both read and write permissions have not been "
-                    + "set");
+            if (mReadPermission == null && mWritePermission == null && !mIsVendorProperty) {
+                throw new IllegalStateException(
+                        "At least one permission (read or write) must be set for system"
+                                + " properties.");
             }
             return new PropertyPermissions(mReadPermission, mWritePermission);
         }

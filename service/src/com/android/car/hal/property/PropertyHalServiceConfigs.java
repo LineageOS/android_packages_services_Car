@@ -407,7 +407,8 @@ public class PropertyHalServiceConfigs {
                 }
 
                 PropertyPermissionsBuilder propertyPermissionBuilder =
-                        new PropertyPermissionsBuilder();
+                        new PropertyPermissionsBuilder().setIsVendorProperty(
+                                CarPropertyHelper.isVendorProperty(propId));
                 if (readPermissionStr != null) {
                     propertyPermissionBuilder.setReadPermission(
                             new SinglePermission(readPermissionStr));

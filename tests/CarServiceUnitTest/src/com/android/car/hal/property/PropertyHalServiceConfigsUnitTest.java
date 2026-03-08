@@ -419,6 +419,31 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
         assertThat(mPropertyHalServiceConfigs.getWritePermission(VENDOR_PROPERTY_1)).isNull();
     }
 
+    @Test
+    public void testCustomizeVendorPermission_vendorProp_rwNotAccessible_setsNull() {
+        List<Integer> configArray = new ArrayList<>();
+        configArray.add(VENDOR_PROPERTY_1);
+        configArray.add(VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE);
+        configArray.add(VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE);
+
+        mPropertyHalServiceConfigs.customizeVendorPermission(toIntArray(configArray));
+
+        assertThat(mPropertyHalServiceConfigs.getReadPermission(VENDOR_PROPERTY_1)).isNull();
+        assertThat(mPropertyHalServiceConfigs.getWritePermission(VENDOR_PROPERTY_1)).isNull();
+    }
+
+    @Test
+    public void testCustomizeVendorPermission_backportedProp_rwNotAccessible_throwsException() {
+        List<Integer> configArray = new ArrayList<>();
+        configArray.add(BACKPORTED_PROPERTY);
+        configArray.add(VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE);
+        configArray.add(VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE);
+
+        assertThrows(IllegalStateException.class,
+                () -> mPropertyHalServiceConfigs.customizeVendorPermission(
+                        toIntArray(configArray)));
+    }
+
     private InputStream strToInputStream(String str) {
         return new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8));
     }
