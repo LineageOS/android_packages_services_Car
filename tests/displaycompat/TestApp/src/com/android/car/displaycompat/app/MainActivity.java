@@ -25,6 +25,7 @@ import android.graphics.Insets;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DeviceConfig;
 import android.util.AtomicFile;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -45,12 +46,9 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class MainActivity extends Activity {
     private static final String TAG = "DisplayCompatTestApp";
@@ -152,26 +150,10 @@ public class MainActivity extends Activity {
     }
 
     private boolean readDisplayCompatState() {
-        InputStream is;
-        try {
-            is = new ProcessBuilder("/bin/device_config",
-                    "get",
-                    "car_framework",
-                    "android.car.feature.display_compatibility")
-                    .start()
-                    .getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String line;
-            while ((line = br.readLine()) != null) {
-                line = line.strip();
-                if (line.equals("true")) {
-                    return true;
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return false;
+        return DeviceConfig.getBoolean(
+                /* namespace= */ "car_framework",
+                /* name= */ "android.car.feature.display_compatibility",
+                /* defaultValue= */ false);
     }
 
     private static AtomicFile getConfigFile() {
