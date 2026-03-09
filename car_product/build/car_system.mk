@@ -292,3 +292,6 @@ $(call inherit-product, packages/services/Car/car_product/displaycompat/display_
 
 # CAL
 $(call inherit-product, packages/services/Car/car_product/templates/product.mk)
+
+# Enable package manager proxy
+include packages/services/Car/cpp/packagemanagerproxy/service/products/packagemanagerproxy.mk
