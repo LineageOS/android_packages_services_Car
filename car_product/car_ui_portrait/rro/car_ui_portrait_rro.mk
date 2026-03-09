@@ -24,9 +24,7 @@ $(call inherit-product-if-exists, vendor/google/nexus_overlay/fonts/fonts.mk)
 PRODUCT_PACKAGES += \
     CarEvsCameraPreviewAppRRO \
     CarUiPortraitCarServiceRRO \
-    CarUiPortraitCommon \
     CarUiPortraitDialerRRO \
-    CarUiPortraitFrameworkResRRO \
     CarUiPortraitLauncherAppsRRO \
     CarUiPortraitLauncherMediaRRO \
     CarUiPortraitLauncherReferenceRRO \
