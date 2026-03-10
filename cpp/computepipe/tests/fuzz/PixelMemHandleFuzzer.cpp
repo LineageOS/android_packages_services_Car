@@ -66,15 +66,18 @@ bool isValid(const fuzz::proto::PixelMemHandleFuzzerInput& input) {
         uint64_t width = frame.width();
         uint64_t stride = frame.stride();
         uint64_t size = frame.buffer().size();
-        if (stride > width * height) {
+        PixelFormat format = static_cast<PixelFormat>(frame.format());
+
+        if (height == 0 || width == 0 || height > 5000 || width > 5000) {
             return false;
         }
 
-        if (height * width != size) {
+        int bpp = (format == RGBA) ? 4 : (format == RGB) ? 3 : 1;
+        if (stride < width * bpp) {
             return false;
         }
 
-        if (height * width == 0) {
+        if (size < height * stride) {
             return false;
         }
     }

@@ -69,13 +69,17 @@ Status PixelMemHandle::setFrameData(uint64_t timestamp, const InputFrame& inputF
     // Allocate a new buffer if it is currently null.
     FrameInfo frameInfo = inputFrame.getFrameInfo();
     if (mBuffer == nullptr) {
+        memset(&mDesc, 0, sizeof(mDesc));
         mDesc.format = PixelFormatToHardwareBufferFormat(frameInfo.format);
         mDesc.height = frameInfo.height;
         mDesc.width = frameInfo.width;
         mDesc.layers = 1;
-        mDesc.rfu0 = 0;
-        mDesc.rfu1 = 0;
-        mDesc.stride = frameInfo.stride;
+        // The stride for hardware buffer is specified in pixels while the stride
+        // for InputFrame data structure is specified in bytes.
+        int bytesPerPixel = numBytesPerPixel(static_cast<AHardwareBuffer_Format>(mDesc.format));
+        if (bytesPerPixel > 0) {
+            mDesc.stride = frameInfo.stride / bytesPerPixel;
+        }
         mDesc.usage = mUsage;
         int err = AHardwareBuffer_allocate(&mDesc, &mBuffer);
 
@@ -113,7 +117,7 @@ Status PixelMemHandle::setFrameData(uint64_t timestamp, const InputFrame& inputF
         memcpy(mappedBuffer, inputFrame.getFramePtr(), mDesc.stride * mDesc.height * bytesPerPixel);
     } else {
         for (int y = 0; y < frameInfo.height; y++) {
-            memcpy((uint8_t*)mappedBuffer + mDesc.stride * y * bytesPerPixel,
+            memcpy(reinterpret_cast<uint8_t*>(mappedBuffer) + mDesc.stride * y * bytesPerPixel,
                    inputFrame.getFramePtr() + y * frameInfo.stride,
                    std::min(frameInfo.stride, mDesc.stride * bytesPerPixel));
         }
@@ -212,9 +216,9 @@ Status PixelStreamManager::queuePacket(const InputFrame& frame, uint64_t timesta
     }
 
     // A unique id per buffer is maintained by incrementing the unique id from the previously
-    // created buffer. The unique id is therefore the number of buffers already created.
+    // created buffer.
     if (mBuffersReady.empty()) {
-        mBuffersReady.push_back(std::make_shared<PixelMemHandle>(mBuffersInUse.size(), mStreamId));
+        mBuffersReady.push_back(std::make_shared<PixelMemHandle>(mNextBufferId++, mStreamId));
     }
 
     // The previously used buffer is pushed to the back of the vector. Picking the last used buffer
@@ -235,12 +239,13 @@ Status PixelStreamManager::queuePacket(const InputFrame& frame, uint64_t timesta
     }
 
     // Dispatch packet to the engine asynchronously in order to avoid circularly
-    // waiting for each others' locks.
-    std::thread t([this, memHandle]() {
-        Status status = mEngine->dispatchPacket(memHandle);
+    // waiting for each others' locks. Capture mEngine by value to avoid using 'this'
+    // in case the manager is destroyed before the thread finishes.
+    std::thread t([engine = mEngine, memHandle]() {
+        if (!engine) return;
+        Status status = engine->dispatchPacket(memHandle);
         if (status != Status::SUCCESS) {
-            mEngine->notifyError(std::string(__func__) + ":" + std::to_string(__LINE__) +
-                                 " Failed to dispatch packet");
+            engine->notifyError("Failed to dispatch packet");
         }
     });
     t.detach();
@@ -273,33 +278,38 @@ Status PixelStreamManager::handleStopWithFlushPhase(const RunnerEvent& e) {
 }
 
 Status PixelStreamManager::handleStopImmediatePhase(const RunnerEvent& e) {
-    std::lock_guard<std::mutex> lock(mStateLock);
-    if (mState == CONFIG_DONE || mState == RESET) {
-        return ILLEGAL_STATE;
+    bool transitionToStopped = false;
+    {
+        std::lock_guard<std::mutex> lock(mStateLock);
+        if (mState == CONFIG_DONE || mState == RESET) {
+            return ILLEGAL_STATE;
+        }
+        /* Cannot have stop completed if we never entered stop state */
+        if (mState == RUNNING && (e.isAborted() || e.isTransitionComplete())) {
+            return ILLEGAL_STATE;
+        }
+        /* We are being asked to stop */
+        if (mState == RUNNING && e.isPhaseEntry()) {
+            mState = STOPPED;
+            transitionToStopped = true;
+        }
+        /* Other Components have stopped, we can transition back to CONFIG_DONE */
+        if (mState == STOPPED && e.isTransitionComplete()) {
+            mState = CONFIG_DONE;
+            return SUCCESS;
+        }
+        /* We were stopped, but stop was aborted. */
+        if (mState == STOPPED && e.isAborted()) {
+            mState = RUNNING;
+            return SUCCESS;
+        }
     }
-    /* Cannot have stop completed if we never entered stop state */
-    if (mState == RUNNING && (e.isAborted() || e.isTransitionComplete())) {
-        return ILLEGAL_STATE;
-    }
-    /* We are being asked to stop */
-    if (mState == RUNNING && e.isPhaseEntry()) {
-        mState = STOPPED;
-        std::thread t([this]() {
-            freeAllPackets();
-            mEngine->notifyEndOfStream();
+    if (transitionToStopped) {
+        freeAllPackets();
+        std::thread t([engine = mEngine]() {
+            if (engine) engine->notifyEndOfStream();
         });
         t.detach();
-        return SUCCESS;
-    }
-    /* Other Components have stopped, we can transition back to CONFIG_DONE */
-    if (mState == STOPPED && e.isTransitionComplete()) {
-        mState = CONFIG_DONE;
-        return SUCCESS;
-    }
-    /* We were stopped, but stop was aborted. */
-    if (mState == STOPPED && e.isAborted()) {
-        mState = RUNNING;
-        return SUCCESS;
     }
     return SUCCESS;
 }

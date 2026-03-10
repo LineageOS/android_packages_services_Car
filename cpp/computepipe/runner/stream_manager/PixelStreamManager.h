@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef COMPUTEPIPE_RUNNER_STREAM_MANAGER_PIXEL_STREAM_MANAGER_H
-#define COMPUTEPIPE_RUNNER_STREAM_MANAGER_PIXEL_STREAM_MANAGER_H
+#ifndef CPP_COMPUTEPIPE_RUNNER_STREAM_MANAGER_PIXELSTREAMMANAGER_H_
+#define CPP_COMPUTEPIPE_RUNNER_STREAM_MANAGER_PIXELSTREAMMANAGER_H_
 
 #include <vndk/hardware_buffer.h>
 
@@ -95,6 +95,7 @@ class PixelStreamManager : public StreamManager, StreamManagerInit {
     std::mutex mStateLock;
     int mStreamId;
     uint32_t mMaxInFlightPackets;
+    int mNextBufferId = 0;
     std::shared_ptr<StreamEngineInterface> mEngine;
 
     struct BufferMetadata {
@@ -112,4 +113,4 @@ class PixelStreamManager : public StreamManager, StreamManagerInit {
 }  // namespace automotive
 }  // namespace android
 
-#endif  // COMPUTEPIPE_RUNNER_STREAM_MANAGER_PIXEL_STREAM_MANAGER_H
+#endif  // CPP_COMPUTEPIPE_RUNNER_STREAM_MANAGER_PIXELSTREAMMANAGER_H_
