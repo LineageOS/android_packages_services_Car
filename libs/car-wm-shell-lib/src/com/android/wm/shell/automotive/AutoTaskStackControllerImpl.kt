@@ -603,7 +603,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     // Preserve leaf tasks if relaunched from different windowing mode.
                     wct.setPreserveLeafTaskIfRelaunch(
                         taskStack.rootTaskInfo.token,
-                        /* preserveLeafTaskIfRelaunch= */ true
+                        /* preserveLeafTaskIfRelaunch= */
+                        true
                     )
                     defaultRootTaskPerDisplay[displayId] = taskStack.id
                 }
@@ -988,27 +989,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
         reorderLeashes(startTransaction)
         reorderLeashes(finishTransaction)
 
-        for (chg in info.changes) {
-            // TODO(b/384946072): handle the da stack similarly. The below implementation only
-            // handles the root task stack
-
-            val taskInfo = chg.taskInfo ?: continue
-            val taskStack = taskStackMap[taskInfo.taskId] ?: continue
-
-            // Restore the leashes for the task stacks to ensure correct z-order competition
-            if (taskStackMap.containsKey(taskInfo.taskId)) {
-                mTaskStackStateTranslator.restoreLeash(
-                    taskStack,
-                    startTransaction
-                )
-                if (TransitionUtil.isOpeningMode(chg.mode)) {
-                    // Clients can still manipulate the alpha, but this ensures that the default
-                    // behavior is natural
-                    startTransaction.setAlpha(chg.leash, 1f)
-                }
-                continue
-            }
-        }
+        moveLeashesAwayFromTransitionRoot(info, startTransaction)
 
         ProtoLog.d(
             CAR_WM_SHELL_TASK_STACK_CONTROLLER,
@@ -1240,6 +1221,33 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 mTaskStackStateTranslator.reorderLeash(taskStack, taskStackState, transaction)
             } ?: ProtoLog.w(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
                 "Warning: AutoTaskStack with id %d not found.", taskId)
+        }
+    }
+
+    private fun moveLeashesAwayFromTransitionRoot(info: TransitionInfo, transaction: Transaction) {
+        for (chg in info.changes) {
+            val taskInfo = chg.taskInfo ?: continue
+
+            // 1. Restore Root Task leashes to Root TDA
+            if (taskStackMap.containsKey(taskInfo.taskId)) {
+                val taskStack = taskStackMap[taskInfo.taskId]!!
+                mTaskStackStateTranslator.restoreLeash(taskStack, transaction)
+                if (TransitionUtil.isOpeningMode(chg.mode)) {
+                    transaction.setAlpha(chg.leash, 1f)
+                }
+                continue // continue to next change
+            }
+
+            // 2. Restore App Task leashes to their parent Root Task
+            if (taskInfo.parentTaskId != INVALID_TASK_ID) {
+                taskStackMap[taskInfo.parentTaskId]?.let { parentStack ->
+                    transaction.reparent(chg.leash, parentStack.leash)
+                        .setPosition(chg.leash, 0f, 0f)
+                    if (TransitionUtil.isOpeningMode(chg.mode)) {
+                        transaction.setAlpha(chg.leash, 1f)
+                    }
+                }
+            }
         }
     }
 
