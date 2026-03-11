@@ -61,6 +61,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyFloat
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
@@ -918,11 +919,17 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             })
             .build()
 
+        val startTransaction = mock(SurfaceControl.Transaction::class.java)
+        whenever(startTransaction.reparent(any(), any())).thenReturn(startTransaction)
+        whenever(startTransaction.setPosition(any(), anyFloat(), anyFloat()))
+            .thenReturn(startTransaction)
+        whenever(startTransaction.setAlpha(any(), anyFloat())).thenReturn(startTransaction)
+
         // Act
         val result = controller.startAnimation(
             transition,
             info,
-            mock(SurfaceControl.Transaction::class.java),
+            startTransaction,
             mock(SurfaceControl.Transaction::class.java),
             mock(TransitionFinishCallback::class.java)
         )
@@ -1112,11 +1119,17 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             })
             .build()
 
+        val startTransaction = mock(SurfaceControl.Transaction::class.java)
+        whenever(startTransaction.reparent(any(), any())).thenReturn(startTransaction)
+        whenever(startTransaction.setPosition(any(), anyFloat(), anyFloat()))
+            .thenReturn(startTransaction)
+        whenever(startTransaction.setAlpha(any(), anyFloat())).thenReturn(startTransaction)
+
         // Act
         val result = controller.startAnimation(
             transition,
             info,
-            mock(SurfaceControl.Transaction::class.java),
+            startTransaction,
             mock(SurfaceControl.Transaction::class.java),
             mock(TransitionFinishCallback::class.java)
         )
@@ -1329,6 +1342,59 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         assertWctHasReparent(wct!!, triggerTask.token, launchRootTask.token)
     }
 
+    @Test
+    fun startAnimation_appTaskOpening_reparentsToRootTask() {
+        // Arrange
+        val rootTaskLeash = mock(SurfaceControl::class.java)
+        val appTaskLeash = mock(SurfaceControl::class.java)
+        val tdaLeash = mock(SurfaceControl::class.java)
+        val (rootTask, taskListener) = setupRootTask(taskId = 13, leash = rootTaskLeash)
+        val appTask =
+            setupChildTask(
+                taskId = 1001,
+                parentTaskId = 13,
+                parentTaskListener = taskListener
+            )
+
+        val startTransaction = mock(SurfaceControl.Transaction::class.java)
+        whenever(startTransaction.reparent(any(), any())).thenReturn(startTransaction)
+        whenever(startTransaction.setPosition(any(), anyFloat(), anyFloat()))
+            .thenReturn(startTransaction)
+        whenever(startTransaction.setAlpha(any(), anyFloat())).thenReturn(startTransaction)
+
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(appTask.token, appTaskLeash).apply {
+                taskInfo = appTask
+                mode = TRANSIT_OPEN
+            })
+            .build()
+
+        whenever(rootTdaOrganizer.getDisplayAreaLeash(anyInt())).thenReturn(tdaLeash)
+        rootTask.displayAreaFeatureId = 1
+        whenever(rootTdaOrganizer.getDisplayAreaInfo(anyInt())).thenReturn(
+            android.window.DisplayAreaInfo(
+                WindowContainerToken.createProxy("test"),
+                displayId,
+                rootTask.displayAreaFeatureId
+            )
+        )
+
+        // Act
+        controller.startAnimation(
+            Binder(),
+            info,
+            startTransaction,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        // Verify App Task reparenting
+        verify(startTransaction).reparent(appTaskLeash, rootTaskLeash)
+        verify(startTransaction).setPosition(appTaskLeash, 0f, 0f)
+        verify(startTransaction).setAlpha(appTaskLeash, 1f)
+    }
+
     /**
      * Asserts that the given [WindowContainerTransaction] contains a reparent operation
      * for the [task] to the [parent].
@@ -1348,4 +1414,5 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             "WCT should contain a reparent operation for task $task to parent $parent"
         ).that(hasReparent).isTrue()
     }
+
 }

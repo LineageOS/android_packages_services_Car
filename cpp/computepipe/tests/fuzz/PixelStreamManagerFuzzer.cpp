@@ -70,15 +70,23 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     }
 
     FuzzedDataProvider fdp(data, size);
-    int maxInFlightPackets = fdp.ConsumeIntegral<uint32_t>();
+    // Cap maxInFlightPackets to prevent resource exhaustion and huge allocations
+    uint32_t maxInFlightPackets = fdp.ConsumeIntegralInRange<uint32_t>(1, 100);
     auto [mockEngine, manager] = CreateStreamManagerAndEngine(maxInFlightPackets);
     std::vector<uint8_t> pixelData(16 * 16 * 3, 100);
     InputFrame frame(16, 16, PixelFormat::RGB, 16 * 3, &pixelData[0]);
-    std::shared_ptr<MemHandle> memHandle;
+
+    // Use a shared pointer to store the handle to avoid UAF in detached threads
+    auto lastHandle = std::make_shared<std::shared_ptr<MemHandle>>(nullptr);
+    auto handleMutex = std::make_shared<std::mutex>();
+
     EXPECT_CALL((*mockEngine), dispatchPacket)
             .Times(testing::AnyNumber())
-            .WillRepeatedly(
-                    testing::DoAll(testing::SaveArg<0>(&memHandle), (Return(Status::SUCCESS))));
+            .WillRepeatedly([lastHandle, handleMutex](std::shared_ptr<MemHandle> handle) {
+                std::lock_guard<std::mutex> lock(*handleMutex);
+                *lastHandle = handle;
+                return Status::SUCCESS;
+            });
 
     while (fdp.remaining_bytes() > 0) {
         uint8_t state = fdp.ConsumeIntegralInRange<uint8_t>(RESET, CLONE_PACKET);
@@ -93,28 +101,37 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
             case STOP_WITH_FLUSH: {
                 EXPECT_CALL((*mockEngine), notifyEndOfStream).Times(testing::AtMost(1));
                 manager->handleStopWithFlushPhase(e);
-                sleep(1);
                 break;
             }
             case STOP_IMMEDIATE: {
                 EXPECT_CALL((*mockEngine), notifyEndOfStream).Times(testing::AtMost(1));
                 manager->handleStopImmediatePhase(e);
-                sleep(1);
                 break;
             }
             case QUEUE_PACKET: {
                 manager->queuePacket(frame, rand());
-                sleep(1);
                 break;
             }
             case FREE_PACKET: {
-                if (memHandle != nullptr) {
-                    manager->freePacket(memHandle->getBufferId());
+                std::shared_ptr<MemHandle> handle;
+                {
+                    std::lock_guard<std::mutex> lock(*handleMutex);
+                    handle = *lastHandle;
+                }
+                if (handle != nullptr) {
+                    manager->freePacket(handle->getBufferId());
                 }
                 break;
             }
             case CLONE_PACKET: {
-                manager->clonePacket(memHandle);
+                std::shared_ptr<MemHandle> handle;
+                {
+                    std::lock_guard<std::mutex> lock(*handleMutex);
+                    handle = *lastHandle;
+                }
+                if (handle != nullptr) {
+                    manager->clonePacket(handle);
+                }
                 break;
             }
         }
