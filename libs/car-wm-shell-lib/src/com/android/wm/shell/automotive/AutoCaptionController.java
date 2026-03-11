@@ -303,8 +303,10 @@ public class AutoCaptionController {
                 DEFAULT_Z_INDEX_CAPTION_BAR, captionBarBounds, captionBarName);
         // Attach the caption bar with spy window so that touch also travel to the task surface.
         // This is required if task is not in focus.
-        captionDecor.attachDecorToTask(taskInfo, /* addSpyWindow= */true);
-        mTaskIdToCaptionBar.append(taskInfo.taskId, captionDecor);
+        if (captionDecor != null) {
+            captionDecor.attachDecorToTask(taskInfo, /* addSpyWindow= */true);
+            mTaskIdToCaptionBar.append(taskInfo.taskId, captionDecor);
+        }
     }
 
     /**
