@@ -18,4 +18,16 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="notification_header" msgid="7197574085752162581">"შეტყობინებათა ცენტრი"</string>
+    <!-- no translation found for clear_all (3254167492917071891) -->
+    <skip />
+    <!-- no translation found for empty_notification_header (8261388310215828874) -->
+    <skip />
+    <!-- no translation found for manage_text (2800746095592832319) -->
+    <skip />
+    <!-- no translation found for assist_action_play_label (6287779261772019721) -->
+    <skip />
+    <!-- no translation found for assist_action_reply_label (7851702835016792506) -->
+    <skip />
+    <!-- no translation found for action_mute_short (583771517155754068) -->
+    <skip />
 </resources>
