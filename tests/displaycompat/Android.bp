@@ -24,6 +24,7 @@ android_app {
     manifest: "TestApp/AndroidManifest.xml",
     resource_dirs: ["TestApp/res"],
     platform_apis: true,
+    certificate: "platform",
 
     static_libs: [
         "androidx-constraintlayout_constraintlayout",
@@ -53,6 +54,7 @@ android_test_helper_app {
     manifest: "TestApp/AndroidManifest.xml",
     resource_dirs: ["TestApp/res"],
     platform_apis: true,
+    certificate: "platform",
 
     static_libs: [
         "androidx-constraintlayout_constraintlayout",
