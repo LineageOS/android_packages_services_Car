@@ -25,9 +25,6 @@ PRODUCT_PACKAGES += \
     CarEvsCameraPreviewAppRRO \
     CarUiPortraitCarServiceRRO \
     CarUiPortraitDialerRRO \
-    CarUiPortraitLauncherAppsRRO \
-    CarUiPortraitLauncherMediaRRO \
-    CarUiPortraitLauncherReferenceRRO \
     CarUiPortraitMediaCommonRRO \
     CarUiPortraitMediaRRO \
     CarUiPortraitNotificationRRO \
