@@ -60,7 +60,6 @@
 
     <item target="integer/config_systemBarSuwBehavior" value="@integer/config_systemBarSuwBehavior" />
 
-    <item target="layout/text_toast" value="@layout/text_toast"/>
     <item target="layout/auth_credential_password_view" value="@layout/auth_credential_password_view" />
     <item target="layout/auth_credential_pattern_view" value="@layout/auth_credential_pattern_view" />
     <item target="layout/auth_credential_pin_view" value="@layout/auth_credential_pin_view" />
