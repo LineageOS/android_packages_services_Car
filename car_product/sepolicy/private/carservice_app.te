@@ -27,6 +27,7 @@ allow carservice_app {
     accessibility_service
     activity_service
     activity_task_service
+    app_function_service # for unregistering apps on per-user service cleanup
     audio_service
     audioserver_service
     autofill_service

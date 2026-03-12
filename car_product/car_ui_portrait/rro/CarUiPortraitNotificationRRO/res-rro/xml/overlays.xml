@@ -55,7 +55,7 @@
     <item target="attr/oemTextAppearanceBodyLarge" value="@attr/oemTextAppearanceBodyLarge" />
     <item target="attr/oemTextAppearanceBodySmall" value="@attr/oemTextAppearanceBodySmall" />
 
-    <item target="attr/oemShapeCornerLarge" value="?attr/oemShapeCornerLarge"/>
+    <item target="attr/oemShapeCornerLarge" value="@attr/oemShapeCornerLarge"/>
 
     <item target="bool/config_collapseShadePanelAfterManageButtonPress" value="@bool/config_collapseShadePanelAfterManageButtonPress" />
     <item target="bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" value="@bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" />

@@ -27,6 +27,8 @@ import android.util.ArraySet;
 import android.view.SurfaceControl;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
 import com.android.internal.protolog.ProtoLog;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.common.DisplayController;
@@ -80,6 +82,7 @@ public class AutoDecorManager {
      * @return The newly created AutoDecor object, or null if creation failed.
      */
     @ShellMainThread
+    @Nullable
     public AutoDecor createAutoDecor(@NonNull View view, int initialZOrder,
             @NonNull Rect initialBounds,
             String decorName) {
