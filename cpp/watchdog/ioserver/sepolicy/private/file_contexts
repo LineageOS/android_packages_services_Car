@@ -1,2 +1,4 @@
 # I/O watchdog server
 /system/bin/iowatchdogd  u:object_r:iowatchdogd_exec:s0
+
+/data/system/io-watchdog(/.*)? u:object_r:system_io_watchdog_data_file:s0

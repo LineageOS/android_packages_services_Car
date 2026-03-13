@@ -17,14 +17,24 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+// TODO(b/489196598): This isn't a scalable solution if other form-factor-specific configs get
+// added in the future. Ensure that this logic is updated to be more scalable.
 prebuilt_etc {
     name: "system_resource_overuse_configuration.xml",
-    src: "system_resource_overuse_configuration.xml",
+    filename: "system_resource_overuse_configuration.xml",
+    src: select(soong_config_variable("google_tv", "is_tv_device"), {
+        true: "tv_system_resource_overuse_configuration.xml",
+        default: "system_resource_overuse_configuration.xml",
+    }),
     sub_dir: "io-watchdog/",
 }
 
 prebuilt_etc {
     name: "third_party_resource_overuse_configuration.xml",
-    src: "third_party_resource_overuse_configuration.xml",
+    filename: "third_party_resource_overuse_configuration.xml",
+    src: select(soong_config_variable("google_tv", "is_tv_device"), {
+        true: "tv_third_party_resource_overuse_configuration.xml",
+        default: "third_party_resource_overuse_configuration.xml",
+    }),
     sub_dir: "io-watchdog/",
 }
