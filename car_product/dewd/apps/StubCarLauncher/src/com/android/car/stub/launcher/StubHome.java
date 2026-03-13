@@ -16,11 +16,12 @@
 
 package com.android.car.stub.launcher;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.FrameLayout;
 
 import com.android.car.oem.tokens.R;
 import com.android.car.oem.tokens.Token;
@@ -29,13 +30,33 @@ import com.android.car.oem.tokens.Token;
  * Simple, static visibility barrier home activity.
  */
 public class StubHome extends Activity {
+    private int mLastNightMode = Configuration.UI_MODE_NIGHT_UNDEFINED;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Token.applyOemTokenStyle(this);
         super.onCreate(savedInstanceState);
-        View background = new FrameLayout(this);
-        background.setBackgroundColor(Token.getColor(this, R.attr.oemColorSurface));
-        setContentView(background);
+        updateAppTheme();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+        if (currentNightMode != mLastNightMode) {
+            mLastNightMode = currentNightMode;
+            updateAppTheme();
+        }
+    }
+
+    private void updateAppTheme() {
+        Token.applyOemTokenStyle(this);
+        View background = findViewById(android.R.id.content);
+
+        if (background != null) {
+            int color = Token.getColor(this, R.attr.oemColorSurface);
+            background.setBackgroundColor(color);
+        }
     }
 }
 
