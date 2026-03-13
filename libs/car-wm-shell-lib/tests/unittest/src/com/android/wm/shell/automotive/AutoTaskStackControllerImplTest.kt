@@ -947,6 +947,191 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     }
 
     @Test
+    fun transitionFromCore_missingInStartAnimation_visibilityMatchesRequest_taskStacksReconciled() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, taskListener1) = setupRootTask(taskId = 101, leash = taskLeash)
+        val rootTask1Child =
+            setupChildTask(taskId = 111, parentTaskId = 101, parentTaskListener = taskListener1)
+        val (rootTaskInfo2, taskListener2) = setupRootTask(taskId = 102, leash = taskLeash)
+        val rootTask2Child =
+            setupChildTask(taskId = 112, parentTaskId = 102, parentTaskListener = taskListener2)
+        val transaction = AutoTaskStackTransaction().setTaskStackState(
+            rootTaskInfo.taskId,
+            AutoTaskStackState(Rect(10, 10, 30, 30), true, 0)
+        ).setTaskStackState(
+            rootTaskInfo2.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), true, 0)
+        )
+
+        // Set current known state visibility to false
+        controller.updateTaskStackStates(
+            mapOf(
+                rootTaskInfo2.taskId to AutoTaskStackState(Rect(10, 10, 40, 300), false, 0)
+            )
+        )
+
+        delegate.handleRequestReturn = transaction
+        delegate.play = true
+
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+        controller.handleRequest(transition, requestInfo)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
+                taskInfo = rootTaskInfo
+            })
+            .build()
+        val visibleTaskInfo2 = TestRunningTaskInfoBuilder()
+            .setTaskId(102)
+            .setVisible(true)
+            .build()
+        taskListener2.onTaskInfoChanged(visibleTaskInfo2)
+
+        // Act
+        val result = controller.startAnimation(
+            transition,
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        assertThat(result).isTrue()
+        assertThat(delegate.lastTaskStackStates!!.find { it.taskId == rootTaskInfo2.taskId })
+            .isNotNull()
+        assertThat(delegate.lastTaskStackStates).contains(
+            TaskStackStateChange(
+                taskId = rootTaskInfo2.taskId,
+                state = AutoTaskStackState(Rect(10, 10, 40, 300), true, 0)
+            )
+        )
+    }
+
+    @Test
+    fun transitionFromCore_missingInStartAnimation_visibilityMatchesCurrent_taskStacksReconciled() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, taskListener1) = setupRootTask(taskId = 101, leash = taskLeash)
+        val rootTask1Child =
+            setupChildTask(taskId = 111, parentTaskId = 101, parentTaskListener = taskListener1)
+        val (rootTaskInfo2, taskListener2) = setupRootTask(taskId = 102, leash = taskLeash)
+        val rootTask2Child =
+            setupChildTask(taskId = 112, parentTaskId = 102, parentTaskListener = taskListener2)
+        val transaction = AutoTaskStackTransaction().setTaskStackState(
+            rootTaskInfo.taskId,
+            AutoTaskStackState(Rect(10, 10, 30, 30), true, 0)
+        ).setTaskStackState(
+            rootTaskInfo2.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), true, 0)
+        )
+
+        val visibleTaskInfo2 = TestRunningTaskInfoBuilder()
+            .setTaskId(102)
+            .setVisible(false)
+            .build()
+        taskListener2.onTaskInfoChanged(visibleTaskInfo2)
+
+        // Set current known state visibility to false
+        controller.updateTaskStackStates(
+            mapOf(
+                rootTaskInfo2.taskId to AutoTaskStackState(Rect(10, 10, 40, 300), false, 0)
+            )
+        )
+
+        delegate.handleRequestReturn = transaction
+        delegate.play = true
+
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+        controller.handleRequest(transition, requestInfo)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
+                taskInfo = rootTaskInfo
+            })
+            .build()
+
+        // Act
+        val result = controller.startAnimation(
+            transition,
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        assertThat(result).isTrue()
+        assertThat(delegate.lastTaskStackStates!!.find { it.taskId == rootTaskInfo2.taskId })
+            .isNull()
+    }
+
+    @Test
+    fun transitionFromCore_missingInStartAnimation_visibilityMatchesNeither_taskStacksReconciled() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, taskListener1) = setupRootTask(taskId = 101, leash = taskLeash)
+        val rootTask1Child =
+            setupChildTask(taskId = 111, parentTaskId = 101, parentTaskListener = taskListener1)
+        val (rootTaskInfo2, taskListener2) = setupRootTask(taskId = 102, leash = taskLeash)
+        val rootTask2Child =
+            setupChildTask(taskId = 112, parentTaskId = 102, parentTaskListener = taskListener2)
+        val transaction = AutoTaskStackTransaction().setTaskStackState(
+            rootTaskInfo.taskId,
+            AutoTaskStackState(Rect(10, 10, 30, 30), true, 0)
+        ).setTaskStackState(
+            rootTaskInfo2.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), true, 0)
+        )
+
+        val visibleTaskInfo2 = TestRunningTaskInfoBuilder()
+            .setTaskId(102)
+            .setVisible(false)
+            .build()
+        taskListener2.onTaskInfoChanged(visibleTaskInfo2)
+
+        // Set current known state visibility to true
+        controller.updateTaskStackStates(
+            mapOf(
+                rootTaskInfo2.taskId to AutoTaskStackState(Rect(10, 10, 40, 300), true, 0)
+            )
+        )
+
+        delegate.handleRequestReturn = transaction
+        delegate.play = true
+
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+        controller.handleRequest(transition, requestInfo)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
+                taskInfo = rootTaskInfo
+            })
+            .build()
+
+        // Act
+        val result = controller.startAnimation(
+            transition,
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        assertThat(result).isTrue()
+        assertThat(delegate.lastTaskStackStates!!.find { it.taskId == rootTaskInfo2.taskId })
+            .isNotNull()
+        assertThat(delegate.lastTaskStackStates).contains(
+            TaskStackStateChange(
+                taskId = rootTaskInfo2.taskId,
+                state = AutoTaskStackState(Rect(10, 10, 40, 300), false, 0)
+            )
+        )
+    }
+
+    @Test
     fun transition_fromCore_notDelegatedToClient_notPlayed_leashesOrdered() {
         val leash1 = mock(SurfaceControl::class.java)
         val leash2 = mock(SurfaceControl::class.java)
