@@ -272,6 +272,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- StubLauncher for DEWD systems -->
+    <install-in-user-type package="com.android.car.stub.launcher">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
  <!--
    Apps that initially were marked as FULL only but are actually
    required on SYSTEM user as well.
@@ -484,6 +490,15 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
     <install-in-user-type package="com.android.systemui.rro.right">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.systemui.rro.scalableUI.leftNavBar.sysUi.codelab">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.systemui.rro.scalableUI.hun.bottom">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.systemui.rro.scalableUI.leftNavBar.window.codelab">
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
     <install-in-user-type package="com.android.car.systemui.systembar.persistency.immersive">
