@@ -44,10 +44,6 @@ cc_binary {
         "android.car.feature-aconfig-cpp",
     ],
     init_rc: ["packagemanagerproxyd.rc"],
-    vintf_fragment_modules: ["manifest_packagemanagerproxyd"],
-}
-
-vintf_fragment {
-    name: "manifest_packagemanagerproxyd",
-    src: "manifest_packagemanagerproxyd.xml",
+    vintf_fragments: ["manifest_packagemanagerproxyd.xml"],
+    system_ext_specific: true,
 }
