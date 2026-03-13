@@ -3682,7 +3682,7 @@ class CarShellCommand extends BasicShellCommandHandler {
 
     // Inject continuous vhal events.
     private void injectContinuousEvents(String[] args, IndentingPrintWriter writer) {
-        if (args.length < 3 || args.length > 8) {
+        if (args.length < 3 || args.length > 9) {
             showInvalidArguments(writer);
             return;
         }
