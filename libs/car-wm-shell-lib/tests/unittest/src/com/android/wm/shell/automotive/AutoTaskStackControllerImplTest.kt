@@ -273,6 +273,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
 
         // Act
         controller.createRootTaskStack(displayId, name, rootTaskStackListener)
+        waitForMainThread()
 
         // Assert
         val captor = argumentCaptor<RootTaskStack>()
