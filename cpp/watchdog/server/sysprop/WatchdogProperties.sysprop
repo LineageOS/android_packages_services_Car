@@ -60,33 +60,6 @@ prop {
     prop_name: "ro.carwatchdog.periodic_collection_buffer_size"
 }
 
-# Interval in seconds between consecutive periodic performance data collections.
-prop {
-    api_name: "periodicCollectionInterval"
-    type: Integer
-    scope: Internal
-    access: Readonly
-    prop_name: "ro.carwatchdog.periodic_collection_interval"
-}
-
-# Maximum number of periodically monitored records to be cached in memory.
-prop {
-    api_name: "periodicMonitorBufferSize"
-    type: Integer
-    scope: Internal
-    access: Readonly
-    prop_name: "ro.carwatchdog.periodic_monitor_buffer_size"
-}
-
-# Interval in seconds between consecutive periodic performance data monitoring.
-prop {
-    api_name: "periodicMonitorInterval"
-    type: Integer
-    scope: Internal
-    access: Readonly
-    prop_name: "ro.carwatchdog.periodic_monitor_interval"
-}
-
 # Top N per-UID statistics/category collected by the performance data collector.
 prop {
     api_name: "topNStatsPerCategory"
@@ -121,15 +94,6 @@ prop {
     scope: Internal
     access: Readonly
     prop_name: "ro.carwatchdog.system_event_data_cache_duration"
-}
-
-# Percentage of I/O overuse threshold.
-prop {
-    api_name: "ioOveruseWarnPercentage"
-    type: Integer
-    scope: Internal
-    access: Readonly
-    prop_name: "ro.carwatchdog.io_overuse_warn_percentage"
 }
 
 # Flag for sending resource usage stats from daemon to CarService.
