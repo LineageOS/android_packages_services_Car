@@ -44,7 +44,7 @@ cc_defaults {
     static_libs: [
         "android.automotive.watchdog.internal-ndk",
         "android.automotive.watchdog-V3-ndk",
-        "libwatchdog_properties",
+        "libiowatchdog_properties",
     ],
     header_libs: [
         "libgtest_prod_headers",
