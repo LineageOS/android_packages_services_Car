@@ -18,16 +18,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="notification_header" msgid="7197574085752162581">"નોટિફિકેશન કેન્દ્ર"</string>
-    <!-- no translation found for clear_all (3254167492917071891) -->
-    <skip />
-    <!-- no translation found for empty_notification_header (8261388310215828874) -->
-    <skip />
-    <!-- no translation found for manage_text (2800746095592832319) -->
-    <skip />
-    <!-- no translation found for assist_action_play_label (6287779261772019721) -->
-    <skip />
-    <!-- no translation found for assist_action_reply_label (7851702835016792506) -->
-    <skip />
-    <!-- no translation found for action_mute_short (583771517155754068) -->
-    <skip />
+    <string name="clear_all" msgid="3254167492917071891">"બધું સાફ કરો"</string>
+    <string name="empty_notification_header" msgid="8261388310215828874">"કોઈ નોટિફિકેશન નથી"</string>
+    <string name="manage_text" msgid="2800746095592832319">"મેનેજ કરો"</string>
+    <string name="assist_action_play_label" msgid="6287779261772019721">"ચલાવો"</string>
+    <string name="assist_action_reply_label" msgid="7851702835016792506">"જવાબ આપો"</string>
+    <string name="action_mute_short" msgid="583771517155754068">"મ્યૂટ કરો"</string>
 </resources>
