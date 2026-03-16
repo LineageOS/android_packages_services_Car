@@ -24,7 +24,6 @@
 #include <android-base/logging.h>
 #include <camera/NdkCameraMetadata.h>
 
-#include <android_car_feature.h>
 #include <dlfcn.h>
 
 #include <map>
@@ -47,11 +46,6 @@ using ::aidl::android::hardware::automotive::evs::UltrasonicsArrayDesc;
 using ::ndk::ScopedAStatus;
 
 CompatEnumerator::CompatEnumerator() {
-    if (!android::car::feature::car_evs_compat_lib()) {
-        LOG(INFO) << "EVS compat library feature is not enabled.";
-        mIsReady = false;
-        return;
-    }
     mCameraManager = std::make_unique<NdkCameraManager>();
     if (!mCameraManager->isAvailable()) {
         LOG(ERROR) << "Camera manager is not available.";
@@ -109,8 +103,7 @@ void CompatEnumerator::initializeAvailabilityCallbacks() {
 // Constructor for dependency injection.
 CompatEnumerator::CompatEnumerator(std::unique_ptr<ICameraManager> cameraManager) :
       mCameraManager(std::move(cameraManager)) {
-    mIsReady = android::car::feature::car_evs_compat_lib();
-    if (!mIsReady) return;
+    mIsReady = true;
     initializeAvailabilityCallbacks();
 }
 #endif

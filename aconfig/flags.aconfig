@@ -396,13 +396,6 @@ flag {
 }
 
 flag {
-  name: "car_evs_compat_lib"
-  namespace: "car_perception"
-  description: "Add an EVS compatible library to simplify the migration from EVS to Camera2."
-  bug: "441577862"
-}
-
-flag {
   name: "car_evs_deprecation"
   namespace: "car_perception"
   description: "Marks EVS functionality and APIs as being deprecated."

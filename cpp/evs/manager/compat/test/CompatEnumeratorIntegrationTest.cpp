@@ -23,8 +23,6 @@
 #include <android-base/logging.h>
 #include <gtest/gtest.h>
 
-#include <android_car_feature.h>
-
 namespace android::hardware::automotive::evs::compat {
 
 using ::aidl::android::hardware::automotive::evs::CameraDesc;
@@ -35,11 +33,6 @@ using ::ndk::ScopedAStatus;
 class CompatEnumeratorIntegrationTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // Ensure the feature is enabled for this test
-        if (!android::car::feature::car_evs_compat_lib()) {
-            LOG(WARNING) << "EVS compatibility library feature is not enabled, skipping test.";
-            GTEST_SKIP();
-        }
         enumerator = ::ndk::SharedRefBase::make<CompatEnumerator>();
         ASSERT_NE(enumerator, nullptr);
     }
