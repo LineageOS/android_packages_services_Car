@@ -95,6 +95,9 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
     ro.fw.mu.headless_system_user?=true
 
+# Variable for elsewhere choosing the appropriate products based on HSUM status.
+PRODUCT_USE_HSUM?=true
+
 # Enable User HAL integration
 # NOTE: when set to true, VHAL must also implement the user-related properties,
 # otherwise CarService will ignore it
