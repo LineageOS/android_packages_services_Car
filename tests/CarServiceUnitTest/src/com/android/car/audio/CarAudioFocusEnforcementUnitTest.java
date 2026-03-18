@@ -319,7 +319,7 @@ public class CarAudioFocusEnforcementUnitTest {
     }
 
     @Test
-    public void onAudioPlaybackChange_withMismatchedFocusHolderAttributes_silences() {
+    public void onAudioPlaybackChange_withMismatchedFocusHolderUsage_silences() {
         mCarAudioFocusEnforcement.setEnforceableAttributes(
                 List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES));
         AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_GAME, TEST_UID);
@@ -335,6 +335,59 @@ public class CarAudioFocusEnforcementUnitTest {
         assertWithMessage("Player volume on non-matching focus usage")
                 .that(volumeCaptor.getValue())
                 .isEqualTo(0.0f);
+    }
+
+    @Test
+    public void onAudioPlaybackChange_withMatchingUsageButDifferentContentType_doesNotSilence() {
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        AudioAttributes unknownContentMedia = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
+                .build();
+        AudioFocusInfo focusInfo = createMockFocusInfo(unknownContentMedia, TEST_UID);
+        SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(focusInfo);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
+
+        AudioAttributes musicContentMedia = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build();
+        AudioPlaybackConfiguration playbackConfig =
+                createMockPlaybackConfig(musicContentMedia, TEST_UID);
+
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(playbackConfig));
+
+        ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(playbackConfig, 0);
+        assertWithMessage("Player volume on matching usage but different content type")
+                .that(volumeCaptor.getAllValues())
+                .isEmpty();
+    }
+
+    @Test
+    public void onAudioPlaybackChange_withMatchingUsageButDifferentFlags_doesNotSilence() {
+        AudioAttributes mediaAttributes = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .build();
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(mediaAttributes));
+        AudioFocusInfo focusInfo = createMockFocusInfo(mediaAttributes, TEST_UID);
+        SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(focusInfo);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
+
+        AudioAttributes flaggedMedia = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .setFlags(AudioAttributes.FLAG_DEEP_BUFFER)
+                .build();
+        AudioPlaybackConfiguration playbackConfig =
+                createMockPlaybackConfig(flaggedMedia, TEST_UID);
+
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(playbackConfig));
+
+        ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(playbackConfig, 0);
+        assertWithMessage("Player volume on matching usage but different flags")
+                .that(volumeCaptor.getAllValues())
+                .isEmpty();
     }
 
     @Test
@@ -369,6 +422,54 @@ public class CarAudioFocusEnforcementUnitTest {
         assertWithMessage("Player volume with no focus holder")
                 .that(volumeCaptor.getValue())
                 .isEqualTo(0.0f);
+    }
+
+    @Test
+    public void onAudioPlaybackChange_withFocusHolderAndMismatchedTags_silences() {
+        AudioAttributes mediaAttributes = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .build();
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(mediaAttributes));
+        AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_UID, List.of("tag1"));
+        SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(mediaFocusInfo);
+        AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(mediaAttributes,
+                TEST_UID);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
+
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
+
+        ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
+        assertWithMessage("Player volume on mismatched focus tags")
+                .that(volumeCaptor.getValue())
+                .isEqualTo(0.0f);
+    }
+
+    @Test
+    public void onAudioPlaybackChange_withFocusHolderAndEmptyTags_doesNotSilence() {
+        AudioAttributes mediaAttributes = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .build();
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(mediaAttributes));
+        // Focus holder has no tags, but playback has an empty string tag
+        AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_UID);
+        SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(mediaFocusInfo);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
+
+        AudioAttributes playbackAttributes = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA)
+                .addTag("")
+                .build();
+        AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(playbackAttributes,
+                TEST_UID);
+
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
+
+        ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 0);
+        assertWithMessage("Player volume with empty focus tags")
+                .that(volumeCaptor.getAllValues())
+                .isEmpty();
     }
 
     @Test
@@ -833,7 +934,22 @@ public class CarAudioFocusEnforcementUnitTest {
     }
 
     private AudioFocusInfo createMockFocusInfo(int usage, int uid) {
-        return new AudioFocusInfoBuilder().setUsage(usage).setClientUid(uid)
+        return createMockFocusInfo(usage, uid, List.of());
+    }
+
+    private AudioFocusInfo createMockFocusInfo(int usage, int uid, List<String> tags) {
+        AudioFocusInfoBuilder builder = new AudioFocusInfoBuilder().setUsage(usage)
+                .setClientUid(uid)
+                .setClientId("clientId").setPackageName("test.package")
+                .setGainRequest(AudioManager.AUDIOFOCUS_GAIN);
+        for (String tag : tags) {
+            builder.addTag(tag);
+        }
+        return builder.createAudioFocusInfo();
+    }
+
+    private AudioFocusInfo createMockFocusInfo(AudioAttributes attributes, int uid) {
+        return new AudioFocusInfoBuilder().setAudioAttributes(attributes).setClientUid(uid)
                 .setClientId("clientId").setPackageName("test.package")
                 .setGainRequest(AudioManager.AUDIOFOCUS_GAIN).createAudioFocusInfo();
     }
