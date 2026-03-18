@@ -24,7 +24,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES_DEBUG += \
     avbctl \
     bootctl \
-    curl \
     tinycap \
     tinyhostless \
     tinymix \
