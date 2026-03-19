@@ -33,7 +33,7 @@
     <string name="importance_high" msgid="3393374688015554727">"Importance élevée"</string>
     <string name="android_system_label" msgid="9209428539477894959">"Système Android"</string>
     <string name="factory_reset_notification_title" msgid="6177770995437355965">"Rétablissement de la configuration d\'usine requis"</string>
-    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Toutes les données du système d\'infoloisirs seront supprimées. Vous pourrez configurer un nouveau profil après la réinitialisation."</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Toutes les données du système d\'infodivertissement seront supprimées. Vous pourrez configurer un nouveau profil après la réinitialisation."</string>
     <string name="factory_reset_notification_button" msgid="6926734587145351076">"Plus"</string>
     <string name="factory_reset_warning" msgid="8463356329619149262">"Les données de votre appareil vont être effacées"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Impossible d\'utiliser l\'application d\'administration. Les données de votre appareil vont maintenant être effacées.\n\nSi vous avez des questions, contactez l\'administrateur de votre organisation."</string>
