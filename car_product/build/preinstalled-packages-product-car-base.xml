@@ -474,6 +474,14 @@
     <install-in-user-type package="com.android.car.rotary">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <!-- Test app for display compat  (DisplayCompatTestApp) -->
+    <install-in-user-type package="com.android.car.displaycompat.app">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <!-- Test app for display compat (DisplayCompatIntentApp) -->
+    <install-in-user-type package="com.android.car.displaycompat.intent">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 
     <!-- RRO packages that config the systemUi features.   -->
     <install-in-user-type package="com.android.systemui.controls.systembar.insets.rro">
