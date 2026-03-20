@@ -33,7 +33,6 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 # Applications
 PRODUCT_PACKAGES += \
     LiveWallpapersPicker \
-    PartnerBookmarksProvider \
     preinstalled-packages-platform-generic-system.xml \
     Stk \
     Tag \
