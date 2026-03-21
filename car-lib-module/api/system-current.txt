@@ -1,6 +1,5 @@
 // Signature format: 6.0
 // - style=java
-// - flagged-api-inheritance=none
 // - overloaded-method-order=source
 // - strip-java-lang-prefix=legacy
 // - type-argument-spacing=legacy
@@ -917,11 +916,11 @@ package android.car.evs {
     field @Deprecated public static final int STREAM_EVENT_TIMEOUT = 4; // 0x4
   }
 
-  @Deprecated public static interface CarEvsManager.CarEvsStatusListener {
+  @Deprecated @FlaggedApi("android.car.feature.car_evs_deprecation") public static interface CarEvsManager.CarEvsStatusListener {
     method @Deprecated public void onStatusChanged(@NonNull android.car.evs.CarEvsStatus);
   }
 
-  @Deprecated public static interface CarEvsManager.CarEvsStreamCallback {
+  @Deprecated @FlaggedApi("android.car.feature.car_evs_deprecation") public static interface CarEvsManager.CarEvsStreamCallback {
     method @Deprecated public default void onNewFrame(@NonNull android.car.evs.CarEvsBufferDescriptor);
     method @Deprecated public default void onStreamEvent(int);
     method @Deprecated public default void onStreamEvent(int, int);
