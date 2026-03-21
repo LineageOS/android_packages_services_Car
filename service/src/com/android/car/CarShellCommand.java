@@ -3680,7 +3680,15 @@ class CarShellCommand extends BasicShellCommandHandler {
         mHal.onPropertySetError(new ArrayList<VehiclePropError>(List.of(vehiclePropError)));
     }
 
-    // Inject continuous vhal events.
+    // Inject continuous VHAL events.
+    // Full command:
+    //     adb shell cmd car_service inject-continuous-events <property_id> <value> \
+    //         [-z <area_id>] [-s <sample_rate>] [-d <time_duration>]
+    // Minimum command:
+    //     adb shell cmd car_service inject-continuous-events <property_id> <value>
+    //
+    // @param args   the command line arguments to parse for VHAL event details
+    // @param writer IndentingPrintWriter
     private void injectContinuousEvents(String[] args, IndentingPrintWriter writer) {
         if (args.length < 3 || args.length > 9) {
             showInvalidArguments(writer);
