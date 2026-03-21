@@ -1,1 +1,5 @@
-// Signature format: 2.0
+// Signature format: 6.0
+// - style=java
+// - normalize-abstract-modifier=no
+// - strip-java-lang-prefix=legacy
+// - type-argument-spacing=legacy
