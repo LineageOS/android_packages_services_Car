@@ -1,6 +1,5 @@
 // Signature format: 6.0
 // - style=java
-// - strip-java-lang-prefix=legacy
 // - type-argument-spacing=legacy
 package android.car {
 
@@ -17,9 +16,9 @@ package android.car {
   public final class Car {
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public int disableFeature(@NonNull String);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public int enableFeature(@NonNull String);
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllEnabledFeatures();
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllPendingDisabledFeatures();
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllPendingEnabledFeatures();
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<String> getAllEnabledFeatures();
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<String> getAllPendingDisabledFeatures();
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<String> getAllPendingEnabledFeatures();
     field public static final String ACCESS_PRIVATE_DISPLAY_ID = "android.car.permission.ACCESS_PRIVATE_DISPLAY_ID";
     field @Deprecated public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_ACTIVITY_SERVICE = "car_activity_service";
@@ -105,7 +104,7 @@ package android.car {
   }
 
   public final class CarAppFocusManager {
-    method @FlaggedApi("android.car.feature.cluster_health_monitoring") @NonNull @RequiresPermission(allOf={android.Manifest.permission.QUERY_ALL_PACKAGES, android.Manifest.permission.INTERACT_ACROSS_USERS}, conditional=true) public java.util.List<java.lang.String> getAppTypeOwner(int);
+    method @FlaggedApi("android.car.feature.cluster_health_monitoring") @NonNull @RequiresPermission(allOf={android.Manifest.permission.QUERY_ALL_PACKAGES, android.Manifest.permission.INTERACT_ACROSS_USERS}, conditional=true) public java.util.List<String> getAppTypeOwner(int);
   }
 
   public final class CarBugreportManager {
@@ -138,9 +137,9 @@ package android.car {
   }
 
   public final class CarProjectionManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @Nullable java.util.concurrent.Executor, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public java.util.List<java.lang.Integer> getAvailableWifiChannels(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<Integer>, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<Integer>, @Nullable java.util.concurrent.Executor, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public java.util.List<Integer> getAvailableWifiChannels(int);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public android.os.Bundle getProjectionOptions();
     method @FlaggedApi("android.car.feature.projection_query_bt_profile_inhibit") @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean isBluetoothProfileInhibited(@NonNull android.bluetooth.BluetoothDevice, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
@@ -219,8 +218,8 @@ package android.car {
 
   public final class SyncResultCallback<V> implements android.car.ResultCallback<V> {
     ctor public SyncResultCallback();
-    method @Nullable public V get() throws java.lang.InterruptedException;
-    method @Nullable public V get(long, @Nullable java.util.concurrent.TimeUnit) throws java.lang.InterruptedException, java.util.concurrent.TimeoutException;
+    method @Nullable public V get() throws InterruptedException;
+    method @Nullable public V get(long, @Nullable java.util.concurrent.TimeUnit) throws InterruptedException, java.util.concurrent.TimeoutException;
     method public void onResult(V);
   }
 
@@ -862,7 +861,7 @@ package android.car.drivingstate {
 
 package android.car.evs {
 
-  @Deprecated @FlaggedApi("android.car.feature.car_evs_deprecation") public final class CarEvsBufferDescriptor implements java.lang.AutoCloseable android.os.Parcelable {
+  @Deprecated @FlaggedApi("android.car.feature.car_evs_deprecation") public final class CarEvsBufferDescriptor implements AutoCloseable android.os.Parcelable {
     ctor @Deprecated public CarEvsBufferDescriptor(int, @NonNull android.hardware.HardwareBuffer);
     ctor @Deprecated public CarEvsBufferDescriptor(int, int, @NonNull android.hardware.HardwareBuffer);
     method @Deprecated public void close();
@@ -959,7 +958,7 @@ package android.car.hardware {
     method @Deprecated public android.car.hardware.CarPropertyConfig<T> build();
     method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setAccess(int);
     method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setChangeMode(int);
-    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setConfigArray(java.util.ArrayList<java.lang.Integer>);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setConfigArray(java.util.ArrayList<Integer>);
     method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setConfigString(String);
     method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setMaxSampleRate(float);
     method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setMinSampleRate(float);
@@ -1147,7 +1146,7 @@ package android.car.hardware.property {
     method @Deprecated @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setSupportedEnumValues(@NonNull java.util.List<T>);
   }
 
-  public class CarInternalErrorException extends java.lang.RuntimeException {
+  public class CarInternalErrorException extends RuntimeException {
     method @RequiresPermission(android.car.Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE) public int getVendorErrorCode();
   }
 
@@ -1155,7 +1154,7 @@ package android.car.hardware.property {
     method @RequiresPermission(android.car.Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE) public int getVendorErrorCode();
   }
 
-  public class PropertyNotAvailableException extends java.lang.IllegalStateException {
+  public class PropertyNotAvailableException extends IllegalStateException {
     method @RequiresPermission(android.car.Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE) public int getVendorErrorCode();
   }
 
@@ -1264,7 +1263,7 @@ package android.car.media {
   }
 
   public interface AudioZonesMirrorStatusCallback {
-    method public void onAudioZonesMirrorStatusChanged(@NonNull java.util.List<java.lang.Integer>, int);
+    method public void onAudioZonesMirrorStatusChanged(@NonNull java.util.List<Integer>, int);
   }
 
   public final class CarAudioManager {
@@ -1277,11 +1276,11 @@ package android.car.media {
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioPatchHandle createAudioPatch(String, int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void disableAudioMirror(long);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void disableAudioMirrorForZone(int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public long enableMirrorForAudioZones(@NonNull java.util.List<java.lang.Integer>);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void extendAudioMirrorRequest(long, @NonNull java.util.List<java.lang.Integer>);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public long enableMirrorForAudioZones(@NonNull java.util.List<Integer>);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void extendAudioMirrorRequest(long, @NonNull java.util.List<Integer>);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public java.util.List<android.media.AudioAttributes> getAudioAttributesForVolumeGroup(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<android.car.media.CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int);
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<java.lang.Integer> getAudioZoneIds();
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<Integer> getAudioZoneIds();
     method @FlaggedApi("android.car.feature.audio_fade_balance_getter_apis") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public float getBalanceTowardRight();
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int);
     method @Deprecated @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public String[] getExternalSources();
@@ -1293,8 +1292,8 @@ package android.car.media {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupVolume(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupVolume(int, int);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<android.media.AudioDeviceInfo> getInputDevicesForZoneId(int);
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<java.lang.Integer> getMirrorAudioZonesForAudioZone(int);
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<java.lang.Integer> getMirrorAudioZonesForMirrorRequest(long);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<Integer> getMirrorAudioZonesForAudioZone(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<Integer> getMirrorAudioZonesForMirrorRequest(long);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.media.AudioDeviceInfo getOutputDeviceForUsage(int, int);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int[] getUsagesForVolumeGroupId(int);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int[] getUsagesForVolumeGroupId(int, int);
@@ -1373,14 +1372,14 @@ package android.car.media {
   }
 
   public final class CarVolumeGroupEvent implements android.os.Parcelable {
-    method public static int convertExtraInfoToFlags(@NonNull java.util.List<java.lang.Integer>);
-    method @NonNull public static java.util.List<java.lang.Integer> convertFlagsToExtraInfo(int, int);
+    method public static int convertExtraInfoToFlags(@NonNull java.util.List<Integer>);
+    method @NonNull public static java.util.List<Integer> convertFlagsToExtraInfo(int, int);
     method public int describeContents();
     method @NonNull public static String eventTypeToString(int);
-    method @NonNull public static String extraInfosToString(@NonNull java.util.List<java.lang.Integer>);
+    method @NonNull public static String extraInfosToString(@NonNull java.util.List<Integer>);
     method @NonNull public java.util.List<android.car.media.CarVolumeGroupInfo> getCarVolumeGroupInfos();
     method public int getEventTypes();
-    method @NonNull public java.util.List<java.lang.Integer> getExtraInfos();
+    method @NonNull public java.util.List<Integer> getExtraInfos();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroupEvent> CREATOR;
     field public static final int EVENT_TYPE_ATTENUATION_CHANGED = 32; // 0x20
@@ -1411,12 +1410,12 @@ package android.car.media {
 
   public static final class CarVolumeGroupEvent.Builder {
     ctor public CarVolumeGroupEvent.Builder(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>, int);
-    ctor public CarVolumeGroupEvent.Builder(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>, int, @NonNull java.util.List<java.lang.Integer>);
+    ctor public CarVolumeGroupEvent.Builder(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>, int, @NonNull java.util.List<Integer>);
     method @NonNull public android.car.media.CarVolumeGroupEvent.Builder addCarVolumeGroupInfo(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull public android.car.media.CarVolumeGroupEvent.Builder addEventType(int);
     method @NonNull public android.car.media.CarVolumeGroupEvent.Builder addExtraInfo(int);
     method @NonNull public android.car.media.CarVolumeGroupEvent build();
-    method @NonNull public android.car.media.CarVolumeGroupEvent.Builder setExtraInfos(@NonNull java.util.List<java.lang.Integer>);
+    method @NonNull public android.car.media.CarVolumeGroupEvent.Builder setExtraInfos(@NonNull java.util.List<Integer>);
   }
 
   public interface CarVolumeGroupEventCallback {
@@ -1425,7 +1424,7 @@ package android.car.media {
 
   public final class CarVolumeGroupInfo implements android.os.Parcelable {
     method public int describeContents();
-    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public java.util.List<java.lang.Integer> getActiveExtraInfos();
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public java.util.List<Integer> getActiveExtraInfos();
     method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") public int getAttenuatedGainIndex();
     method @NonNull public java.util.List<android.media.AudioAttributes> getAudioAttributes();
     method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public java.util.List<android.media.AudioDeviceAttributes> getAudioDeviceAttributes();
@@ -1454,7 +1453,7 @@ package android.car.media {
     ctor public CarVolumeGroupInfo.Builder(@NonNull android.car.media.CarVolumeGroupInfo);
     ctor public CarVolumeGroupInfo.Builder(@NonNull String, int, int);
     method @NonNull public android.car.media.CarVolumeGroupInfo build();
-    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setActiveExtraInfos(@NonNull java.util.List<java.lang.Integer>);
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setActiveExtraInfos(@NonNull java.util.List<Integer>);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
     method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuatedGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioAttributes(@NonNull java.util.List<android.media.AudioAttributes>);
@@ -1520,7 +1519,7 @@ package android.car.occupantconnection {
     method public final void acceptConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method public void dump(@Nullable java.io.FileDescriptor, @NonNull java.io.PrintWriter, @Nullable String[]);
     method public final boolean forwardPayload(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull String, @NonNull android.car.occupantconnection.Payload);
-    method @NonNull public final java.util.Set<java.lang.String> getAllReceiverEndpoints();
+    method @NonNull public final java.util.Set<String> getAllReceiverEndpoints();
     method public boolean isSenderAuthorized(@NonNull android.content.pm.SigningInfo);
     method public boolean isSenderCompatible(long);
     method @Nullable public final android.os.IBinder onBind(@NonNull android.content.Intent);
@@ -1562,7 +1561,7 @@ package android.car.occupantconnection {
     method public void onPayloadReceived(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.car.occupantconnection.Payload);
   }
 
-  public static final class CarOccupantConnectionManager.PayloadTransferException extends java.lang.Exception {
+  public static final class CarOccupantConnectionManager.PayloadTransferException extends Exception {
     ctor public CarOccupantConnectionManager.PayloadTransferException();
   }
 
@@ -1756,7 +1755,7 @@ package android.car.os {
     method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public void setThreadPriority(@NonNull android.car.os.ThreadPolicyWithPriority) throws android.car.os.CarPerformanceManager.SetSchedulerFailedException;
   }
 
-  public static final class CarPerformanceManager.SetSchedulerFailedException extends java.lang.Exception {
+  public static final class CarPerformanceManager.SetSchedulerFailedException extends Exception {
   }
 
   public final class ThreadPolicyWithPriority implements android.os.Parcelable {
@@ -1824,7 +1823,7 @@ package android.car.projection {
   public static final class ProjectionStatus.MobileDevice implements android.os.Parcelable {
     method @NonNull public static android.car.projection.ProjectionStatus.MobileDevice.Builder builder(int, String);
     method public int describeContents();
-    method @NonNull public java.util.List<java.lang.Integer> getAvailableTransports();
+    method @NonNull public java.util.List<Integer> getAvailableTransports();
     method @NonNull public android.os.Bundle getExtras();
     method public int getId();
     method @NonNull public String getName();
@@ -1865,7 +1864,7 @@ package android.car.remoteaccess {
     method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void unscheduleTask(@NonNull String) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
   }
 
-  @FlaggedApi("android.car.feature.serverless_remote_access") public static final class CarRemoteAccessManager.InVehicleTaskSchedulerException extends java.lang.Exception {
+  @FlaggedApi("android.car.feature.serverless_remote_access") public static final class CarRemoteAccessManager.InVehicleTaskSchedulerException extends Exception {
   }
 
   @FlaggedApi("android.car.feature.serverless_remote_access") public static final class CarRemoteAccessManager.ScheduleInfo {
@@ -2318,10 +2317,10 @@ package android.car.view {
 package android.car.vms {
 
   public final class VmsAssociatedLayer implements android.os.Parcelable {
-    ctor public VmsAssociatedLayer(@NonNull android.car.vms.VmsLayer, @NonNull java.util.Set<java.lang.Integer>);
+    ctor public VmsAssociatedLayer(@NonNull android.car.vms.VmsLayer, @NonNull java.util.Set<Integer>);
     method public int describeContents();
-    method @NonNull public java.util.Set<java.lang.Integer> getProviderIds();
-    method @Deprecated @NonNull public java.util.Set<java.lang.Integer> getPublisherIds();
+    method @NonNull public java.util.Set<Integer> getProviderIds();
+    method @Deprecated @NonNull public java.util.Set<Integer> getPublisherIds();
     method @NonNull public android.car.vms.VmsLayer getVmsLayer();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.vms.VmsAssociatedLayer> CREATOR;
@@ -2494,23 +2493,23 @@ package android.car.watchdog {
 
   public final class IoOveruseConfiguration implements android.os.Parcelable {
     method public int describeContents();
-    method @NonNull public java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> getAppCategorySpecificThresholds();
+    method @NonNull public java.util.Map<String,android.car.watchdog.PerStateBytes> getAppCategorySpecificThresholds();
     method @NonNull public android.car.watchdog.PerStateBytes getComponentLevelThresholds();
-    method @NonNull public java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> getPackageSpecificThresholds();
+    method @NonNull public java.util.Map<String,android.car.watchdog.PerStateBytes> getPackageSpecificThresholds();
     method @NonNull public java.util.List<android.car.watchdog.IoOveruseAlertThreshold> getSystemWideThresholds();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.IoOveruseConfiguration> CREATOR;
   }
 
   public static final class IoOveruseConfiguration.Builder {
-    ctor public IoOveruseConfiguration.Builder(@NonNull android.car.watchdog.PerStateBytes, @NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes>, @NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes>, @NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold>);
+    ctor public IoOveruseConfiguration.Builder(@NonNull android.car.watchdog.PerStateBytes, @NonNull java.util.Map<String,android.car.watchdog.PerStateBytes>, @NonNull java.util.Map<String,android.car.watchdog.PerStateBytes>, @NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold>);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addAppCategorySpecificThresholds(@NonNull String, @NonNull android.car.watchdog.PerStateBytes);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addPackageSpecificThresholds(@NonNull String, @NonNull android.car.watchdog.PerStateBytes);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addSystemWideThresholds(@NonNull android.car.watchdog.IoOveruseAlertThreshold);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration build();
-    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setAppCategorySpecificThresholds(@NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes>);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setAppCategorySpecificThresholds(@NonNull java.util.Map<String,android.car.watchdog.PerStateBytes>);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setComponentLevelThresholds(@NonNull android.car.watchdog.PerStateBytes);
-    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setPackageSpecificThresholds(@NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes>);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setPackageSpecificThresholds(@NonNull java.util.Map<String,android.car.watchdog.PerStateBytes>);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setSystemWideThresholds(@NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold>);
   }
 
@@ -2530,9 +2529,9 @@ package android.car.watchdog {
     method public int describeContents();
     method public int getComponentType();
     method @Nullable public android.car.watchdog.IoOveruseConfiguration getIoOveruseConfiguration();
-    method @NonNull public java.util.Map<java.lang.String,java.lang.String> getPackagesToAppCategoryTypes();
-    method @NonNull public java.util.List<java.lang.String> getSafeToKillPackages();
-    method @NonNull public java.util.List<java.lang.String> getVendorPackagePrefixes();
+    method @NonNull public java.util.Map<String,String> getPackagesToAppCategoryTypes();
+    method @NonNull public java.util.List<String> getSafeToKillPackages();
+    method @NonNull public java.util.List<String> getVendorPackagePrefixes();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field public static final String APPLICATION_CATEGORY_TYPE_MAPS = "android.car.watchdog.app.category.MAPS";
     field public static final String APPLICATION_CATEGORY_TYPE_MEDIA = "android.car.watchdog.app.category.MEDIA";
@@ -2543,16 +2542,16 @@ package android.car.watchdog {
   }
 
   public static final class ResourceOveruseConfiguration.Builder {
-    ctor public ResourceOveruseConfiguration.Builder(int, @NonNull java.util.List<java.lang.String>, @NonNull java.util.List<java.lang.String>, @NonNull java.util.Map<java.lang.String,java.lang.String>);
+    ctor public ResourceOveruseConfiguration.Builder(int, @NonNull java.util.List<String>, @NonNull java.util.List<String>, @NonNull java.util.Map<String,String>);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addPackagesToAppCategoryTypes(@NonNull String, @NonNull String);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addSafeToKillPackages(@NonNull String);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addVendorPackagePrefixes(@NonNull String);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration build();
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setComponentType(int);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setIoOveruseConfiguration(@NonNull android.car.watchdog.IoOveruseConfiguration);
-    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setPackagesToAppCategoryTypes(@NonNull java.util.Map<java.lang.String,java.lang.String>);
-    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setSafeToKillPackages(@NonNull java.util.List<java.lang.String>);
-    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setVendorPackagePrefixes(@NonNull java.util.List<java.lang.String>);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setPackagesToAppCategoryTypes(@NonNull java.util.Map<String,String>);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setSafeToKillPackages(@NonNull java.util.List<String>);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setVendorPackagePrefixes(@NonNull java.util.List<String>);
   }
 
 }
