@@ -664,7 +664,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     ): WindowContainerTransaction? {
         ProtoLog.d(
             CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-            "handleRequest, id=%s, binder=%s, type=%d, triggertask = %s",
+            "handleRequest, id=%d, binder=%s, type=%d, triggertask = %s",
             request.debugId,
             transition,
             request.type,
@@ -1044,7 +1044,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     ): Boolean {
         ProtoLog.d(
             CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-            "startAnimation, id=%s = changes=%s",
+            "startAnimation, id=%d = changes=%s",
             info.debugId,
             info.changes.toString()
         )
@@ -1088,7 +1088,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (isPlayedByDelegate) {
                 ProtoLog.d(
                     CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "%s played",
+                    "%d played",
                     info.debugId
                 )
                 return true

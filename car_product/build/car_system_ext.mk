@@ -14,6 +14,13 @@
 # limitations under the License.
 #
 
+# Enable headless system user mode
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    ro.fw.mu.headless_system_user?=true
+
+# Variable for elsewhere choosing the appropriate products based on HSUM status.
+PRODUCT_USE_HSUM?=true
+
 # This makefile comprises the minimal system_ext partition content for an
 # automotive device.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_system_ext.mk)
@@ -42,10 +49,6 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
     dalvik.vm.dex2oat-threads=2 \
     pm.dexopt.disable_bg_dexopt=false \
     pm.dexopt.downgrade_after_inactive_days=10 \
-
-# Enable headless system user mode
-PRODUCT_SYSTEM_EXT_PROPERTIES += \
-    ro.fw.mu.headless_system_user?=true
 
 # Disable Prime Shader Cache in SurfaceFlinger to make it available faster
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
