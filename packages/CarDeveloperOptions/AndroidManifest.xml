@@ -604,16 +604,6 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
-        <!-- TODO(b:479390185): Remove this legacy entry once http://ag/39013956 has landed -->
-        <activity
-            android:name="com.android.settings.Settings$AvailableVirtualKeyboardActivity"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity>
-
         <activity
             android:name="com.android.settings.Settings$AvailableKeyboardAppsActivity"
             android:enabled="false"
