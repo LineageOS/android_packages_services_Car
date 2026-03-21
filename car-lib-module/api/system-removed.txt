@@ -1,6 +1,5 @@
 // Signature format: 6.0
 // - style=java
-// - type-argument-spacing=legacy
 package android.car.cluster.renderer {
 
   @UiThread public abstract class NavigationRenderer {

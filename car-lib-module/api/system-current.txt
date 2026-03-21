@@ -1,6 +1,5 @@
 // Signature format: 6.0
 // - style=java
-// - type-argument-spacing=legacy
 package android.car {
 
   public abstract class AoapService extends android.app.Service {
@@ -1658,7 +1657,7 @@ package android.car.oem {
 
   public final class OemCarAudioFocusResult implements android.os.Parcelable {
     method public int describeContents();
-    method @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") @NonNull public java.util.Map<android.media.AudioAttributes,android.car.oem.CarAudioFadeConfiguration> getAudioAttributesToCarAudioFadeConfigurationMap();
+    method @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") @NonNull public java.util.Map<android.media.AudioAttributes, android.car.oem.CarAudioFadeConfiguration> getAudioAttributesToCarAudioFadeConfigurationMap();
     method @Nullable public android.car.oem.AudioFocusEntry getAudioFocusEntry();
     method public int getAudioFocusResult();
     method @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") @Nullable public android.car.oem.CarAudioFadeConfiguration getCarAudioFadeConfigurationForAudioAttributes(@NonNull android.media.AudioAttributes);
@@ -1674,7 +1673,7 @@ package android.car.oem {
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder addNewlyBlockedAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder addNewlyLostAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
     method @NonNull public android.car.oem.OemCarAudioFocusResult build();
-    method @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioAttributesToCarAudioFadeConfigurationMap(@NonNull java.util.Map<android.media.AudioAttributes,android.car.oem.CarAudioFadeConfiguration>);
+    method @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioAttributesToCarAudioFadeConfigurationMap(@NonNull java.util.Map<android.media.AudioAttributes, android.car.oem.CarAudioFadeConfiguration>);
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioFocusResult(int);
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setNewlyBlockedAudioFocusEntries(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
@@ -2493,23 +2492,23 @@ package android.car.watchdog {
 
   public final class IoOveruseConfiguration implements android.os.Parcelable {
     method public int describeContents();
-    method @NonNull public java.util.Map<String,android.car.watchdog.PerStateBytes> getAppCategorySpecificThresholds();
+    method @NonNull public java.util.Map<String, android.car.watchdog.PerStateBytes> getAppCategorySpecificThresholds();
     method @NonNull public android.car.watchdog.PerStateBytes getComponentLevelThresholds();
-    method @NonNull public java.util.Map<String,android.car.watchdog.PerStateBytes> getPackageSpecificThresholds();
+    method @NonNull public java.util.Map<String, android.car.watchdog.PerStateBytes> getPackageSpecificThresholds();
     method @NonNull public java.util.List<android.car.watchdog.IoOveruseAlertThreshold> getSystemWideThresholds();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.IoOveruseConfiguration> CREATOR;
   }
 
   public static final class IoOveruseConfiguration.Builder {
-    ctor public IoOveruseConfiguration.Builder(@NonNull android.car.watchdog.PerStateBytes, @NonNull java.util.Map<String,android.car.watchdog.PerStateBytes>, @NonNull java.util.Map<String,android.car.watchdog.PerStateBytes>, @NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold>);
+    ctor public IoOveruseConfiguration.Builder(@NonNull android.car.watchdog.PerStateBytes, @NonNull java.util.Map<String, android.car.watchdog.PerStateBytes>, @NonNull java.util.Map<String, android.car.watchdog.PerStateBytes>, @NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold>);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addAppCategorySpecificThresholds(@NonNull String, @NonNull android.car.watchdog.PerStateBytes);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addPackageSpecificThresholds(@NonNull String, @NonNull android.car.watchdog.PerStateBytes);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addSystemWideThresholds(@NonNull android.car.watchdog.IoOveruseAlertThreshold);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration build();
-    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setAppCategorySpecificThresholds(@NonNull java.util.Map<String,android.car.watchdog.PerStateBytes>);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setAppCategorySpecificThresholds(@NonNull java.util.Map<String, android.car.watchdog.PerStateBytes>);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setComponentLevelThresholds(@NonNull android.car.watchdog.PerStateBytes);
-    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setPackageSpecificThresholds(@NonNull java.util.Map<String,android.car.watchdog.PerStateBytes>);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setPackageSpecificThresholds(@NonNull java.util.Map<String, android.car.watchdog.PerStateBytes>);
     method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setSystemWideThresholds(@NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold>);
   }
 
@@ -2529,7 +2528,7 @@ package android.car.watchdog {
     method public int describeContents();
     method public int getComponentType();
     method @Nullable public android.car.watchdog.IoOveruseConfiguration getIoOveruseConfiguration();
-    method @NonNull public java.util.Map<String,String> getPackagesToAppCategoryTypes();
+    method @NonNull public java.util.Map<String, String> getPackagesToAppCategoryTypes();
     method @NonNull public java.util.List<String> getSafeToKillPackages();
     method @NonNull public java.util.List<String> getVendorPackagePrefixes();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
@@ -2542,14 +2541,14 @@ package android.car.watchdog {
   }
 
   public static final class ResourceOveruseConfiguration.Builder {
-    ctor public ResourceOveruseConfiguration.Builder(int, @NonNull java.util.List<String>, @NonNull java.util.List<String>, @NonNull java.util.Map<String,String>);
+    ctor public ResourceOveruseConfiguration.Builder(int, @NonNull java.util.List<String>, @NonNull java.util.List<String>, @NonNull java.util.Map<String, String>);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addPackagesToAppCategoryTypes(@NonNull String, @NonNull String);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addSafeToKillPackages(@NonNull String);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addVendorPackagePrefixes(@NonNull String);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration build();
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setComponentType(int);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setIoOveruseConfiguration(@NonNull android.car.watchdog.IoOveruseConfiguration);
-    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setPackagesToAppCategoryTypes(@NonNull java.util.Map<String,String>);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setPackagesToAppCategoryTypes(@NonNull java.util.Map<String, String>);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setSafeToKillPackages(@NonNull java.util.List<String>);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setVendorPackagePrefixes(@NonNull java.util.List<String>);
   }
