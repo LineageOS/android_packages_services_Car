@@ -536,4 +536,9 @@
     <install-in-user-type package="com.android.systemui.emulation.automotive_ultrawide_cutout">
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
+
+    <!-- RRO packages that configure launcher features (InitialLauncherWidgetsRRO) -->
+    <install-in-user-type package="com.android.carlauncher.initialwidgets">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
