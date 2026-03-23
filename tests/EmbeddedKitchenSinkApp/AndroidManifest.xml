@@ -336,6 +336,7 @@
         <meta-data android:name="android.car.targetCarVersion" android:value="33:1"/>
 
         <activity android:name=".orientation.LandscapeActivity"
+             android:theme="@style/KitchenSinkActivityTheme"
              android:label="@string/landscpae_activity"
              android:screenOrientation="landscape"
              android:exported="true">
@@ -345,6 +346,7 @@
         </activity>
 
         <activity android:name=".orientation.PortraitActivity"
+             android:theme="@style/KitchenSinkActivityTheme"
              android:label="@string/portrait_activity"
              android:screenOrientation="portrait"
              android:exported="true">
