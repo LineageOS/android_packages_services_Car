@@ -421,7 +421,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mShutdownTimeInMs = SystemClock.uptimeMillis() + mAllowedSystemUptimeMs;
         mRemoteAccessStorage = remoteAccessStorage != null ? remoteAccessStorage :
                 new RemoteAccessStorage(context, systemInterface, inMemoryStorage);
-        // TODO(b/263807920): CarService restart should be handled.
         systemInterface.scheduleActionForBootCompleted(() -> searchForRemoteTaskClientPackages(),
                 PACKAGE_SEARCH_DELAY, PACKAGE_SEARCH_DELAY_RAND_RANGE);
         mNotifyApStateChangeMaxRetry = getNotifyApStateChangeMaxRetry();
