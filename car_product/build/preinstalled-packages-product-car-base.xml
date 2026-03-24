@@ -482,6 +482,10 @@
     <install-in-user-type package="com.android.car.displaycompat.intent">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <!-- Overlays documentsui with car components (CarDocumentsUIRRO) -->
+    <install-in-user-type package="com.android.car.documentsui">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 
     <!-- RRO packages that config the systemUi features.   -->
     <install-in-user-type package="com.android.systemui.controls.systembar.insets.rro">
