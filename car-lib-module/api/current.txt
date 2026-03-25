@@ -1,6 +1,5 @@
 // Signature format: 6.0
 // - style=java
-// - strip-java-lang-prefix=legacy
 package android.car {
 
   public abstract class ApiVersion<T extends android.car.ApiVersion<?>> {
@@ -11,7 +10,7 @@ package android.car {
   }
 
   public final class Car {
-    method @Deprecated public void connect() throws java.lang.IllegalStateException;
+    method @Deprecated public void connect() throws IllegalStateException;
     method @Nullable public static android.car.Car createCar(android.content.Context);
     method @Deprecated public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
     method @Deprecated public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, @Nullable android.os.Handler);
@@ -164,7 +163,7 @@ package android.car {
     method @Deprecated public String getVehicleId();
   }
 
-  @Deprecated public class CarNotConnectedException extends java.lang.RuntimeException {
+  @Deprecated public class CarNotConnectedException extends RuntimeException {
     ctor @Deprecated public CarNotConnectedException();
     ctor @Deprecated public CarNotConnectedException(Exception);
     ctor @Deprecated public CarNotConnectedException(String);
@@ -179,7 +178,7 @@ package android.car {
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getMyOccupantZone();
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZone(int, int);
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZoneForUser(@NonNull android.os.UserHandle);
-    method @NonNull public java.util.List<java.lang.Integer> getSupportedInputTypes(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+    method @NonNull public java.util.List<Integer> getSupportedInputTypes(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
     method public int getUserForDisplayId(int);
     method public int getUserForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method public boolean hasDriverZone();
@@ -287,7 +286,7 @@ package android.car {
     field @NonNull public static final android.car.PlatformVersion VANILLA_ICE_CREAM_0;
   }
 
-  public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {
+  public final class PlatformVersionMismatchException extends UnsupportedOperationException implements android.os.Parcelable {
     ctor public PlatformVersionMismatchException(@NonNull android.car.PlatformVersion);
     method public int describeContents();
     method @NonNull public android.car.PlatformVersion getMinimumPlatformApiVersion();
@@ -719,7 +718,7 @@ package android.car.hardware {
     method @NonNull public int[] getAreaIds();
     method public int getAreaType();
     method public int getChangeMode();
-    method @NonNull public java.util.List<java.lang.Integer> getConfigArray();
+    method @NonNull public java.util.List<Integer> getConfigArray();
     method public float getMaxSampleRate();
     method @Deprecated @Nullable public T getMaxValue();
     method @Deprecated @Nullable public T getMaxValue(int);
@@ -914,7 +913,7 @@ package android.car.hardware.property {
     method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean hasSupportedValuesList();
     method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateSupported();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.AreaIdConfig<java.lang.Object>> CREATOR;
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.AreaIdConfig<Object>> CREATOR;
   }
 
   @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class AutomaticEmergencyBrakingState {
@@ -932,7 +931,7 @@ package android.car.hardware.property {
     field public static final int WARNING = 2; // 0x2
   }
 
-  public class CarInternalErrorException extends java.lang.RuntimeException {
+  public class CarInternalErrorException extends RuntimeException {
   }
 
   public class CarPropertyManager {
@@ -950,7 +949,7 @@ package android.car.hardware.property {
     method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(int, int);
     method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(@NonNull Class<E>, int, int);
     method @NonNull public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
-    method @NonNull public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList(@NonNull android.util.ArraySet<java.lang.Integer>);
+    method @NonNull public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList(@NonNull android.util.ArraySet<Integer>);
     method @FlaggedApi("android.car.feature.car_property_supported_value") @Nullable public <T> java.util.List<T> getSupportedValuesList(int, int);
     method public boolean isPropertyAvailable(int, int);
     method @Deprecated public boolean registerCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int, @FloatRange(from=0.0, to=100.0) float);
@@ -1314,10 +1313,10 @@ package android.car.hardware.property {
     method @FlaggedApi("android.car.feature.car_property_supported_value") @Nullable public T getMinValue();
   }
 
-  public class PropertyAccessDeniedSecurityException extends java.lang.SecurityException {
+  public class PropertyAccessDeniedSecurityException extends SecurityException {
   }
 
-  public class PropertyNotAvailableAndRetryException extends java.lang.IllegalStateException {
+  public class PropertyNotAvailableAndRetryException extends IllegalStateException {
   }
 
   public final class PropertyNotAvailableErrorCode {
@@ -1331,7 +1330,7 @@ package android.car.hardware.property {
     field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 6; // 0x6
   }
 
-  public class PropertyNotAvailableException extends java.lang.IllegalStateException {
+  public class PropertyNotAvailableException extends IllegalStateException {
     method public int getDetailedErrorCode();
   }
 

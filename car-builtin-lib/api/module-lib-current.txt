@@ -1,6 +1,5 @@
 // Signature format: 6.0
 // - style=java
-// - strip-java-lang-prefix=legacy
 package android.car.builtin {
 
   public final class CarBuiltin {
@@ -233,7 +232,7 @@ package android.car.builtin.media {
     method public static android.car.builtin.media.AudioManagerHelper.AudioGainInfo getAudioGainInfo(@NonNull android.media.AudioDeviceInfo);
     method public static String getFormattedTags(@NonNull android.media.AudioAttributes);
     method public static int getLastAudibleVolumeGroupVolume(@NonNull android.media.AudioManager, int);
-    method public static java.util.Set<java.lang.String> getTags(@NonNull android.media.AudioAttributes);
+    method public static java.util.Set<String> getTags(@NonNull android.media.AudioAttributes);
     method public static int getUsageVirtualSource();
     method public static int getVolumeGroupIdForAudioAttributes(@NonNull android.media.AudioAttributes);
     method public static int getVolumeGroupIdForAudioAttributes(@NonNull android.media.audiopolicy.AudioProductStrategy, @NonNull android.media.AudioAttributes);
@@ -386,7 +385,7 @@ package android.car.builtin.power {
     method public static int getMaximumScreenBrightnessSetting(android.content.Context);
     method public static int getMinimumScreenBrightnessSetting(android.content.Context);
     method public static void goToSleep(android.content.Context, int, long);
-    method public static android.car.builtin.power.PowerManagerHelper.CarSleepLock newSleepLock(android.content.Context, int, String) throws java.lang.RuntimeException;
+    method public static android.car.builtin.power.PowerManagerHelper.CarSleepLock newSleepLock(android.content.Context, int, String) throws RuntimeException;
     method public static android.os.PowerManager.WakeLock newWakeLock(android.content.Context, int, String, int);
     method @Deprecated public static void setDisplayState(android.content.Context, boolean, long);
     method public static void shutdown(android.content.Context, boolean, String, boolean);
@@ -552,27 +551,27 @@ package android.car.builtin.util {
 
   public final class Slogf {
     method public static int d(@NonNull String, @NonNull String);
-    method public static void d(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void d(@NonNull String, @NonNull String, @Nullable Object...);
     method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);
-    method public static void e(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+    method public static void e(@NonNull String, @NonNull Exception, @NonNull String, @Nullable Object...);
     method public static int e(@NonNull String, @NonNull String);
-    method public static void e(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void e(@NonNull String, @NonNull String, @Nullable Object...);
     method public static int e(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static int i(@NonNull String, @NonNull String);
-    method public static void i(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void i(@NonNull String, @NonNull String, @Nullable Object...);
     method public static int i(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static boolean isLoggable(@NonNull String, int);
     method public static int v(@NonNull String, @NonNull String);
-    method public static void v(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void v(@NonNull String, @NonNull String, @Nullable Object...);
     method public static int v(@NonNull String, @NonNull String, @NonNull Throwable);
-    method public static void w(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+    method public static void w(@NonNull String, @NonNull Exception, @NonNull String, @Nullable Object...);
     method public static int w(@NonNull String, @NonNull String);
-    method public static void w(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void w(@NonNull String, @NonNull String, @Nullable Object...);
     method public static int w(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static int w(@NonNull String, @NonNull Throwable);
-    method public static void wtf(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+    method public static void wtf(@NonNull String, @NonNull Exception, @NonNull String, @Nullable Object...);
     method public static int wtf(@NonNull String, @NonNull String);
-    method public static void wtf(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void wtf(@NonNull String, @NonNull String, @Nullable Object...);
     method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static int wtf(@NonNull String, @NonNull Throwable);
   }
