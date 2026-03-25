@@ -25,8 +25,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <android_car_feature.h>
-
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
@@ -47,9 +45,6 @@ public:
 class CompatHalCameraTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        if (!android::car::feature::car_evs_compat_lib()) {
-            GTEST_SKIP() << "car_evs_compat_lib feature is not enabled.";
-        }
         auto mockCameraManager = std::make_unique<MockCameraManager>();
         mMockCameraManager = mockCameraManager.get();
 

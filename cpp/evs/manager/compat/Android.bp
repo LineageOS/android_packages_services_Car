@@ -27,7 +27,6 @@ filegroup {
 cc_library_static {
     name: "libevs_compat",
     defaults: [
-        "aconfig_lib_cc_shared_link.defaults",
         "android.hardware.graphics.common-ndk_static",
     ],
     cflags: [
@@ -41,7 +40,6 @@ cc_library_static {
         ":evs_compat_sources",
     ],
     static_libs: [
-        "android.car.feature-aconfig-cpp",
         "android.hardware.automotive.evs-V2-ndk",
         "android.hardware.common-V2-ndk",
         "libaidlcommonsupport",
