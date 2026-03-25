@@ -1,6 +1,5 @@
 // Signature format: 6.0
 // - style=java
-// - overloaded-method-order=source
 // - strip-java-lang-prefix=legacy
 package android.car {
 
@@ -13,15 +12,15 @@ package android.car {
 
   public final class Car {
     method @Deprecated public void connect() throws java.lang.IllegalStateException;
-    method @Deprecated public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, @Nullable android.os.Handler);
-    method @Deprecated public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
     method @Nullable public static android.car.Car createCar(android.content.Context);
+    method @Deprecated public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
+    method @Deprecated public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, @Nullable android.os.Handler);
     method @Nullable public static android.car.Car createCar(android.content.Context, @Nullable android.os.Handler);
     method @NonNull public static android.car.Car createCar(@NonNull android.content.Context, @Nullable android.os.Handler, long, @NonNull android.car.Car.CarServiceLifecycleListener);
     method public void disconnect();
     method @Deprecated public int getCarConnectionType();
-    method @Nullable public Object getCarManager(String);
     method @Nullable public <T> T getCarManager(@NonNull Class<T>);
+    method @Nullable public Object getCarManager(String);
     method @Deprecated @NonNull public static android.car.CarVersion getCarVersion();
     method @Deprecated @NonNull public static android.car.PlatformVersion getPlatformVersion();
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int);
@@ -128,12 +127,12 @@ package android.car {
   }
 
   public final class CarAppFocusManager {
-    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int);
     method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback);
+    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int);
     method public void addFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int);
     method public boolean isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int);
-    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int);
     method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener);
+    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int);
     method public int requestAppFocus(int, android.car.CarAppFocusManager.OnAppFocusOwnershipCallback);
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
     field public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1; // 0x1
@@ -167,9 +166,9 @@ package android.car {
 
   @Deprecated public class CarNotConnectedException extends java.lang.RuntimeException {
     ctor @Deprecated public CarNotConnectedException();
+    ctor @Deprecated public CarNotConnectedException(Exception);
     ctor @Deprecated public CarNotConnectedException(String);
     ctor @Deprecated public CarNotConnectedException(String, Throwable);
-    ctor @Deprecated public CarNotConnectedException(Exception);
   }
 
   public class CarOccupantZoneManager {
@@ -722,11 +721,11 @@ package android.car.hardware {
     method public int getChangeMode();
     method @NonNull public java.util.List<java.lang.Integer> getConfigArray();
     method public float getMaxSampleRate();
-    method @Deprecated @Nullable public T getMaxValue(int);
     method @Deprecated @Nullable public T getMaxValue();
+    method @Deprecated @Nullable public T getMaxValue(int);
     method public float getMinSampleRate();
-    method @Deprecated @Nullable public T getMinValue(int);
     method @Deprecated @Nullable public T getMinValue();
+    method @Deprecated @Nullable public T getMinValue(int);
     method public int getPropertyId();
     method @NonNull public Class<T> getPropertyType();
     method public boolean isGlobalProperty();
@@ -946,24 +945,24 @@ package android.car.hardware.property {
     method @NonNull public int[] getIntArrayProperty(int, int);
     method public int getIntProperty(int, int);
     method @FlaggedApi("android.car.feature.car_property_supported_value") @NonNull public <T> android.car.hardware.property.MinMaxSupportedValue<T> getMinMaxSupportedValue(int, int);
-    method public void getPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.GetPropertyRequest>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.GetPropertyCallback);
     method public void getPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.GetPropertyRequest>, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.GetPropertyCallback);
-    method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(@NonNull Class<E>, int, int);
+    method public void getPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.GetPropertyRequest>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.GetPropertyCallback);
     method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(int, int);
+    method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(@NonNull Class<E>, int, int);
     method @NonNull public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
     method @NonNull public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList(@NonNull android.util.ArraySet<java.lang.Integer>);
     method @FlaggedApi("android.car.feature.car_property_supported_value") @Nullable public <T> java.util.List<T> getSupportedValuesList(int, int);
     method public boolean isPropertyAvailable(int, int);
     method @Deprecated public boolean registerCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int, @FloatRange(from=0.0, to=100.0) float);
     method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
-    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, @NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
     method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, int, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
     method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, int, @NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, @NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
     method public void setBooleanProperty(int, int, boolean);
     method public void setFloatProperty(int, int, float);
     method public void setIntProperty(int, int, int);
-    method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
     method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
+    method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
     method public <E> void setProperty(@NonNull Class<E>, int, int, @NonNull E);
     method @FlaggedApi("android.car.feature.variable_update_rate") public boolean subscribePropertyEvents(int, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method @FlaggedApi("android.car.feature.variable_update_rate") public boolean subscribePropertyEvents(int, @FloatRange(from=0.0, to=100.0) float, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);

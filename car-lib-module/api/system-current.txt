@@ -1,6 +1,5 @@
 // Signature format: 6.0
 // - style=java
-// - overloaded-method-order=source
 // - strip-java-lang-prefix=legacy
 // - type-argument-spacing=legacy
 package android.car {
@@ -176,8 +175,8 @@ package android.car {
   public abstract static class CarProjectionManager.ProjectionAccessPointCallback {
     ctor public CarProjectionManager.ProjectionAccessPointCallback();
     method public void onFailed(int);
-    method @Deprecated public void onStarted(@Nullable android.net.wifi.WifiConfiguration);
     method public void onStarted(@NonNull android.net.wifi.SoftApConfiguration);
+    method @Deprecated public void onStarted(@Nullable android.net.wifi.WifiConfiguration);
     method public void onStopped();
     field public static final int ERROR_GENERIC = 2; // 0x2
     field public static final int ERROR_INCOMPATIBLE_MODE = 3; // 0x3
@@ -502,8 +501,8 @@ package android.car.cluster.renderer {
 package android.car.content.pm {
 
   public final class AppBlockingPackageInfo implements android.os.Parcelable {
-    ctor public AppBlockingPackageInfo(String, int, int, int, @Nullable android.content.pm.Signature[], @Nullable String[]);
     ctor public AppBlockingPackageInfo(android.os.Parcel);
+    ctor public AppBlockingPackageInfo(String, int, int, int, @Nullable android.content.pm.Signature[], @Nullable String[]);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.content.pm.AppBlockingPackageInfo> CREATOR;
@@ -555,14 +554,14 @@ package android.car.diagnostic {
     method @android.car.diagnostic.CarDiagnosticEvent.FuelType.Type @Nullable public Integer getFuelType();
     method @Nullable public android.car.diagnostic.CarDiagnosticEvent.CommonIgnitionMonitors getIgnitionMonitors();
     method @android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.Status @Nullable public Integer getSecondaryAirStatus();
-    method public float getSystemFloatSensor(int, float);
     method @Nullable public Float getSystemFloatSensor(int);
-    method public int getSystemIntegerSensor(int, int);
+    method public float getSystemFloatSensor(int, float);
     method @Nullable public Integer getSystemIntegerSensor(int);
-    method public float getVendorFloatSensor(int, float);
+    method public int getSystemIntegerSensor(int, int);
     method @Nullable public Float getVendorFloatSensor(int);
-    method public int getVendorIntegerSensor(int, int);
+    method public float getVendorFloatSensor(int, float);
     method @Nullable public Integer getVendorIntegerSensor(int);
+    method public int getVendorIntegerSensor(int, int);
     method public boolean isFreezeFrame();
     method public boolean isLiveFrame();
     method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
@@ -852,8 +851,8 @@ package android.car.drivingstate {
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public String getRestrictionMode();
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration> getStagedConfigs();
     method public void onCarDisconnected();
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean saveUxRestrictionsConfigurationForNextBoot(@NonNull java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration>);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean saveUxRestrictionsConfigurationForNextBoot(@NonNull android.car.drivingstate.CarUxRestrictionsConfiguration);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean saveUxRestrictionsConfigurationForNextBoot(@NonNull java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration>);
     method @Deprecated public void setListener(int, @NonNull android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean setRestrictionMode(@NonNull String);
     field public static final String UX_RESTRICTION_MODE_BASELINE = "baseline";
@@ -1452,8 +1451,8 @@ package android.car.media {
   }
 
   public static final class CarVolumeGroupInfo.Builder {
-    ctor public CarVolumeGroupInfo.Builder(@NonNull String, int, int);
     ctor public CarVolumeGroupInfo.Builder(@NonNull android.car.media.CarVolumeGroupInfo);
+    ctor public CarVolumeGroupInfo.Builder(@NonNull String, int, int);
     method @NonNull public android.car.media.CarVolumeGroupInfo build();
     method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setActiveExtraInfos(@NonNull java.util.List<java.lang.Integer>);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
@@ -1568,8 +1567,8 @@ package android.car.occupantconnection {
   }
 
   public final class Payload implements java.io.Closeable android.os.Parcelable {
-    ctor public Payload(@NonNull byte[]);
     ctor public Payload(@NonNull android.os.IBinder);
+    ctor public Payload(@NonNull byte[]);
     method public void close();
     method public int describeContents();
     method public void deserialize(@NonNull android.os.Parcel);
@@ -1943,8 +1942,8 @@ package android.car.storagemonitoring {
   }
 
   @Deprecated public final class IoStats implements android.os.Parcelable {
-    ctor @Deprecated public IoStats(java.util.List<android.car.storagemonitoring.IoStatsEntry>, long);
     ctor @Deprecated public IoStats(android.os.Parcel);
+    ctor @Deprecated public IoStats(java.util.List<android.car.storagemonitoring.IoStatsEntry>, long);
     method @Deprecated public int describeContents();
     method @Deprecated public android.car.storagemonitoring.IoStatsEntry.Metrics getBackgroundTotals();
     method @Deprecated public android.car.storagemonitoring.IoStatsEntry.Metrics getForegroundTotals();
@@ -1957,9 +1956,9 @@ package android.car.storagemonitoring {
   }
 
   @Deprecated public final class IoStatsEntry implements android.os.Parcelable {
-    ctor @Deprecated public IoStatsEntry(int, long, android.car.storagemonitoring.IoStatsEntry.Metrics, android.car.storagemonitoring.IoStatsEntry.Metrics);
-    ctor @Deprecated public IoStatsEntry(android.os.Parcel);
     ctor @Deprecated public IoStatsEntry(android.car.storagemonitoring.UidIoRecord, long);
+    ctor @Deprecated public IoStatsEntry(android.os.Parcel);
+    ctor @Deprecated public IoStatsEntry(int, long, android.car.storagemonitoring.IoStatsEntry.Metrics, android.car.storagemonitoring.IoStatsEntry.Metrics);
     method @Deprecated public int describeContents();
     method @Deprecated public void writeToParcel(android.os.Parcel, int);
     field @Deprecated public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStatsEntry> CREATOR;
@@ -1970,8 +1969,8 @@ package android.car.storagemonitoring {
   }
 
   @Deprecated public static final class IoStatsEntry.Metrics implements android.os.Parcelable {
-    ctor @Deprecated public IoStatsEntry.Metrics(long, long, long, long, long);
     ctor @Deprecated public IoStatsEntry.Metrics(android.os.Parcel);
+    ctor @Deprecated public IoStatsEntry.Metrics(long, long, long, long, long);
     method @Deprecated public int describeContents();
     method @Deprecated public void writeToParcel(android.os.Parcel, int);
     field @Deprecated public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStatsEntry.Metrics> CREATOR;
@@ -1983,8 +1982,8 @@ package android.car.storagemonitoring {
   }
 
   public final class LifetimeWriteInfo implements android.os.Parcelable {
-    ctor public LifetimeWriteInfo(String, String, long);
     ctor public LifetimeWriteInfo(android.os.Parcel);
+    ctor public LifetimeWriteInfo(String, String, long);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.LifetimeWriteInfo> CREATOR;
@@ -2009,8 +2008,8 @@ package android.car.storagemonitoring {
   }
 
   public final class WearEstimate implements android.os.Parcelable {
-    ctor public WearEstimate(int, int);
     ctor public WearEstimate(android.os.Parcel);
+    ctor public WearEstimate(int, int);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.WearEstimate> CREATOR;
@@ -2243,8 +2242,8 @@ package android.car.user {
   public final class UserStopResponse implements android.os.Parcelable {
     method public int describeContents();
     method public int getStatus();
-    method public static boolean isSuccess(int);
     method public boolean isSuccess();
+    method public static boolean isSuccess(int);
     method @NonNull public static String statusToString(int);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserStopResponse> CREATOR;
@@ -2329,8 +2328,8 @@ package android.car.vms {
   }
 
   public final class VmsAvailableLayers implements android.os.Parcelable {
-    ctor @Deprecated public VmsAvailableLayers(@NonNull java.util.Set<android.car.vms.VmsAssociatedLayer>, int);
     ctor public VmsAvailableLayers(int, @NonNull java.util.Set<android.car.vms.VmsAssociatedLayer>);
+    ctor @Deprecated public VmsAvailableLayers(@NonNull java.util.Set<android.car.vms.VmsAssociatedLayer>, int);
     method public int describeContents();
     method @NonNull public java.util.Set<android.car.vms.VmsAssociatedLayer> getAssociatedLayers();
     method @Deprecated public int getSequence();
