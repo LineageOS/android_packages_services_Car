@@ -1,7 +1,6 @@
 // Signature format: 6.0
 // - style=java
 // - normalize-abstract-modifier=no
-// - type-argument-spacing=legacy
 package android.car {
 
   public final class Car {
@@ -227,7 +226,7 @@ package android.car.util.concurrent {
   public interface AsyncFuture<T> {
     method @Nullable public T get() throws java.util.concurrent.ExecutionException, InterruptedException;
     method @Nullable public T get(long, @NonNull java.util.concurrent.TimeUnit) throws java.util.concurrent.ExecutionException, InterruptedException, java.util.concurrent.TimeoutException;
-    method @NonNull public android.car.util.concurrent.AsyncFuture<T> whenCompleteAsync(@NonNull java.util.function.BiConsumer<? super T,? super Throwable>, @NonNull java.util.concurrent.Executor);
+    method @NonNull public android.car.util.concurrent.AsyncFuture<T> whenCompleteAsync(@NonNull java.util.function.BiConsumer<? super T, ? super Throwable>, @NonNull java.util.concurrent.Executor);
   }
 
 }
