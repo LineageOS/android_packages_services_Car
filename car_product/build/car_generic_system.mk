@@ -44,6 +44,11 @@ PRODUCT_PACKAGES_DEBUG += \
     SampleCustomInputService \
     SampleRearViewService \
 
+# Increase the hardware timeout multiplier for automotive devices.
+# This property serves as a reference value for CTS tests to scale their
+# timeouts, accounting for the slower performance of car hardware.
+PRODUCT_PRODUCT_PROPERTIES += ro.hw_timeout_multiplier=2
+
 # Default boot animation for AAOS
 PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/bootanimations/bootanimation-832.zip:$(TARGET_COPY_OUT_SYSTEM)/media/bootanimation.zip
