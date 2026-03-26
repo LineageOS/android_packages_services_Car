@@ -29,6 +29,7 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.SurfaceControl;
+import android.window.WindowContainerToken;
 
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -82,6 +83,11 @@ public class AutoTaskRepository {
     private boolean mIsCarReady = false;
 
     private final SparseArray<RootTaskStack> mPendingRootTasks = new SparseArray<>();
+
+    /**
+     * Map of displayId to barrier task token
+     */
+    private final SparseArray<WindowContainerToken> mDisplayToBarrierToken = new SparseArray<>();
 
     @Inject
     AutoTaskRepository(Context context, ShellTaskOrganizer shellTaskOrganizer) {
@@ -166,6 +172,27 @@ public class AutoTaskRepository {
         // TODO(b/400851144): handle Car Service crash if required
         mPendingTasks.clear();
         mPendingRootTasks.clear();
+    }
+
+    /**
+     * Returns the barrier token for the given displayId.
+     */
+    public WindowContainerToken getBarrierToken(int displayId) {
+        return mDisplayToBarrierToken.get(displayId);
+    }
+
+    /**
+     * Sets the barrier token for the given displayId.
+     */
+    public void setBarrierToken(int displayId, WindowContainerToken token) {
+        mDisplayToBarrierToken.put(displayId, token);
+    }
+
+    /**
+     * Removes the barrier token for the given displayId.
+     */
+    public void removeBarrierToken(int displayId) {
+        mDisplayToBarrierToken.remove(displayId);
     }
 
     SurfaceControl getSurfaceControl(ActivityManager.RunningTaskInfo taskInfo) {

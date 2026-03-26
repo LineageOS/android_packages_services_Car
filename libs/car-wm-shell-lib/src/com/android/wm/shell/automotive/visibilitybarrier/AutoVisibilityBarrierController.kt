@@ -23,6 +23,7 @@ import android.window.WindowContainerTransaction
 import com.android.internal.protolog.ProtoLog
 import com.android.wm.shell.ShellTaskOrganizer
 import com.android.wm.shell.automotive.AutoShellInitializable
+import com.android.wm.shell.automotive.AutoTaskRepository
 import com.android.wm.shell.automotive.CarWmShellProtoLogGroups.CAR_WM_SHELL_VISIBILITY_BARRIER
 import com.android.wm.shell.automotive.Flags
 import com.android.wm.shell.common.DisplayController
@@ -45,10 +46,9 @@ import javax.inject.Inject
 class AutoVisibilityBarrierController @Inject constructor(
     private val taskOrganizer: ShellTaskOrganizer,
     private val displayController: DisplayController,
+    private val autoTaskRepository: AutoTaskRepository,
     @ShellMainThread private val shellMainThread: ShellExecutor
 ) : DisplayController.OnDisplaysChangedListener, AutoShellInitializable {
-    // Map of displayId to barrier task info
-    private val barriers = mutableMapOf<Int, ActivityManager.RunningTaskInfo>()
 
     // Listener for the Barrier Tasks created by this controller
     private val barrierTaskListener = object : ShellTaskOrganizer.TaskListener {
@@ -59,7 +59,7 @@ class AutoVisibilityBarrierController @Inject constructor(
                     "Visibility barrier task vanished for display %d",
                     taskInfo.displayId
                 )
-                barriers.remove(taskInfo.displayId)
+                autoTaskRepository.removeBarrierToken(taskInfo.displayId)
             }
         }
     }
@@ -82,19 +82,20 @@ class AutoVisibilityBarrierController @Inject constructor(
         shellMainThread.execute {
             // Explicitly delete the task to ensure it's never migrated to another display for the
             // same user.
-            barriers.remove(displayId)?.let { info ->
+            autoTaskRepository.getBarrierToken(displayId)?.let { token ->
                 ProtoLog.i(
                     CAR_WM_SHELL_VISIBILITY_BARRIER,
                     "Deleting visibility barrier for removed display %d",
                     displayId
                 )
-                taskOrganizer.deleteTask(info.token)
+                taskOrganizer.deleteTask(token)
+                autoTaskRepository.removeBarrierToken(displayId)
             }
         }
     }
 
     private fun createBarrierForDisplay(displayId: Int) {
-        if (barriers.containsKey(displayId)) {
+        if (autoTaskRepository.getBarrierToken(displayId) != null) {
             ProtoLog.e(
                 CAR_WM_SHELL_VISIBILITY_BARRIER,
                 "Barrier already exists for display %d. Skipping creation.",
@@ -117,7 +118,7 @@ class AutoVisibilityBarrierController @Inject constructor(
         val taskAppearedInfo = taskOrganizer.createTask(params, barrierTaskListener)
         if (taskAppearedInfo != null) {
             val taskInfo = taskAppearedInfo.taskInfo
-            barriers[displayId] = taskInfo
+            autoTaskRepository.setBarrierToken(displayId, taskInfo.token)
             ProtoLog.i(
                 CAR_WM_SHELL_VISIBILITY_BARRIER,
                 "Visibility barrier task created for display %d, taskId %d",
@@ -143,9 +144,4 @@ class AutoVisibilityBarrierController @Inject constructor(
         wct.setTaskTrimmableFromRecents(token, false /* isTrimmableFromRecents */)
         taskOrganizer.applyTransaction(wct)
     }
-
-    /**
-     * Returns the [WindowContainerToken] of the visibility barrier for the given [displayId].
-     */
-    fun getBarrierToken(displayId: Int): WindowContainerToken? = barriers[displayId]?.token
 }
