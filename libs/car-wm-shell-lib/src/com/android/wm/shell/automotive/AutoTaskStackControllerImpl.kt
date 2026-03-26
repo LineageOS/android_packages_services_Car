@@ -723,7 +723,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
         if (ast == null) {
             ProtoLog.v(
                 CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                "A transition %s not being handled by Delegate. CarWmShell will take control",
+                "A transition %d not being handled by Delegate. CarWmShell will take control",
                 request.debugId
             )
             ast = AutoTaskStackTransaction()
