@@ -387,6 +387,7 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.car.activityresolver">
+        <install-in user-type="SYSTEM" />
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.cellbroadcastreceiver">
@@ -480,6 +481,10 @@
     </install-in-user-type>
     <!-- Test app for display compat (DisplayCompatIntentApp) -->
     <install-in-user-type package="com.android.car.displaycompat.intent">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <!-- Overlays documentsui with car components (CarDocumentsUIRRO) -->
+    <install-in-user-type package="com.android.car.documentsui">
         <install-in user-type="FULL" />
     </install-in-user-type>
 

@@ -65,6 +65,36 @@ public class SampleRearViewActivity extends Activity {
     private View mRootView;
     private static final long RECREATE_DELAY_MS = 100;
 
+    /**
+     * Initiates the creation of a {@link CameraCaptureSession}.
+     */
+    private void startCaptureSession() {
+        if (mCameraDevice == null) {
+            Log.e(TAG, "Ignoring startCaptureSession: camera device is null.");
+            return;
+        }
+
+        try {
+            Log.d(TAG, "Creating capture session");
+            mCaptureRequestBuilder =
+                    mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            mCaptureRequestBuilder.addTarget(mSurfaceView.getHolder().getSurface());
+            List<OutputConfiguration> outputs = new ArrayList<>();
+            outputs.add(new OutputConfiguration(mSurfaceView.getHolder().getSurface()));
+            SessionConfiguration sessionConfig =
+                    new SessionConfiguration(
+                            SessionConfiguration.SESSION_REGULAR,
+                            outputs,
+                            new HandlerExecutor(mHandler),
+                            mCameraSessionListener);
+            CaptureRequest request = mCaptureRequestBuilder.build();
+            sessionConfig.setSessionParameters(request);
+            mCameraDevice.createCaptureSession(sessionConfig);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to start capture session.", e);
+        }
+    }
+
     private DisplayManager mDisplayManager;
     private boolean mPreviewRunning = false;
     private final DisplayManager.DisplayListener mDisplayListener =
@@ -351,27 +381,7 @@ public class SampleRearViewActivity extends Activity {
         @Override
         public void onOpened(CameraDevice camera) {
             mCameraDevice = camera;
-            try {
-                mCaptureRequestBuilder =
-                        mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-                mCaptureRequestBuilder.addTarget(mSurfaceView.getHolder().getSurface());
-                List<OutputConfiguration> outputs = new ArrayList<>();
-                outputs.add(new OutputConfiguration(mSurfaceView.getHolder().getSurface()));
-                SessionConfiguration sessionConfig =
-                        new SessionConfiguration(
-                                SessionConfiguration.SESSION_REGULAR,
-                                outputs,
-                                new HandlerExecutor(mHandler),
-                                mCameraSessionListener);
-                CaptureRequest request = mCaptureRequestBuilder.build();
-                sessionConfig.setSessionParameters(request);
-                mCameraDevice.createCaptureSession(sessionConfig);
-
-            } catch (CameraAccessException e) {
-                Log.e(TAG, "Failed to start capture session. Got CameraAccessException.");
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "Failed to start capture session. Got IllegalStateException.");
-            }
+            startCaptureSession();
         }
 
         @Override

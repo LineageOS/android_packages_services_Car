@@ -24,8 +24,6 @@
 #include <gtest/gtest.h>
 #include <system/camera_metadata.h>
 
-#include <android_car_feature.h>
-
 using ::testing::_;
 using ::testing::Return;
 using ::testing::SetArgPointee;
@@ -37,9 +35,6 @@ using ::aidl::android::hardware::automotive::evs::CameraDesc;
 class CompatEnumeratorTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        if (!android::car::feature::car_evs_compat_lib()) {
-            GTEST_SKIP() << "car_evs_compat_lib feature is not enabled.";
-        }
         auto mockCameraManager = std::make_unique<MockCameraManager>();
         // Keep a raw pointer to the mock for setting expectations
         mMockCameraManager = mockCameraManager.get();
