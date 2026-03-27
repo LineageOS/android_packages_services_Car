@@ -23,6 +23,13 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_default.mk)
 # Add adb keys to debuggable AOSP builds (if they exist)
 $(call inherit-product-if-exists, vendor/google/security/adb/vendor_key.mk)
 
+# Enable headless system user mode
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.fw.mu.headless_system_user?=true
+
+# Variable for elsewhere choosing the appropriate products based on HSUM status.
+PRODUCT_USE_HSUM?=true
+
 ifneq ($(TARGET_NO_TELEPHONY), true)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/telephony_system.mk)
 endif
