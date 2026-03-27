@@ -17,6 +17,9 @@
 package com.android.car.wifi;
 
 import static android.car.settings.CarSettings.Global.ENABLE_PERSISTENT_TETHERING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.net.TetheringManager.TETHERING_WIFI;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
@@ -30,6 +33,8 @@ import android.car.feature.FeatureFlags;
 import android.car.feature.FeatureFlagsImpl;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.car.wifi.ICarWifi;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -68,7 +73,6 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
     private final Object mLock = new Object();
     private final Context mContext;
     private final boolean mIsPersistTetheringCapabilitiesEnabled;
-    private final boolean mIsPersistTetheringSettingEnabled;
     private final WifiManager mWifiManager;
     private final TetheringManager mTetheringManager;
     private final CarPowerManagementService mCarPowerManagementService;
@@ -78,6 +82,52 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
             mHandlerThreadName);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
+
+    private final UserLifecycleListener mUserLifeCycleListener =
+            event -> {
+                Slogf.i(
+                        TAG,
+                        "UserLifecycleEvent received. Type: %d, User: %d",
+                        event.getEventType(),
+                        event.getUserId());
+                if (event.getUserHandle().isSystem()) {
+                    return;
+                }
+
+                // This logic manages the mIsHandlingUserSwitchOrStop flag to prevent
+                // SoftApCallbacks from modifying the persisted hotspot state during a user switch.
+                // Android 17+ tears down Wi-Fi/SoftAP interfaces during user transitions
+                // (b/390257834).
+                // We want to ignore the temporary WIFI_AP_STATE_DISABLED event caused by this
+                // teardown.
+                switch (event.getEventType()) {
+                    case USER_LIFECYCLE_EVENT_TYPE_STOPPED, USER_LIFECYCLE_EVENT_TYPE_SWITCHING -> {
+                        // Set the flag when a user switch is starting or an old user is stopping.
+                        // This indicates that any imminent SoftAP state changes are
+                        // system-initiated
+                        // and not reflective of the desired persistent state.
+                        Slogf.d(TAG, "User switch/stop detected, ignoring SoftAP state changes.");
+                        synchronized (mLock) {
+                            mIsHandlingUserSwitchOrStop = true;
+                        }
+                    }
+                    case USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED -> {
+                        // The new user is now unlocked and the system's user switch-related
+                        // Wi-Fi reset should be complete. Clear the flag to resume normal
+                        // SoftAP state monitoring.
+                        Slogf.d(TAG, "User POST_UNLOCKED, resuming SoftAP state handling.");
+                        synchronized (mLock) {
+                            mIsHandlingUserSwitchOrStop = false;
+                        }
+
+                        // Attempt to restore the hotspot to its desired state for the new session.
+                        startTethering();
+                    }
+                    default -> {
+                        // Other events are not relevant to this specific state handling.
+                    }
+                }
+            };
 
     private final ICarPowerStateListener mCarPowerStateListener =
             new ICarPowerStateListener.Stub() {
@@ -93,6 +143,15 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
             new SoftApCallback() {
                 @Override
                 public void onStateChanged(int state, int failureReason) {
+                    synchronized (mLock) {
+                        // If a user switch/stop is in progress, ignore callbacks.
+                        // This prevents the temporary disabling of the AP by the system
+                        // from overwriting the desired persisted state in SharedPreferences.
+                        if (mIsHandlingUserSwitchOrStop) {
+                            return;
+                        }
+                    }
+
                     switch (state) {
                         case WIFI_AP_STATE_ENABLED -> {
                             Slogf.i(TAG, "AP enabled successfully");
@@ -113,7 +172,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                             // If the setting is enabled, tethering sessions should remain on even
                             // if no devices are connected to it.
                             if (mIsPersistTetheringCapabilitiesEnabled
-                                    && mIsPersistTetheringSettingEnabled) {
+                                    && isPersistTetheringSettingEnabled()) {
                                 setSoftApAutoShutdownEnabled(/* enable= */ false);
                             }
                         }
@@ -137,8 +196,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                             // FAILED state can occur during enabling OR disabling, should keep
                             // previous setting within store.
                         }
-                        default -> {
-                        }
+                        default -> Slogf.i(TAG, "WIFI_AP_STATE received: %d", state);
                     }
                 }
             };
@@ -147,28 +205,25 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
             new ContentObserver(mHandler) {
                 @Override
                 public void onChange(boolean selfChange) {
-                    Slogf.i(TAG, "%s setting has changed", ENABLE_PERSISTENT_TETHERING);
                     // If the persist tethering setting is turned off, auto shutdown must be
                     // re-enabled.
-                    boolean persistTetheringSettingEnabled =
-                            TextUtils.equals("true",
-                                    Settings.Global.getString(mContext.getContentResolver(),
-                                            ENABLE_PERSISTENT_TETHERING));
-                    setSoftApAutoShutdownEnabled(!persistTetheringSettingEnabled);
+                    setSoftApAutoShutdownEnabled(!isPersistTetheringSettingEnabled());
                 }
             };
 
     @GuardedBy("mLock")
     private SharedPreferences mSharedPreferences;
 
+    // Flag to indicate that a user switch or stop event is being processed.
+    // While true, SoftAP state changes are ignored to prevent the system's
+    // temporary AP disabling from affecting the persisted state.
+    @GuardedBy("mLock")
+    private boolean mIsHandlingUserSwitchOrStop = false;
+
     public CarWifiService(Context context) {
         mContext = context;
         mIsPersistTetheringCapabilitiesEnabled = context.getResources().getBoolean(
                 R.bool.config_enablePersistTetheringCapabilities);
-        mIsPersistTetheringSettingEnabled = TextUtils.equals(
-                "true",
-                Settings.Global.getString(context.getContentResolver(),
-                        ENABLE_PERSISTENT_TETHERING));
         mWifiManager = context.getSystemService(WifiManager.class);
         mTetheringManager = context.getSystemService(TetheringManager.class);
         mCarPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
@@ -199,6 +254,12 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         mContext.getContentResolver().registerContentObserver(Settings.Global.getUriFor(
                         ENABLE_PERSISTENT_TETHERING), /* notifyForDescendants= */ false,
                 mPersistTetheringObserver);
+        UserLifecycleEventFilter userEventFilter =
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED).build();
+        mCarUserService.addUserLifecycleListener(userEventFilter, mUserLifeCycleListener);
     }
 
     @Override
@@ -210,6 +271,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
 
         mWifiManager.unregisterSoftApCallback(mSoftApCallback);
         mCarPowerManagementService.unregisterListener(mCarPowerStateListener);
+        mCarUserService.removeUserLifecycleListener(mUserLifeCycleListener);
         mContext.getContentResolver().unregisterContentObserver(mPersistTetheringObserver);
     }
 
@@ -219,7 +281,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         proto.write(CarWifiDumpProto.PERSIST_TETHERING_CAPABILITIES_ENABLED,
                 mIsPersistTetheringCapabilitiesEnabled);
         proto.write(CarWifiDumpProto.PERSIST_TETHERING_SETTING_ENABLED,
-                mIsPersistTetheringSettingEnabled);
+                isPersistTetheringSettingEnabled());
         if (mWifiManager != null) {
             proto.write(CarWifiDumpProto.TETHERING_ENABLED, mWifiManager.isWifiApEnabled());
             proto.write(CarWifiDumpProto.AUTO_SHUTDOWN_ENABLED,
@@ -235,7 +297,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         writer.println("Persist Tethering");
         writer.println("mIsPersistTetheringCapabilitiesEnabled: "
                 + mIsPersistTetheringCapabilitiesEnabled);
-        writer.println("mIsPersistTetheringSettingEnabled: " + mIsPersistTetheringSettingEnabled);
+        writer.println("mIsPersistTetheringSettingEnabled: " + isPersistTetheringSettingEnabled());
         if (mWifiManager != null) {
             writer.println("Tethering enabled: " + mWifiManager.isWifiApEnabled());
             writer.println("Auto shutdown enabled: "
@@ -257,7 +319,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
      * Should only be called given that the SharedPreferences store is properly initialized.
      */
     private void startTethering() {
-        if (!mIsPersistTetheringCapabilitiesEnabled || !mIsPersistTetheringSettingEnabled) {
+        if (!mIsPersistTetheringCapabilitiesEnabled || !isPersistTetheringSettingEnabled()) {
             return;
         }
 
@@ -276,11 +338,17 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         mTetheringManager.startTethering(TETHERING_WIFI, mHandler::post,
                 new StartTetheringCallback() {
                     @Override
+                    public void onTetheringStarted() {
+                        Slogf.i(TAG, "Tethering has been successfully started");
+                    }
+
+                    @Override
                     public void onTetheringFailed(int error) {
                         Slogf.e(TAG, "Starting tethering failed: %d", error);
                     }
                 });
     }
+
     private void onStateOn() {
         synchronized (mLock) {
             if (mSharedPreferences == null) {
@@ -301,10 +369,6 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
             mSharedPreferences = mContext.getSharedPreferences(SHARED_PREF_NAME,
                     Context.MODE_PRIVATE);
         }
-
-        if (mCarPowerManagementService.getPowerState() == CarPowerManager.STATE_ON) {
-            startTethering();
-        }
     }
 
     private void setSoftApAutoShutdownEnabled(boolean enable) {
@@ -313,5 +377,12 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                 .setAutoShutdownEnabled(enable)
                 .build();
         mWifiManager.setSoftApConfiguration(config);
+    }
+
+    private boolean isPersistTetheringSettingEnabled() {
+        return TextUtils.equals(
+                "true",
+                Settings.Global.getString(mContext.getContentResolver(),
+                        ENABLE_PERSISTENT_TETHERING));
     }
 }
