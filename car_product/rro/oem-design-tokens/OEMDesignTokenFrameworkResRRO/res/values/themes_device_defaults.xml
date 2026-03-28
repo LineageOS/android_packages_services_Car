@@ -182,7 +182,6 @@
         <item name="oemColorNeutralPalette20">@color/color_neutral_palette_20</item>
         <item name="oemColorNeutralPalette10">@color/color_neutral_palette_10</item>
         <item name="oemColorNeutralPalette0">@color/color_neutral_palette_0</item>
-
         <item name="oemColorNeutralVariantPalette100">@color/color_neutral_variant_palette_100</item>
         <item name="oemColorNeutralVariantPalette99">@color/color_neutral_variant_palette_99</item>
         <item name="oemColorNeutralVariantPalette95">@color/color_neutral_variant_palette_95</item>

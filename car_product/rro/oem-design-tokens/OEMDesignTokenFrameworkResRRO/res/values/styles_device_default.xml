@@ -43,6 +43,12 @@
     <style name="DialogWindowTitle.DeviceDefault" parent="*android:DialogWindowTitle.Material">
         <item name="android:textAppearance">?oemTextAppearanceBodyLarge</item>
     </style>
+
+    <style name="TextAppearance.DeviceDefault.DialogWindowTitle" parent="android:TextAppearance.DeviceDefault.Large">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
     <style name="TextAppearance.Material.DialogWindowTitle" parent="android:TextAppearance.Material.Title" />
     <style name="TextAppearance.Material.Title" parent="android:TextAppearance.Material">
         <item name="android:textSize">@*android:dimen/text_size_title_material</item>
