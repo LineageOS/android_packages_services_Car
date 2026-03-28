@@ -17,7 +17,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="?attr/oemColorGreen" />
+            <solid android:color="?attr/oemColorSecondaryContainer" />
             <corners android:radius="@dimen/dialer_keypad_button_corner_radius" />
         </shape>
     </item>

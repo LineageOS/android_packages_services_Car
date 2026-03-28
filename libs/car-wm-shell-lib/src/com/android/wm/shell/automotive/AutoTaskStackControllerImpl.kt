@@ -658,6 +658,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
         return action == Intent.ACTION_MAIN && categories?.contains(Intent.CATEGORY_HOME) == true
     }
 
+    private fun isBarrierTask(taskInfo: ActivityManager.RunningTaskInfo): Boolean {
+        val barrierToken = autoTaskRepository.getBarrierToken(taskInfo.displayId)
+        return barrierToken != null && barrierToken == taskInfo.token
+    }
+
     override fun handleRequest(
         transition: IBinder,
         request: TransitionRequestInfo
@@ -752,7 +757,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 request.triggerTask != null &&
                 request.triggerTask?.parentTaskId == INVALID_TASK_ID &&
                 request.triggerTask?.windowingMode == WINDOWING_MODE_FULLSCREEN &&
-                !isHomeTask(request.triggerTask!!)
+                !isHomeTask(request.triggerTask!!) &&
+                !isBarrierTask(request.triggerTask!!)
 
     private fun handleRecoveryReparenting(
         triggerTask: ActivityManager.RunningTaskInfo

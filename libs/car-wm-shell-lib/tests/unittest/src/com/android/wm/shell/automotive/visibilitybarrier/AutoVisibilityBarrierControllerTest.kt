@@ -30,6 +30,7 @@ import android.window.WindowContainerTransaction
 import android.window.WindowContainerTransaction.HierarchyOp.HIERARCHY_OP_TYPE_REORDER
 import androidx.test.filters.SmallTest
 import com.android.wm.shell.ShellTaskOrganizer
+import com.android.wm.shell.automotive.AutoTaskRepository
 import com.android.wm.shell.automotive.CarWmShellTestCase
 import com.android.wm.shell.automotive.Flags
 import com.android.wm.shell.automotive.utility.TestRunningTaskInfoBuilder
@@ -42,6 +43,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -68,15 +70,36 @@ class AutoVisibilityBarrierControllerTest : CarWmShellTestCase() {
     @Mock
     private lateinit var displayController: DisplayController
 
+    @Mock
+    private lateinit var autoTaskRepository: AutoTaskRepository
+
     private val shellMainThread: ShellExecutor = TestShellExecutor()
 
     private lateinit var controller: AutoVisibilityBarrierController
 
+    private val barrierTokenMap = mutableMapOf<Int, WindowContainerToken>()
+
     @Before
     fun setUp() {
+        barrierTokenMap.clear()
+        whenever(autoTaskRepository.getBarrierToken(anyInt())).thenAnswer { invocation ->
+            barrierTokenMap[invocation.arguments[0] as Int]
+        }
+        whenever(autoTaskRepository.setBarrierToken(anyInt(), any())).thenAnswer { invocation ->
+            val displayId = invocation.arguments[0] as Int
+            val token = invocation.arguments[1] as WindowContainerToken
+            barrierTokenMap[displayId] = token
+            null
+        }
+        whenever(autoTaskRepository.removeBarrierToken(anyInt())).thenAnswer { invocation ->
+            barrierTokenMap.remove(invocation.arguments[0] as Int)
+            null
+        }
+
         controller = AutoVisibilityBarrierController(
             taskOrganizer,
             displayController,
+            autoTaskRepository,
             shellMainThread
         )
     }
@@ -125,24 +148,8 @@ class AutoVisibilityBarrierControllerTest : CarWmShellTestCase() {
 
         // Verify
         verifyVisibilityBarrierConfiguration(taskInfo.token)
-    }
-
-    @Test
-    @EnableFlags(Flags.FLAG_ENABLE_AUTO_VISIBILITY_BARRIER)
-    fun getBarrierToken_returnsCorrectToken() {
-        // Arrange
-        val taskId = 101
-        val leash = mock(SurfaceControl::class.java)
-        val taskInfo = createMockTaskInfo(DEFAULT_DISPLAY, taskId)
-        setupTaskOrganizerMock(taskInfo, leash)
-        controller.initialize()
-        controller.onDisplayAdded(DEFAULT_DISPLAY)
-
-        // Act
-        val resultToken = controller.getBarrierToken(DEFAULT_DISPLAY)
-
-        // Verify
-        assertThat(resultToken).isEqualTo(taskInfo.token)
+        verify(autoTaskRepository).setBarrierToken(DEFAULT_DISPLAY, taskInfo.token)
+        assertThat(barrierTokenMap[DEFAULT_DISPLAY]).isEqualTo(taskInfo.token)
     }
 
     @Test
@@ -161,7 +168,8 @@ class AutoVisibilityBarrierControllerTest : CarWmShellTestCase() {
 
         // Verify
         verify(taskOrganizer).deleteTask(taskInfo.token)
-        assertThat(controller.getBarrierToken(DEFAULT_DISPLAY)).isNull()
+        verify(autoTaskRepository).removeBarrierToken(DEFAULT_DISPLAY)
+        assertThat(barrierTokenMap[DEFAULT_DISPLAY]).isNull()
     }
 
     @Test
@@ -179,44 +187,22 @@ class AutoVisibilityBarrierControllerTest : CarWmShellTestCase() {
         listener.onTaskVanished(taskInfo)
 
         // Verify
-        assertThat(controller.getBarrierToken(DEFAULT_DISPLAY)).isNull()
+        verify(autoTaskRepository).removeBarrierToken(DEFAULT_DISPLAY)
+        assertThat(barrierTokenMap[DEFAULT_DISPLAY]).isNull()
     }
 
     @Test
     @EnableFlags(Flags.FLAG_ENABLE_AUTO_VISIBILITY_BARRIER)
     fun onDisplayAdded_barrierAlreadyInMap_skipsCreation() {
         // Arrange
-        val taskId = 105
-        val leash = mock(SurfaceControl::class.java)
-        val taskInfo = createMockTaskInfo(DEFAULT_DISPLAY, taskId)
-        setupTaskOrganizerMock(taskInfo, leash)
+        barrierTokenMap[DEFAULT_DISPLAY] = mock(WindowContainerToken::class.java)
         controller.initialize()
-        // First addition: creates the barrier and populates the map
-        controller.onDisplayAdded(DEFAULT_DISPLAY)
-
-        // Act: Try adding the same display again
-        controller.onDisplayAdded(DEFAULT_DISPLAY)
-
-        // Verify: createTask is NOT called a second time
-        verify(taskOrganizer, org.mockito.Mockito.times(1)).createTask(any(), any())
-    }
-
-    @Test
-    @EnableFlags(Flags.FLAG_ENABLE_AUTO_VISIBILITY_BARRIER)
-    fun createBarrier_duplicate_skipped() {
-        // Arrange
-        val taskId = 104
-        val leash = mock(SurfaceControl::class.java)
-        val taskInfo = createMockTaskInfo(DEFAULT_DISPLAY, taskId)
-        setupTaskOrganizerMock(taskInfo, leash)
-        controller.initialize()
-        controller.onDisplayAdded(DEFAULT_DISPLAY)
 
         // Act
         controller.onDisplayAdded(DEFAULT_DISPLAY)
 
-        // Verify createTask is only called once during the initial onDisplayAdded
-        verify(taskOrganizer).createTask(any(), any())
+        // Verify: createTask is NOT called
+        verify(taskOrganizer, org.mockito.Mockito.never()).createTask(any(), any())
     }
 
     @Test

@@ -1581,6 +1581,53 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         verify(startTransaction).setAlpha(appTaskLeash, 1f)
     }
 
+    @Test
+    fun handleRequest_barrierTask_doesNotReparent() {
+        // Setup a fullscreen task that looks like it needs reparenting
+        val barrierTask = TestRunningTaskInfoBuilder()
+            .setTaskId(100)
+            .setParentTaskId(INVALID_TASK_ID)
+            .setWindowingMode(WINDOWING_MODE_FULLSCREEN)
+            .setActivityType(ACTIVITY_TYPE_STANDARD)
+            .setDisplayId(DEFAULT_DISPLAY)
+            .build()
+
+        // Configure this task as a barrier in the repository
+        whenever(mAutoTaskRepository.getBarrierToken(DEFAULT_DISPLAY)).thenReturn(barrierTask.token)
+
+        // Configure a launch root task
+        setupRootTask(taskId = 200)
+        controller.setDefaultRootTaskStackOnDisplay(DEFAULT_DISPLAY, 200)
+
+        // Create an opening transition request
+        val request = TransitionRequestInfo(TRANSIT_OPEN, barrierTask, null)
+
+        // Act
+        val wct = controller.handleRequest(Binder(), request)
+
+        // Assert
+        assertThat(wct).isNotNull()
+        assertWctHasNoReparent(wct!!, barrierTask.token)
+    }
+
+    /**
+     * Asserts that the given [WindowContainerTransaction] does NOT contain a reparent operation
+     * for the [task].
+     */
+    private fun assertWctHasNoReparent(
+        wct: WindowContainerTransaction,
+        task: WindowContainerToken
+    ) {
+        val hierarchyOps = wct.hierarchyOps
+        val hasReparent = hierarchyOps.any { op ->
+            op.type == HIERARCHY_OP_TYPE_REPARENT &&
+                    op.container == task.asBinder()
+        }
+        assertWithMessage(
+            "WCT should NOT contain a reparent operation for task $task"
+        ).that(hasReparent).isFalse()
+    }
+
     /**
      * Asserts that the given [WindowContainerTransaction] contains a reparent operation
      * for the [task] to the [parent].
@@ -1600,5 +1647,4 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             "WCT should contain a reparent operation for task $task to parent $parent"
         ).that(hasReparent).isTrue()
     }
-
 }

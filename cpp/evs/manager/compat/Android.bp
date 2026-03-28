@@ -26,6 +26,7 @@ filegroup {
 
 cc_library_static {
     name: "libevs_compat",
+    vendor_available: true,
     defaults: [
         "android.hardware.graphics.common-ndk_static",
     ],
@@ -35,6 +36,7 @@ cc_library_static {
     ],
     include_dirs: [
         "packages/services/Car/cpp/evs/manager/compat/include",
+        "frameworks/native/libs/nativewindow/include-private",
     ],
     srcs: [
         ":evs_compat_sources",
@@ -52,12 +54,24 @@ cc_library_static {
         "liblog",
         "libmediandk",
     ],
+    target: {
+        vendor: {
+            exclude_shared_libs: ["libcamera2ndk"],
+            shared_libs: [
+                "libcamera2ndk_vendor",
+                "libnativewindow",
+                "libutils",
+            ],
+            header_libs: [
+                "libhardware_headers",
+            ],
+        },
+    },
 }
 
 cc_defaults {
     name: "evs_compat_test_defaults",
     defaults: [
-        "aconfig_lib_cc_shared_link.defaults",
         "android.hardware.graphics.common-ndk_static",
     ],
     cflags: [
@@ -70,7 +84,6 @@ cc_defaults {
         "packages/services/Car/cpp/evs/manager/compat/test",
     ],
     static_libs: [
-        "android.car.feature-aconfig-cpp",
         "android.hardware.automotive.evs-V2-ndk",
         "android.hardware.common-V2-ndk",
         "libaidlcommonsupport",
