@@ -796,6 +796,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         // 8 MSB tells the service type of this buffer.
         mServiceInstances.get(buffer.getType()).doneWithFrame(buffer.getId());
+        buffer.close();
     }
 
     /**
