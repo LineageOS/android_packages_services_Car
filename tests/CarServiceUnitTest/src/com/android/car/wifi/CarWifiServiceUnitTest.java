@@ -16,7 +16,13 @@
 
 package com.android.car.wifi;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
+
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -33,6 +39,7 @@ import android.car.settings.CarSettings;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
+import android.car.user.CarUserManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -92,6 +99,9 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private CarPowerManagementService mOriginalCarPowerManagementService;
     private CarUserService mOriginalCarUserService;
     private CarWifiService mCarWifiService;
+    private CarUserManager.UserLifecycleListener mUserLifecycleListener;
+    private ICarPowerStateListener mCarPowerStateListener;
+    private WifiManager.SoftApCallback mSoftApCallback;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
@@ -139,6 +149,14 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         mCarWifiService.destroy();
     }
 
+    private void initService() {
+        mCarWifiService = new CarWifiService(mContext);
+        mCarWifiService.init();
+        captureCarPowerStateListener();
+        captureUserLifecycleListener();
+        captureSoftApCallback();
+    }
+
     @Test
     public void testCanControlPersistTetheringSettings_capabilityTrue_returnsTrue() {
         mCarWifiService.init();
@@ -165,12 +183,10 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
 
-        mCarWifiService.destroy();
-        mCarWifiService = new CarWifiService(mContext);
-        mCarWifiService.init();
-        getUserLifecycleListener().run();
-        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
-        getSoftApCallback().onStateChanged(WIFI_AP_STATE_ENABLED, 0);
+        initService();
+        getRunOn0Runnable().run();
+        mCarPowerStateListener.onStateChanged(CarPowerManager.STATE_ON, 0);
+        mSoftApCallback.onStateChanged(WIFI_AP_STATE_ENABLED, 0);
 
         verify(mTetheringManager).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
                 Executor.class), any(TetheringManager.StartTetheringCallback.class));
@@ -183,11 +199,9 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(false);
 
-        mCarWifiService.destroy();
-        mCarWifiService = new CarWifiService(mContext);
-        mCarWifiService.init();
-        getUserLifecycleListener().run();
-        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
+        initService();
+        getRunOn0Runnable().run();
+        mCarPowerStateListener.onStateChanged(CarPowerManager.STATE_ON, 0);
 
         verify(mTetheringManager, never()).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
                 Executor.class), any(TetheringManager.StartTetheringCallback.class));
@@ -199,11 +213,9 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(false);
         when(mWifiManager.isWifiApEnabled()).thenReturn(true);
 
-        mCarWifiService.destroy();
-        mCarWifiService = new CarWifiService(mContext);
-        mCarWifiService.init();
-        getUserLifecycleListener().run();
-        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
+        initService();
+        getRunOn0Runnable().run();
+        mCarPowerStateListener.onStateChanged(CarPowerManager.STATE_ON, 0);
 
         verify(mTetheringManager, never()).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
                 Executor.class), any(TetheringManager.StartTetheringCallback.class));
@@ -215,12 +227,13 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
         when(mCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
 
-        mCarWifiService.destroy();
-        mCarWifiService = new CarWifiService(mContext);
-        mCarWifiService.init();
-        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
-        getUserLifecycleListener().run();
-        getSoftApCallback().onStateChanged(WIFI_AP_STATE_ENABLED, 0);
+        initService();
+        mCarPowerStateListener.onStateChanged(CarPowerManager.STATE_ON, 0);
+        getRunOn0Runnable().run();
+        mUserLifecycleListener.onEvent(
+                new CarUserManager.UserLifecycleEvent(
+                        USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, 101));
+        mSoftApCallback.onStateChanged(WIFI_AP_STATE_ENABLED, 0);
 
         verify(mTetheringManager).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
                 Executor.class), any(TetheringManager.StartTetheringCallback.class));
@@ -229,14 +242,41 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testPersistCarSettingOn_tetheringOffDuringUserSwitch_tetheringOn()
+            throws Exception {
+        mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
+        when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+        when(mCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
+
+        initService();
+        mCarPowerStateListener.onStateChanged(CarPowerManager.STATE_ON, 0);
+        getRunOn0Runnable().run();
+        mUserLifecycleListener.onEvent(
+                new CarUserManager.UserLifecycleEvent(
+                        USER_LIFECYCLE_EVENT_TYPE_STOPPED, 101));
+        mUserLifecycleListener.onEvent(
+                new CarUserManager.UserLifecycleEvent(
+                        USER_LIFECYCLE_EVENT_TYPE_SWITCHING, 102));
+        mSoftApCallback.onStateChanged(WIFI_AP_STATE_DISABLED, 0);
+        verify(mSharedPreferencesEditor, never()).putBoolean(anyString(), anyBoolean());
+        mUserLifecycleListener.onEvent(
+                new CarUserManager.UserLifecycleEvent(
+                        USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, 102));
+
+        verify(mTetheringManager).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
+                Executor.class), any(TetheringManager.StartTetheringCallback.class));
+    }
+
+    @Test
     public void testPersistCarSettingOff_powerOnBeforeUserUnlock_noTethering() throws Exception {
         when(mCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
 
-        mCarWifiService.destroy();
-        mCarWifiService = new CarWifiService(mContext);
-        mCarWifiService.init();
-        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
-        getUserLifecycleListener().run();
+        initService();
+        mCarPowerStateListener.onStateChanged(CarPowerManager.STATE_ON, 0);
+        getRunOn0Runnable().run();
+        mUserLifecycleListener.onEvent(
+                new CarUserManager.UserLifecycleEvent(
+                        USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, 101));
 
         verify(mTetheringManager, never()).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
                 Executor.class), any(TetheringManager.StartTetheringCallback.class));
@@ -244,9 +284,9 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testPersistCarSettingOff_userUnlockBeforePowerOn_noTethering() throws Exception {
-        mCarWifiService.init();
-        getUserLifecycleListener().run();
-        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
+        initService();
+        getRunOn0Runnable().run();
+        mCarPowerStateListener.onStateChanged(CarPowerManager.STATE_ON, 0);
 
         verify(mTetheringManager, never()).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
                 Executor.class), any(TetheringManager.StartTetheringCallback.class));
@@ -256,9 +296,7 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     public void testPersistCarSettingChange_withCapability_autoShutdownFalse() throws Exception {
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
 
-        mCarWifiService.destroy();
-        mCarWifiService = new CarWifiService(mContext);
-        mCarWifiService.init();
+        initService();
 
         mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
         getSettingsObserver().onChange(/* selfChange= */ false);
@@ -266,15 +304,33 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
                 getApConfig().isAutoShutdownEnabled()).isFalse();
     }
 
-    private ICarPowerStateListener getCarPowerStateListener() {
-        ArgumentCaptor<ICarPowerStateListener> internalListenerCaptor =
+    private void captureCarPowerStateListener() {
+        ArgumentCaptor<ICarPowerStateListener> listenerCaptor =
                 ArgumentCaptor.forClass(ICarPowerStateListener.class);
         verify(mCarPowerManagementService).registerListener(
-                internalListenerCaptor.capture());
-        return internalListenerCaptor.getValue();
+                listenerCaptor.capture());
+        mCarPowerStateListener = listenerCaptor.getValue();
+        assertWithMessage("Car power state listener").that(mCarPowerStateListener).isNotNull();
     }
 
-    private Runnable getUserLifecycleListener() {
+    private void captureUserLifecycleListener() {
+        ArgumentCaptor<CarUserManager.UserLifecycleListener> listenerCaptor =
+                ArgumentCaptor.forClass(CarUserManager.UserLifecycleListener.class);
+        verify(mCarUserService).addUserLifecycleListener(any(),
+                listenerCaptor.capture());
+        mUserLifecycleListener = listenerCaptor.getValue();
+        assertWithMessage("User lifecycle listener").that(mUserLifecycleListener).isNotNull();
+    }
+
+    private void captureSoftApCallback() {
+        ArgumentCaptor<SoftApCallback> captor = ArgumentCaptor.forClass(
+                SoftApCallback.class);
+        verify(mWifiManager).registerSoftApCallback(any(Executor.class), captor.capture());
+        mSoftApCallback = captor.getValue();
+        assertWithMessage("SoftApCallback").that(mSoftApCallback).isNotNull();
+    }
+
+    private Runnable getRunOn0Runnable() {
         ArgumentCaptor<Runnable> internalListenerCaptor =
                 ArgumentCaptor.forClass(Runnable.class);
         verify(mCarUserService).runOnUser0Unlock(
@@ -294,13 +350,6 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         ArgumentCaptor<SoftApConfiguration> captor = ArgumentCaptor.forClass(
                 SoftApConfiguration.class);
         verify(mWifiManager).setSoftApConfiguration(captor.capture());
-        return captor.getValue();
-    }
-
-    private SoftApCallback getSoftApCallback() {
-        ArgumentCaptor<SoftApCallback> captor = ArgumentCaptor.forClass(
-                SoftApCallback.class);
-        verify(mWifiManager).registerSoftApCallback(any(Executor.class), captor.capture());
         return captor.getValue();
     }
 }
