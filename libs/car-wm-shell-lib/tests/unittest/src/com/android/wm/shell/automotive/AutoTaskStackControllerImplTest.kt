@@ -32,6 +32,7 @@ import android.os.Looper
 import android.testing.AndroidTestingRunner
 import android.view.Display.DEFAULT_DISPLAY
 import android.view.SurfaceControl
+import android.view.WindowManager.TRANSIT_CHANGE
 import android.view.WindowManager.TRANSIT_OPEN
 import android.view.WindowManager.TRANSIT_TO_BACK
 import android.window.TaskAppearedInfo
@@ -1526,6 +1527,137 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         assertThat(wct).isNotNull()
         // Ensure that the transaction contains a reparent operation
         assertWctHasReparent(wct!!, triggerTask.token, launchRootTask.token)
+    }
+
+    @Test
+    fun startAnimation_fullscreenTaskWithoutParent_reparentsToLaunchRoot() {
+        // Setup an orphaned, fullscreen, non-home task
+        val culpritTask = TestRunningTaskInfoBuilder()
+            .setTaskId(100)
+            .setParentTaskId(INVALID_TASK_ID)
+            .setWindowingMode(WINDOWING_MODE_FULLSCREEN)
+            .setActivityType(ACTIVITY_TYPE_STANDARD)
+            .setDisplayId(DEFAULT_DISPLAY)
+            .build()
+
+        // Configure a launch root task
+        val (launchRootTask, _) = setupRootTask(taskId = 200)
+        controller.setDefaultRootTaskStackOnDisplay(DEFAULT_DISPLAY, 200)
+
+        // Populate state map
+        val rootTaskState = AutoTaskStackState(Rect(0, 0, 1000, 1000), true, 1)
+        controller.updateTaskStackStates(mapOf(200 to rootTaskState))
+
+        // Create a transition info where the culprit task is opening but wasn't the trigger
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(
+                culpritTask.token,
+                mock(SurfaceControl::class.java)
+            ).apply {
+                taskInfo = culpritTask
+                mode = TRANSIT_OPEN
+            })
+            .build()
+
+        // Act
+        controller.startAnimation(
+            Binder(),
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        // Verify that a new transition is started for reparenting
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(transitions).startTransition(eq(TRANSIT_CHANGE), wctCaptor.capture(), anyOrNull())
+        assertWctHasReparent(wctCaptor.firstValue, culpritTask.token, launchRootTask.token)
+    }
+
+    @Test
+    fun startAnimation_multipleFullscreenTasksWithoutParent_reparentsAllToLaunchRoots() {
+        val SECONDARY_DISPLAY_ID = DEFAULT_DISPLAY + 1
+        // Setup orphaned, fullscreen, non-home tasks on default display
+        val culpritTask1 = TestRunningTaskInfoBuilder()
+            .setTaskId(101)
+            .setParentTaskId(INVALID_TASK_ID)
+            .setWindowingMode(WINDOWING_MODE_FULLSCREEN)
+            .setActivityType(ACTIVITY_TYPE_STANDARD)
+            .setDisplayId(DEFAULT_DISPLAY)
+            .build()
+        val culpritTask2 = TestRunningTaskInfoBuilder()
+            .setTaskId(102)
+            .setParentTaskId(INVALID_TASK_ID)
+            .setWindowingMode(WINDOWING_MODE_FULLSCREEN)
+            .setActivityType(ACTIVITY_TYPE_STANDARD)
+            .setDisplayId(DEFAULT_DISPLAY)
+            .build()
+        // Setup an orphaned, fullscreen task on a different display
+        val culpritTask3 = TestRunningTaskInfoBuilder()
+            .setTaskId(103)
+            .setParentTaskId(INVALID_TASK_ID)
+            .setWindowingMode(WINDOWING_MODE_FULLSCREEN)
+            .setActivityType(ACTIVITY_TYPE_STANDARD)
+            .setDisplayId(SECONDARY_DISPLAY_ID)
+            .build()
+
+        // Configure launch root tasks for both displays
+        val (launchRootTask1, _) = setupRootTask(taskId = 200)
+        controller.setDefaultRootTaskStackOnDisplay(DEFAULT_DISPLAY, 200)
+
+        val (launchRootTask2, _) = setupRootTask(
+            taskId = 300,
+            task = TestRunningTaskInfoBuilder().setTaskId(300).setDisplayId(SECONDARY_DISPLAY_ID).build()
+        )
+        controller.setDefaultRootTaskStackOnDisplay(SECONDARY_DISPLAY_ID, 300)
+
+        // Populate state map
+        val rootTaskState = AutoTaskStackState(Rect(0, 0, 1000, 1000), true, 1)
+        controller.updateTaskStackStates(mapOf(200 to rootTaskState, 300 to rootTaskState))
+
+        // Create a transition info where all culprit tasks are opening
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(
+                culpritTask1.token,
+                mock(SurfaceControl::class.java)
+            ).apply {
+                taskInfo = culpritTask1
+                mode = TRANSIT_OPEN
+            })
+            .addChange(TransitionInfo.Change(
+                culpritTask2.token,
+                mock(SurfaceControl::class.java)
+            ).apply {
+                taskInfo = culpritTask2
+                mode = TRANSIT_OPEN
+            })
+            .addChange(TransitionInfo.Change(
+                culpritTask3.token,
+                mock(SurfaceControl::class.java)
+            ).apply {
+                taskInfo = culpritTask3
+                mode = TRANSIT_OPEN
+            })
+            .build()
+
+        // Act
+        controller.startAnimation(
+            Binder(),
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        // Verify that a new transition is started for reparenting
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(transitions).startTransition(eq(TRANSIT_CHANGE), wctCaptor.capture(), anyOrNull())
+        val wct = wctCaptor.firstValue
+        assertWctHasReparent(wct, culpritTask1.token, launchRootTask1.token)
+        assertWctHasReparent(wct, culpritTask2.token, launchRootTask1.token)
+        assertWctHasReparent(wct, culpritTask3.token, launchRootTask2.token)
     }
 
     @Test
