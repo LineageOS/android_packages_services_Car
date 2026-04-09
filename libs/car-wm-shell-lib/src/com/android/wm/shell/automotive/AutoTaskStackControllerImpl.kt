@@ -679,12 +679,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
         // TODO(b/469818404): Short-term fix: Intercept and reparent fullscreen app tasks (excluding
         //  Home) that lack a parent root task. This handles cases where the activity interceptor
         //  logic was bypassed (e.g. when an activity moves from a virtual display to default
-        //  display), ensuring the task is correctly routed to the intended launch root task.
-        //
-        // TODO(b/471280938): Update the recovery reparenting conditional once visible barrier is
-        //  added.
-        if (requiresReparenting(request)) {
-            handleRecoveryReparenting(request.triggerTask!!)?.let { ast ->
+        // display), ensuring the task is correctly routed to the intended launch root task.
+        if (request.triggerTask != null &&
+            requiresReparenting(request.type, request.triggerTask!!)) {
+            createRecoveryReparentingTransaction(listOf(request.triggerTask!!))?.let { ast ->
                 val wct = WindowContainerTransaction()
                 convertToWct(ast, wct)
                 pendingTransitions.add(
@@ -752,64 +750,81 @@ class AutoTaskStackControllerImpl @Inject constructor(
         return wct
     }
 
-    private fun requiresReparenting(request: TransitionRequestInfo): Boolean =
-        (TransitionUtil.isOpeningType(request.type)) &&
-                request.triggerTask != null &&
-                request.triggerTask?.parentTaskId == INVALID_TASK_ID &&
-                request.triggerTask?.windowingMode == WINDOWING_MODE_FULLSCREEN &&
-                !isHomeTask(request.triggerTask!!) &&
-                !isBarrierTask(request.triggerTask!!)
+    private fun requiresReparenting(
+        type: Int,
+        taskInfo: ActivityManager.RunningTaskInfo
+    ): Boolean =
+        (TransitionUtil.isOpeningType(type) ||
+                TransitionUtil.isOpeningMode(type) || type == TRANSIT_CHANGE) &&
+                taskInfo.parentTaskId == INVALID_TASK_ID &&
+                taskInfo.windowingMode == WINDOWING_MODE_FULLSCREEN &&
+                !isHomeTask(taskInfo) &&
+                !isBarrierTask(taskInfo)
 
-    private fun handleRecoveryReparenting(
-        triggerTask: ActivityManager.RunningTaskInfo
+    private fun createRecoveryReparentingTransaction(
+        taskInfos: List<ActivityManager.RunningTaskInfo>
     ): AutoTaskStackTransaction? {
-        // Ensure the task is tracked by the controller, as it skipped the interceptor path.
-        appTasksMap.putIfAbsent(triggerTask.taskId, triggerTask)
-        val launchRootTaskId = defaultRootTaskPerDisplay[triggerTask.displayId]
-            ?: INVALID_TASK_ID
-        if (launchRootTaskId != INVALID_TASK_ID) {
-            val ast = AutoTaskStackTransaction()
+        if (taskInfos.isEmpty()) return null
 
-            // Reparent the task without a parent to the launch root task
-            ast.reparentTask(
-                triggerTask.taskId,
-                launchRootTaskId,
-                /* onTop= */
-                true
-            )
+        val ast = AutoTaskStackTransaction()
+        val modifiedRootTaskIds = mutableSetOf<Int>()
 
+        for (taskInfo in taskInfos) {
+            // Ensure the task is tracked by the controller, as it skipped the interceptor path.
+            appTasksMap.putIfAbsent(taskInfo.taskId, taskInfo)
+            val launchRootTaskId = defaultRootTaskPerDisplay[taskInfo.displayId]
+                ?: INVALID_TASK_ID
+            if (launchRootTaskId != INVALID_TASK_ID) {
+                // Reparent the task without a parent to the launch root task
+                ast.reparentTask(
+                    taskInfo.taskId,
+                    launchRootTaskId,
+                    /* onTop= */
+                    true
+                )
+                modifiedRootTaskIds.add(launchRootTaskId)
+
+                val rootTaskName = taskStackMap[launchRootTaskId]?.name ?: "unknown"
+                ProtoLog.d(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "createRecoveryReparentingTransaction: Recovery reparenting for fullscreen " +
+                            "task task#%d to the launchRootTask#%d (%s)",
+                    taskInfo.taskId,
+                    launchRootTaskId,
+                    rootTaskName
+                )
+            }
+        }
+
+        if (modifiedRootTaskIds.isEmpty()) {
+            return null
+        }
+
+        for (launchRootTaskId in modifiedRootTaskIds) {
             val currentState = taskStackStateMap[launchRootTaskId]
             if (currentState == null) {
                 ProtoLog.e(
                     CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                    "handleRecoveryReparenting: taskStackStateMap doesn't have a stack state " +
-                            "for launchRootTaskId: $launchRootTaskId"
+                    "createRecoveryReparentingTransaction: taskStackStateMap doesn't have a stack" +
+                            " state for launchRootTaskId: $launchRootTaskId"
                 )
-                return null
+                continue
             }
 
             val newState = currentState.copy(isAboveBarrier = true)
             ast.setTaskStackState(launchRootTaskId, newState)
-
-            for ((key, value) in taskStackStateMap.entries) {
-                if (key != launchRootTaskId) {
-                    ast.setTaskStackStateIfNotSet(
-                        key,
-                        AutoTaskStackState(value.bounds, value.isAboveBarrier, value.layer)
-                    )
-                }
-            }
-
-            ProtoLog.d(
-                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
-                "handleRecoveryReparenting: Fullscreen task=%s has no parent" +
-                        " (interceptor bypassed);" +
-                        " reparenting to default launch root task",
-                triggerTask.toShortString()
-            )
-            return ast
         }
-        return null
+
+        for ((key, value) in taskStackStateMap.entries) {
+            if (!modifiedRootTaskIds.contains(key)) {
+                ast.setTaskStackStateIfNotSet(
+                    key,
+                    AutoTaskStackState(value.bounds, value.isAboveBarrier, value.layer)
+                )
+            }
+        }
+
+        return ast
     }
 
     fun ActivityManager.RunningTaskInfo.toShortString(): String {
@@ -1054,6 +1069,9 @@ class AutoTaskStackControllerImpl @Inject constructor(
             info.debugId,
             info.changes.toString()
         )
+
+        checkAndScheduleRecoveryReparenting(info)
+
         val pending: PendingTransition? = findPending(transition)
         var changedTaskStacks: List<TaskStackStateChange> = emptyList()
         if (pending != null) {
@@ -1102,6 +1120,23 @@ class AutoTaskStackControllerImpl @Inject constructor(
         }
 
         return false
+    }
+
+    private fun checkAndScheduleRecoveryReparenting(info: TransitionInfo) {
+        val tasksToRecover = mutableListOf<ActivityManager.RunningTaskInfo>()
+        for (chg in info.changes) {
+            val taskInfo = chg.taskInfo ?: continue
+            if (requiresReparenting(chg.mode, taskInfo)) {
+                tasksToRecover.add(taskInfo)
+            }
+        }
+        if (tasksToRecover.isNotEmpty()) {
+            createRecoveryReparentingTransaction(tasksToRecover)?.let { ast ->
+                shellMainThread.executeDelayed({
+                    startTransition(ast)
+                }, 0)
+            }
+        }
     }
 
     fun convertToWct(ast: AutoTaskStackTransaction, wct: WindowContainerTransaction) {
